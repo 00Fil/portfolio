@@ -5,6 +5,8 @@
 export const profile = {
   /** Nome come appare nell'hero e nel titolo. */
   name: "Nome Cognome",
+  /** Foto in /public (es. "/me.jpg"). Vuota: al suo posto la visuale di Relay. */
+  photo: "",
   city: "Brescia",
   email: "",
   github: "https://github.com/00Fil",

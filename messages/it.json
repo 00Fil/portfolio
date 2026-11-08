@@ -15,17 +15,24 @@
     "language": "Lingua",
     "soundOn": "Audio attivo",
     "soundOff": "Audio spento",
-    "skip": "Vai al contenuto"
+    "skip": "Vai al contenuto",
+    "faq": "Domande",
+    "menuWork": "Progetti",
+    "allWork": "Tutti i lavori",
+    "menuContact": "Contatti",
+    "write": "Scrivimi"
   },
   "hero": {
-    "a1": "Sviluppatore che cura",
+    "a1": "Sviluppatore",
     "a2": "ogni interfaccia",
-    "b1": "Ingegnere che costruisce",
+    "b1": "Ingegnere",
     "b2": "il sistema sotto",
-    "lead": "Progetto e sviluppo software su commissione, dal primo schema alla produzione: app native, piattaforme web e strumenti interni. Studio Ingegneria Informatica all’Università di Brescia.",
+    "lead": "Sono {name}. Progetto e sviluppo software su commissione, dal primo schema alla produzione: app native, piattaforme web e strumenti interni. Studio Ingegneria Informatica all’Università di Brescia.",
     "status": "Disponibile per nuovi progetti",
     "work": "Vedi i lavori",
-    "contact": "Scrivimi"
+    "contact": "Scrivimi",
+    "a1b": "che cura",
+    "b1b": "che costruisce"
   },
   "work": {
     "title": "Lavori",
@@ -130,5 +137,39 @@
   "notFound": {
     "title": "Pagina non trovata",
     "home": "Torna all’inizio"
+  },
+  "story": {
+    "title": "Percorso",
+    "lead": "Dalla scuola all’università, passando per un’azienda e i primi clienti.",
+    "chapters": [
+      {
+        "tag": "2024 — 2026",
+        "title": "Due anni in azienda",
+        "body": "Il PCTO in CS Metal Europe: 240 ore di lavoro in azienda, distribuite su due anni.",
+        "value": 240,
+        "unit": "ore di PCTO"
+      },
+      {
+        "tag": "2026",
+        "title": "La Maturità",
+        "body": "Per raccontare quei due anni ho costruito un desktop in stile macOS in PHP e MySQL, con una modalità demo che mostra alla commissione il percorso di ogni richiesta.",
+        "value": 10,
+        "unit": "minuti di esposizione"
+      },
+      {
+        "tag": "2026",
+        "title": "Ingegneria Informatica",
+        "body": "Inizio l’Università di Brescia. Gli strumenti per studiare li costruisco io: StudyCut accorcia le lezioni registrate e trascrive le formule.",
+        "value": 3,
+        "unit": "volte più veloce"
+      },
+      {
+        "tag": "Oggi",
+        "title": "Software su commissione",
+        "body": "Una piattaforma per un centro didattico, un’app che collega telefono e PC su tre piattaforme e altri lavori su commissione.",
+        "value": 4,
+        "unit": "progetti pubblicati"
+      }
+    ]
   }
 }

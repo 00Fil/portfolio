@@ -15,17 +15,24 @@
     "language": "Language",
     "soundOn": "Sound on",
     "soundOff": "Sound off",
-    "skip": "Skip to content"
+    "skip": "Skip to content",
+    "faq": "Questions",
+    "menuWork": "Projects",
+    "allWork": "All work",
+    "menuContact": "Contact",
+    "write": "Get in touch"
   },
   "hero": {
-    "a1": "Developer who cares",
+    "a1": "Developer",
     "a2": "about every interface",
-    "b1": "Engineer who builds",
+    "b1": "Engineer",
     "b2": "the system underneath",
-    "lead": "I design and build software for clients, from first sketch to production: native apps, web platforms and internal tools. I study Computer Engineering at the University of Brescia.",
+    "lead": "I’m {name}. I design and build software for clients, from first sketch to production: native apps, web platforms and internal tools. I study Computer Engineering at the University of Brescia.",
     "status": "Available for new projects",
     "work": "See the work",
-    "contact": "Get in touch"
+    "contact": "Get in touch",
+    "a1b": "who cares",
+    "b1b": "who builds"
   },
   "work": {
     "title": "Work",
@@ -130,5 +137,39 @@
   "notFound": {
     "title": "Page not found",
     "home": "Back to home"
+  },
+  "story": {
+    "title": "Path",
+    "lead": "From school to university, by way of a company and the first clients.",
+    "chapters": [
+      {
+        "tag": "2024 — 2026",
+        "title": "Two years in a company",
+        "body": "Work placement at CS Metal Europe: 240 hours of work inside a company, spread over two years.",
+        "value": 240,
+        "unit": "hours of placement"
+      },
+      {
+        "tag": "2026",
+        "title": "The final exam",
+        "body": "To tell those two years I built a macOS-style desktop in PHP and MySQL, with a demo mode that shows the examiners the path of every request.",
+        "value": 10,
+        "unit": "minute talk"
+      },
+      {
+        "tag": "2026",
+        "title": "Computer Engineering",
+        "body": "I start at the University of Brescia. I build my own study tools: StudyCut shortens recorded lectures and transcribes the formulas.",
+        "value": 3,
+        "unit": "times faster"
+      },
+      {
+        "tag": "Today",
+        "title": "Software for clients",
+        "body": "A platform for a tutoring centre, an app that links phone and PC across three platforms, and more client work.",
+        "value": 4,
+        "unit": "published projects"
+      }
+    ]
   }
 }

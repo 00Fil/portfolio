@@ -319,7 +319,7 @@ export function GlassTabBar({ tabs, navLabel, detail }: Props) {
       const inner = (
         <>
           <Icon size={24} strokeWidth={1.6} aria-hidden className="shrink-0" />
-          <span className="t-foot hidden text-[11px] leading-[14px] sm:block">{t.label}</span>
+          <span className="sr-only">{t.label}</span>
         </>
       );
       return interactive ? (
@@ -360,7 +360,7 @@ export function GlassTabBar({ tabs, navLabel, detail }: Props) {
   return (
     <nav
       aria-label={navLabel}
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-5"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-5 lg:hidden"
       style={{ paddingBottom: "calc(10px + env(safe-area-inset-bottom))" }}
     >
       {lens.bar && size.w > 0 && (
@@ -371,7 +371,7 @@ export function GlassTabBar({ tabs, navLabel, detail }: Props) {
       )}
       <div
         ref={barRef}
-        className="pointer-events-auto relative w-full max-w-[440px] sm:max-w-[600px]"
+        className="pointer-events-auto relative w-full max-w-[440px]"
         style={{ height: ROW_H + extra, borderRadius: CORNER, boxShadow: "0 8px 24px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.08)", transition: "height 380ms var(--ease-out)" }}
       >
         {/* 1) vetro della capsula · 2) velo · 3) contorno tonale e riflesso */}

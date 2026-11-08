@@ -42,7 +42,7 @@ export function TopBar() {
   );
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-between px-4 pt-4 sm:px-6 sm:pt-5">
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center lg:hidden justify-between px-4 pt-4 sm:px-6 sm:pt-5">
       <a
         href={`/${locale}`}
         onClick={(e) => {
