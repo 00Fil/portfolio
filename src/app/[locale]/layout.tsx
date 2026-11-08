@@ -4,11 +4,21 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import localFont from "next/font/local";
 import { routing } from "@/i18n/routing";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { TopBar } from "@/components/nav/TopBar";
 import { profile } from "@/content/profile";
 import "../globals.css";
+
+const serif = localFont({
+  src: [
+    { path: "../../fonts/instrument-serif-latin-400-italic.woff2", style: "italic", weight: "400" },
+    { path: "../../fonts/instrument-serif-latin-400-normal.woff2", style: "normal", weight: "400" },
+  ],
+  variable: "--font-serif",
+  display: "swap",
+});
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -34,7 +44,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "nav" });
   return (
-    <html lang={locale} className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang={locale} className={`${GeistSans.variable} ${GeistMono.variable} ${serif.variable}`}>
       <body>
         <NextIntlClientProvider>
           <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-surface focus:px-4 focus:py-2">

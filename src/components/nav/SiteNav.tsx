@@ -1,14 +1,14 @@
 "use client";
 
-import { Clock, House, Layers, LayoutGrid, Mail, Route } from "lucide-react";
+import { House, Layers, LayoutGrid, Mail, Route, Waypoints } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { GlassTabBar, type Tab } from "./GlassTabBar";
 
-export const SECTION_IDS = ["home", "work", "stack", "path", "now", "contact"] as const;
+export const SECTION_IDS = ["home", "work", "approach", "stack", "path", "contact"] as const;
 
 export function SiteNav({ detail }: { detail?: { title: string } }) {
   const t = useTranslations("nav");
-  const icons = [House, LayoutGrid, Layers, Route, Clock, Mail];
+  const icons = [House, LayoutGrid, Waypoints, Layers, Route, Mail];
   const tabs: Tab[] = SECTION_IDS.map((id, i) => ({ id, label: t(id), icon: icons[i] }));
   return (
     <GlassTabBar

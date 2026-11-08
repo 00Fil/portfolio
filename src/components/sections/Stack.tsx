@@ -18,6 +18,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { projects } from "@/content/projects";
 import { BRAND } from "@/content/brand-icons";
 import { SectionHead } from "./SectionHead";
+import { Marquee } from "@/components/motion/Marquee";
 
 type Item = { name: string; match: string; brand?: keyof typeof BRAND; icon?: LucideIcon };
 type Group = { key: "mobile" | "frontend" | "backend" | "data" | "infra"; icon: LucideIcon; wide?: boolean; items: Item[] };
@@ -97,38 +98,49 @@ function TechIcon({ item }: { item: Item }) {
 
 export function Stack() {
   const t = useTranslations("stack");
+  const all = GROUPS.flatMap((g) => g.items);
+  const half = Math.ceil(all.length / 2);
+  const rows = [all.slice(0, half), all.slice(half)];
   return (
-    <Reveal as="section" id="stack" className="mx-auto w-full max-w-[1200px] px-5 py-24 sm:px-8 sm:py-32">
-      <SectionHead index="02" title={t("title")} lead={t("lead")} />
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3" data-stagger>
+    <section id="stack" className="py-24 sm:py-32">
+      <Reveal className="mx-auto w-full max-w-[1280px] px-5 sm:px-8">
+        <SectionHead index="02" title={t("title")} lead={t("lead")} />
+      </Reveal>
+      <div className="space-y-4 sm:space-y-6">
+        {rows.map((row, r) => (
+          <Marquee key={r} direction={r === 0 ? -1 : 1}>
+            {row.map((it) => (
+              <span key={it.name} className="mr-10 inline-flex shrink-0 items-center gap-3 text-ink sm:mr-16 sm:gap-4">
+                <span className="scale-[1.4] text-ink-2 sm:scale-[1.8]">
+                  <TechIcon item={it} />
+                </span>
+                <span className="whitespace-nowrap text-[26px] font-medium leading-[1.25] tracking-[-0.02em] sm:text-[44px]">{it.name}</span>
+              </span>
+            ))}
+          </Marquee>
+        ))}
+      </div>
+      <Reveal className="mx-auto mt-16 grid w-full max-w-[1280px] gap-x-8 gap-y-8 px-5 sm:grid-cols-2 sm:px-8 lg:grid-cols-5">
         {GROUPS.map((g) => {
           const GI = g.icon;
           return (
-            <article key={g.key} className={`plate p-5 sm:p-6 ${g.wide ? "lg:col-span-2" : ""}`}>
-              <header className="mb-6 flex items-center gap-3">
-                <span className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-accent-subtle text-accent-on-subtle">
-                  <GI size={20} strokeWidth={1.6} aria-hidden />
-                </span>
-                <h3 className="font-medium text-ink">{t(`groups.${g.key}`)}</h3>
-                <span className="t-label t-fig ml-auto text-ink-3">{String(g.items.length).padStart(2, "0")}</span>
-              </header>
-              <ul className={`grid gap-2 ${g.wide ? "sm:grid-cols-2" : ""}`}>
+            <div key={g.key} data-reveal>
+              <p className="mb-3 inline-flex items-center gap-2 text-ink">
+                <GI size={16} strokeWidth={1.6} aria-hidden className="text-accent-on-subtle" />
+                <span className="font-medium">{t(`groups.${g.key}`)}</span>
+              </p>
+              <ul className="space-y-1.5">
                 {g.items.map((it) => (
-                  <li key={it.name} className="flex items-center gap-3 rounded-[14px] bg-canvas/40 p-2 pr-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-sunken text-ink">
-                      <TechIcon item={it} />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block truncate text-ink">{it.name}</span>
-                      <span className="t-foot block truncate text-ink-3">{usedIn(it.match).join(" · ")}</span>
-                    </span>
+                  <li key={it.name} className="text-ink-2">
+                    {it.name}
+                    <span className="t-foot ml-2 text-ink-3">{usedIn(it.match).join(", ")}</span>
                   </li>
                 ))}
               </ul>
-            </article>
+            </div>
           );
         })}
-      </div>
-    </Reveal>
+      </Reveal>
+    </section>
   );
 }

@@ -1,15 +1,15 @@
 {
   "meta": {
     "title": "{name} — Software developer",
-    "description": "Software developer and Computer Engineering student at the University of Brescia. Native apps, web platforms and internal tools, built for clients."
+    "description": "I design and build software for clients: native apps, web platforms and internal tools. Computer Engineering student at the University of Brescia."
   },
   "nav": {
     "label": "Sections",
     "home": "Home",
     "work": "Work",
+    "approach": "Method",
     "stack": "Stack",
     "path": "Path",
-    "now": "Now",
     "contact": "Contact",
     "back": "Work",
     "language": "Language",
@@ -18,21 +18,29 @@
     "skip": "Skip to content"
   },
   "hero": {
-    "lead": "I design and build software for clients: native apps, web platforms and internal tools.",
+    "a1": "Developer who cares",
+    "a2": "about every interface",
+    "b1": "Engineer who builds",
+    "b2": "the system underneath",
+    "lead": "I design and build software for clients, from first sketch to production: native apps, web platforms and internal tools. I study Computer Engineering at the University of Brescia.",
     "status": "Available for new projects",
-    "work": "View projects",
-    "contact": "Contact",
-    "role": "Software developer",
-    "sub": "I study Computer Engineering at the University of Brescia."
+    "work": "See the work",
+    "contact": "Get in touch"
   },
   "work": {
-    "title": "Selected projects",
+    "title": "Work",
     "lead": "Four projects, from network protocol to interface.",
+    "view": "Open",
     "open": "Open {name}"
   },
+  "approach": {
+    "title": "Built to connect",
+    "body": "The largest project I have built was called Ponte, Italian for bridge. It links phone and PC over the local network, a server, Bluetooth and Wi-Fi Direct, and drops the duplicates. I work the same way. I keep interface, protocol and infrastructure together, so nothing gets lost between one step and the next.",
+    "cta": "See Relay"
+  },
   "stack": {
-    "title": "Technical stack",
-    "lead": "Technologies used in the published projects, by area.",
+    "title": "Tools",
+    "lead": "The technologies I have shipped to production in the projects above.",
     "groups": {
       "mobile": "Mobile and desktop",
       "frontend": "Frontend",
@@ -66,14 +74,31 @@
       }
     }
   },
-  "now": {
-    "title": "In progress",
-    "updated": "Updated November 2026",
-    "items": {
-      "relay": "Relay: the project is being renamed from Ponte and growing to cover calendar, finance and study.",
-      "unispace": "uniSpace: new tools alongside StudyCut.",
-      "portfolio": "This site, built on Relay's design system."
-    }
+  "faq": {
+    "title": "Questions",
+    "lead": "The short answers live here. For anything else, write to me.",
+    "items": [
+      {
+        "q": "What do you do?",
+        "a": "I design and build software for clients: native apps for Android and Windows, web platforms and internal tools, including integrations with AI models."
+      },
+      {
+        "q": "Where are you based?",
+        "a": "In Brescia, Italy. I work on site or remotely."
+      },
+      {
+        "q": "What projects do you take on?",
+        "a": "Paid projects with a clear goal: a website, a platform, an app or an internal tool that needs to reach production."
+      },
+      {
+        "q": "Which technologies do you use?",
+        "a": "It depends on the project. The ones I have already shipped are listed under Tools."
+      },
+      {
+        "q": "How do we start?",
+        "a": "Tell me what you need, who it is for and by when. I reply with the questions still open and a proposal."
+      }
+    ]
   },
   "contact": {
     "title": "Contact",
@@ -82,7 +107,8 @@
     "copied": "Copied",
     "github": "GitHub",
     "linkedin": "LinkedIn",
-    "cv": "Download CV"
+    "cv": "Download CV",
+    "time": "Local time"
   },
   "project": {
     "role": "Role",

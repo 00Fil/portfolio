@@ -17,11 +17,17 @@ export type Project = {
   decisions: Record<Locale, string[]>;
   limits: Record<Locale, string[]>;
   figures: { value: string; label: L }[];
+  headline: L;
+  context: L;
+  tags: Record<Locale, string[]>;
 };
 
 export const projects: Project[] = [
   {
     slug: "relay",
+    headline: { it: "Appunti, file e cuffie che seguono il dispositivo che stai usando", en: "Clipboard, files and headphones that follow the device you are using" },
+    context: { it: "Relay, app per Android e Windows", en: "Relay, apps for Android and Windows" },
+    tags: { it: ["App native", "Protocollo di rete", "Design system"], en: ["Native apps", "Network protocol", "Design system"] },
     name: "Relay",
     year: "2026",
     platforms: { it: "Android, Windows, server", en: "Android, Windows, server" },
@@ -92,6 +98,9 @@ export const projects: Project[] = [
   },
   {
     slug: "creacloud",
+    headline: { it: "Un mese di lezioni pianificato da un solver e gestito su WhatsApp", en: "A month of lessons scheduled by a solver and run over WhatsApp" },
+    context: { it: "CreaCloud, per un centro didattico", en: "CreaCloud, for a tutoring centre" },
+    tags: { it: ["Piattaforma web", "AI", "Ottimizzazione"], en: ["Web platform", "AI", "Optimisation"] },
     name: "CreaCloud",
     year: "2026",
     platforms: { it: "Web, WhatsApp", en: "Web, WhatsApp" },
@@ -156,6 +165,9 @@ export const projects: Project[] = [
   },
   {
     slug: "unispace",
+    headline: { it: "Lezioni registrate fino a 3× più veloci, con le formule in LaTeX", en: "Recorded lectures up to 3\u00d7 faster, with formulas in LaTeX" },
+    context: { it: "uniSpace, strumenti per lo studio", en: "uniSpace, tools for studying" },
+    tags: { it: ["Piattaforma web", "Trascrizione", "Self-hosting"], en: ["Web platform", "Transcription", "Self-hosting"] },
     name: "uniSpace",
     year: "2026",
     platforms: { it: "Web", en: "Web" },
@@ -212,6 +224,9 @@ export const projects: Project[] = [
   },
   {
     slug: "maturita-2k26",
+    headline: { it: "240 ore di PCTO raccontate in dieci minuti, dentro un desktop macOS", en: "240 hours of work placement told in ten minutes, inside a macOS desktop" },
+    context: { it: "maturita-2k26, esame di Maturità", en: "maturita-2k26, school leaving exam" },
+    tags: { it: ["Web", "PHP e MySQL", "Interfaccia"], en: ["Web", "PHP and MySQL", "Interface"] },
     name: "maturita-2k26",
     year: "2026",
     platforms: { it: "Web", en: "Web" },

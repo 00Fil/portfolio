@@ -1,15 +1,15 @@
 {
   "meta": {
     "title": "{name} — Sviluppatore software",
-    "description": "Sviluppatore software e studente di Ingegneria Informatica all’Università di Brescia. App native, piattaforme web e strumenti interni su commissione."
+    "description": "Progetto e sviluppo software su commissione: app native, piattaforme web e strumenti interni. Studente di Ingegneria Informatica all’Università di Brescia."
   },
   "nav": {
     "label": "Sezioni",
     "home": "Inizio",
     "work": "Lavori",
+    "approach": "Metodo",
     "stack": "Stack",
     "path": "Percorso",
-    "now": "Ora",
     "contact": "Contatti",
     "back": "Lavori",
     "language": "Lingua",
@@ -18,21 +18,29 @@
     "skip": "Vai al contenuto"
   },
   "hero": {
-    "lead": "Progetto e sviluppo software su commissione: app native, piattaforme web e strumenti interni.",
+    "a1": "Sviluppatore che cura",
+    "a2": "ogni interfaccia",
+    "b1": "Ingegnere che costruisce",
+    "b2": "il sistema sotto",
+    "lead": "Progetto e sviluppo software su commissione, dal primo schema alla produzione: app native, piattaforme web e strumenti interni. Studio Ingegneria Informatica all’Università di Brescia.",
     "status": "Disponibile per nuovi progetti",
-    "work": "Vedi i progetti",
-    "contact": "Contatti",
-    "role": "Sviluppatore software",
-    "sub": "Studio Ingegneria Informatica all’Università di Brescia."
+    "work": "Vedi i lavori",
+    "contact": "Scrivimi"
   },
   "work": {
-    "title": "Progetti selezionati",
+    "title": "Lavori",
     "lead": "Quattro progetti, dal protocollo di rete all’interfaccia.",
+    "view": "Apri",
     "open": "Apri {name}"
   },
+  "approach": {
+    "title": "Fatto per collegare",
+    "body": "Il progetto più grande che ho costruito si chiamava Ponte: tiene insieme telefono e PC su rete locale, server, Bluetooth e Wi-Fi Direct, e scarta i doppioni. Lavoro allo stesso modo. Tengo insieme interfaccia, protocollo e infrastruttura, così niente si perde tra un passaggio e l’altro.",
+    "cta": "Vedi Relay"
+  },
   "stack": {
-    "title": "Stack tecnico",
-    "lead": "Tecnologie impiegate nei progetti pubblicati, per ambito.",
+    "title": "Strumenti",
+    "lead": "Le tecnologie che ho portato in produzione nei progetti qui sopra.",
     "groups": {
       "mobile": "Mobile e desktop",
       "frontend": "Frontend",
@@ -66,14 +74,31 @@
       }
     }
   },
-  "now": {
-    "title": "In corso",
-    "updated": "Aggiornato a novembre 2026",
-    "items": {
-      "relay": "Relay: il progetto cambia nome da Ponte e si allarga con agenda, finanze e studio.",
-      "unispace": "uniSpace: nuovi tool accanto a StudyCut.",
-      "portfolio": "Questo sito, costruito sul design system di Relay."
-    }
+  "faq": {
+    "title": "Domande",
+    "lead": "Le risposte brevi stanno qui. Per il resto, scrivimi.",
+    "items": [
+      {
+        "q": "Di cosa ti occupi?",
+        "a": "Progetto e sviluppo software su commissione: app native per Android e Windows, piattaforme web e strumenti interni, comprese le integrazioni con modelli AI."
+      },
+      {
+        "q": "Dove lavori?",
+        "a": "A Brescia, in presenza o da remoto."
+      },
+      {
+        "q": "Che tipo di progetti accetti?",
+        "a": "Progetti a pagamento con un obiettivo chiaro: un sito, una piattaforma, un’app o uno strumento interno da portare in produzione."
+      },
+      {
+        "q": "Con quali tecnologie lavori?",
+        "a": "Dipende dal progetto. Quelle che ho già portato in produzione sono nella sezione Strumenti."
+      },
+      {
+        "q": "Come iniziamo?",
+        "a": "Scrivimi cosa ti serve, per chi e entro quando. Rispondo con le domande che mancano e una proposta."
+      }
+    ]
   },
   "contact": {
     "title": "Contatti",
@@ -82,7 +107,8 @@
     "copied": "Copiato",
     "github": "GitHub",
     "linkedin": "LinkedIn",
-    "cv": "Scarica CV"
+    "cv": "Scarica CV",
+    "time": "Ora locale"
   },
   "project": {
     "role": "Ruolo",
@@ -103,6 +129,6 @@
   },
   "notFound": {
     "title": "Pagina non trovata",
-    "home": "Torna all'inizio"
+    "home": "Torna all’inizio"
   }
 }

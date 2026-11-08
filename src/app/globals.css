@@ -100,6 +100,7 @@ body {
   .t-callout { font-size: 18px; line-height: 26px; }
 }
 
+@layer components {
 /* ------------------------------------------------------------ Goccia: materiale di vetro dei controlli */
 .drop {
   position: relative;
@@ -184,6 +185,8 @@ html.lens .bar-glass { backdrop-filter: url(#lens-bar) blur(14px) saturate(1.5);
 }
 .bar-veil { background: linear-gradient(180deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.3)); }
 
+}
+
 /* Testo che entra (SplitText): evita il lampo prima che GSAP parta */
 html.js [data-reveal] { visibility: hidden; }
 
@@ -192,6 +195,7 @@ html.js [data-reveal] { visibility: hidden; }
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
 
+@layer components {
 /* ------------------------------------------------------------ Lavori: riflesso al cursore e righe vicine attenuate */
 .spot::after {
   content: "";
@@ -209,3 +213,8 @@ html.js [data-reveal] { visibility: hidden; }
 @media (hover: hover) {
   .work-list:hover .work-row:not(:hover) { opacity: 0.45; }
 }
+
+}
+
+/* Titolo editoriale: corsivo serif per le frasi principali */
+.t-serif { font-family: var(--font-serif), Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: -0.01em; }

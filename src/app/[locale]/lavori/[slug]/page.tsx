@@ -153,7 +153,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
             </div>
           </Reveal>
         </main>
-        <Footer />
+        <Footer withContact={false} />
       </PageEnter>
       <SiteNav detail={{ title: p.name }} />
     </>
