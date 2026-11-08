@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+/* Token Canone (tema scuro di Relay, Theme.kt → DarkColors). Niente esadecimali fuori da qui. */
+:root {
+  --bg-canvas: #000000;
+  --bg-surface: #1c1c1e;
+  --bg-sunken: #2c2c2e;
+  --label-primary: #f2f2f0;
+  --label-secondary: #a6a6a1;
+  --label-tertiary: #85857f;
+  --label-disabled: #6b6b66;
+  --line-separator: #2c2c2e;
+  --line-strong: #3a3a3c;
+  --accent: #2f5fff;
+  --accent-pressed: #1f44cc;
+  --accent-subtle: #11244f;
+  --accent-on-subtle: #b4d2ff;
+  --positive: #4cc38a;
+  --caution: #f0a54a;
+  --critical: #ff7a73;
+  --brand-sky: #5c9dff;
+  --brand-mid: #1f44cc;
+  --brand-royal: #11244f;
+  --brand-gradient: linear-gradient(180deg, var(--brand-sky), var(--brand-mid), var(--brand-royal));
+
+  /* Goccia (Goccia.kt, tema scuro) */
+  --drop-veil: rgba(157, 182, 240, 0.09);
+  --drop-edge: rgba(255, 255, 255, 0.14);
+  --drop-body: #1a2f63;
+
+  --bar-h: 66px;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-sunken: var(--bg-sunken);
+  --color-ink: var(--label-primary);
+  --color-ink-2: var(--label-secondary);
+  --color-ink-3: var(--label-tertiary);
+  --color-line: var(--line-separator);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-accent-on-subtle: var(--accent-on-subtle);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 36px;
+}
+
+html {
+  background: var(--bg-canvas);
+  color: var(--label-primary);
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: clip; }
+
+body {
+  background: var(--bg-canvas);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+}
+
+::selection { background: var(--accent-subtle); color: var(--accent-on-subtle); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Scala CanoneType (1,25 su griglia di 4) */
+.t-display { font-weight: 500; font-size: clamp(40px, 6.2vw, 72px); line-height: 1.04; letter-spacing: -0.03em; }
+.t-title1 { font-weight: 500; font-size: 39px; line-height: 44px; letter-spacing: -0.02em; }
+.t-title2 { font-weight: 500; font-size: 31px; line-height: 40px; letter-spacing: -0.01em; }
+.t-title3 { font-weight: 500; font-size: 25px; line-height: 32px; letter-spacing: -0.01em; }
+.t-callout { font-weight: 400; font-size: 20px; line-height: 28px; }
+.t-body { font-size: 16px; line-height: 24px; }
+.t-foot { font-size: 13px; line-height: 20px; letter-spacing: 0.01em; }
+.t-fig { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.t-label { font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.04em; text-transform: uppercase; }
+@media (max-width: 640px) {
+  .t-title1 { font-size: 31px; line-height: 36px; }
+  .t-title2 { font-size: 25px; line-height: 32px; }
+  .t-callout { font-size: 18px; line-height: 26px; }
+}
+
+/* ------------------------------------------------------------ Goccia: materiale di vetro dei controlli */
+.drop {
+  position: relative;
+  isolation: isolate;
+  border-radius: 999px;
+  background:
+    radial-gradient(100% 100% at 26% 20%, rgba(255, 255, 255, 0.05), transparent 70%),
+    linear-gradient(180deg, transparent 55%, rgba(255, 255, 255, 0.03)),
+    var(--drop-tint, var(--drop-veil));
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  will-change: transform;
+}
+/* lucido: fascia nitida sul bordo alto, rientrata di 2 px */
+.drop::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 30%);
+  pointer-events: none;
+  z-index: -1;
+}
+/* bordo: smusso cotto in WebGL (--bevel) sopra un contorno tonale da 1 px */
+.drop { box-shadow: inset 0 0 0 1px var(--drop-edge); }
+.drop:not([data-bevel="1"]) { box-shadow: inset 0 0 0 1px var(--drop-edge), inset 0 0 0 2px rgba(255, 255, 255, 0.045); }
+.drop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--bevel, none);
+  background-size: 100% 100%;
+  opacity: calc(0.385 * (1 + 1.6 * var(--p, 0)));
+  pointer-events: none;
+}
+/* bagliore alla pressione: si accende dove tocchi e si allarga come un liquido */
+.drop > .drop-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: clamp(0, var(--p, 0), 1.2);
+  background: radial-gradient(
+    circle var(--gr, 60px) at var(--gx, 50%) var(--gy, 50%),
+    rgba(255, 255, 255, 0.42),
+    rgba(111, 180, 255, 0.22) 45%,
+    transparent 100%
+  );
+  z-index: -1;
+}
+.drop-accent { --drop-tint: color-mix(in srgb, var(--accent) 38%, transparent); }
+
+/* Superficie piatta (Modifier.glass): piano pieno, nessun riflesso */
+.plate { background: var(--bg-surface); border-radius: 28px; }
+
+/* Righe con bagliore alla pressione (dropClickable) */
+.press-glow { position: relative; isolation: isolate; }
+.press-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  opacity: var(--p, 0);
+  background:
+    radial-gradient(circle var(--gr, 240px) at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.24), rgba(47, 95, 255, 0.1) 45%, transparent 100%),
+    rgba(255, 255, 255, 0.05);
+}
+
+/* ------------------------------------------------------------ Barra di vetro */
+.bar-glass {
+  -webkit-backdrop-filter: blur(14px) saturate(1.5);
+  backdrop-filter: blur(14px) saturate(1.5);
+}
+html.lens .bar-glass { backdrop-filter: url(#lens-bar) blur(14px) saturate(1.5); }
+.float-glass {
+  -webkit-backdrop-filter: blur(14px) saturate(1.5);
+  backdrop-filter: blur(14px) saturate(1.5);
+}
+.bar-veil { background: linear-gradient(180deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.3)); }
+
+/* Testo che entra (SplitText): evita il lampo prima che GSAP parta */
+html.js [data-reveal] { visibility: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal] { visibility: visible; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
+/* ------------------------------------------------------------ Lavori: riflesso al cursore e righe vicine attenuate */
+.spot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 240ms var(--ease-out);
+  background: radial-gradient(circle 280px at var(--hx, 50%) var(--hy, 50%), rgba(255, 255, 255, 0.045), transparent 70%);
+}
+.spot:hover::after { opacity: 1; }
+.work-row { transition: opacity 240ms var(--ease-out); }
+@media (hover: hover) {
+  .work-list:hover .work-row:not(:hover) { opacity: 0.45; }
+}

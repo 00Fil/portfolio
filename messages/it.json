@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "title": "{name} — Sviluppatore software",
+    "description": "Sviluppatore software e studente di Ingegneria Informatica all’Università di Brescia. App native, piattaforme web e strumenti interni su commissione."
+  },
+  "nav": {
+    "label": "Sezioni",
+    "home": "Inizio",
+    "work": "Lavori",
+    "stack": "Stack",
+    "path": "Percorso",
+    "now": "Ora",
+    "contact": "Contatti",
+    "back": "Lavori",
+    "language": "Lingua",
+    "soundOn": "Audio attivo",
+    "soundOff": "Audio spento",
+    "skip": "Vai al contenuto"
+  },
+  "hero": {
+    "lead": "Progetto e sviluppo software su commissione: app native, piattaforme web e strumenti interni.",
+    "status": "Disponibile per nuovi progetti",
+    "work": "Vedi i progetti",
+    "contact": "Contatti",
+    "role": "Sviluppatore software",
+    "sub": "Studio Ingegneria Informatica all’Università di Brescia."
+  },
+  "work": {
+    "title": "Progetti selezionati",
+    "lead": "Quattro progetti, dal protocollo di rete all’interfaccia.",
+    "open": "Apri {name}"
+  },
+  "stack": {
+    "title": "Stack tecnico",
+    "lead": "Tecnologie impiegate nei progetti pubblicati, per ambito.",
+    "groups": {
+      "mobile": "Mobile e desktop",
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "data": "Dati e AI",
+      "infra": "Infrastruttura"
+    }
+  },
+  "path": {
+    "title": "Percorso",
+    "items": {
+      "unibs": {
+        "when": "2026 —",
+        "what": "Ingegneria Informatica",
+        "where": "Università di Brescia"
+      },
+      "freelance": {
+        "when": "In corso",
+        "what": "Sviluppo su commissione",
+        "where": "Siti, piattaforme e strumenti per clienti"
+      },
+      "maturita": {
+        "when": "2026",
+        "what": "Maturità",
+        "where": "Esposizione del PCTO con maturita-2k26"
+      },
+      "pcto": {
+        "when": "Due anni",
+        "what": "PCTO, 240 ore",
+        "where": "CS Metal Europe"
+      }
+    }
+  },
+  "now": {
+    "title": "In corso",
+    "updated": "Aggiornato a novembre 2026",
+    "items": {
+      "relay": "Relay: il progetto cambia nome da Ponte e si allarga con agenda, finanze e studio.",
+      "unispace": "uniSpace: nuovi tool accanto a StudyCut.",
+      "portfolio": "Questo sito, costruito sul design system di Relay."
+    }
+  },
+  "contact": {
+    "title": "Contatti",
+    "lead": "Per un progetto, una collaborazione o una consulenza tecnica.",
+    "copy": "Copia email",
+    "copied": "Copiato",
+    "github": "GitHub",
+    "linkedin": "LinkedIn",
+    "cv": "Scarica CV"
+  },
+  "project": {
+    "role": "Ruolo",
+    "year": "Anno",
+    "platforms": "Piattaforme",
+    "stack": "Stack",
+    "source": "Codice",
+    "problem": "Problema",
+    "built": "Cosa ho costruito",
+    "decisions": "Decisioni tecniche",
+    "limits": "Limiti",
+    "next": "Progetto successivo",
+    "back": "Tutti i lavori"
+  },
+  "footer": {
+    "made": "Realizzato con Next.js, GSAP e Lenis. Interfaccia derivata da Relay.",
+    "top": "Torna su"
+  },
+  "notFound": {
+    "title": "Pagina non trovata",
+    "home": "Torna all'inizio"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "title": "{name} — Software developer",
+    "description": "Software developer and Computer Engineering student at the University of Brescia. Native apps, web platforms and internal tools, built for clients."
+  },
+  "nav": {
+    "label": "Sections",
+    "home": "Home",
+    "work": "Work",
+    "stack": "Stack",
+    "path": "Path",
+    "now": "Now",
+    "contact": "Contact",
+    "back": "Work",
+    "language": "Language",
+    "soundOn": "Sound on",
+    "soundOff": "Sound off",
+    "skip": "Skip to content"
+  },
+  "hero": {
+    "lead": "I design and build software for clients: native apps, web platforms and internal tools.",
+    "status": "Available for new projects",
+    "work": "View projects",
+    "contact": "Contact",
+    "role": "Software developer",
+    "sub": "I study Computer Engineering at the University of Brescia."
+  },
+  "work": {
+    "title": "Selected projects",
+    "lead": "Four projects, from network protocol to interface.",
+    "open": "Open {name}"
+  },
+  "stack": {
+    "title": "Technical stack",
+    "lead": "Technologies used in the published projects, by area.",
+    "groups": {
+      "mobile": "Mobile and desktop",
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "data": "Data and AI",
+      "infra": "Infrastructure"
+    }
+  },
+  "path": {
+    "title": "Path",
+    "items": {
+      "unibs": {
+        "when": "2026 —",
+        "what": "Computer Engineering",
+        "where": "University of Brescia"
+      },
+      "freelance": {
+        "when": "Ongoing",
+        "what": "Client work",
+        "where": "Websites, platforms and tools for clients"
+      },
+      "maturita": {
+        "when": "2026",
+        "what": "School leaving exam",
+        "where": "Work placement talk with maturita-2k26"
+      },
+      "pcto": {
+        "when": "Two years",
+        "what": "Work placement, 240 hours",
+        "where": "CS Metal Europe"
+      }
+    }
+  },
+  "now": {
+    "title": "In progress",
+    "updated": "Updated November 2026",
+    "items": {
+      "relay": "Relay: the project is being renamed from Ponte and growing to cover calendar, finance and study.",
+      "unispace": "uniSpace: new tools alongside StudyCut.",
+      "portfolio": "This site, built on Relay's design system."
+    }
+  },
+  "contact": {
+    "title": "Contact",
+    "lead": "For a project, a collaboration or technical advice.",
+    "copy": "Copy email",
+    "copied": "Copied",
+    "github": "GitHub",
+    "linkedin": "LinkedIn",
+    "cv": "Download CV"
+  },
+  "project": {
+    "role": "Role",
+    "year": "Year",
+    "platforms": "Platforms",
+    "stack": "Stack",
+    "source": "Source",
+    "problem": "Problem",
+    "built": "What I built",
+    "decisions": "Technical decisions",
+    "limits": "Limits",
+    "next": "Next project",
+    "back": "All work"
+  },
+  "footer": {
+    "made": "Built with Next.js, GSAP and Lenis. Interface derived from Relay.",
+    "top": "Back to top"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "home": "Back to home"
+  }
+}
