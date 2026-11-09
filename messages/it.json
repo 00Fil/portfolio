@@ -559,7 +559,9 @@
     "cta": "Parliamo del tuo progetto",
     "ctaLead": "Rispondi a qualche domanda: ti ricontatto con una proposta.",
     "before": "Prima",
-    "after": "Dopo"
+    "after": "Dopo",
+    "next": "Prossimo servizio",
+    "all": "Tutti i servizi"
   },
   "brief": {
     "kicker": "Nuovo progetto",

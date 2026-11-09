@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { THEME_SCRIPT } from "@/lib/theme-script";
+import { Preloader } from "@/components/motion/Preloader";
 import { BriefOverlay } from "@/components/sections/BriefOverlay";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
@@ -28,7 +29,7 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-export const viewport: Viewport = { themeColor: "#000000", colorScheme: "dark", viewportFit: "cover" };
+export const viewport: Viewport = { themeColor: "#f6f6f3", colorScheme: "light dark", viewportFit: "cover" };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -53,6 +54,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body>
+        <Preloader first={profile.name.split(" ")[0]} last={profile.name.split(" ").slice(1).join(" ")} />
         <NextIntlClientProvider>
           <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-surface focus:px-4 focus:py-2">
             {t("skip")}

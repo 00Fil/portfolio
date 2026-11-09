@@ -385,7 +385,7 @@ function GeoV({ t, max }: { t: WidgetText; max?: number }) {
           .to(q("[data-star]"), { rotate: 360, duration: 2.6, ease: "none" }, 1.3)
           .fromTo(q("[data-w]"), { autoAlpha: 0, y: 4, filter: "blur(4px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.25, stagger: 0.045 }, 0.9)
           .fromTo(q("[data-src]"), { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.9, ease: "elastic.out(1, 0.55)" })
-          .to(q("[data-src]"), { boxShadow: `0 0 0 1px ${CLAUDE}, 0 0 24px -4px ${CLAUDE}`, duration: 0.6, yoyo: true, repeat: 3 })
+          .to(q("[data-src]"), { boxShadow: `0 0 0 1.5px ${CLAUDE}`, duration: 0.6, yoyo: true, repeat: 3 })
           .to(q("[data-q], [data-w], [data-src]"), { autoAlpha: 0, duration: 0.4 }, "+=1.4");
         return tl.add(run, 0.5);
       }}
@@ -1008,7 +1008,7 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
           .fromTo(q("[data-sbar]"), { scaleX: 0, autoAlpha: 1 }, { scaleX: 1, transformOrigin: "0 50%", duration: 1.4, ease: "power2.inOut" }, 0.4)
           .to(q("[data-sbar]"), { autoAlpha: 0, duration: 0.3 }, 1.9)
           .fromTo(q("[data-ring]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut" }, 3.3)
-          .fromTo(q("[data-ev]")[2], { boxShadow: "0 0 0 0 rgba(248,113,113,0)" }, { boxShadow: "0 0 0 1.5px rgba(248,113,113,.9), 0 0 30px -6px rgba(248,113,113,.8)", duration: 0.25, yoyo: true, repeat: 3 }, 6.1)
+          .fromTo(q("[data-ev]")[2], { boxShadow: "0 0 0 0 rgba(248,113,113,0)" }, { boxShadow: "0 0 0 1.5px rgba(248,113,113,.9)", duration: 0.25, yoyo: true, repeat: 3 }, 6.1)
           .fromTo(q("[data-shield]"), { scale: 0 }, { scale: 1, duration: 0.7, ease: "elastic.out(1, 0.5)" }, 6.3);
         return tl.add(run, 0.8);
       }}
@@ -1135,7 +1135,7 @@ function HwV({ t, max }: { t: WidgetText; max?: number }) {
           // la porta resta aperta: la temperatura sale
           .to(o, { v: 7.8, duration: 2.6, ease: "power1.in", onUpdate: show }, 2.6)
           .to(q("[data-tempw]"), { color: WARN, duration: 0.6 }, 3.6)
-          .to(q("[data-dot]"), { backgroundColor: WARN, boxShadow: `0 0 12px ${WARN}`, duration: 0.4 }, 3.6);
+          .to(q("[data-dot]"), { backgroundColor: WARN, duration: 0.4 }, 3.6);
         step(run, caps, 1, 3.6);
         run
           .fromTo(q("[data-notif]"), { y: -24, scale: 0.9, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 0.8, ease: "elastic.out(1, 0.6)" }, 4.2)
@@ -1144,14 +1144,14 @@ function HwV({ t, max }: { t: WidgetText; max?: number }) {
           .to(o, { v: 4, duration: 2.6, ease: "power2.out", onUpdate: show }, 7.2)
           .to(q("[data-tempw]"), { color: "#fff", duration: 0.8 }, 8);
         step(run, caps, 2, 7.2);
-        run.to(q("[data-dot]"), { backgroundColor: "#5ec4ff", boxShadow: "0 0 12px #5ec4ff", duration: 0.5 }, 9.4);
+        run.to(q("[data-dot]"), { backgroundColor: "#5ec4ff", duration: 0.5 }, 9.4);
         step(run, caps, 0, 10);
         return tl.add(run.to({}, { duration: 1.4 }), 0.6);
       }}
     >
       <Bead data-panel tint={DARK} radius={18} className="absolute left-0 top-0 block h-[180px] w-[252px] p-4 text-white backdrop-blur-md">
         <span className="flex items-center gap-2 text-[11.5px] text-white/75">
-          <span data-dot className="h-2 w-2 rounded-full" style={{ background: "#5ec4ff", boxShadow: "0 0 12px #5ec4ff" }} />
+          <span data-dot className="h-2 w-2 rounded-full" style={{ background: "#5ec4ff" }} />
           {t.hwPlace}
         </span>
         <span data-tempw className="tabular-nums mt-2 block text-[50px] font-medium leading-none tracking-[-0.045em] text-white">

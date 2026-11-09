@@ -5,6 +5,7 @@ import { useMessages, useTranslations } from "next-intl";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { introDelay } from "@/lib/intro";
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { Drop } from "@/components/glass/Drop";
 import { HeroSky } from "@/components/visual/HeroSky";
@@ -93,7 +94,7 @@ export function Hero() {
       if (prefersReducedMotion()) return;
       const el = root.current!;
       gsap
-        .timeline({ defaults: { ease: "expo.out" } })
+        .timeline({ delay: introDelay(), defaults: { ease: "expo.out" } })
         .from("[data-line]", { yPercent: 50, autoAlpha: 0, filter: "blur(12px)", duration: 1.4, stagger: 0.12, clearProps: "filter" })
         .from('[data-cycler="shape"]', { scale: 0, rotate: -160, duration: 1.3, ease: "back.out(1.6)" }, 0.45)
         .from("[data-hero-rest]", { y: 20, autoAlpha: 0, duration: 1, stagger: 0.08 }, 0.6);

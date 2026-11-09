@@ -364,3 +364,9 @@ html[data-theme="light"] .light-invert { filter: invert(1) hue-rotate(180deg) sa
   .svc-rest h3 { font-size: 26px; }
   .svc-arrow { display: none !important; }
 }
+
+/* schermata d'apertura: esiste solo mentre lo script di testa la chiede; se il JS non parte, sparisce da sola */
+.preloader { display: none; }
+html[data-intro="run"] .preloader { display: flex; animation: preloaderOut 0s 6s forwards; }
+html[data-intro="run"], html[data-intro="run"] body { overflow: hidden; }
+@keyframes preloaderOut { to { visibility: hidden; } }
