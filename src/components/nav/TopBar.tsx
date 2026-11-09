@@ -1,5 +1,6 @@
 "use client";
 
+import { Wordmark } from "./Wordmark";
 import { useCallback, useEffect, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -51,10 +52,10 @@ export function TopBar() {
             scrollToY(0);
           }
         }}
-        className="pointer-events-auto t-label rounded-full px-2 py-2 text-white mix-blend-difference"
+        className="pointer-events-auto rounded-full px-2 py-2 text-white mix-blend-difference"
         aria-label={profile.name}
       >
-        {profile.name}
+        <Wordmark />
       </a>
       <div className="pointer-events-auto flex items-center gap-2">
         <GlassSegmented id="lens-lang" options={options} selected={routing.locales.indexOf(locale)} onSelect={onSelect} label={t("language")} />

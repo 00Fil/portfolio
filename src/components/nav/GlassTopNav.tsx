@@ -1,5 +1,6 @@
 "use client";
 
+import { Wordmark } from "./Wordmark";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -237,9 +238,9 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
                 scrollToY(0);
               }
             }}
-            className="t-label shrink-0 rounded-full py-2 pr-3 text-ink"
+            className="shrink-0 rounded-full py-2 pr-3 text-ink"
           >
-            {profile.name}
+            <Wordmark />
           </a>
           <nav aria-label={t("label")} className="mx-auto">
             <div ref={row} className="relative flex items-center" onMouseLeave={() => !menu && setHover(null)}>

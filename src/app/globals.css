@@ -238,3 +238,5 @@ html.js [data-reveal] { visibility: hidden; }
 .tl-step.is-on .tl-node { background: var(--sky); box-shadow: 0 0 0 5px rgba(94,196,255,.14), 0 0 22px rgba(94,196,255,.6); }
 .tl-step.is-now .tl-node { scale: 1.25; }
 @media (prefers-reduced-motion: reduce) { .tl-step { opacity: 1; } }
+
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }

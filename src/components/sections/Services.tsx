@@ -11,6 +11,7 @@ import type { Locale } from "@/i18n/routing";
 import { SectionHead } from "./SectionHead";
 import { GooDefs, ServiceVisual, type WidgetText } from "./ServiceWidgets";
 import { Bead } from "@/components/glass/Bead";
+import { ServiceBg } from "./ServiceBg";
 
 /* Ingombro di ogni servizio nella griglia a 4 colonne. */
 const SPAN: Record<string, [number, number]> = {
@@ -27,20 +28,6 @@ const SPAN: Record<string, [number, number]> = {
 };
 /* Ordine nella griglia: righe piene, nessun buco. */
 const ORDER = ["web", "seo", "geo", "ai", "hw", "apps", "api", "design", "ops", "shop"];
-/* Ogni scheda inquadra un punto diverso dello stesso fondo di fibre. */
-const BG: CSSProperties[] = [
-  { objectPosition: "20% 30%" },
-  { objectPosition: "80% 20%", transform: "scaleX(-1)" },
-  { objectPosition: "40% 80%" },
-  { objectPosition: "90% 60%", transform: "scaleY(-1)" },
-  { objectPosition: "10% 50%", transform: "scale(-1,-1)" },
-  { objectPosition: "60% 40%" },
-  { objectPosition: "30% 10%", transform: "scaleX(-1)" },
-  { objectPosition: "70% 90%" },
-  { objectPosition: "50% 50%", transform: "scaleY(-1)" },
-  { objectPosition: "35% 65%", transform: "scaleX(-1)" },
-];
-
 function useColumns() {
   const [c, setC] = useState(4);
   useEffect(() => {
@@ -53,19 +40,20 @@ function useColumns() {
 }
 
 /** Il corpo di una scheda: fondo di fibre, disegno animato, titolo e una riga. */
-function Body({ s, i, w, locale, open }: { s: Service; i: number; w: WidgetText; locale: Locale; open: string }) {
+function Body({ s, w, locale, open }: { s: Service; w: WidgetText; locale: Locale; open: string }) {
   return (
     <div className="relative flex h-full flex-col">
       <div aria-hidden className="pointer-events-none absolute overflow-hidden" style={{ inset: "calc(var(--mb-pad, 20px) * -1)" }}>
-        <img src="/visual/fibers-sky.webp" alt="" className="h-full w-full object-cover opacity-55" style={BG[i % BG.length]} />
+        <ServiceBg k={s.key} />
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/45 to-transparent" />
       </div>
       {/* il disegno occupa tutta la scheda, senza riquadri intorno */}
       <div className="absolute inset-x-0 bottom-[60px] top-[36px]">
-        <ServiceVisual k={s.key} t={w} max={s.key === "web" ? 1.45 : 1.2} />
+        <ServiceVisual k={s.key} t={w} max={1.2} />
       </div>
       <div className="relative flex items-center justify-between">
-        <span className="font-mono text-[11.5px] uppercase tracking-[0.1em] text-ink-2">{s.label[locale]}</span>
-        <Bead className="flex h-8 w-8 items-center justify-center text-ink-2 transition-colors duration-300 group-hover:text-ink" aria-label={open}>
+        <span className="font-mono text-[11.5px] uppercase tracking-[0.1em] text-white/85">{s.label[locale]}</span>
+        <Bead tint="rgba(8,9,12,.55)" className="flex h-8 w-8 items-center justify-center text-white/80 transition-colors duration-300 group-hover:text-ink" aria-label={open}>
           <ArrowUpRight size={15} strokeWidth={1.9} />
         </Bead>
       </div>
@@ -74,7 +62,7 @@ function Body({ s, i, w, locale, open }: { s: Service; i: number; w: WidgetText;
         <div
           aria-hidden
           className="pointer-events-none absolute -top-7 backdrop-blur-[10px] [mask-image:linear-gradient(to_top,#000_55%,transparent)]"
-          style={{ left: "calc(var(--mb-pad, 20px) * -1)", right: "calc(var(--mb-pad, 20px) * -1)", bottom: "calc(var(--mb-pad, 20px) * -1)", background: "linear-gradient(to top, rgba(13,14,16,.92), rgba(13,14,16,.55) 60%, transparent)" }}
+          style={{ left: "calc(var(--mb-pad, 20px) * -1)", right: "calc(var(--mb-pad, 20px) * -1)", bottom: "calc(var(--mb-pad, 20px) * -1)", background: "linear-gradient(to top, rgba(6,7,9,.9), rgba(6,7,9,.55) 60%, transparent)" }}
         />
         <h3 className="relative text-[17px] font-semibold tracking-[-0.015em] text-ink">{s.title[locale]}</h3>
         <p className="relative mt-1 text-[13.5px] leading-[1.45] text-ink-2">{s.short[locale]}</p>
@@ -99,13 +87,13 @@ function Carousel({ w, locale, open }: { w: WidgetText; locale: Locale; open: st
   return (
     <>
       <div ref={track} className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-5 px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {SERVICES.map((s, i) => (
+        {SERVICES.map((s) => (
           <Link
             key={s.slug}
             href={`/servizi/${s.slug}`}
             className="group relative h-[400px] w-[84vw] max-w-[380px] shrink-0 snap-start overflow-hidden rounded-[28px] bg-[#0d0e10] p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,.07)] [--mb-pad:20px]"
           >
-            <Body s={s} i={i} w={w} locale={locale} open={open} />
+            <Body s={s} w={w} locale={locale} open={open} />
           </Link>
         ))}
       </div>
@@ -125,7 +113,7 @@ export function Services() {
   const w = t.raw("w") as WidgetText;
   const cols = useColumns();
 
-  const items: MagicBentoItem[] = ORDER.map((key) => SERVICES.find((x) => x.key === key)!).map((s, i) => {
+  const items: MagicBentoItem[] = ORDER.map((key) => SERVICES.find((x) => x.key === key)!).map((s) => {
     const [c, r] = SPAN[s.key];
     const href = `/servizi/${s.slug}`;
     return {
@@ -136,7 +124,7 @@ export function Services() {
         e.preventDefault();
         router.push(href);
       },
-      content: <Body s={s} i={i} w={w} locale={locale} open={t("open")} />,
+      content: <Body s={s} w={w} locale={locale} open={t("open")} />,
       colSpan: Math.min(c, cols),
       rowSpan: r,
     };

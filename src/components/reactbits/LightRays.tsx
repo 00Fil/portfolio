@@ -615,6 +615,7 @@ const LightRays = ({
 
     return () => {
       cancelAnimationFrame(raf);
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
       wakeRef.current = null;
       resizeObserver.disconnect();
       intersection.disconnect();
