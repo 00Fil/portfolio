@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Dither from "@/components/reactbits/Dither";
+import { useTheme } from "@/lib/theme";
 
 /**
  * Cielo a pixel dell'hero (Dither di React Bits): onde azzurro cielo su nero, retinate in Bayer.
@@ -10,6 +11,7 @@ import Dither from "@/components/reactbits/Dither";
 export function HeroSky() {
   const [ready, setReady] = useState(false);
   const [reduce, setReduce] = useState(false);
+  const theme = useTheme();
   useEffect(() => {
     setReduce(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     setReady(true);
@@ -18,8 +20,9 @@ export function HeroSky() {
     <div aria-hidden className="absolute inset-0">
       {ready && (
         <Dither
+          key={theme}
           className="absolute inset-0"
-          palette={["#000000", "#06263A", "#0F5C88", "#3BA9E6", "#9EDCFF"]}
+          palette={theme === "light" ? ["#f6f6f3", "#dcefff", "#9ed6f7", "#4fb4ea", "#1f7fb8"] : ["#000000", "#06263A", "#0F5C88", "#3BA9E6", "#9EDCFF"]}
           ditherMode="bayer4"
           pixelSize={5}
           waveSpeed={0.03}
@@ -36,7 +39,7 @@ export function HeroSky() {
         />
       )}
       {/* al centro un'isola di nero per il titolo; in basso il cielo sfuma nel nero della pagina */}
-      <div className="absolute inset-0 [background:radial-gradient(78%_44%_at_50%_50%,rgba(0,0,0,.94)_50%,transparent_100%),linear-gradient(to_bottom,transparent_70%,#000)]" />
+      <div className="absolute inset-0 [background:radial-gradient(78%_44%_at_50%_50%,color-mix(in_srgb,var(--bg-canvas)_94%,transparent)_50%,transparent_100%),linear-gradient(to_bottom,transparent_70%,var(--bg-canvas))]" />
     </div>
   );
 }

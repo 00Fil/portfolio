@@ -8,6 +8,8 @@ import { Check } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { tr, type Scene } from "@/content/service-stories";
 import { prefersReducedMotion } from "@/lib/env";
+import type { ServiceKey } from "@/content/services";
+import { ServiceBg } from "@/components/sections/ServiceBg";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -149,12 +151,12 @@ function Compare({ s, l, active, labels }: { s: Extract<Scene, { kind: "compare"
         ))}
       </div>
       <div data-after className={`rounded-[22px] p-5 ${glass}`} style={{ boxShadow: `inset 0 0 0 1px ${SKY}, 0 0 50px -16px ${SKY}` }}>
-        <p className="font-mono text-[11px] uppercase tracking-[0.12em]" style={{ color: SKY }}>
+        <p className="font-mono text-[11px] uppercase tracking-[0.12em]" style={{ color: "var(--sky)" }}>
           {labels[1]}
         </p>
         {s.after.map((a, i) => (
           <p key={i} data-row className="mt-4 flex items-center gap-2 text-[15px] text-ink">
-            <Check size={15} strokeWidth={2.6} style={{ color: SKY }} />
+            <Check size={15} strokeWidth={2.6} style={{ color: "var(--sky)" }} />
             {tr(a, l)}
           </p>
         ))}
@@ -300,12 +302,14 @@ function SceneView({ s, l, active, labels }: { s: Scene; l: Locale; active: bool
  * a destra la scena della voce attiva che si anima. Su telefono ogni voce ha la sua scena sotto il testo.
  */
 export function ServiceStory({
+  k,
   title,
   items,
   scenes,
   locale,
   labels,
 }: {
+  k: ServiceKey;
   title: string;
   items: { title: string; body: string }[];
   scenes: Scene[];
@@ -345,10 +349,10 @@ export function ServiceStory({
         trigger: root.current!.querySelector("[data-pin]"),
         pin: true,
         start: "top top",
-        end: () => `+=${window.innerHeight * n * 0.8}`,
+        end: () => `+=${window.innerHeight * n * 0.65}`,
         onUpdate: (self) => setAt(Math.min(n - 1, Math.floor(self.progress * n))),
       });
-      gsap.fromTo("[data-prog]", { scaleY: 0 }, { scaleY: 1, ease: "none", scrollTrigger: { trigger: root.current!.querySelector("[data-pin]"), start: "top top", end: () => `+=${window.innerHeight * n * 0.8}`, scrub: true } });
+      gsap.fromTo("[data-prog]", { scaleY: 0 }, { scaleY: 1, ease: "none", scrollTrigger: { trigger: root.current!.querySelector("[data-pin]"), start: "top top", end: () => `+=${window.innerHeight * n * 0.65}`, scrub: true } });
     },
     { scope: root, dependencies: [desk], revertOnUpdate: true },
   );
@@ -363,18 +367,18 @@ export function ServiceStory({
   return (
     <section ref={root} className="relative">
       {desk ? (
-        <div data-pin className="relative flex h-[100svh] items-center">
+        <div data-pin className="relative flex h-[100svh] items-center pt-[calc(var(--bar-h)+12px)]">
           <div className="mx-auto grid w-full max-w-[1280px] grid-cols-12 items-center gap-10 px-8">
             <div className="col-span-5">
               <p className="t-label text-ink-3">{title}</p>
               <ol className="relative mt-8 pl-6">
-                <span aria-hidden className="absolute bottom-1 left-0 top-1 w-px bg-white/10">
-                  <span data-prog className="block h-full w-full origin-top" style={{ background: SKY }} />
+                <span aria-hidden className="absolute bottom-1 left-0 top-1 w-px bg-[var(--hair-strong)]">
+                  <span data-prog className="block h-full w-full origin-top" style={{ background: "var(--sky)" }} />
                 </span>
                 {items.map((it, i) => (
                   <li key={i} className={`py-4 transition-opacity duration-500 ${i === at ? "opacity-100" : "opacity-35"}`}>
                     <p className="flex items-baseline gap-3">
-                      <span className="t-fig font-mono text-[12px]" style={{ color: SKY }}>
+                      <span className="t-fig font-mono text-[12px]" style={{ color: "var(--sky)" }}>
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <span className="text-[clamp(22px,2vw,30px)] font-medium tracking-[-0.03em] text-ink">{it.title}</span>
@@ -386,8 +390,9 @@ export function ServiceStory({
                 ))}
               </ol>
             </div>
-            <div className="relative col-span-7 h-[460px]">
-              <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--sky)] opacity-[0.06] blur-[90px]" />
+            <div className="theme-dark relative col-span-7 h-[min(560px,calc(100svh-var(--bar-h)-80px))] overflow-hidden rounded-[36px] bg-[#05070a]">
+              <ServiceBg k={k} />
+              <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/35" />
               {scenes.map((s, i) => (
                 <div key={i} data-scene className="absolute inset-0 flex items-center justify-center" style={{ opacity: i === 0 ? 1 : 0, visibility: i === 0 ? "visible" : "hidden" }}>
                   <SceneView s={s} l={locale} active={inView && i === at} labels={labels} />
@@ -403,14 +408,16 @@ export function ServiceStory({
             {items.map((it, i) => (
               <li key={i} data-mstep>
                 <p className="flex items-baseline gap-3">
-                  <span className="t-fig font-mono text-[12px]" style={{ color: SKY }}>
+                  <span className="t-fig font-mono text-[12px]" style={{ color: "var(--sky)" }}>
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span className="text-[24px] font-medium tracking-[-0.03em] text-ink">{it.title}</span>
                 </p>
                 <p className="mt-2 text-[16px] leading-[1.55] text-ink-2">{it.body}</p>
-                <div className="mt-6 flex min-h-[260px] items-center justify-center overflow-hidden">
-                  <div className="origin-center scale-[0.82] sm:scale-100">
+                <div className="theme-dark relative mt-6 flex min-h-[300px] items-center justify-center overflow-hidden rounded-[28px] bg-[#05070a] py-6">
+                  <ServiceBg k={k} />
+                  <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/35" />
+                  <div className="relative origin-center scale-[0.82] sm:scale-100">
                     <SceneView s={scenes[i]} l={locale} active={seen[i]} labels={labels} />
                   </div>
                 </div>

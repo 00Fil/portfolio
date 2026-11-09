@@ -71,7 +71,8 @@ export function GlassSegmented({ options, selected, onSelect, label, id }: Props
       if (cloneRef.current) cloneRef.current.style.transform = `translate3d(${-x}px,0,0)`;
       for (let i = 0; i < n; i++) {
         const near = 1 - Math.min(1, Math.abs(i - p));
-        const c = lerpColor(INK_2, ON_SUBTLE, near);
+        const lt = document.documentElement.dataset.theme === "light";
+        const c = lerpColor(lt ? [0x7b, 0x7c, 0x82] : INK_2, lt ? [0x0b, 0x4a, 0x70] : ON_SUBTLE, near);
         if (labels.current[i]) labels.current[i]!.style.color = c;
         if (cloneLabels.current[i]) cloneLabels.current[i]!.style.color = c;
       }
@@ -171,7 +172,7 @@ export function GlassSegmented({ options, selected, onSelect, label, id }: Props
     );
 
   return (
-    <div className="drop float-glass relative" style={{ height: H, width: 44 * n + PAD * 2, ["--drop-tint" as string]: "rgba(8,8,10,0.7)" }}>
+    <div className="drop float-glass relative" style={{ height: H, width: 44 * n + PAD * 2, ["--drop-tint" as string]: "var(--bar-tint)" }}>
       {lens && itemW > 0 && <LensFilter id={id} width={itemW} height={h} radius={h / 2} edge={9} amount={7} aberr={0.3} sat={1.3} />}
       <div ref={trackRef} role="radiogroup" aria-label={label} className="absolute flex touch-none select-none" style={{ inset: PAD }}>
         {row(labels, true)}
@@ -180,12 +181,12 @@ export function GlassSegmented({ options, selected, onSelect, label, id }: Props
         <div className="relative will-change-transform" style={{ width: itemW, height: h }}>
           <div className="absolute inset-0 overflow-hidden rounded-full">
             <div className="absolute inset-0" style={{ filter: lens ? `url(#${id})` : undefined }}>
-              <div ref={cloneRef} className="absolute inset-y-0 left-0 flex" style={{ width: itemW * n, background: "rgba(8,8,10,0.9)" }}>
+              <div ref={cloneRef} className="absolute inset-y-0 left-0 flex" style={{ width: itemW * n, background: "color-mix(in srgb, var(--bg-canvas) 90%, transparent)" }}>
                 {row(cloneLabels, false)}
               </div>
             </div>
           </div>
-          <div ref={dropRef} className="drop absolute inset-0" style={{ ["--drop-tint" as string]: "rgba(94,196,255,0.16)" }} />
+          <div ref={dropRef} className="drop absolute inset-0" style={{ ["--drop-tint" as string]: "color-mix(in srgb, var(--sky) 18%, transparent)" }} />
         </div>
       </div>
     </div>

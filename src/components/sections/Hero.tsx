@@ -175,7 +175,7 @@ export function Hero() {
       <h1 className="sr-only">{t("h1")}</h1>
 
       <div className="relative flex w-full max-w-[1200px] flex-col items-center px-5 sm:px-8">
-        <p className="t-label mb-10 inline-flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 text-ink-2 backdrop-blur" data-hero-rest>
+        <p className="t-label mb-10 inline-flex items-center gap-2 rounded-full bg-[var(--pill)] px-3 py-1.5 text-ink-2 backdrop-blur" data-hero-rest>
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--sky)] shadow-[0_0_10px_var(--sky)]" aria-hidden />
           {t("status")}
         </p>
@@ -203,7 +203,7 @@ export function Hero() {
             </Drop>
           </div>
           {/* prove subito sotto l'invito: numeri veri, niente loghi inventati */}
-          <ul className="mt-12 grid w-full max-w-[760px] grid-cols-3 gap-4 border-t border-white/[0.08] pt-6" data-hero-rest>
+          <ul className="mt-12 grid w-full max-w-[760px] grid-cols-3 gap-4 border-t border-[var(--hair)] pt-6" data-hero-rest>
             {proof.map(([v, l]) => (
               <li key={v} className="text-center">
                 <p className="t-fig text-[clamp(22px,2.4vw,30px)] font-medium tracking-[-0.03em] text-ink">{v}</p>

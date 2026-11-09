@@ -8,7 +8,7 @@
     "home": "Inizio",
     "work": "Lavori",
     "approach": "Servizi",
-    "stack": "Stack",
+    "stack": "Competenze",
     "path": "Percorso",
     "contact": "Contatti",
     "back": "Lavori",
@@ -20,7 +20,11 @@
     "menuWork": "Progetti",
     "allWork": "Tutti i lavori",
     "menuContact": "Contatti",
-    "write": "Scrivimi"
+    "write": "Scrivimi",
+    "toLight": "Tema chiaro",
+    "toDark": "Tema scuro",
+    "menuServices": "Tutti i servizi",
+    "quote": "Richiedi un preventivo"
   },
   "hero": {
     "a": "Sviluppo",
@@ -176,7 +180,7 @@
     "role": "Ruolo",
     "year": "Anno",
     "platforms": "Piattaforme",
-    "stack": "Stack",
+    "stack": "Competenze",
     "source": "Codice",
     "problem": "Problema",
     "built": "Cosa ho costruito",

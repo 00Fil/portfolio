@@ -41,7 +41,7 @@ function useColumns() {
 /** Il corpo di una scheda: fondo di fibre, disegno animato, titolo e una riga. */
 function Body({ s, w, locale, open }: { s: Service; w: WidgetText; locale: Locale; open: string }) {
   return (
-    <div className="relative flex h-full flex-col">
+    <div className="theme-dark relative flex h-full flex-col">
       <div aria-hidden className="pointer-events-none absolute overflow-hidden" style={{ inset: "calc(var(--mb-pad, 20px) * -1)" }}>
         <ServiceBg k={s.key} />
         <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/45 to-transparent" />

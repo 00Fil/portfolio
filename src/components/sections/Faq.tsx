@@ -19,7 +19,7 @@ function Item({ it, open, onToggle }: { it: QA; open: boolean; onToggle: () => v
     onToggle();
   };
   return (
-    <li className="border-b border-white/[0.08]">
+    <li className="border-b border-[var(--hair)]">
       <button type="button" onClick={toggle} aria-expanded={open} className="group flex w-full items-center justify-between gap-6 py-6 text-left">
         <span className="text-[clamp(18px,1.7vw,22px)] font-medium tracking-[-0.02em] text-ink">{it.q}</span>
         <Bead tint={open ? "sky" : undefined} className="flex h-10 w-10 shrink-0 items-center justify-center text-ink transition-[rotate] duration-500" style={{ rotate: open ? "45deg" : "0deg" }}>
@@ -53,7 +53,7 @@ export function Faq() {
             {t("lead")}
           </p>
         </Reveal>
-        <ul className="border-t border-white/[0.08] lg:col-span-8">
+        <ul className="border-t border-[var(--hair)] lg:col-span-8">
           {items.map((it, i) => (
             <Item key={it.q} it={it} open={open === i} onToggle={() => setOpen(open === i ? null : i)} />
           ))}

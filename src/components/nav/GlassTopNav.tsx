@@ -4,7 +4,7 @@ import { Wordmark } from "./Wordmark";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowUpRight, AudioLines, CalendarClock, ChevronDown, FileText, MonitorSmartphone, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown, FileText } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
@@ -17,13 +17,16 @@ import { GlassSegmented } from "./GlassSegmented";
 import { SPR, Spring } from "@/lib/spring";
 import { bevelImage } from "@/lib/glass";
 import { scrollToY } from "@/lib/scroll";
-import { loadSoundPref, onSound, play, setSound, soundOn } from "@/lib/sound";
+import { play } from "@/lib/sound";
+import { SERVICES } from "@/content/services";
+import { ThemeToggle } from "./ThemeToggle";
 import { prefersReducedMotion } from "@/lib/env";
 import { Clock } from "@/components/sections/Clock";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type Item = { id: string; label: string; menu?: "work" | "contact" };
+type Menu = "services" | "work" | "contact";
+type Item = { id: string; label: string; menu?: Menu };
 const NAMES: Record<Locale, string> = { it: "Italiano", en: "English" };
 
 /**
@@ -40,7 +43,7 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
   const router = useRouter();
   const pathname = usePathname();
   const items: Item[] = [
-    { id: "approach", label: t("approach") },
+    { id: "approach", label: t("approach"), menu: "services" },
     { id: "work", label: t("work"), menu: "work" },
     { id: "path", label: t("path") },
     { id: "stack", label: t("stack") },
@@ -56,19 +59,13 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
   const panes = useRef<Record<string, HTMLDivElement | null>>({});
   const [active, setActive] = useState(home ? -1 : section === "approach" ? 0 : 1);
   const [hover, setHover] = useState<number | null>(null);
-  const [menu, setMenu] = useState<"work" | "contact" | null>(null);
-  const [sound, setS] = useState(false);
+  const [menu, setMenu] = useState<Menu | null>(null);
   const [compact, setCompact] = useState(false);
   const bx = useRef(new Spring(0));
   const bw = useRef(new Spring(0));
   const bo = useRef(new Spring(0));
   const lastMenu = useRef<string | null>(null);
   const closeT = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    setS(loadSoundPref());
-    return onSound(setS) as () => void;
-  }, []);
 
   // vetro della barra: smusso cotto per misura
   useLayoutEffect(() => {
@@ -145,7 +142,7 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
   }, [hover, active]);
 
   // pannello dei menu
-  const openMenu = useCallback((m: "work" | "contact" | null) => {
+  const openMenu = useCallback((m: Menu | null) => {
     window.clearTimeout(closeT.current);
     setMenu(m);
   }, []);
@@ -183,7 +180,8 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
     } else {
       gsap.to(p, { width: w, height: h, x: left, duration: 0.5 * d, ease: "back.out(1.2)" });
     }
-    const dir = lastMenu.current === "work" && menu === "contact" ? 1 : lastMenu.current === "contact" && menu === "work" ? -1 : 0;
+    const order: (string | null)[] = ["services", "work", "contact"];
+    const dir = lastMenu.current ? Math.sign(order.indexOf(menu) - order.indexOf(lastMenu.current)) : 0;
     Object.entries(panes.current).forEach(([k, el]) => {
       if (!el) return;
       if (k === menu) {
@@ -228,7 +226,7 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
         <div
           ref={shell}
           className="drop float-glass relative flex items-center gap-2 transition-[padding] duration-500 ease-[var(--ease-out)]"
-          style={{ borderRadius: 999, padding: compact ? "5px 6px 5px 18px" : "8px 8px 8px 22px", ["--drop-tint" as string]: "rgba(8,8,10,0.74)" }}
+          style={{ borderRadius: 999, padding: compact ? "5px 6px 5px 18px" : "8px 8px 8px 22px", ["--drop-tint" as string]: "var(--bar-tint)" }}
         >
           <a
             href={`/${locale}`}
@@ -285,17 +283,7 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
           </nav>
           <div className="flex shrink-0 items-center gap-2" onMouseEnter={() => menu && scheduleClose()}>
             <GlassSegmented id="lens-lang-top" options={options} selected={routing.locales.indexOf(locale)} onSelect={onLang} label={t("language")} />
-            <Drop
-              className="h-[42px] w-[42px]"
-              label={sound ? t("soundOn") : t("soundOff")}
-              onClick={() => {
-                const on = !soundOn();
-                setSound(on);
-                if (on) play("toggle");
-              }}
-            >
-              {sound ? <Volume2 size={17} strokeWidth={1.6} aria-hidden /> : <VolumeX size={17} strokeWidth={1.6} aria-hidden className="text-ink-2" />}
-            </Drop>
+            <ThemeToggle />
             <Drop href="#brief" accent className="h-[42px] px-4 text-[14px] font-medium text-ink">
               {t("write")}
             </Drop>
@@ -307,8 +295,47 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
           <div
             ref={panel}
             className="drop float-glass invisible relative overflow-hidden opacity-0"
-            style={{ borderRadius: 28, ["--drop-tint" as string]: "rgba(12,12,14,0.78)" }}
+            style={{ borderRadius: 28, ["--drop-tint" as string]: "var(--panel-tint)" }}
           >
+            <div
+              ref={(el) => {
+                panes.current.services = el;
+              }}
+              className="absolute left-0 top-0 w-[760px] p-3 opacity-0"
+            >
+              <div className="flex items-center justify-between px-3 pb-2 pt-2">
+                <p className="t-label text-ink-3">{t("menuServices")}</p>
+                <a href="#brief" data-mi className="t-foot inline-flex items-center gap-1 text-ink-2 hover:text-ink">
+                  {t("quote")}
+                  <ArrowRight size={13} strokeWidth={1.8} aria-hidden />
+                </a>
+              </div>
+              <ul className="grid grid-cols-2 gap-1">
+                {SERVICES.map((s, i) => (
+                  <li key={s.slug} data-mi>
+                    <a
+                      href={`/${locale}/servizi/${s.slug}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setMenu(null);
+                        play("open");
+                        router.push(`/servizi/${s.slug}`);
+                      }}
+                      className="group flex items-start gap-3.5 rounded-[18px] px-3 py-3 transition-colors hover:bg-[var(--hover)]"
+                    >
+                      <span className="mt-[3px] font-mono text-[11px] text-ink-3 transition-colors group-hover:text-[var(--sky)]">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="min-w-0">
+                        <span className="flex items-center gap-1 text-[15px] font-medium tracking-[-0.01em] text-ink">
+                          {s.title[locale]}
+                          <ArrowUpRight size={14} strokeWidth={1.8} aria-hidden className="-translate-x-1 text-ink-3 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100" />
+                        </span>
+                        <span className="t-foot mt-0.5 line-clamp-1 text-ink-3">{s.short[locale]}</span>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
             <div
               ref={(el) => {
                 panes.current.work = el;
@@ -328,9 +355,9 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
                           play("open");
                           router.push(`/lavori/${p.slug}`);
                         }}
-                        className="group flex gap-3 rounded-[18px] p-3 transition-colors hover:bg-white/[0.05]"
+                        className="group flex gap-3 rounded-[18px] p-3 transition-colors hover:bg-[var(--hover)]"
                       >
-                        <span className="relative h-[52px] w-[84px] shrink-0 overflow-hidden rounded-[12px] shadow-[0_0_0_1px_rgba(255,255,255,.08)] transition-transform duration-300 ease-[var(--ease-out)] group-hover:scale-105">
+                        <span className="relative h-[52px] w-[84px] shrink-0 overflow-hidden rounded-[12px] shadow-[0_0_0_1px_var(--hair)] transition-transform duration-300 ease-[var(--ease-out)] group-hover:scale-105">
                           <Cover slug={p.slug} mini />
                         </span>
                         <span className="min-w-0">
@@ -360,7 +387,7 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
               <ul className="space-y-1">
                 {profile.email && (
                   <li data-mi>
-                    <a href={`mailto:${profile.email}`} className="flex items-center justify-between rounded-[16px] px-3 py-2.5 text-ink hover:bg-white/[0.05]">
+                    <a href={`mailto:${profile.email}`} className="flex items-center justify-between rounded-[16px] px-3 py-2.5 text-ink hover:bg-[var(--hover)]">
                       {profile.email}
                     </a>
                   </li>
@@ -374,7 +401,7 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
                     const x = l as { href: string; label: string };
                     return (
                       <li key={x.href} data-mi>
-                        <a href={x.href} target="_blank" rel="noopener noreferrer" className="group flex items-center justify-between rounded-[16px] px-3 py-2.5 text-ink hover:bg-white/[0.05]">
+                        <a href={x.href} target="_blank" rel="noopener noreferrer" className="group flex items-center justify-between rounded-[16px] px-3 py-2.5 text-ink hover:bg-[var(--hover)]">
                           {x.label}
                           <ArrowUpRight size={15} strokeWidth={1.8} aria-hidden className="text-ink-3 transition-colors group-hover:text-ink" />
                         </a>
@@ -383,7 +410,7 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
                   })}
                 {profile.cv[locale] && (
                   <li data-mi>
-                    <a href={profile.cv[locale]} download className="flex items-center gap-2 rounded-[16px] px-3 py-2.5 text-ink hover:bg-white/[0.05]">
+                    <a href={profile.cv[locale]} download className="flex items-center gap-2 rounded-[16px] px-3 py-2.5 text-ink hover:bg-[var(--hover)]">
                       <FileText size={15} strokeWidth={1.8} aria-hidden className="text-ink-2" />
                       {tc("cv")}
                     </a>

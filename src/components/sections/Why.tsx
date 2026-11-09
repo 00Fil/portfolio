@@ -16,7 +16,7 @@ export function Why() {
       <Reveal>
         <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4" data-stagger>
         {items.map((it, i) => (
-          <div key={it.title} className="border-t border-white/[0.1] pt-6">
+          <div key={it.title} className="border-t border-[var(--hair)] pt-6">
             <p className="t-serif text-[56px] italic leading-none text-[var(--sky)]">{String(i + 1).padStart(2, "0")}</p>
             <h3 className="mt-5 text-[22px] font-medium tracking-[-0.025em] text-ink">{it.title}</h3>
             <p className="mt-2 text-[16px] leading-[1.55] text-ink-2">{it.body}</p>
@@ -24,7 +24,7 @@ export function Why() {
         ))}
         </div>
       </Reveal>
-      <Reveal className="mt-20 flex flex-col items-start justify-between gap-6 rounded-[28px] bg-[#0d0e10] p-8 shadow-[inset_0_0_0_1px_rgba(255,255,255,.07)] sm:flex-row sm:items-center sm:p-10">
+      <Reveal className="mt-20 flex flex-col items-start justify-between gap-6 rounded-[28px] bg-[var(--card)] p-8 shadow-[inset_0_0_0_1px_var(--hair)] sm:flex-row sm:items-center sm:p-10">
         <p className="text-[clamp(26px,3vw,40px)] font-medium tracking-[-0.035em] text-ink" data-reveal>
           {t("cta")}
         </p>

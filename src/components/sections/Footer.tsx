@@ -28,7 +28,7 @@ export function Footer({ withContact = true }: { withContact?: boolean }) {
       <Reveal className="mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-32">
         <FooterCta q={tf("q")} a={tf("a")} cta={tf("cta")} href="#brief" />
 
-        <div className="mt-20 grid grid-cols-2 gap-x-8 gap-y-12 border-t border-white/[0.08] pt-10 sm:mt-28 lg:grid-cols-12">
+        <div className="mt-20 grid grid-cols-2 gap-x-8 gap-y-12 border-t border-[var(--hair)] pt-10 sm:mt-28 lg:grid-cols-12">
           <div className="col-span-2 lg:col-span-4">
             <p className="flex items-center gap-2.5 text-[15px] text-ink">
               <span className="relative flex h-2 w-2">

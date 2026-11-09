@@ -157,7 +157,8 @@ export function GlassTabBar({ tabs, navLabel, detail }: Props) {
       if (cloneRef.current) cloneRef.current.style.transform = `translate3d(${-x}px,0,0)`;
       for (let i = 0; i < n; i++) {
         const near = 1 - Math.min(1, Math.abs(i - pill));
-        const col = lerpColor(INK_2, ACCENT, near);
+        const lt = document.documentElement.dataset.theme === "light";
+        const col = lerpColor(lt ? [0x7b, 0x7c, 0x82] : INK_2, lt ? [0x1f, 0x8f, 0xd0] : ACCENT, near);
         const el = iconRefs.current[i];
         if (el) el.style.color = col;
         const c = cloneIconRefs.current[i];
@@ -414,7 +415,7 @@ export function GlassTabBar({ tabs, navLabel, detail }: Props) {
                 className="absolute inset-y-0 left-0"
                 style={{ filter: lens.bubble ? "url(#lens-bubble)" : undefined, width: pillW, height: pillH }}
               >
-                <div ref={cloneRef} className="absolute inset-y-0 left-0 flex" style={{ width: size.w - PAD_X * 2, height: pillH, background: "rgba(8,8,10,0.88)" }}>
+                <div ref={cloneRef} className="absolute inset-y-0 left-0 flex" style={{ width: size.w - PAD_X * 2, height: pillH, background: "color-mix(in srgb, var(--bg-canvas) 88%, transparent)" }}>
                   {items(cloneIconRefs, false)}
                 </div>
               </div>

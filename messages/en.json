@@ -8,7 +8,7 @@
     "home": "Home",
     "work": "Work",
     "approach": "Services",
-    "stack": "Stack",
+    "stack": "Skills",
     "path": "Path",
     "contact": "Contact",
     "back": "Work",
@@ -20,7 +20,11 @@
     "menuWork": "Projects",
     "allWork": "All work",
     "menuContact": "Contact",
-    "write": "Get in touch"
+    "write": "Get in touch",
+    "toLight": "Light theme",
+    "toDark": "Dark theme",
+    "menuServices": "All services",
+    "quote": "Request a quote"
   },
   "hero": {
     "a": "I build",
@@ -176,7 +180,7 @@
     "role": "Role",
     "year": "Year",
     "platforms": "Platforms",
-    "stack": "Stack",
+    "stack": "Skills",
     "source": "Source",
     "problem": "Problem",
     "built": "What I built",

@@ -36,6 +36,106 @@
   color-scheme: dark;
 }
 
+/* Isole scure: schede dei servizi, modulo, scene. Restano scure anche nel tema chiaro. */
+.theme-dark {
+  --bg-canvas: #000000;
+  --bg-surface: #1c1c1e;
+  --bg-sunken: #2c2c2e;
+  --label-primary: #f2f2f0;
+  --label-secondary: #a6a6a1;
+  --label-tertiary: #85857f;
+  --label-disabled: #6b6b66;
+  --line-separator: #2c2c2e;
+  --line-strong: #3a3a3c;
+  --accent: #5ec4ff;
+  --accent-pressed: #3aa9e6;
+  --accent-subtle: #0a2633;
+  --accent-on-subtle: #bfe8ff;
+  --sky: #5ec4ff;
+  --drop-veil: rgba(158, 220, 255, 0.08);
+  --drop-edge: rgba(255, 255, 255, 0.14);
+  --drop-body: #0e3346;
+  --hair: rgba(255, 255, 255, 0.08);
+  --hair-strong: rgba(255, 255, 255, 0.12);
+  --hover: rgba(255, 255, 255, 0.05);
+  --chip: rgba(255, 255, 255, 0.04);
+  --card: #0d0e10;
+  --bar-tint: rgba(8, 8, 10, 0.74);
+  --panel-tint: rgba(12, 12, 14, 0.8);
+  --pill: rgba(0, 0, 0, 0.6);
+  --shadow-strong: rgba(0, 0, 0, 0.9);
+  color-scheme: dark;
+}
+:root {
+  --hair: rgba(255, 255, 255, 0.08);
+  --hair-strong: rgba(255, 255, 255, 0.12);
+  --hover: rgba(255, 255, 255, 0.05);
+  --chip: rgba(255, 255, 255, 0.04);
+  --card: #0d0e10;
+  --bar-tint: rgba(8, 8, 10, 0.74);
+  --panel-tint: rgba(12, 12, 14, 0.8);
+  --pill: rgba(0, 0, 0, 0.6);
+  --shadow-strong: rgba(0, 0, 0, 0.9);
+}
+html[data-theme="light"] {
+  --bg-canvas: #f6f6f3;
+  --bg-surface: #ffffff;
+  --bg-sunken: #ececE8;
+  --label-primary: #121316;
+  --label-secondary: #55565c;
+  --label-tertiary: #7b7c82;
+  --label-disabled: #a3a49f;
+  --line-separator: #e3e3df;
+  --line-strong: #d3d3cf;
+  --accent: #1f8fd0;
+  --accent-pressed: #1676ad;
+  --accent-subtle: #dff1fc;
+  --accent-on-subtle: #0b4a70;
+  --sky: #1f8fd0;
+  --drop-veil: rgba(255, 255, 255, 0.62);
+  --drop-edge: rgba(15, 20, 30, 0.1);
+  --drop-body: #dff1fc;
+  --hair: rgba(15, 20, 30, 0.1);
+  --hair-strong: rgba(15, 20, 30, 0.14);
+  --hover: rgba(15, 20, 30, 0.05);
+  --chip: rgba(15, 20, 30, 0.04);
+  --card: #ffffff;
+  --bar-tint: rgba(255, 255, 255, 0.72);
+  --panel-tint: rgba(255, 255, 255, 0.86);
+  --pill: rgba(255, 255, 255, 0.7);
+  --shadow-strong: rgba(20, 30, 50, 0.18);
+  color-scheme: light;
+}
+html[data-theme="light"] .theme-dark {
+  --bg-canvas: #000000;
+  --bg-surface: #1c1c1e;
+  --bg-sunken: #2c2c2e;
+  --label-primary: #f2f2f0;
+  --label-secondary: #a6a6a1;
+  --label-tertiary: #85857f;
+  --label-disabled: #6b6b66;
+  --line-separator: #2c2c2e;
+  --line-strong: #3a3a3c;
+  --accent: #5ec4ff;
+  --accent-pressed: #3aa9e6;
+  --accent-subtle: #0a2633;
+  --accent-on-subtle: #bfe8ff;
+  --sky: #5ec4ff;
+  --drop-veil: rgba(158, 220, 255, 0.08);
+  --drop-edge: rgba(255, 255, 255, 0.14);
+  --drop-body: #0e3346;
+  --hair: rgba(255, 255, 255, 0.08);
+  --hair-strong: rgba(255, 255, 255, 0.12);
+  --hover: rgba(255, 255, 255, 0.05);
+  --chip: rgba(255, 255, 255, 0.04);
+  --card: #0d0e10;
+  --bar-tint: rgba(8, 8, 10, 0.74);
+  --panel-tint: rgba(12, 12, 14, 0.8);
+  --pill: rgba(0, 0, 0, 0.6);
+  --shadow-strong: rgba(0, 0, 0, 0.9);
+  color-scheme: dark;
+}
+
 @theme inline {
   --color-canvas: var(--bg-canvas);
   --color-surface: var(--bg-surface);
@@ -185,7 +285,7 @@ html.lens .bar-glass { backdrop-filter: url(#lens-bar) blur(14px) saturate(1.5);
   -webkit-backdrop-filter: blur(14px) saturate(1.5);
   backdrop-filter: blur(14px) saturate(1.5);
 }
-.bar-veil { background: linear-gradient(180deg, rgba(8, 8, 10, 0.74), rgba(8, 8, 10, 0.66)); }
+.bar-veil { background: var(--bar-tint); }
 
 }
 
@@ -240,3 +340,12 @@ html.js [data-reveal] { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) { .tl-step { opacity: 1; } }
 
 @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+/* tema: cambio morbido dei colori di fondo */
+html.theme-anim, html.theme-anim * { transition: background-color .5s var(--ease-out), border-color .5s var(--ease-out), color .4s var(--ease-out) !important; }
+
+/* nome gigante del footer: le lettere lasciano vedere il gradiente sotto */
+.giant-mask { background: #000; color: #fff; mix-blend-mode: multiply; }
+html[data-theme="light"] .giant-mask { background: var(--bg-canvas); color: #000; mix-blend-mode: screen; }
+/* immagini scure che nel tema chiaro diventano chiare con le fibre blu */
+html[data-theme="light"] .light-invert { filter: invert(1) hue-rotate(180deg) saturate(1.2); opacity: 0.55; }

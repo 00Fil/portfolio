@@ -86,7 +86,7 @@ export function CoverCard({ p, open, big = false }: { p: CardData; open: string;
           ref={frame}
           data-cover
           className={`relative w-full overflow-hidden rounded-[28px] ${big ? "aspect-[4/3] sm:aspect-[16/9]" : "aspect-[4/3]"}`}
-          style={{ boxShadow: "0 0 0 1px rgba(255,255,255,.06)" }}
+          style={{ boxShadow: "0 0 0 1px var(--hair)" }}
         >
           <div ref={tilt} className="absolute inset-0 [transform-style:preserve-3d]" style={{ transformOrigin: "50% 50%" }}>
             <Cover slug={p.slug} />

@@ -80,7 +80,7 @@ export function BriefOverlay() {
 
   if (!open) return null;
   return (
-    <div ref={root} role="dialog" aria-modal="true" className="fixed inset-0 z-[80] overflow-y-auto bg-[#050608]" data-lenis-prevent>
+    <div ref={root} role="dialog" aria-modal="true" className="theme-dark fixed inset-0 z-[80] overflow-y-auto bg-[#050608]" data-lenis-prevent>
       <div aria-hidden className="pointer-events-none fixed inset-0">
         <Grainient colors={["#040a10", "#0a2a40", "#1f6f9e", "#5ec4ff", "#cfeeff"]} angle={30} speed={0.5} flow={0.6} silk={0.35} grainAmount={0.05} interactive={false} clickSwirl={false} intro={false} dpr={1} />
         <div className="absolute inset-0 bg-black/45" />

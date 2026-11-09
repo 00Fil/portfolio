@@ -129,7 +129,7 @@ export function FooterGiant({ first, last }: { first: string; last: string }) {
           <Grainient colors={["#061722", "#0b3550", "#1f7fb8", "#5ec4ff", "#d9f2ff"]} angle={20} speed={0.6} flow={0.7} silk={0.4} grainAmount={0.04} stir={1.4} intro={false} dpr={1} />
         )}
       </div>
-      <div aria-hidden className="pointer-events-none relative flex justify-center bg-black text-white mix-blend-multiply">
+      <div aria-hidden className="giant-mask pointer-events-none relative flex justify-center">
         <p ref={text} className="whitespace-nowrap py-[0.02em] text-[100px] font-medium leading-[0.86] tracking-[-0.06em]">
           <span className="inline-block overflow-hidden pb-[0.08em] align-bottom">
             {chars(first)}

@@ -68,7 +68,7 @@ export function Timeline({ title, lead, items }: { title: string; lead: string; 
       <div data-pin className="relative overflow-hidden lg:flex lg:h-[100svh] lg:flex-col lg:justify-center">
         {/* fondo di fibre azzurre che scorre più lento delle tappe; sfuma nel nero su tutti i lati */}
         <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block [mask-image:radial-gradient(75%_42%_at_50%_55%,#000_25%,transparent_100%)]">
-          <img data-bg src="/visual/fibers-sky.webp" alt="" className="absolute inset-y-0 left-0 h-full w-[130%] max-w-none object-cover opacity-40" />
+          <img data-bg src="/visual/fibers-sky.webp" alt="" className="absolute inset-y-0 left-0 h-full w-[130%] max-w-none object-cover opacity-40 light-invert" />
         </div>
 
         <div className="relative mx-auto w-full max-w-[1280px] px-5 sm:px-8">
@@ -79,13 +79,13 @@ export function Timeline({ title, lead, items }: { title: string; lead: string; 
 
         <div className="relative">
           {/* linea orizzontale (desktop) */}
-          <span aria-hidden className="absolute left-0 right-0 top-[clamp(118px,13vw,190px)] hidden h-px bg-white/10 lg:block">
+          <span aria-hidden className="absolute left-0 right-0 top-[clamp(118px,13vw,190px)] hidden h-px bg-[var(--hair-strong)] lg:block">
             <span data-fill className="block h-full w-full origin-left bg-[var(--sky)] shadow-[0_0_14px_var(--sky)]" />
           </span>
 
           <ol data-track className="relative flex flex-col gap-14 px-5 pl-12 sm:px-8 sm:pl-16 lg:w-max lg:flex-row lg:gap-0 lg:pl-[max(32px,calc((100vw-1280px)/2+32px))] lg:pr-[20vw]">
             {/* linea verticale (telefono) */}
-            <span aria-hidden className="absolute bottom-0 left-[22px] top-2 w-px bg-white/10 sm:left-[30px] lg:hidden">
+            <span aria-hidden className="absolute bottom-0 left-[22px] top-2 w-px bg-[var(--hair-strong)] sm:left-[30px] lg:hidden">
               <span data-vfill className="block h-full w-full origin-top bg-[var(--sky)] shadow-[0_0_12px_var(--sky)]" />
             </span>
 

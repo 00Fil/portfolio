@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeToggle } from "./ThemeToggle";
 import { Wordmark } from "./Wordmark";
 import { useCallback, useEffect, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
@@ -52,16 +53,18 @@ export function TopBar() {
             scrollToY(0);
           }
         }}
-        className="pointer-events-auto rounded-full px-2 py-2 text-white mix-blend-difference"
+        className="drop float-glass pointer-events-auto flex h-[42px] items-center rounded-full px-4 text-ink"
+        style={{ ["--drop-tint" as string]: "var(--bar-tint)" }}
         aria-label={profile.name}
       >
         <Wordmark />
       </a>
       <div className="pointer-events-auto flex items-center gap-2">
         <GlassSegmented id="lens-lang" options={options} selected={routing.locales.indexOf(locale)} onSelect={onSelect} label={t("language")} />
+        <ThemeToggle />
         <Drop
           floating
-          className="h-[42px] w-[42px] bg-black/55"
+          className="h-[42px] w-[42px]"
           label={sound ? t("soundOn") : t("soundOff")}
           onClick={() => {
             const on = !soundOn();
