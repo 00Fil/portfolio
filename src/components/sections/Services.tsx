@@ -16,13 +16,16 @@ const SPAN: Record<string, [number, number]> = {
   web: [2, 2],
   seo: [2, 1],
   geo: [2, 1],
+  ai: [2, 1],
+  hw: [2, 1],
   apps: [1, 1],
   design: [1, 1],
-  ai: [2, 1],
-  api: [1, 1],
-  shop: [1, 1],
   ops: [2, 1],
+  api: [2, 1],
+  shop: [2, 1],
 };
+/* Ordine nella griglia: righe piene, nessun buco. */
+const ORDER = ["web", "seo", "geo", "ai", "hw", "apps", "design", "ops", "api", "shop"];
 /* Ogni scheda inquadra un punto diverso dello stesso fondo di fibre. */
 const BG: CSSProperties[] = [
   { objectPosition: "20% 30%" },
@@ -34,6 +37,7 @@ const BG: CSSProperties[] = [
   { objectPosition: "30% 10%", transform: "scaleX(-1)" },
   { objectPosition: "70% 90%" },
   { objectPosition: "50% 50%", transform: "scaleY(-1)" },
+  { objectPosition: "35% 65%", transform: "scaleX(-1)" },
 ];
 
 function useColumns() {
@@ -114,7 +118,7 @@ export function Services() {
   const w = t.raw("w") as WidgetText;
   const cols = useColumns();
 
-  const items: MagicBentoItem[] = SERVICES.map((s, i) => {
+  const items: MagicBentoItem[] = ORDER.map((key) => SERVICES.find((x) => x.key === key)!).map((s, i) => {
     const [c, r] = SPAN[s.key];
     const href = `/servizi/${s.slug}`;
     return {

@@ -31,38 +31,31 @@
     "status": "Disponibile per nuovi progetti",
     "work": "Vedi i lavori",
     "contact": "Scrivimi",
-    "rows": [
+    "h1": "Progetto e sviluppo software su misura: siti web, web app, app, sistemi AI e hardware.",
+    "where": "Brescia, IT",
+    "lines": [
       [
-        "Sviluppo",
-        "@creacloud",
+        "Progetto",
+        "@",
+        "e sviluppo"
+      ],
+      [
         "*software",
-        "#star",
-        "su misura",
-        "#squiggle"
+        "#",
+        "su misura"
       ],
       [
-        "dall’idea",
-        "#flower",
-        "al rilascio",
-        "@relay",
-        "per aziende",
-        "#ring"
-      ],
-      [
-        "Siti",
-        "#burst",
-        "Web app",
-        "@unispace",
-        "App",
-        "#blob",
-        "AI",
-        "#pill",
-        "SEO",
-        "#moon"
+        "per",
+        "~"
       ]
     ],
-    "h1": "Sviluppo software su misura, dall’idea al rilascio, per aziende: siti, web app, app, AI e SEO.",
-    "where": "Brescia, IT"
+    "words": [
+      "siti web",
+      "web app",
+      "app",
+      "sistemi AI",
+      "hardware"
+    ]
   },
   "work": {
     "title": "Lavori",
@@ -344,7 +337,12 @@
       "total": "Totale",
       "passed": "superati",
       "online": "Online",
-      "backup": "backup"
+      "backup": "backup",
+      "hwDevice": "Sensore magazzino",
+      "hwTemp": "Temperatura",
+      "hwHum": "Umidità",
+      "hwOnline": "dispositivi online",
+      "hwAlert": "Avviso sotto i 4 °C"
     },
     "open": "Scopri",
     "includes": "Cosa include",
@@ -404,6 +402,7 @@
           "Integrazioni",
           "Design UI/UX",
           "Hosting e manutenzione",
+          "Soluzioni hardware",
           "Altro"
         ]
       },

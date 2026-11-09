@@ -35,8 +35,8 @@ export function HeroSky() {
           intro={!reduce}
         />
       )}
-      {/* il cielo resta in alto e in basso; dietro i nastri si scurisce, poi sfuma nel nero della pagina */}
-      <div className="absolute inset-0 [background:linear-gradient(to_bottom,rgba(0,0,0,.15),rgba(0,0,0,.86)_30%,rgba(0,0,0,.86)_70%,#000)]" />
+      {/* al centro un'isola di nero per il titolo; in basso il cielo sfuma nel nero della pagina */}
+      <div className="absolute inset-0 [background:radial-gradient(78%_44%_at_50%_50%,rgba(0,0,0,.94)_50%,transparent_100%),linear-gradient(to_bottom,transparent_70%,#000)]" />
     </div>
   );
 }

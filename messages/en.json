@@ -31,38 +31,31 @@
     "status": "Available for new projects",
     "work": "See the work",
     "contact": "Get in touch",
-    "rows": [
+    "h1": "I design and build custom software: websites, web apps, apps, AI systems and hardware.",
+    "where": "Brescia, IT",
+    "lines": [
       [
-        "I build",
-        "@creacloud",
+        "I design",
+        "@",
+        "and build"
+      ],
+      [
         "*custom",
-        "#star",
-        "software",
-        "#squiggle"
+        "#",
+        "software"
       ],
       [
-        "from idea",
-        "#flower",
-        "to launch",
-        "@relay",
-        "for businesses",
-        "#ring"
-      ],
-      [
-        "Websites",
-        "#burst",
-        "Web apps",
-        "@unispace",
-        "Apps",
-        "#blob",
-        "AI",
-        "#pill",
-        "SEO",
-        "#moon"
+        "for",
+        "~"
       ]
     ],
-    "h1": "I build custom software, from idea to launch, for businesses: websites, web apps, apps, AI and SEO.",
-    "where": "Brescia, IT"
+    "words": [
+      "websites",
+      "web apps",
+      "apps",
+      "AI systems",
+      "hardware"
+    ]
   },
   "work": {
     "title": "Work",
@@ -344,7 +337,12 @@
       "total": "Total",
       "passed": "passed",
       "online": "Online",
-      "backup": "backup"
+      "backup": "backup",
+      "hwDevice": "Warehouse sensor",
+      "hwTemp": "Temperature",
+      "hwHum": "Humidity",
+      "hwOnline": "devices online",
+      "hwAlert": "Alert below 4 °C"
     },
     "open": "Explore",
     "includes": "What’s included",
@@ -404,6 +402,7 @@
           "Integrations",
           "UI/UX design",
           "Hosting and maintenance",
+          "Hardware solutions",
           "Other"
         ]
       },

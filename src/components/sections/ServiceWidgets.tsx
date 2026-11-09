@@ -534,6 +534,77 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
   );
 }
 
+/* Hardware: un sensore collegato, le misure arrivano dal vivo e il grafico si disegna. */
+function HwV({ t, max }: { t: WidgetText; max?: number }) {
+  const pts = [18, 16, 17, 13, 14, 10, 12, 8, 9, 11, 7, 9];
+  const d = pts.map((y, i) => `${i ? "L" : "M"}${(i / (pts.length - 1)) * 200} ${y * 2.4}`).join(" ");
+  return (
+    <Canvas
+      w={560}
+      h={150}
+      max={max}
+      build={(q) => {
+        const tl = gsap.timeline().from(q("[data-panel]"), { ...enter, stagger: 0.12 });
+        tl.from(q("[data-wire]"), { strokeDashoffset: 100, duration: 0.8, ease: "power2.out" }, 0.4).fromTo(
+          q("[data-spark]"),
+          { strokeDashoffset: 100 },
+          { strokeDashoffset: 0, duration: 1.6, ease: "power1.inOut" },
+          0.7,
+        );
+        const temp = q("[data-temp]")[0];
+        const o = { v: 21.8 };
+        const live = gsap.timeline({ repeat: -1, yoyo: true });
+        live.to(o, { v: 22.6, duration: 2.4, ease: "sine.inOut", onUpdate: () => void (temp.textContent = o.v.toFixed(1).replace(".", t.url.endsWith(".it") ? "," : ".")) });
+        tl.add(live, 1);
+        return tl.to(q("[data-ping]"), { scale: 2.6, autoAlpha: 0, duration: 1.4, repeat: -1, ease: "power1.out" }, 1);
+      }}
+    >
+      <div className="absolute inset-0 flex items-stretch gap-4">
+        <div data-panel className={`flex w-[190px] flex-col justify-between p-4 ${glass}`}>
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-2 text-[11.5px] text-ink">
+              <Brand icon={si.siEspressif} className="h-4 w-4 text-ink-2" />
+              ESP32
+            </span>
+            <span className="relative flex h-2 w-2">
+              <span data-ping className="absolute inset-0 rounded-full" style={{ background: SKY }} />
+              <span className="relative h-2 w-2 rounded-full" style={{ background: SKY }} />
+            </span>
+          </div>
+          <p className="text-[11px] text-ink-3">{t.hwDevice}</p>
+          <div className="flex items-end justify-between">
+            <span className="t-fig text-[30px] font-medium leading-none tracking-[-0.03em] text-ink">
+              <span data-temp>21,8</span>
+              <span className="text-[15px] text-ink-3"> °C</span>
+            </span>
+            <span className="t-fig text-[11px] text-ink-3">48 %</span>
+          </div>
+        </div>
+        <svg viewBox="0 0 40 150" className="w-[40px] shrink-0" aria-hidden>
+          <path data-wire d="M0 75 C20 75 20 75 40 75" fill="none" stroke="rgba(94,196,255,.45)" strokeDasharray="3 4" pathLength={100} />
+        </svg>
+        <div data-panel className={`flex flex-1 flex-col justify-between p-4 ${glass}`}>
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="text-ink-2">{t.hwTemp} · 24 h</span>
+            <span className="t-fig text-ink-3">3 {t.hwOnline}</span>
+          </div>
+          <svg viewBox="0 0 200 50" preserveAspectRatio="none" className="h-[56px] w-full overflow-visible" aria-hidden>
+            <path d={`${d} L200 50 L0 50 Z`} fill="url(#hw-fill)" opacity=".5" />
+            <defs>
+              <linearGradient id="hw-fill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor={SKY} stopOpacity=".35" />
+                <stop offset="1" stopColor={SKY} stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <path data-spark d={d} fill="none" stroke={SKY} strokeWidth="1.6" pathLength={100} strokeDasharray="100" vectorEffect="non-scaling-stroke" />
+          </svg>
+          <span className="w-max rounded-full bg-white/[0.05] px-2.5 py-1 text-[10.5px] text-ink-3">{t.hwAlert}</span>
+        </div>
+      </div>
+    </Canvas>
+  );
+}
+
 export function ServiceVisual({ k, t, max }: { k: ServiceKey; t: WidgetText; max?: number }) {
   switch (k) {
     case "web":
@@ -548,6 +619,8 @@ export function ServiceVisual({ k, t, max }: { k: ServiceKey; t: WidgetText; max
       return <DesignV t={t} max={max} />;
     case "ai":
       return <AiV t={t} max={max} />;
+    case "hw":
+      return <HwV t={t} max={max} />;
     case "api":
       return <ApiV t={t} max={max} />;
     case "shop":

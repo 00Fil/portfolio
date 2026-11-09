@@ -91,7 +91,7 @@ export const CV: Record<"it" | "en", Cv> = {
     skillsTitle: "Competenze",
     skills: SKILLS_IT,
     howTitle: "Servizi",
-    how: ["Siti web e SEO", "Web app full stack", "App multipiattaforma", "API e integrazioni", "AI e sistemi integrati", "Hosting e manutenzione"],
+    how: ["Siti web e SEO", "Web app full stack", "App multipiattaforma", "API e integrazioni", "AI e sistemi integrati", "Soluzioni hardware e IoT"],
     footer: "Filippo Corsini · Portfolio e progetti su github.com/00Fil",
   },
   en: {
@@ -143,7 +143,7 @@ export const CV: Record<"it" | "en", Cv> = {
     skillsTitle: "Skills",
     skills: SKILLS_EN,
     howTitle: "Services",
-    how: ["Websites and SEO", "Full-stack web apps", "Cross-platform apps", "APIs and integrations", "AI and integrated systems", "Hosting and maintenance"],
+    how: ["Websites and SEO", "Full-stack web apps", "Cross-platform apps", "APIs and integrations", "AI and integrated systems", "Hardware and IoT solutions"],
     footer: "Filippo Corsini · Portfolio and projects at github.com/00Fil",
   },
 };

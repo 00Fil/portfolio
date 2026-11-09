@@ -2,7 +2,7 @@ import * as si from "simple-icons";
 import type { Locale } from "@/i18n/routing";
 
 type L = Record<Locale, string>;
-export type ServiceKey = "web" | "seo" | "geo" | "apps" | "design" | "ai" | "api" | "shop" | "ops";
+export type ServiceKey = "web" | "seo" | "geo" | "apps" | "design" | "ai" | "hw" | "api" | "shop" | "ops";
 type Tech = { name: string; path?: string };
 const k = (name: string, icon?: { path: string }): Tech => ({ name, path: icon?.path });
 
@@ -140,6 +140,26 @@ export const SERVICES: Service[] = [
     ],
     stack: [k("Claude", si.siClaude), k("Gemini", si.siGooglegemini), k("Python", si.siPython), k("FastAPI", si.siFastapi), k("n8n", si.siN8n), k("PostgreSQL", si.siPostgresql), k("WhatsApp", si.siWhatsapp)],
     projects: ["creacloud"],
+  },
+  {
+    slug: "soluzioni-hardware",
+    key: "hw",
+    need: 9,
+    label: { it: "Hardware", en: "Hardware" },
+    title: { it: "Soluzioni hardware", en: "Hardware solutions" },
+    short: { it: "Dispositivi, sensori e macchine collegati al tuo software, con i dati in tempo reale.", en: "Devices, sensors and machines connected to your software, with live data." },
+    lead: {
+      it: "Quando il software da solo non basta: progetto dispositivi su misura con microcontrollori e sensori, li collego al gestionale e porto i loro dati su una dashboard in tempo reale.",
+      en: "When software alone is not enough: I design custom devices with microcontrollers and sensors, connect them to your systems and bring their data to a live dashboard.",
+    },
+    includes: [
+      { title: { it: "Prototipi e dispositivi su misura", en: "Prototypes and custom devices" }, body: { it: "Schede con ESP32, Arduino o Raspberry Pi, firmware e involucro, dal prototipo al pezzo installato.", en: "Boards with ESP32, Arduino or Raspberry Pi, firmware and enclosure, from prototype to installed unit." } },
+      { title: { it: "Sensori e IoT", en: "Sensors and IoT" }, body: { it: "Temperatura, presenza, consumi, accessi: misure raccolte e inviate al server via Wi-Fi o rete locale.", en: "Temperature, presence, energy use, access: readings collected and sent to the server over Wi-Fi or local network." } },
+      { title: { it: "Dashboard e allarmi", en: "Dashboards and alerts" }, body: { it: "Dati in tempo reale, storico e notifiche quando un valore esce dai limiti.", en: "Live data, history and notifications when a value goes out of range." } },
+      { title: { it: "Integrazione con i sistemi esistenti", en: "Integration with existing systems" }, body: { it: "Macchine, totem e postazioni collegati al gestionale e alle automazioni con l’AI.", en: "Machines, kiosks and workstations linked to your back office and AI automations." } },
+    ],
+    stack: [k("ESP32", si.siEspressif), k("Arduino", si.siArduino), k("Raspberry Pi", si.siRaspberrypi), k("C++", si.siCplusplus), k("MicroPython", si.siMicropython), k("MQTT", si.siMqtt), k("Home Assistant", si.siHomeassistant), k("Grafana", si.siGrafana)],
+    projects: [],
   },
   {
     slug: "integrazioni-api",
