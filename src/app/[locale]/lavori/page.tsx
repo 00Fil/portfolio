@@ -6,6 +6,7 @@ import { PageEnter } from "@/components/motion/PageEnter";
 import { SiteNav } from "@/components/nav/SiteNav";
 import { Footer } from "@/components/sections/Footer";
 import { WorkIndex } from "@/components/work/WorkIndex";
+import { WorkStories } from "@/components/sections/Work";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -52,6 +53,7 @@ export default async function WorkPage({ params }: { params: Promise<{ locale: s
               open: t("case"),
             }}
           />
+          <WorkStories />
         </main>
         <Footer />
       </PageEnter>

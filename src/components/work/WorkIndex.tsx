@@ -1,16 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { RelayPreview } from "@/components/previews/RelayPreview";
-import { CreaCloudPreview } from "@/components/previews/CreaCloudPreview";
-import { UniSpacePreview } from "@/components/previews/UniSpacePreview";
-import { RollingText } from "@/components/motion/RollingText";
 import { play } from "@/lib/sound";
 import { prefersReducedMotion } from "@/lib/env";
 
@@ -18,11 +14,6 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const ParticleObject = dynamic(() => import("@/components/canvasui/ParticleObject"), { ssr: false });
 
-const PREVIEW: Record<string, ReactNode> = {
-  relay: <RelayPreview />,
-  creacloud: <CreaCloudPreview />,
-  unispace: <UniSpacePreview />,
-};
 
 export type IndexItem = {
   slug: string;
@@ -42,7 +33,7 @@ const pad = (i: number) => String(i + 1).padStart(2, "0");
 
 /**
  * Pagina dei lavori. In alto l'indice: passando su una riga il marchio di particelle (Canvas UI) si ricompone
- * nella forma del progetto. Sotto, un capitolo per progetto: l'anteprima si apre a tutto schermo con lo scorrimento.
+ * nella forma del progetto.
  */
 export function WorkIndex({ items, l }: { items: IndexItem[]; l: Labels }) {
   const root = useRef<HTMLDivElement>(null);
@@ -68,28 +59,6 @@ export function WorkIndex({ items, l }: { items: IndexItem[]; l: Labels }) {
         gsap.fromTo("[data-row]", { y: 30, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.8, ease: "power3.out", stagger: 0.08, delay: 0.8 });
         gsap.fromTo("[data-rule]", { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: "expo.out", stagger: 0.08, delay: 0.7 });
 
-        gsap.utils.toArray<HTMLElement>("[data-chapter]").forEach((ch) => {
-          const frame = ch.querySelector("[data-frame]");
-          const inner = ch.querySelector("[data-inner]");
-          gsap.fromTo(
-            frame,
-            { clipPath: "inset(14% 18% 14% 18% round 44px)" },
-            { clipPath: "inset(0% 0% 0% 0% round 28px)", ease: "none", scrollTrigger: { trigger: ch, start: "top 90%", end: "top 15%", scrub: 0.6 } },
-          );
-          gsap.fromTo(inner, { scale: 1.18, yPercent: -4 }, { scale: 1, yPercent: 4, ease: "none", scrollTrigger: { trigger: ch, start: "top bottom", end: "bottom top", scrub: true } });
-          gsap.fromTo(
-            ch.querySelectorAll("[data-cch]"),
-            { yPercent: 110 },
-            { yPercent: 0, duration: 0.9, ease: "power4.out", stagger: 0.03, scrollTrigger: { trigger: ch.querySelector("[data-cname]"), start: "top 85%", once: true } },
-          );
-          gsap.fromTo(
-            ch.querySelectorAll("[data-cl]"),
-            { y: 24, autoAlpha: 0 },
-            { y: 0, autoAlpha: 1, duration: 0.7, ease: "power3.out", stagger: 0.06, scrollTrigger: { trigger: ch.querySelector("[data-cname]"), start: "top 80%", once: true } },
-          );
-          // il numero grande scorre più lento del capitolo
-          gsap.fromTo(ch.querySelector("[data-cnum]"), { yPercent: 30 }, { yPercent: -30, ease: "none", scrollTrigger: { trigger: ch, start: "top bottom", end: "bottom top", scrub: true } });
-        });
       });
       return () => mm.revert();
     },
@@ -188,79 +157,6 @@ export function WorkIndex({ items, l }: { items: IndexItem[]; l: Labels }) {
         </div>
       </section>
 
-      {/* capitoli */}
-      {items.map((p, i) => (
-        <section key={p.slug} data-chapter aria-labelledby={`c-${p.slug}`} className="relative py-16 sm:py-24">
-          <div className="mx-auto w-full max-w-[1440px] px-3 sm:px-6">
-            <Link href={`/lavori/${p.slug}`} onClick={() => play("open")} aria-label={p.name} className="block">
-              <div data-frame className="relative aspect-[4/3] w-full overflow-hidden rounded-[28px] bg-surface sm:aspect-[16/9]">
-                <div data-inner className="absolute inset-0">
-                  {PREVIEW[p.slug]}
-                </div>
-              </div>
-            </Link>
-          </div>
-
-          <div className="relative mx-auto mt-14 grid w-full max-w-[1280px] gap-10 px-5 sm:mt-20 sm:px-8 lg:grid-cols-12">
-            <span data-cnum aria-hidden className="pointer-events-none absolute -top-[0.35em] right-5 select-none font-mono text-[clamp(120px,22vw,320px)] font-medium leading-none tracking-[-0.06em] text-white/[0.03] sm:right-8">
-              {pad(i)}
-            </span>
-            <div className="lg:col-span-5">
-              <p data-cl className="t-label font-mono text-[var(--sky)]">
-                {pad(i)} · {p.role}
-              </p>
-              <h2 id={`c-${p.slug}`} data-cname className="mt-4 overflow-hidden pb-[0.05em] text-[clamp(52px,7vw,104px)] font-medium leading-[0.92] tracking-[-0.055em] text-ink" aria-label={p.name}>
-                <span aria-hidden>
-                  {[...p.name].map((c, k) => (
-                    <span key={k} data-cch className="inline-block">
-                      {c}
-                    </span>
-                  ))}
-                </span>
-              </h2>
-              <p data-cl className="t-title3 mt-6 max-w-[28ch] text-ink">
-                {p.headline}
-              </p>
-              <Link
-                data-cl
-                href={`/lavori/${p.slug}`}
-                onClick={() => play("open")}
-                className="drop float-glass mt-9 inline-flex h-12 items-center gap-2 px-5 font-medium text-ink"
-              >
-                {l.open}
-                <ArrowUpRight size={17} strokeWidth={1.8} aria-hidden />
-              </Link>
-            </div>
-            <div className="lg:col-span-6 lg:col-start-7">
-              <p data-cl className="t-label text-ink-3">
-                {l.problem}
-              </p>
-              <p data-cl className="t-callout mt-3 text-ink">
-                {p.problem}
-              </p>
-              <p data-cl className="t-label mt-10 text-ink-3">
-                {l.built}
-              </p>
-              <ul className="mt-3 space-y-3">
-                {p.built.slice(0, 3).map((b) => (
-                  <li data-cl key={b} className="flex gap-3 text-ink-2">
-                    <span className="mt-[11px] h-px w-4 shrink-0 bg-[var(--sky)]" aria-hidden />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-              <ul className="mt-10 grid grid-cols-3 gap-6">
-                {p.figures.map((f) => (
-                  <li data-cl key={f.value}>
-                    <RollingText text={f.value} className="t-title1 t-fig text-ink" />
-                    <p className="t-foot mt-2 text-ink-3">{f.label}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-      ))}
     </div>
   );
 }

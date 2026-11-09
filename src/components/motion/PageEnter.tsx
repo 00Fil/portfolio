@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SPR, Spring } from "@/lib/spring";
 import { prefersReducedMotion } from "@/lib/env";
 
@@ -17,7 +18,13 @@ export function PageEnter({ children }: { children: ReactNode }) {
     el.style.transform = `translate3d(${w}px,0,0)`;
     el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: "cubic-bezier(0.4,0,0.2,1)" });
     s.to(0, SPR.page);
+    // le scene fissate misurano la pagina: rimisurano a ingresso finito, senza lo spostamento
+    const id = window.setTimeout(() => {
+      el.style.transform = "";
+      ScrollTrigger.refresh();
+    }, 900);
     return () => {
+      window.clearTimeout(id);
       un();
       s.stop();
     };

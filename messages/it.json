@@ -34,18 +34,49 @@
   },
   "work": {
     "title": "Lavori selezionati",
-    "lead": "Tre progetti completi, scelti tra quelli che ho portato fino in fondo.",
+    "lead": "Tre progetti portati fino in fondo. Per ognuno: com’era prima, cosa è cambiato, cosa resta.",
     "view": "Apri",
     "open": "Apri {name}",
     "case": "Leggi il caso studio",
     "all": "Tutti i lavori",
     "pageTitle": "Lavori",
-    "pageLead": "Progetti per clienti e prodotti miei, ciascuno con il problema di partenza, le scelte fatte e i limiti dichiarati.",
+    "pageLead": "Progetti per clienti e prodotti miei. Per ognuno: com’era prima, cosa è cambiato, cosa resta.",
     "index": "Indice",
     "colProject": "Progetto",
     "colRole": "Ruolo",
     "colPlatforms": "Piattaforme",
-    "colYear": "Anno"
+    "colYear": "Anno",
+    "steps": [
+      "Prima",
+      "Ora",
+      "Risultato"
+    ],
+    "stories": {
+      "creacloud": {
+        "kicker": "Per un centro didattico",
+        "lines": [
+          "Ogni mese, decine di famiglie e tutor da incastrare a mano, un messaggio alla volta.",
+          "Ora scrivono su WhatsApp come sempre. Un assistente raccoglie richieste, spostamenti e disdette.",
+          "Il calendario del mese si compone da solo. Il coordinatore controlla e approva."
+        ]
+      },
+      "relay": {
+        "kicker": "App per telefono e computer",
+        "lines": [
+          "Passare un indirizzo dal computer al telefono voleva dire un’app, un cloud o un cavo.",
+          "Copi sul computer, incolli sul telefono. Lo stesso vale per screenshot e file.",
+          "E le cuffie passano da sole al dispositivo che stai usando."
+        ]
+      },
+      "unispace": {
+        "kicker": "Strumenti per lo studio",
+        "lines": [
+          "Una lezione registrata dura ore, tra pause e silenzi.",
+          "I silenzi spariscono e la lezione scorre fino a tre volte più veloce.",
+          "La trascrizione arriva da sola, formule comprese."
+        ]
+      }
+    }
   },
   "stack": {
     "title": "Strumenti",
@@ -177,90 +208,90 @@
   "method": {
     "label": "Metodo",
     "title": "Come lavoro",
-    "lead": "Lo stesso processo per un’app, una piattaforma o uno strumento interno: cinque fasi, ciascuna chiusa da un risultato verificabile.",
+    "lead": "Che sia un’app, un sito o uno strumento per l’ufficio, il percorso è lo stesso: cinque tappe, e alla fine di ognuna hai in mano qualcosa di concreto.",
     "phases": [
       {
         "name": "Capire",
-        "title": "Prima del codice, il problema.",
-        "body": "Parto da chi userà il software e da cosa deve cambiare nel suo lavoro. Ne escono requisiti ordinati per priorità, criteri di accettazione verificabili e i rischi da chiarire subito.",
+        "title": "Prima di scrivere codice, ascolto.",
+        "body": "Parto da chi userà il software e da cosa deve cambiare nella sua giornata. Mettiamo in fila cosa serve davvero, cosa può aspettare e cosa lasciamo fuori.",
         "practices": [
-          "Requisiti con priorità esplicite",
-          "Criteri di accettazione scritti",
-          "Stima con margine dichiarato"
+          "Priorità decise insieme",
+          "Obiettivi chiari e misurabili",
+          "Tempi e costi con margini onesti"
         ],
-        "out": "Documento di analisi"
+        "out": "Un piano condiviso"
       },
       {
         "name": "Progettare",
-        "title": "Scelte scritte, non ricordate.",
-        "body": "Disegno l’architettura sulle esigenze reali, non sulle mode. Ogni scelta importante finisce in un documento breve con contesto, alternative e conseguenze: chi arriva dopo sa perché le cose sono così.",
+        "title": "Scelte semplici, spiegate per iscritto.",
+        "body": "Scelgo la soluzione più semplice che regge quello che serve, non quella di moda. Le decisioni importanti restano scritte, così chiunque arrivi dopo sa perché le cose sono fatte così.",
         "practices": [
-          "Registro delle decisioni architetturali",
-          "Interfacce tra i servizi definite prima",
-          "Dati e permessi progettati dall’inizio"
+          "La soluzione più semplice che funziona",
+          "Decisioni messe per iscritto",
+          "Sicurezza e dati pensati dall’inizio"
         ],
-        "out": "Architettura e decisioni"
+        "out": "Un progetto chiaro"
       },
       {
         "name": "Costruire",
-        "title": "Piccoli passi, sempre verificati.",
-        "body": "Lavoro per incrementi brevi su rami separati. Ogni modifica passa da revisione e test automatici prima di entrare nel ramo principale, e il numero di versione segue il tipo di cambiamento.",
+        "title": "Un pezzo alla volta, sempre controllato.",
+        "body": "Lavoro a piccoli passi e ogni passo si può vedere e provare. Ogni modifica viene ricontrollata prima di entrare nella versione vera, e nulla si perde.",
         "practices": [
-          "Rami brevi e modifiche piccole",
-          "Test automatici e revisione del codice",
-          "Versionamento semantico"
+          "Passi piccoli e visibili",
+          "Ogni modifica ricontrollata",
+          "Storia completa di ogni cambiamento"
         ],
-        "out": "Incrementi funzionanti"
+        "out": "Versioni da provare"
       },
       {
         "name": "Rilasciare",
-        "title": "Rilasci noiosi, per scelta.",
-        "body": "La pipeline controlla, compila e pubblica senza passaggi a mano. Le versioni nuove arrivano prima a una parte degli utenti; se gli errori salgono, si torna indietro da soli.",
+        "title": "Mettere online senza sorprese.",
+        "body": "Prima di arrivare agli utenti, il software passa da una serie di controlli automatici. Le novità arrivano a poche persone alla volta: se qualcosa non va, si torna indietro da soli.",
         "practices": [
-          "Integrazione e rilascio continui",
-          "Rilascio graduale con ritorno automatico",
-          "Ambienti identici, configurati come codice"
+          "Controlli automatici a ogni rilascio",
+          "Novità date a pochi utenti per volta",
+          "Ritorno indietro immediato"
         ],
-        "out": "Rilascio in produzione"
+        "out": "Il software online"
       },
       {
         "name": "Mantenere",
-        "title": "Il lavoro continua dopo il rilascio.",
-        "body": "Misuro tempi di risposta ed errori rispetto a obiettivi concordati e ricevo un avviso prima che il problema arrivi all’utente. Documentazione e passaggio di consegne fanno parte della consegna.",
+        "title": "Il lavoro continua dopo il lancio.",
+        "body": "Tengo d’occhio velocità ed errori e ricevo un avviso prima che il problema arrivi a te o ai tuoi clienti. Ti lascio tutto documentato: il software resta tuo.",
         "practices": [
-          "Monitoraggio con obiettivi di servizio",
-          "Avvisi utili, non rumore",
-          "Documentazione e consegna"
+          "Controllo continuo di velocità ed errori",
+          "Avvisi prima che sia un problema",
+          "Documentazione e consegna completa"
         ],
-        "out": "Servizio misurato"
+        "out": "Un servizio che regge"
       }
     ],
-    "output": "Risultato",
-    "principlesTitle": "Principi che valgono in ogni fase",
+    "output": "Alla fine hai",
+    "principlesTitle": "Valgono in ogni tappa",
     "principles": [
       {
         "title": "Sicurezza dall’inizio",
-        "body": "Segreti fuori dal codice, permessi minimi, dipendenze aggiornate e controllate."
+        "body": "Password e dati sensibili protetti, accessi solo a chi serve, tutto tenuto aggiornato."
       },
       {
-        "title": "Semplicità giustificata",
-        "body": "La soluzione più semplice che regge i requisiti. La complessità in più va motivata per iscritto."
+        "title": "Semplice prima di tutto",
+        "body": "Niente complicazioni inutili: più il software è semplice, meno si rompe e meno costa mantenerlo."
       },
       {
-        "title": "Prestazioni misurate",
-        "body": "Tempi di caricamento e di risposta con un budget e numeri reali, non impressioni."
+        "title": "Veloce, e lo misuro",
+        "body": "Pagine e app che si aprono subito. Lo verifico con numeri reali, non a sensazione."
       },
       {
-        "title": "Accessibilità di serie",
-        "body": "Contrasto, tastiera e lettori di schermo verificati durante lo sviluppo, non alla fine."
+        "title": "Usabile da tutti",
+        "body": "Testi leggibili, comandi da tastiera, compatibile con gli strumenti per chi vede poco."
       },
       {
-        "title": "Comunicazione regolare",
-        "body": "Aggiornamenti a cadenza fissa, problemi segnalati appena emergono, decisioni condivise."
+        "title": "Sempre aggiornato",
+        "body": "Ti dico a che punto siamo a cadenza fissa e ti avviso subito se qualcosa cambia."
       },
       {
-        "title": "Codice che resta",
-        "body": "Nomi chiari, convenzioni condivise, nessuna parte che solo una persona sa mantenere."
+        "title": "Fatto per durare",
+        "body": "Codice ordinato e documentato: un altro sviluppatore può riprenderlo senza ripartire da zero."
       }
     ]
   }

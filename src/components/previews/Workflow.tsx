@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { Check, Minus, RotateCcw, X } from "lucide-react";
 import { RollingNumber } from "@/components/motion/RollingNumber";
+import { useLocale } from "next-intl";
 import { prefersReducedMotion } from "@/lib/env";
 import { play } from "@/lib/sound";
 
@@ -22,7 +23,33 @@ function useVisible<T extends HTMLElement>() {
   return [ref, vis] as const;
 }
 
-const Tag = ({ children }: { children: string }) => <span className="t-label absolute left-5 top-4 font-mono text-ink-3">{children}</span>;
+const L = {
+  it: {
+    ci: "Controlli automatici", stages: ["Ordine", "Prove", "Preparazione", "Pubblicazione"], stopped: "fermato",
+    git: "Storia delle modifiche", main: "principale", feat: "novità",
+    commits: ["Aggiornamenti di routine", "Corretto un errore di rete", "Nuova funzione", "Prove della funzione", "Unita alla versione principale"],
+    ver: "Numero di versione", kinds: ["Svolta", "Novità", "Correzione"], notes: ["cambia il modo d’uso", "aggiunge qualcosa", "corregge un errore"],
+    canary: "Rilascio graduale", users: "degli utenti", errors: "errori", back: "torna indietro", cur: "versione attuale", next: "nuova versione",
+    pri: "Priorità", levels: ["essenziale", "importante", "utile", "escluso"],
+    reqs: { auth: "Accesso", booking: "Prenotazioni", notifications: "Notifiche", "export.csv": "Esportazione", "dark-mode": "Tema scuro" } as Record<string, string>,
+    arch: "Come è fatto", nodes: { app: "App", api: "Server", auth: "Accesso", db: "Dati", queue: "Attività" } as Record<string, string>, decided: "Decisione scritta",
+    mon: "Tempi di risposta", alert: "avviso", ok: "tutto ok", up: "online 99,95%", limit: "soglia", last: "ultimi 10 s",
+  },
+  en: {
+    ci: "Automatic checks", stages: ["Tidy-up", "Tests", "Build", "Publish"], stopped: "stopped",
+    git: "Change history", main: "main line", feat: "new feature",
+    commits: ["Routine updates", "Fixed a network error", "New feature", "Tests for the feature", "Merged into the main line"],
+    ver: "Version number", kinds: ["Major", "Feature", "Fix"], notes: ["changes how it is used", "adds something", "fixes an error"],
+    canary: "Gradual rollout", users: "of users", errors: "errors", back: "rolled back", cur: "current version", next: "new version",
+    pri: "Priorities", levels: ["essential", "important", "nice to have", "out"],
+    reqs: { auth: "Sign-in", booking: "Bookings", notifications: "Notifications", "export.csv": "Export", "dark-mode": "Dark mode" } as Record<string, string>,
+    arch: "How it fits", nodes: { app: "App", api: "Server", auth: "Sign-in", db: "Data", queue: "Jobs" } as Record<string, string>, decided: "Decision recorded",
+    mon: "Response time", alert: "alert", ok: "all good", up: "online 99.95%", limit: "limit", last: "last 10 s",
+  },
+};
+const useL = () => L[useLocale() === "en" ? "en" : "it"];
+
+const Tag = ({ children }: { children: string }) => <span className="t-foot absolute left-5 top-4 text-ink-3">{children}</span>;
 
 /* ───────── CI: i controlli si susseguono, un test rosso blocca il rilascio ───────── */
 
@@ -31,6 +58,7 @@ const STAGES = ["lint", "test", "build", "deploy"] as const;
 const MS = [520, 900, 760, 640];
 
 export function PipelineTile() {
+  const l = useL();
   const [ref, vis] = useVisible<HTMLDivElement>();
   const [st, setSt] = useState<St[]>(["idle", "idle", "idle", "idle"]);
   const [run, setRun] = useState(0);
@@ -74,7 +102,7 @@ export function PipelineTile() {
 
   return (
     <div ref={ref} className="relative flex h-full w-full flex-col justify-center gap-2 px-5 pb-5 pt-12">
-      <Tag>ci / main</Tag>
+      <Tag>{l.ci}</Tag>
       {STAGES.map((name, i) => (
         <div key={name} className="relative flex h-11 items-center gap-3 overflow-hidden rounded-[10px] bg-sunken px-3">
           <span
@@ -89,8 +117,8 @@ export function PipelineTile() {
             {st[i] === "run" && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />}
             {st[i] === "idle" && <span className="h-1.5 w-1.5 rounded-full bg-ink-3" />}
           </span>
-          <span className={`relative font-mono text-[13px] ${st[i] === "skip" ? "text-ink-3" : "text-ink"}`}>{name}</span>
-          <span className="t-fig relative ml-auto font-mono text-[12px] text-ink-3">{st[i] === "ok" ? `${(MS[i] / 1000).toFixed(1)}s` : st[i] === "fail" ? "exit 1" : ""}</span>
+          <span className={`relative text-[14px] ${st[i] === "skip" ? "text-ink-3" : "text-ink"}`}>{l.stages[i] ?? name}</span>
+          <span className="t-fig relative ml-auto font-mono text-[12px] text-ink-3">{st[i] === "ok" ? `${(MS[i] / 1000).toFixed(1)}s` : st[i] === "fail" ? l.stopped : ""}</span>
         </div>
       ))}
       <button type="button" aria-label="Rerun" onClick={() => setRun((r) => r + 1)} className="absolute right-4 top-3 flex h-7 w-7 items-center justify-center rounded-full text-ink-3 transition-colors hover:bg-sunken hover:text-ink active:scale-90">
@@ -111,6 +139,7 @@ const COMMITS = [
 ];
 
 export function GitTile() {
+  const l = useL();
   const [ref, vis] = useVisible<HTMLDivElement>();
   const svg = useRef<SVGSVGElement>(null);
   const [cur, setCur] = useState(4);
@@ -144,10 +173,9 @@ export function GitTile() {
     return () => ctx.revert();
   }, [vis]);
 
-  const c = COMMITS[cur];
   return (
     <div ref={ref} className="relative h-full w-full">
-      <Tag>git / graph</Tag>
+      <Tag>{l.git}</Tag>
       <svg ref={svg} viewBox="0 0 240 260" className="absolute inset-x-0 top-6 bottom-12 h-[calc(100%-4.5rem)] w-full" fill="none" aria-hidden>
         <path d="M64 56V250" stroke="#2c2c2e" strokeWidth="2" />
         <path data-p d="M64 56V118" stroke="#85857f" strokeWidth="2" strokeLinecap="round" />
@@ -159,12 +187,11 @@ export function GitTile() {
             <circle cx={k.x} cy={k.y} r={cur === i ? 7 : 5} fill={i === 2 || i === 3 ? "#2f5fff" : "#f2f2f0"} style={{ transition: "r .2s" }} />
           </g>
         ))}
-        <text x="78" y="52" fontSize="10" fill="#85857f" fontFamily="var(--font-geist-mono)">main</text>
-        <text x="162" y="146" fontSize="10" fill="#85857f" fontFamily="var(--font-geist-mono)">feat/sync</text>
+        <text x="78" y="52" fontSize="10" fill="#85857f" fontFamily="var(--font-geist-mono)">{l.main}</text>
+        <text x="162" y="146" fontSize="10" fill="#85857f" fontFamily="var(--font-geist-mono)">{l.feat}</text>
       </svg>
-      <div className="absolute inset-x-5 bottom-4 flex items-baseline justify-between gap-3 font-mono text-[12px]">
-        <span className="truncate text-ink">{c.m}</span>
-        <span className="text-ink-3">{c.h}</span>
+      <div className="absolute inset-x-5 bottom-4 text-[13px]">
+        <span className="truncate text-ink">{l.commits[cur]}</span>
       </div>
     </div>
   );
@@ -179,6 +206,7 @@ const KINDS = [
 ] as const;
 
 export function ReleaseTile() {
+  const l = useL();
   const [ref, vis] = useVisible<HTMLDivElement>();
   const [v, setV] = useState<[number, number, number]>([1, 4, 2]);
   const [last, setLast] = useState<number>(2);
@@ -205,7 +233,7 @@ export function ReleaseTile() {
 
   return (
     <div ref={ref} className="relative flex h-full w-full flex-col items-center justify-center gap-6 px-5 pt-6">
-      <Tag>release / semver</Tag>
+      <Tag>{l.ver}</Tag>
       <div className="t-fig flex items-baseline font-mono text-[40px] leading-none text-ink">
         <span className="text-ink-3">v</span>
         {v.map((n, i) => (
@@ -223,13 +251,13 @@ export function ReleaseTile() {
             key={o.k}
             type="button"
             onClick={() => bump(i, true)}
-            className={`flex-1 rounded-[10px] py-2 font-mono text-[12px] transition-[background-color,color,transform] duration-200 active:scale-[0.94] ${last === i ? "bg-accent-subtle text-accent-on-subtle" : "bg-sunken text-ink-2 hover:text-ink"}`}
+            className={`flex-1 rounded-[10px] py-2 text-[13px] transition-[background-color,color,transform] duration-200 active:scale-[0.94] ${last === i ? "bg-accent-subtle text-accent-on-subtle" : "bg-sunken text-ink-2 hover:text-ink"}`}
           >
-            {o.k}
+            {l.kinds[i]}
           </button>
         ))}
       </div>
-      <span className="t-label font-mono text-ink-3">{KINDS[last].note}</span>
+      <span className="t-foot text-ink-3">{l.notes[last]}</span>
     </div>
   );
 }
@@ -240,6 +268,7 @@ const LIMIT = 1;
 const errOf = (s: number) => 0.12 + (s > 70 ? (s - 70) * 0.09 : 0);
 
 export function CanaryTile() {
+  const l = useL();
   const [ref, vis] = useVisible<HTMLDivElement>();
   const [split, setSplit] = useState(5);
   const [rolled, setRolled] = useState(false);
@@ -297,13 +326,14 @@ export function CanaryTile() {
   const bad = err > LIMIT || rolled;
   return (
     <div ref={ref} className="relative flex h-full w-full flex-col justify-center gap-5 px-5 pt-6">
-      <Tag>release / canary</Tag>
+      <Tag>{l.canary}</Tag>
       <div className="flex items-end justify-between">
         <div className="t-fig flex items-baseline gap-0.5 font-mono text-[40px] leading-none text-ink">
           <RollingNumber value={split} />
           <span className="text-[20px] text-ink-3">%</span>
+          <span className="ml-2 font-sans text-[13px] text-ink-3">{l.users}</span>
         </div>
-        <span className={`font-mono text-[12px] transition-colors duration-300 ${bad ? "text-[var(--negative)]" : "text-ink-3"}`}>{rolled ? "rollback" : `err ${err.toFixed(2)}%`}</span>
+        <span className={`text-[13px] transition-colors duration-300 ${bad ? "text-[var(--negative)]" : "text-ink-3"}`}>{rolled ? l.back : `${l.errors} ${err.toFixed(2)}%`}</span>
       </div>
       <div className="relative">
         <div className="h-[6px] w-full overflow-hidden rounded-full bg-sunken">
@@ -320,9 +350,9 @@ export function CanaryTile() {
         />
         <span aria-hidden className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink shadow-[0_0_0_3px_#000]" style={{ left: `${split}%` }} />
       </div>
-      <div className="flex justify-between font-mono text-[11px] text-ink-3">
-        <span>v1.4.2</span>
-        <span>v1.5.0</span>
+      <div className="flex justify-between text-[12px] text-ink-3">
+        <span>{l.cur}</span>
+        <span>{l.next}</span>
       </div>
     </div>
   );
@@ -340,6 +370,7 @@ const REQS = [
 ];
 
 export function RequirementsTile() {
+  const l = useL();
   const [ref, vis] = useVisible<HTMLDivElement>();
   const list = useRef<HTMLUListElement>(null);
   const [rows, setRows] = useState(REQS);
@@ -376,17 +407,17 @@ export function RequirementsTile() {
   const sorted = [...rows].sort((a, b) => a.p - b.p || REQS.findIndex((x) => x.id === a.id) - REQS.findIndex((x) => x.id === b.id));
   return (
     <div ref={ref} className="relative flex h-full w-full flex-col justify-center px-5 pb-5 pt-12">
-      <Tag>scope / moscow</Tag>
+      <Tag>{l.pri}</Tag>
       <ul ref={list} className="space-y-1.5">
         {sorted.map((r) => (
           <li key={r.id} data-flip-id={r.id} className={`flex h-10 items-center gap-3 rounded-[10px] bg-sunken pl-3 pr-1.5 transition-opacity duration-300 ${r.p === 3 ? "opacity-40" : ""}`}>
-            <span className={`font-mono text-[13px] ${r.p === 3 ? "text-ink-3 line-through" : "text-ink"}`}>{r.id}</span>
+            <span className={`text-[14px] ${r.p === 3 ? "text-ink-3 line-through" : "text-ink"}`}>{l.reqs[r.id]}</span>
             <button
               type="button"
               onClick={() => change(r.id, true)}
-              className={`ml-auto w-[68px] rounded-[7px] py-1 font-mono text-[11px] transition-colors duration-300 active:scale-95 ${r.p === 0 ? "bg-accent-subtle text-accent-on-subtle" : "bg-white/[0.04] text-ink-2 hover:text-ink"}`}
+              className={`ml-auto w-[96px] rounded-[7px] py-1 text-[12px] transition-colors duration-300 active:scale-95 ${r.p === 0 ? "bg-accent-subtle text-accent-on-subtle" : "bg-white/[0.04] text-ink-2 hover:text-ink"}`}
             >
-              {PRI[r.p]}
+              {l.levels[r.p]}
             </button>
           </li>
         ))}
@@ -412,6 +443,7 @@ const EDGES: [number, number][] = [
 ];
 
 export function ArchitectureTile() {
+  const l = useL();
   const [ref, vis] = useVisible<HTMLDivElement>();
   const svg = useRef<SVGSVGElement>(null);
   const [hot, setHot] = useState<number | null>(null);
@@ -458,7 +490,7 @@ export function ArchitectureTile() {
   const linked = (e: [number, number]) => hot !== null && (e[0] === hot || e[1] === hot);
   return (
     <div ref={ref} className="relative h-full w-full">
-      <Tag>design / system</Tag>
+      <Tag>{l.arch}</Tag>
       <svg ref={svg} viewBox="0 0 254 210" className="absolute inset-x-0 top-8 bottom-10 h-[calc(100%-4.5rem)] w-full" fill="none">
         {EDGES.map((e, i) => (
           <line
@@ -476,15 +508,15 @@ export function ArchitectureTile() {
         <circle data-dot r="4" fill="#5ec4ff" opacity="0" />
         {NODES.map((n, i) => (
           <g key={n.id} data-n onPointerEnter={() => { setHot(i); play("tick"); }} onPointerLeave={() => setHot(null)}>
-            <rect x={n.x - 26} y={n.y - 14} width="52" height="28" rx="9" fill={hot === i ? "#11244f" : "#2c2c2e"} style={{ transition: "fill .25s" }} />
-            <text x={n.x} y={n.y + 4} textAnchor="middle" fontSize="11" fill={hot === i ? "#b4d2ff" : "#f2f2f0"} fontFamily="var(--font-geist-mono)">
-              {n.id}
+            <rect x={n.x - 30} y={n.y - 14} width="60" height="28" rx="9" fill={hot === i ? "#11244f" : "#2c2c2e"} style={{ transition: "fill .25s" }} />
+            <text x={n.x} y={n.y + 4} textAnchor="middle" fontSize="11" fill={hot === i ? "#b4d2ff" : "#f2f2f0"} fontFamily="var(--font-geist-sans)">
+              {l.nodes[n.id]}
             </text>
           </g>
         ))}
       </svg>
-      <div data-adr className="absolute bottom-4 left-5 inline-flex items-center gap-2 rounded-full border border-[var(--positive)]/40 px-2.5 py-0.5 font-mono text-[11px] text-[var(--positive)]">
-        ADR-004 · accepted
+      <div data-adr className="absolute bottom-4 left-5 inline-flex items-center gap-2 rounded-full border border-[var(--positive)]/40 px-2.5 py-0.5 text-[12px] text-[var(--positive)]">
+        {l.decided}
       </div>
     </div>
   );
@@ -498,6 +530,7 @@ const H = 120;
 const POINTS = 40;
 
 export function MonitorTile() {
+  const l = useL();
   const [ref, vis] = useVisible<HTMLDivElement>();
   const [data, setData] = useState<number[]>(() => Array.from({ length: POINTS }, (_, i) => 150 + Math.sin(i / 3) * 25));
   const [hover, setHover] = useState<number | null>(null);
@@ -523,19 +556,19 @@ export function MonitorTile() {
 
   return (
     <div ref={ref} className="relative flex h-full w-full flex-col justify-end gap-3 px-5 pb-5 pt-12">
-      <Tag>ops / latency p95</Tag>
+      <Tag>{l.mon}</Tag>
       <span
         className={`absolute right-5 top-3.5 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-mono text-[11px] transition-colors duration-300 ${alert ? "bg-[var(--negative)]/15 text-[var(--negative)]" : "bg-white/[0.04] text-[var(--positive)]"}`}
       >
         <span className={`h-1.5 w-1.5 rounded-full ${alert ? "animate-pulse bg-[var(--negative)]" : "bg-[var(--positive)]"}`} />
-        {alert ? "alert" : "ok"}
+        {alert ? l.alert : l.ok}
       </span>
       <div className="flex items-baseline gap-1 font-mono">
         <span className="t-fig text-[40px] leading-none text-ink">
           <RollingNumber value={Math.round(shown)} />
         </span>
         <span className="text-[14px] text-ink-3">ms</span>
-        <span className="ml-auto text-[12px] text-ink-3">uptime 99.95%</span>
+        <span className="ml-auto font-sans text-[12px] text-ink-3">{l.up}</span>
       </div>
       <svg
         viewBox={`0 0 ${W} ${H}`}
@@ -551,9 +584,9 @@ export function MonitorTile() {
         <path d={d} stroke={alert ? "#ff5a52" : "#5ec4ff"} strokeWidth="1.8" fill="none" vectorEffect="non-scaling-stroke" style={{ transition: "stroke .3s" }} />
         {hover !== null && <line x1={x(hover)} x2={x(hover)} y1="0" y2={H} stroke="#f2f2f0" strokeOpacity="0.35" vectorEffect="non-scaling-stroke" />}
       </svg>
-      <div className="flex justify-between font-mono text-[11px] text-ink-3">
-        <span>slo {SLO}ms</span>
-        <span>-10s</span>
+      <div className="flex justify-between text-[12px] text-ink-3">
+        <span>{l.limit} {SLO} ms</span>
+        <span>{l.last}</span>
       </div>
     </div>
   );

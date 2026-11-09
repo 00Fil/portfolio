@@ -34,18 +34,49 @@
   },
   "work": {
     "title": "Selected work",
-    "lead": "Three complete projects, chosen from the ones I saw through to the end.",
+    "lead": "Three projects seen through to the end. For each: how it was, what changed, what stays.",
     "view": "Open",
     "open": "Open {name}",
     "case": "Read the case study",
     "all": "All work",
     "pageTitle": "Work",
-    "pageLead": "Client projects and products of my own, each with the starting problem, the choices made and the stated limits.",
+    "pageLead": "Client projects and products of my own. For each: how it was, what changed, what stays.",
     "index": "Index",
     "colProject": "Project",
     "colRole": "Role",
     "colPlatforms": "Platforms",
-    "colYear": "Year"
+    "colYear": "Year",
+    "steps": [
+      "Before",
+      "Now",
+      "Result"
+    ],
+    "stories": {
+      "creacloud": {
+        "kicker": "For a tutoring centre",
+        "lines": [
+          "Every month, dozens of families and tutors fitted together by hand, one message at a time.",
+          "Now they write on WhatsApp as usual. An assistant collects requests, changes and cancellations.",
+          "The month’s schedule puts itself together. The coordinator checks it and approves."
+        ]
+      },
+      "relay": {
+        "kicker": "Apps for phone and computer",
+        "lines": [
+          "Moving an address from computer to phone meant an app, a cloud service or a cable.",
+          "Copy on the computer, paste on the phone. Screenshots and files too.",
+          "And your headphones move on their own to the device you are using."
+        ]
+      },
+      "unispace": {
+        "kicker": "Tools for studying",
+        "lines": [
+          "A recorded lecture runs for hours, full of pauses and silences.",
+          "The silences disappear and the lecture plays up to three times faster.",
+          "The transcript arrives on its own, formulas included."
+        ]
+      }
+    }
   },
   "stack": {
     "title": "Tools",
@@ -177,90 +208,90 @@
   "method": {
     "label": "Method",
     "title": "How I work",
-    "lead": "The same process for an app, a platform or an internal tool: five phases, each closed by a result you can check.",
+    "lead": "Whether it is an app, a website or an internal tool, the path is the same: five stages, and at the end of each you hold something concrete.",
     "phases": [
       {
         "name": "Understand",
-        "title": "The problem before the code.",
-        "body": "I start from the people who will use the software and what has to change in their work. The outcome is prioritised requirements, testable acceptance criteria and the risks to settle early.",
+        "title": "Before writing code, I listen.",
+        "body": "I start from the people who will use the software and what has to change in their day. Together we sort out what is really needed, what can wait and what stays out.",
         "practices": [
-          "Requirements with explicit priorities",
-          "Written acceptance criteria",
-          "Estimates with a stated margin"
+          "Priorities agreed together",
+          "Clear, measurable goals",
+          "Time and cost with honest margins"
         ],
-        "out": "Analysis document"
+        "out": "A shared plan"
       },
       {
         "name": "Design",
-        "title": "Decisions written down, not remembered.",
-        "body": "I shape the architecture around real needs, not trends. Every significant choice goes into a short record with context, alternatives and consequences, so whoever comes next knows why things are the way they are.",
+        "title": "Simple choices, explained in writing.",
+        "body": "I pick the simplest solution that does the job, not the fashionable one. Important decisions are written down, so whoever comes next knows why things are the way they are.",
         "practices": [
-          "Architecture decision records",
-          "Interfaces between services defined first",
-          "Data and permissions designed from the start"
+          "The simplest solution that works",
+          "Decisions written down",
+          "Security and data planned from day one"
         ],
-        "out": "Architecture and decisions"
+        "out": "A clear blueprint"
       },
       {
         "name": "Build",
-        "title": "Small steps, always verified.",
-        "body": "I work in short increments on separate branches. Every change goes through review and automated tests before it reaches the main branch, and the version number follows the kind of change.",
+        "title": "One piece at a time, always checked.",
+        "body": "I work in small steps, and every step can be seen and tried. Each change is reviewed before it reaches the real version, and nothing gets lost.",
         "practices": [
-          "Short branches, small changes",
-          "Automated tests and code review",
-          "Semantic versioning"
+          "Small, visible steps",
+          "Every change reviewed",
+          "A full history of every change"
         ],
-        "out": "Working increments"
+        "out": "Versions to try"
       },
       {
         "name": "Release",
-        "title": "Boring releases, on purpose.",
-        "body": "The pipeline checks, builds and publishes with no manual steps. New versions reach a share of users first; if errors rise, the release rolls itself back.",
+        "title": "Going live without surprises.",
+        "body": "Before reaching users, the software goes through a series of automatic checks. New features reach a few people at a time: if something is wrong, it rolls back on its own.",
         "practices": [
-          "Continuous integration and delivery",
-          "Gradual rollout with automatic rollback",
-          "Identical environments, configured as code"
+          "Automatic checks on every release",
+          "New features to a few users at a time",
+          "Instant roll-back"
         ],
-        "out": "Production release"
+        "out": "The software live"
       },
       {
-        "name": "Operate",
-        "title": "The work goes on after release.",
-        "body": "I measure response times and errors against agreed objectives and get an alert before a problem reaches users. Documentation and handover are part of the delivery.",
+        "name": "Maintain",
+        "title": "The work goes on after launch.",
+        "body": "I keep an eye on speed and errors and get an alert before a problem reaches you or your customers. Everything is documented for you: the software stays yours.",
         "practices": [
-          "Monitoring against service objectives",
-          "Alerts that matter, not noise",
-          "Documentation and handover"
+          "Speed and errors watched continuously",
+          "Alerts before it becomes a problem",
+          "Full documentation and handover"
         ],
-        "out": "Measured service"
+        "out": "A service that holds up"
       }
     ],
-    "output": "Outcome",
-    "principlesTitle": "Principles that hold in every phase",
+    "output": "You end up with",
+    "principlesTitle": "They hold at every stage",
     "principles": [
       {
-        "title": "Security from the start",
-        "body": "Secrets out of the code, least privilege, dependencies kept current and checked."
+        "title": "Secure from the start",
+        "body": "Passwords and sensitive data protected, access only for those who need it, everything kept up to date."
       },
       {
-        "title": "Justified simplicity",
-        "body": "The simplest solution that meets the requirements. Extra complexity is argued in writing."
+        "title": "Simple first",
+        "body": "No needless complexity: the simpler the software, the less it breaks and the less it costs to maintain."
       },
       {
-        "title": "Measured performance",
-        "body": "Load and response times with a budget and real numbers, not impressions."
+        "title": "Fast, and measured",
+        "body": "Pages and apps that open straight away. Checked with real numbers, not by feel."
       },
       {
-        "title": "Accessibility built in",
-        "body": "Contrast, keyboard and screen readers checked during development, not at the end."
+        "title": "Usable by everyone",
+        "body": "Readable text, keyboard controls, works with the tools people with low vision rely on."
       },
       {
-        "title": "Regular communication",
-        "body": "Updates on a fixed rhythm, problems raised as soon as they appear, decisions shared."
+        "title": "Always in the loop",
+        "body": "Updates on a fixed schedule, and a heads-up as soon as something changes."
       },
       {
-        "title": "Code that lasts",
-        "body": "Clear names, shared conventions, no part that only one person can maintain."
+        "title": "Built to last",
+        "body": "Tidy, documented code: another developer can pick it up without starting over."
       }
     ]
   }
