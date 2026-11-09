@@ -557,12 +557,12 @@ function AppsV({ max }: { max?: number }) {
 const LINKED = [si.siStripe, si.siHubspot, si.siGooglecalendar, si.siWhatsapp];
 function ApiV({ t, max }: { t: WidgetText; max?: number }) {
   const names = [t.apiPay, t.apiCrm, t.apiCal, "WhatsApp"];
-  const xs = [40, 120, 200, 280];
-  const paths = xs.map((x) => `M160 42 C160 62 ${x} 52 ${x} 72`);
+  const xs = [80, 213, 347, 480];
+  const paths = xs.map((x) => `M280 42 C280 64 ${x} 50 ${x} 72`);
   return (
     <Canvas
-      w={320}
-      h={176}
+      w={560}
+      h={192}
       max={max}
       build={(q) => {
         const tl = gsap
@@ -583,19 +583,19 @@ function ApiV({ t, max }: { t: WidgetText; max?: number }) {
         return tl.add(run, 1.2);
       }}
     >
-      <Links paths={paths} w={320} h={176} />
-      <Bead data-core tint={DARK} className="absolute left-[160px] top-1.5 -ml-[66px] flex h-9 w-[132px] items-center justify-center whitespace-nowrap text-[12px] font-medium text-white backdrop-blur-md">
+      <Links paths={paths} w={560} h={192} />
+      <Bead data-core tint={DARK} className="absolute left-[280px] top-1.5 -ml-[70px] flex h-9 w-[140px] items-center justify-center whitespace-nowrap text-[12px] font-medium text-white backdrop-blur-md">
         {t.apiCore}
       </Bead>
       {LINKED.map((ic, i) => (
-        <span key={ic.slug} data-svc className="absolute top-[72px] -ml-9 flex w-[72px] flex-col items-center gap-1" style={{ left: xs[i] }}>
+        <span key={ic.slug} data-svc className="absolute top-[72px] -ml-12 flex w-24 flex-col items-center gap-1.5" style={{ left: xs[i] }}>
           <Bead data-svcb tint={DARK} radius={14} className="flex h-11 w-11 items-center justify-center text-white/75 backdrop-blur-md">
             <Brand icon={ic} className="h-[18px] w-[18px]" />
           </Bead>
-          <span className="text-[9.5px] text-white [text-shadow:0_1px_6px_rgba(0,0,0,.7)]">{names[i]}</span>
+          <span className="text-[11px] text-white [text-shadow:0_1px_6px_rgba(0,0,0,.7)]">{names[i]}</span>
         </span>
       ))}
-      <Bead data-log tint={DARK} className="absolute bottom-0 left-[160px] -ml-[110px] flex h-8 w-[220px] items-center justify-center px-3.5 text-[11px] text-white backdrop-blur-md">
+      <Bead data-log tint={DARK} className="absolute bottom-0 left-[280px] -ml-[130px] flex h-9 w-[260px] items-center justify-center px-3.5 text-[11px] text-white backdrop-blur-md">
         <Steps items={[t.apiL1, t.apiL2, t.apiL3, t.apiL4].map((l) => <><Tick className="h-3 w-3 text-[#fde68a]" /> {l}</>)} className="justify-center" />
       </Bead>
     </Canvas>

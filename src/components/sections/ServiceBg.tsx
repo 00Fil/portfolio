@@ -19,13 +19,13 @@ const PICK: Record<ServiceKey, keyof typeof T> = {
   web: "sky",
   seo: "deep",
   geo: "blue",
-  ai: "deep",
+  ai: "cyan",
+  design: "deep",
+  api: "blue",
+  ops: "sky",
   hw: "cyan",
   apps: "blue",
-  api: "sky",
-  design: "deep",
-  ops: "cyan",
-  shop: "blue",
+  shop: "deep",
 };
 export const HUE = Object.fromEntries(Object.entries(PICK).map(([k, v]) => [k, T[v][3]])) as Record<ServiceKey, string>;
 

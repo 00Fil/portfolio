@@ -19,15 +19,14 @@ const SPAN: Record<string, [number, number]> = {
   seo: [2, 1],
   geo: [2, 1],
   ai: [2, 1],
-  hw: [2, 1],
-  apps: [1, 1],
   design: [2, 1],
+  api: [2, 1],
   ops: [2, 1],
-  api: [1, 1],
-  shop: [2, 1],
 };
-/* Ordine nella griglia: righe piene, nessun buco. */
-const ORDER = ["web", "seo", "geo", "ai", "hw", "apps", "api", "design", "ops", "shop"];
+/* Solo i servizi essenziali, tutti in schede grandi: righe piene, nessun buco. */
+const ORDER = ["web", "seo", "geo", "ai", "design", "api", "ops"];
+const SHOWN = ORDER.map((k) => SERVICES.find((x) => x.key === k)!);
+
 function useColumns() {
   const [c, setC] = useState(4);
   useEffect(() => {
@@ -87,7 +86,7 @@ function Carousel({ w, locale, open }: { w: WidgetText; locale: Locale; open: st
   return (
     <>
       <div ref={track} className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-5 px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {SERVICES.map((s) => (
+        {SHOWN.map((s) => (
           <Link
             key={s.slug}
             href={`/servizi/${s.slug}`}
@@ -98,7 +97,7 @@ function Carousel({ w, locale, open }: { w: WidgetText; locale: Locale; open: st
         ))}
       </div>
       <div className="mt-5 flex items-center justify-center gap-1.5" aria-hidden>
-        {SERVICES.map((s, i) => (
+        {SHOWN.map((s, i) => (
           <span key={s.slug} className={`h-1.5 rounded-full transition-all duration-500 ${i === at ? "w-6 bg-[var(--sky)]" : "w-1.5 bg-white/20"}`} />
         ))}
       </div>
@@ -113,7 +112,7 @@ export function Services() {
   const w = t.raw("w") as WidgetText;
   const cols = useColumns();
 
-  const items: MagicBentoItem[] = ORDER.map((key) => SERVICES.find((x) => x.key === key)!).map((s) => {
+  const items: MagicBentoItem[] = SHOWN.map((s) => {
     const [c, r] = SPAN[s.key];
     const href = `/servizi/${s.slug}`;
     return {
