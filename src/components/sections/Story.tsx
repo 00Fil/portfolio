@@ -83,6 +83,7 @@ export function Story({ chapters, title, lead, locale, photo }: { chapters: Chap
               <Counter
                 value={c.value}
                 locale={locale}
+                format={{ useGrouping: false }}
                 fontSize="clamp(72px, 9vw, 136px)"
                 fontWeight={500}
                 textColor="var(--label-primary)"

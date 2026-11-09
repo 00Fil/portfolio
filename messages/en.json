@@ -170,35 +170,35 @@
   },
   "story": {
     "title": "Path",
-    "lead": "From school to university, by way of a company and the first clients.",
+    "lead": "Diploma, university and the first clients.",
     "chapters": [
-      {
-        "tag": "2024 — 2026",
-        "title": "Two years in a company",
-        "body": "Work placement at CS Metal Europe: 240 hours of work inside a company, spread over two years.",
-        "value": 240,
-        "unit": "hours of placement"
-      },
       {
         "tag": "2026",
         "title": "The final exam",
-        "body": "To tell those two years I built a macOS-style desktop in PHP and MySQL, with a demo mode that shows the examiners the path of every request.",
-        "value": 10,
-        "unit": "minute talk"
+        "body": "For my diploma exam I built a macOS-style desktop that tells my story, with a demo mode designed for the examiners.",
+        "value": 2026,
+        "unit": "diploma year"
       },
       {
-        "tag": "2026",
+        "tag": "2026 — today",
         "title": "Computer Engineering",
-        "body": "I start at the University of Brescia. I build my own study tools: StudyCut shortens recorded lectures and transcribes the formulas.",
-        "value": 3,
-        "unit": "times faster"
+        "body": "At the University of Brescia. I study maths, algorithms and systems, and put what I learn to work right away: I build my own study tools.",
+        "value": 180,
+        "unit": "credits in the bachelor"
       },
       {
         "tag": "Today",
-        "title": "Software for clients",
-        "body": "A platform for a tutoring centre, an app that links phone and PC across three platforms, and more client work.",
+        "title": "Freelance developer",
+        "body": "I build custom software for companies and professionals, from analysis to launch. Among the projects, a platform for a tutoring centre.",
         "value": 3,
-        "unit": "published projects"
+        "unit": "projects shipped"
+      },
+      {
+        "tag": "Personal project",
+        "title": "Relay",
+        "body": "My most ambitious project: two native apps and a server connecting phone and computer, with a design system drawn from scratch.",
+        "value": 3,
+        "unit": "connected platforms"
       }
     ]
   },
@@ -294,48 +294,38 @@
   },
   "process": {
     "title": "How I work",
-    "lead": "From the first message to live software, in four clear steps.",
-    "you": "What you do",
+    "lead": "Four steps, from the first message to software you use every day.",
     "get": "What you get",
-    "online": "Live",
     "steps": [
       {
-        "name": "We talk",
-        "you": "You tell me the idea or the problem to solve.",
-        "get": "A clear quote, with time and cost.",
-        "chips": [
-          "Measurable goals",
-          "Priorities agreed together"
-        ]
+        "name": "Listen",
+        "title": "First of all, I listen.",
+        "body": "A call to understand who will use the software, what it must solve and what can wait. No jargon.",
+        "get": "a clear quote, with time and cost."
       },
       {
-        "name": "I show you",
-        "you": "You try the prototype and tell me what to change.",
-        "get": "A clickable prototype, before any code.",
-        "chips": [
-          "Revisions included",
-          "No surprises later"
-        ]
+        "name": "Prototype",
+        "title": "Then I show you what it will be.",
+        "body": "Before writing code I prepare a prototype you can click, on computer and phone. Changes happen now, while they are cheap.",
+        "get": "a prototype to try and comment on."
       },
       {
-        "name": "I build",
-        "you": "You try the work-in-progress versions whenever you like.",
-        "get": "Regular updates and an always-on preview link.",
-        "chips": [
-          "Tests before every release",
-          "Tidy, documented code"
-        ]
+        "name": "Build",
+        "title": "I build, and you watch it grow.",
+        "body": "I work in short stages. At each one you get a new version to try, and we decide the next step together.",
+        "get": "regular updates and an always-on preview link."
       },
       {
-        "name": "I deliver and stay",
-        "you": "You use the product, with your customers.",
-        "get": "Live software, documentation and support.",
-        "chips": [
-          "Automatic backups",
-          "Data in Europe",
-          "The code stays yours"
-        ]
+        "name": "Live",
+        "title": "It goes live, and I stay.",
+        "body": "I publish the software, keep an eye on it and update it when needed. Documentation and code stay with you.",
+        "get": "live software, support and documentation."
       }
     ]
+  },
+  "cv": {
+    "title": "Résumé",
+    "lead": "Experience, projects and skills on one page.",
+    "download": "Download the PDF"
   }
 }

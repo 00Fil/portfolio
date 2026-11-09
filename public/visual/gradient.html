@@ -670,6 +670,10 @@ const S = {
   ascii: Number(params.get('ascii') ?? (band ? 1 : 0)),
   cell: Math.max(6, Number(params.get('cell') || (band ? 10 : 12))),
   ...(light ? PALETTE.light : PALETTE.dark),
+  // colori dal sito: ?glow=…&sec=…&line=… (esadecimali senza #)
+  ...(params.get('glow') ? { glowColor: '#' + params.get('glow') } : {}),
+  ...(params.get('sec') ? { secondaryColor: '#' + params.get('sec') } : {}),
+  ...(params.get('line') ? { lineColor: '#' + params.get('line') } : {}),
 };
 window.ponteSet = patch => {
   if (patch.bg) document.documentElement.style.setProperty('--bg', '#' + String(patch.bg).replace('#', ''));

@@ -330,7 +330,7 @@ export function GlassTopNav({ home }: { home: boolean }) {
                         className="group flex gap-3 rounded-[18px] p-3 transition-colors hover:bg-white/[0.05]"
                       >
                         <span className="relative h-[52px] w-[84px] shrink-0 overflow-hidden rounded-[12px] shadow-[0_0_0_1px_rgba(255,255,255,.08)] transition-transform duration-300 ease-[var(--ease-out)] group-hover:scale-105">
-                          <Cover slug={p.slug} />
+                          <Cover slug={p.slug} mini />
                         </span>
                         <span className="min-w-0">
                           <span className="flex items-center gap-1 font-medium text-ink">

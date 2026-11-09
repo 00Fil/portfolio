@@ -37,7 +37,7 @@ export function ProjectHero({ slug, name, def, label, scroll }: { slug: string; 
       <CoverArrived />
       <div className="sticky top-0 h-[100svh] overflow-hidden">
         <div data-cover className="absolute inset-0 overflow-hidden will-change-transform">
-          <Cover slug={slug} active live hero />
+          <Cover slug={slug} live hero />
           <div aria-hidden className="absolute inset-x-0 bottom-0 h-[55%] bg-[linear-gradient(to_top,rgba(0,0,0,.62),transparent)]" />
         </div>
         <div data-htext className="absolute inset-x-0 bottom-0">

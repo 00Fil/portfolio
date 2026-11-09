@@ -4,7 +4,7 @@
  */
 export const profile = {
   /** Nome come appare nell'hero e nel titolo. */
-  name: "Nome Cognome",
+  name: "Filippo Corsini",
   /** Foto in /public (es. "/me.jpg"). Vuota: al suo posto la visuale di Relay. */
   photo: "",
   city: "Brescia",
@@ -12,6 +12,6 @@ export const profile = {
   github: "https://github.com/00Fil",
   linkedin: "",
   /** Percorsi dei CV in /public, per lingua. */
-  cv: { it: "", en: "" },
+  cv: { it: "/cv/filippo-corsini-cv-it.pdf", en: "/cv/filippo-corsini-cv-en.pdf" },
   site: "https://example.com",
 };

@@ -88,7 +88,7 @@ export function CoverCard({ p, open, big = false }: { p: CardData; open: string;
           style={{ boxShadow: "0 0 0 1px rgba(255,255,255,.06)" }}
         >
           <div ref={tilt} className="absolute inset-0 [transform-style:preserve-3d]" style={{ transformOrigin: "50% 50%" }}>
-            <Cover slug={p.slug} active={active} />
+            <Cover slug={p.slug} />
           </div>
           <span
             className="drop absolute bottom-4 left-4 flex h-11 items-center gap-2 px-4 text-[15px] font-medium text-ink transition-transform duration-500 ease-[cubic-bezier(.2,.8,.2,1)] group-hover:-translate-y-0.5 sm:bottom-5 sm:left-5"
