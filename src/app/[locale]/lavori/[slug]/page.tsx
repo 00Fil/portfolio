@@ -88,7 +88,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
     <>
       <div style={themeVars(c)}>
         <main id="main">
-          <ProjectHero slug={slug} name={p.name} def={c.def[locale]} label={c.label[locale]} scroll={t("scroll")} />
+          <ProjectHero slug={slug} text={{ def: c.def[locale], label: c.label[locale], scroll: t("scroll") }} />
 
           {/* in breve: il problema detto semplice, chi, quando, con cosa */}
           <Reveal className="mx-auto w-full max-w-[1280px] px-5 py-24 sm:px-8 sm:py-36">
@@ -176,6 +176,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
                   name: getProject(next.slug)!.name,
                   label: next.label[locale],
                   def: next.def[locale],
+                  scroll: t("scroll"),
                   stack: next.stack.map((id) => ({ id, name: BRAND[id].title })),
                 }}
                 open={tw("open")}

@@ -10,7 +10,7 @@ import { prefersReducedMotion } from "@/lib/env";
 import { Cover } from "./Covers";
 import { useCoverTransition } from "./CoverTransition";
 
-export type CardData = { slug: string; name: string; label: string; def: string; stack: { id: keyof typeof BRAND; name: string }[] };
+export type CardData = { slug: string; name: string; label: string; def: string; scroll: string; stack: { id: keyof typeof BRAND; name: string }[] };
 
 /**
  * Scheda di un progetto: copertina che si inclina verso il cursore (i livelli si separano in profondità),
@@ -77,7 +77,8 @@ export function CoverCard({ p, open, big = false }: { p: CardData; open: string;
           if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
           e.preventDefault();
           play("open");
-          go(p.slug, href, frame.current!);
+          gsap.set(tilt.current, { rotateX: 0, rotateY: 0 });
+          go(p.slug, href, frame.current!, { def: p.def, label: p.label, scroll: p.scroll });
         }}
         className="block [perspective:1800px]"
       >

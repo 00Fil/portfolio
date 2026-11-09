@@ -7,7 +7,7 @@
     "label": "Sections",
     "home": "Home",
     "work": "Work",
-    "approach": "How I work",
+    "approach": "Services",
     "stack": "Stack",
     "path": "Path",
     "contact": "Contact",
@@ -72,36 +72,18 @@
     "discover": "Discover"
   },
   "stack": {
-    "title": "What I work with",
-    "lead": "The technologies behind the projects I have shipped.",
-    "rows": {
-      "apps": "Apps and interfaces",
-      "server": "Servers, data and deployment"
-    }
-  },
-  "path": {
-    "title": "Path",
-    "items": {
-      "unibs": {
-        "when": "2026 —",
-        "what": "Computer Engineering",
-        "where": "University of Brescia"
-      },
-      "freelance": {
-        "when": "Ongoing",
-        "what": "Client work",
-        "where": "Websites, platforms and tools for clients"
-      },
-      "maturita": {
-        "when": "2026",
-        "what": "School leaving exam",
-        "where": "Work placement talk with maturita-2k26"
-      },
-      "pcto": {
-        "when": "Two years",
-        "what": "Work placement, 240 hours",
-        "where": "CS Metal Europe"
-      }
+    "title": "Skills",
+    "lead": "From code to launch: the languages, frameworks and practices I use every day.",
+    "groups": {
+      "languages": "Languages",
+      "frontend": "Frontend and SEO",
+      "backend": "Backend and APIs",
+      "native": "Native apps",
+      "data": "Databases",
+      "devops": "DevOps and cloud",
+      "quality": "Quality and testing",
+      "foundations": "Foundations",
+      "ai": "AI and optimisation"
     }
   },
   "faq": {
@@ -170,33 +152,33 @@
   },
   "story": {
     "title": "Path",
-    "lead": "Diploma, university and the first clients.",
+    "lead": "Technical education, university and hands-on work.",
     "chapters": [
       {
         "tag": "2026",
-        "title": "The final exam",
-        "body": "For my diploma exam I built a macOS-style desktop that tells my story, with a demo mode designed for the examiners.",
-        "value": 2026,
-        "unit": "diploma year"
+        "title": "IT Technician Diploma",
+        "body": "Technical high school, Computer Science and Telecommunications: programming, networks, systems and databases.",
+        "value": 5,
+        "unit": "years of technical school"
       },
       {
         "tag": "2026 — today",
         "title": "Computer Engineering",
-        "body": "At the University of Brescia. I study maths, algorithms and systems, and put what I learn to work right away: I build my own study tools.",
+        "body": "University of Brescia. Maths, algorithms and systems, put to work right away in real projects.",
         "value": 180,
-        "unit": "credits in the bachelor"
+        "unit": "bachelor credits"
       },
       {
         "tag": "Today",
         "title": "Freelance developer",
-        "body": "I build custom software for companies and professionals, from analysis to launch. Among the projects, a platform for a tutoring centre.",
+        "body": "Custom software for companies and professionals, from analysis to launch. Among the projects, a tutoring centre’s platform.",
         "value": 3,
         "unit": "projects shipped"
       },
       {
         "tag": "Personal project",
         "title": "Relay",
-        "body": "My most ambitious project: two native apps and a server connecting phone and computer, with a design system drawn from scratch.",
+        "body": "Two native apps and a server connecting phone and computer, with a design system drawn from scratch.",
         "value": 3,
         "unit": "connected platforms"
       }
@@ -292,40 +274,60 @@
       }
     ]
   },
-  "process": {
-    "title": "How I work",
-    "lead": "Four steps, from the first message to software you use every day.",
-    "get": "What you get",
-    "steps": [
-      {
-        "name": "Listen",
-        "title": "First of all, I listen.",
-        "body": "A call to understand who will use the software, what it must solve and what can wait. No jargon.",
-        "get": "a clear quote, with time and cost."
-      },
-      {
-        "name": "Prototype",
-        "title": "Then I show you what it will be.",
-        "body": "Before writing code I prepare a prototype you can click, on computer and phone. Changes happen now, while they are cheap.",
-        "get": "a prototype to try and comment on."
-      },
-      {
-        "name": "Build",
-        "title": "I build, and you watch it grow.",
-        "body": "I work in short stages. At each one you get a new version to try, and we decide the next step together.",
-        "get": "regular updates and an always-on preview link."
-      },
-      {
-        "name": "Live",
-        "title": "It goes live, and I stay.",
-        "body": "I publish the software, keep an eye on it and update it when needed. Documentation and code stay with you.",
-        "get": "live software, support and documentation."
-      }
-    ]
-  },
   "cv": {
     "title": "Résumé",
     "lead": "Experience, projects and skills on one page.",
     "download": "Download the PDF"
+  },
+  "services": {
+    "title": "Services",
+    "lead": "From a website to a complete platform: design, development and launch, with one point of contact.",
+    "items": [
+      {
+        "label": "Full stack",
+        "title": "Websites and web apps",
+        "body": "Fast websites, platforms and custom management tools, from database to interface. Next.js, React, Node and Python."
+      },
+      {
+        "label": "SEO",
+        "title": "SEO and performance",
+        "body": "Structure, content and speed designed for Google: green Core Web Vitals, structured data, multilingual."
+      },
+      {
+        "label": "Apps",
+        "title": "Android and Windows apps",
+        "body": "Native apps in Kotlin and .NET, in sync with your server."
+      },
+      {
+        "label": "Design",
+        "title": "UI/UX and prototypes",
+        "body": "Clear interfaces and a prototype to try before any code."
+      },
+      {
+        "label": "AI",
+        "title": "AI and automation",
+        "body": "WhatsApp assistants, data extraction from documents, processes that used to be manual."
+      },
+      {
+        "label": "API",
+        "title": "Integrations",
+        "body": "I connect management systems, payments, CRMs and external services through REST APIs and webhooks."
+      },
+      {
+        "label": "E-commerce",
+        "title": "Online stores",
+        "body": "Catalogue, payments and orders, fast and easy to manage."
+      },
+      {
+        "label": "DevOps",
+        "title": "Hosting, security and releases",
+        "body": "Servers, Docker, HTTPS, backups and automated releases. All monitored."
+      },
+      {
+        "label": "Support",
+        "title": "Maintenance and consulting",
+        "body": "Updates, new features and technical advice after delivery: one person who knows the project."
+      }
+    ]
   }
 }

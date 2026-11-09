@@ -35,7 +35,7 @@ export default async function CvPage({ params, searchParams }: { params: Promise
   ].filter(Boolean) as { icon: typeof MapPin; text: string; href: string }[];
 
   const Sheet = (
-    <article className="cv-sheet relative mx-auto flex flex-col overflow-hidden bg-black text-[#F2F2F0]" style={{ width: "210mm", height: "297mm", padding: "13mm 15mm 10mm" }}>
+    <article className="cv-sheet relative mx-auto flex flex-col overflow-hidden bg-black text-[#F2F2F0]" style={{ width: "210mm", height: "297mm", padding: "11mm 15mm 9mm" }}>
       {/* luce di Relay nell'angolo: solo un dettaglio */}
       <div aria-hidden className="pointer-events-none absolute -right-[40mm] -top-[50mm] h-[120mm] w-[120mm] rounded-full bg-[#2F5FFF] opacity-25 blur-[60px]" />
 
@@ -55,13 +55,13 @@ export default async function CvPage({ params, searchParams }: { params: Promise
         </ul>
       </header>
 
-      <p className="relative mt-[6mm] max-w-[165mm] text-[10.5pt] leading-[1.5] text-[#F2F2F0]">{d.profile}</p>
+      <p className="relative mt-[5mm] max-w-[170mm] text-[10pt] leading-[1.5] text-[#F2F2F0]">{d.profile}</p>
 
-      <div className="relative mt-[7mm] grid flex-1 grid-cols-[1fr_58mm] gap-[10mm]">
+      <div className="relative mt-[5mm] grid flex-1 grid-cols-[1fr_58mm] gap-[10mm]">
         <div>
           <h2 className="cv-h">{d.workTitle}</h2>
           {d.work.map((w) => (
-            <section key={w.title} className="mt-[4.5mm] break-inside-avoid">
+            <section key={w.title} className="mt-[4mm] break-inside-avoid">
               <div className="flex items-baseline justify-between gap-[4mm]">
                 <h3 className="text-[12pt] font-medium tracking-[-0.02em]">{w.title}</h3>
                 <span className="shrink-0 font-mono text-[7.5pt] text-[#85857F]">{w.when}</span>
@@ -69,7 +69,7 @@ export default async function CvPage({ params, searchParams }: { params: Promise
               <p className="mt-[0.8mm] text-[8.5pt] text-[#5ec4ff]">{w.what}</p>
               <ul className="mt-[1.6mm] space-y-[1mm]">
                 {w.points.map((p) => (
-                  <li key={p} className="grid grid-cols-[3mm_1fr] text-[8.4pt] leading-[1.42] text-[#d9d9d4]">
+                  <li key={p} className="grid grid-cols-[3mm_1fr] text-[8.2pt] leading-[1.4] text-[#d9d9d4]">
                     <span className="mt-[2mm] block h-[1.2mm] w-[1.2mm] rounded-full bg-[#5ec4ff]" />
                     {p}
                   </li>
@@ -103,25 +103,26 @@ export default async function CvPage({ params, searchParams }: { params: Promise
         <aside>
           <h2 className="cv-h">{d.eduTitle}</h2>
           {d.edu.map((e) => (
-            <section key={e.title} className="mt-[5mm]">
+            <section key={e.title} className="mt-[4mm]">
               <p className="font-mono text-[7.5pt] text-[#85857F]">{e.when}</p>
               <h3 className="mt-[0.8mm] text-[10.5pt] font-medium leading-[1.25] tracking-[-0.01em]">{e.title}</h3>
               <p className="mt-[1mm] text-[8.3pt] leading-[1.45] text-[#A6A6A1]">{e.body}</p>
             </section>
           ))}
 
-          <h2 className="cv-h mt-[7mm]">{d.skillsTitle}</h2>
+          <h2 className="cv-h mt-[6mm]">{d.skillsTitle}</h2>
           {d.skills.map((g) => (
-            <section key={g.title} className="mt-[3.2mm]">
-              <h3 className="text-[8.3pt] font-medium text-[#F2F2F0]">{g.title}</h3>
-              <p className="mt-[0.8mm] text-[8pt] leading-[1.45] text-[#A6A6A1]">{g.items.join(" · ")}</p>
-            </section>
+            <p key={g.title} className="mt-[2.2mm] text-[7.6pt] leading-[1.42] text-[#A6A6A1]">
+              <span className="font-medium text-[#F2F2F0]">{g.title}</span>
+              <span className="text-[#5c5c58]"> — </span>
+              {g.items.join(" · ")}
+            </p>
           ))}
 
         </aside>
       </div>
 
-      <footer className="relative mt-[8mm] flex items-center justify-between border-t border-white/10 pt-[3mm] font-mono text-[7pt] text-[#85857F]">
+      <footer className="relative mt-[4mm] flex items-center justify-between border-t border-white/10 pt-[3mm] font-mono text-[7pt] text-[#85857F]">
         <span>{d.footer}</span>
         <svg viewBox="0 0 24 24" className="h-[4mm] w-[4mm] text-[#5ec4ff]" fill="currentColor" aria-hidden>
           <path d="M12 0c.6 6.2 5.8 11.4 12 12-6.2.6-11.4 5.8-12 12-.6-6.2-5.8-11.4-12-12C6.2 11.4 11.4 6.2 12 0z" />

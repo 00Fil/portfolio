@@ -5,107 +5,117 @@ import { gsap } from "gsap";
 import { useRouter } from "@/i18n/navigation";
 import { getLenis } from "@/lib/scroll";
 import { prefersReducedMotion } from "@/lib/env";
-import { Cover } from "./Covers";
+import { HeroArt, type HeroText } from "./Covers";
 
 /**
- * Passaggio dalla copertina alla pagina del progetto.
- * La copertina in volo è già grande quanto lo schermo: parte rimpicciolita e ritagliata sulla scheda,
- * poi si allarga con sole trasformazioni e ritaglio (niente ricalcolo del layout, niente scatti).
- * La pagina si apre solo a volo finito, sotto la copertina, che poi si dissolve.
+ * Dalla copertina alla pagina del progetto, come un elemento condiviso.
+ * In volo c'è già l'apertura della pagina, a schermo intero e con il layout finale:
+ * lo sfondo parte ritagliato sulla scheda e si apre, icona e nome partono dalla loro posizione nella scheda
+ * e scivolano al loro posto. Solo trasformazioni e ritaglio: niente layout ricalcolato, niente React a ogni fotogramma.
+ * La pagina vera si apre sotto, a volo finito, con le stesse posizioni; poi il volo si dissolve.
  */
-type Ctx = { go: (slug: string, href: string, from: HTMLElement) => void; arrived: () => void };
-const C = createContext<Ctx>({ go: () => {}, arrived: () => {} });
+type Ctx = { go: (slug: string, href: string, card: HTMLElement, text: HeroText) => void; arrived: () => void; flying: () => boolean };
+const C = createContext<Ctx>({ go: () => {}, arrived: () => {}, flying: () => false });
 export const useCoverTransition = () => useContext(C);
 
 export function CoverTransition({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [slug, setSlug] = useState<string | null>(null);
-  const [hero, setHero] = useState(false);
-  const box = useRef<HTMLDivElement>(null);
-  const inner = useRef<HTMLDivElement>(null);
-  const plan = useRef<{ rect: DOMRect; radius: number; href: string } | null>(null);
-  const state = useRef({ flown: false, arrived: false });
+  const [text, setText] = useState<HeroText>({ def: "", label: "", scroll: "" });
+  const root = useRef<HTMLDivElement>(null);
+  const plan = useRef<{ card: HTMLElement; href: string } | null>(null);
+  const st = useRef({ active: false, flown: false, arrived: false });
 
   const leave = useCallback(() => {
-    const el = box.current;
-    if (!el) return setSlug(null);
-    gsap.to(el, { opacity: 0, duration: 0.5, ease: "power2.out", onComplete: () => setSlug(null) });
+    const el = root.current;
+    const end = () => {
+      st.current.active = false;
+      setSlug(null);
+    };
+    if (!el) return end();
+    gsap.to(el, { opacity: 0, duration: 0.35, ease: "power1.out", onComplete: end });
   }, []);
 
   const go = useCallback(
-    (s: string, href: string, el: HTMLElement) => {
+    (s: string, href: string, card: HTMLElement, t: HeroText) => {
       if (prefersReducedMotion()) return router.push(href);
-      plan.current = { rect: el.getBoundingClientRect(), radius: parseFloat(getComputedStyle(el).borderRadius) || 28, href };
-      state.current = { flown: false, arrived: false };
+      plan.current = { card, href };
+      st.current = { active: true, flown: false, arrived: false };
       router.prefetch(href);
       getLenis()?.stop();
-      setHero(false);
+      setText(t);
       setSlug(s);
     },
     [router],
   );
 
   useEffect(() => {
-    const el = box.current;
-    const inn = inner.current;
+    const el = root.current;
     const p = plan.current;
-    if (!slug || !el || !inn || !p) return;
+    if (!slug || !el || !p) return;
+    const bg = el.querySelector<HTMLElement>("[data-bg]")!;
+    const r = p.card.getBoundingClientRect();
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    const { rect: r, radius } = p;
-    // la copertina a schermo intero, ridotta per coprire la scheda e centrata su di lei
-    const k = Math.max(r.width / vw, r.height / vh);
-    const from = { x: r.left + r.width / 2 - (vw * k) / 2, y: r.top + r.height / 2 - (vh * k) / 2, k, t: r.top, rr: vw - r.right, b: vh - r.bottom, l: r.left, rad: radius };
-    const o = { ...from };
-    const paint = () => {
-      inn.style.transform = `translate3d(${o.x}px, ${o.y}px, 0) scale(${o.k})`;
-      el.style.clipPath = `inset(${o.t}px ${o.rr}px ${o.b}px ${o.l}px round ${o.rad}px)`;
-    };
+    const radius = parseFloat(getComputedStyle(p.card).borderRadius) || 28;
+
+    // icona e nome: dalla posizione nella scheda a quella finale
+    const pairs = (["icon", "name"] as const).map((k) => {
+      const from = p.card.querySelector<HTMLElement>(`[data-flip="${k}"]`)!.getBoundingClientRect();
+      const node = el.querySelector<HTMLElement>(`[data-flip="${k}"]`)!;
+      const to = node.getBoundingClientRect();
+      const s = from.height / to.height;
+      return { node, x: from.left - to.left, y: from.top - to.top, s };
+    });
+    pairs.forEach((q) => gsap.set(q.node, { x: q.x, y: q.y, scale: q.s, transformOrigin: "0 0" }));
+    const rest = el.querySelectorAll("[data-hero-shade], [data-hero-rest]");
+    gsap.set(rest, { opacity: 0 });
+
+    const clip = { t: r.top, rr: vw - r.right, b: vh - r.bottom, l: r.left, rad: radius };
+    const paint = () => (bg.style.clipPath = `inset(${clip.t}px ${clip.rr}px ${clip.b}px ${clip.l}px round ${clip.rad}px)`);
     paint();
-    // il passaggio a "apertura" parte insieme al volo
-    const raf = window.setTimeout(() => setHero(true), 380);
-    const tw = gsap.to(o, {
-      x: 0,
-      y: 0,
-      k: 1,
-      t: 0,
-      rr: 0,
-      b: 0,
-      l: 0,
-      rad: 0,
-      duration: 1,
-      ease: "expo.inOut",
-      onUpdate: paint,
+    // la scheda resta sotto: nascondo la sua copertina perché icona e nome non compaiano doppi
+    gsap.set(p.card, { opacity: 0 });
+
+    const tl = gsap.timeline({
+      defaults: { duration: 1, ease: "expo.inOut" },
       onComplete: () => {
-        state.current.flown = true;
+        st.current.flown = true;
+        gsap.set(p.card, { opacity: 1 });
         router.push(p.href, { scroll: false });
       },
     });
+    tl.to(clip, { t: 0, rr: 0, b: 0, l: 0, rad: 0, onUpdate: paint }, 0)
+      .to(
+        pairs.map((q) => q.node),
+        { x: 0, y: 0, scale: 1, stagger: 0.04 },
+        0,
+      )
+      .to(rest, { opacity: 1, duration: 0.5, ease: "power1.out" }, 0.6);
     return () => {
-      window.clearTimeout(raf);
-      tw.kill();
+      tl.kill();
     };
   }, [slug, router]);
 
   const arrived = useCallback(() => {
-    if (!slug || state.current.arrived) return;
-    state.current.arrived = true;
+    if (!st.current.active || st.current.arrived) return;
+    st.current.arrived = true;
     window.scrollTo(0, 0);
     const l = getLenis();
     l?.scrollTo(0, { immediate: true });
     l?.start();
-    // un attimo perché la pagina sotto disegni la sua apertura, poi la copertina in volo sparisce
-    window.setTimeout(leave, 250);
-  }, [slug, leave]);
+    window.setTimeout(leave, 200);
+  }, [leave]);
+
+  const flying = useCallback(() => st.current.active, []);
 
   return (
-    <C.Provider value={{ go, arrived }}>
+    <C.Provider value={{ go, arrived, flying }}>
       {children}
       {slug && (
-        <div ref={box} aria-hidden className="pointer-events-none fixed inset-0 z-[45]" style={{ willChange: "clip-path, opacity" }}>
-          <div ref={inner} className="absolute left-0 top-0 h-[100vh] w-[100vw] origin-top-left" style={{ willChange: "transform" }}>
-            <Cover slug={slug} hero={hero} />
-            <div aria-hidden className="absolute inset-x-0 bottom-0 h-[55%] bg-[linear-gradient(to_top,rgba(0,0,0,.62),transparent)] transition-opacity duration-700" style={{ opacity: hero ? 1 : 0 }} />
+        <div ref={root} aria-hidden className="pointer-events-none fixed inset-0 z-[45]">
+          <div data-bg className="absolute inset-0" style={{ willChange: "clip-path" }}>
+            <HeroArt slug={slug} text={text} />
           </div>
         </div>
       )}
@@ -113,7 +123,7 @@ export function CoverTransition({ children }: { children: ReactNode }) {
   );
 }
 
-/** Nella pagina del progetto: avvisa che l'apertura è pronta sotto la copertina in volo. */
+/** Nella pagina del progetto: avvisa che l'apertura vera è pronta sotto quella in volo. */
 export function CoverArrived() {
   const { arrived } = useCoverTransition();
   useEffect(() => {

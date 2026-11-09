@@ -18,19 +18,28 @@ type Cv = {
 };
 
 const SKILLS_IT = [
-  { title: "App native", items: ["Kotlin", "Jetpack Compose", "C#", ".NET · WinUI 3"] },
-  { title: "Web", items: ["TypeScript", "React", "Next.js", "Tailwind CSS", "GSAP"] },
-  { title: "Server e dati", items: ["Node.js", "Python", "FastAPI", "PostgreSQL · Supabase", "SQLite", "WebSocket"] },
-  { title: "Messa online", items: ["Docker", "Caddy", "GitHub Actions", "VPS · Dokploy", "Headscale"] },
-  { title: "AI e algoritmi", items: ["Google Gemini", "OR-Tools CP-SAT", "Whisper"] },
+  { title: "Linguaggi", items: ["TypeScript", "JavaScript", "Python", "Kotlin", "C#", "Java", "C", "SQL", "Bash"] },
+  { title: "Frontend", items: ["React", "Next.js", "Tailwind CSS", "HTML · CSS", "GSAP", "Accessibilità", "SEO tecnica"] },
+  { title: "Backend e API", items: ["Node.js", "FastAPI", "REST", "WebSocket", "Autenticazione · JWT"] },
+  { title: "App native", items: ["Android · Jetpack Compose", ".NET · WinUI 3"] },
+  { title: "Dati", items: ["PostgreSQL", "Supabase", "SQLite", "MySQL", "Redis"] },
+  { title: "DevOps e cloud", items: ["Docker", "Linux", "Git", "GitHub Actions · CI/CD", "Caddy · Nginx", "VPS · Dokploy"] },
+  { title: "Qualità", items: ["Test unitari ed end-to-end", "Playwright", "Code review", "Design pattern"] },
+  { title: "Fondamenti", items: ["Algoritmi e strutture dati", "OOP", "Reti", "Sistemi operativi", "Basi di dati"] },
+  { title: "AI", items: ["Gemini · LLM", "Whisper", "OR-Tools CP-SAT"] },
 ];
-const SKILLS_EN = [
-  { title: "Native apps", items: SKILLS_IT[0].items },
-  { title: "Web", items: SKILLS_IT[1].items },
-  { title: "Servers and data", items: SKILLS_IT[2].items },
-  { title: "Shipping", items: SKILLS_IT[3].items },
-  { title: "AI and algorithms", items: SKILLS_IT[4].items },
-];
+const SKILLS_EN_T = ["Languages", "Frontend", "Backend and APIs", "Native apps", "Data", "DevOps and cloud", "Quality", "Foundations", "AI"];
+const EN_ITEMS: Record<string, string> = {
+  "Accessibilità": "Accessibility",
+  "SEO tecnica": "Technical SEO",
+  "Autenticazione · JWT": "Authentication · JWT",
+  "Test unitari ed end-to-end": "Unit and end-to-end testing",
+  "Algoritmi e strutture dati": "Algorithms and data structures",
+  "Reti": "Networking",
+  "Sistemi operativi": "Operating systems",
+  "Basi di dati": "Databases",
+};
+const SKILLS_EN = SKILLS_IT.map((g, i) => ({ title: SKILLS_EN_T[i], items: g.items.map((x) => EN_ITEMS[x] ?? x) }));
 
 export const CV: Record<"it" | "en", Cv> = {
   it: {
@@ -77,12 +86,12 @@ export const CV: Record<"it" | "en", Cv> = {
     eduTitle: "Formazione",
     edu: [
       { when: "2026 — oggi", title: "Ingegneria Informatica", body: "Università degli Studi di Brescia, laurea triennale." },
-      { when: "2026", title: "Diploma di Maturità", body: "Progetto d’esame: un desktop in stile macOS in PHP e MySQL che racconta il percorso, con modalità dimostrativa." },
+      { when: "2021 — 2026", title: "Diploma di Perito Informatico", body: "Istituto tecnico, indirizzo Informatica e Telecomunicazioni." },
     ],
     skillsTitle: "Competenze",
     skills: SKILLS_IT,
-    howTitle: "Come lavoro",
-    how: ["Prototipo prima del codice", "Rilasci brevi e frequenti", "Test e build automatiche", "Documentazione e codice consegnati al cliente"],
+    howTitle: "Servizi",
+    how: ["Siti web e SEO", "Web app full stack", "App Android e Windows", "API e integrazioni", "Automazioni con AI", "Hosting e manutenzione"],
     footer: "Filippo Corsini · Portfolio e progetti su github.com/00Fil",
   },
   en: {
@@ -129,12 +138,12 @@ export const CV: Record<"it" | "en", Cv> = {
     eduTitle: "Education",
     edu: [
       { when: "2026 — today", title: "Computer Engineering", body: "University of Brescia, bachelor’s degree." },
-      { when: "2026", title: "High-school diploma", body: "Exam project: a macOS-style desktop in PHP and MySQL telling my story, with a demo mode." },
+      { when: "2021 — 2026", title: "IT Technician Diploma", body: "Technical high school, Computer Science and Telecommunications." },
     ],
     skillsTitle: "Skills",
     skills: SKILLS_EN,
-    howTitle: "How I work",
-    how: ["Prototype before code", "Short, frequent releases", "Automated tests and builds", "Documentation and code handed to the client"],
+    howTitle: "Services",
+    how: ["Websites and SEO", "Full-stack web apps", "Android and Windows apps", "APIs and integrations", "AI automation", "Hosting and maintenance"],
     footer: "Filippo Corsini · Portfolio and projects at github.com/00Fil",
   },
 };

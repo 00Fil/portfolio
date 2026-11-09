@@ -228,3 +228,7 @@ html.js [data-reveal] { visibility: hidden; }
   html, body { background: #000 !important; }
   .cv-print .cv-sheet { break-after: page; }
 }
+
+/* Percorso: il nodo si accende quando la linea lo raggiunge */
+.tl-dot { transition: background-color .5s var(--ease-out, ease), color .5s, border-color .5s, box-shadow .5s, scale .5s cubic-bezier(.34,1.56,.64,1); }
+.tl-dot.is-on { background: var(--sky); color: #000; border-color: var(--sky); scale: 1.08; box-shadow: 0 0 0 6px rgba(94,196,255,.15), 0 0 24px rgba(94,196,255,.5); }

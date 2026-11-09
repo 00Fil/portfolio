@@ -8,11 +8,13 @@ import { CoverCard, type CardData } from "@/components/work/CoverCard";
 import { SectionHead } from "./SectionHead";
 
 export async function workCards(locale: Locale): Promise<CardData[]> {
+  const tp = await getTranslations({ locale, namespace: "project" });
   return COVERS.map((c) => ({
     slug: c.slug,
     name: projects.find((p) => p.slug === c.slug)!.name,
     label: c.label[locale],
     def: c.def[locale],
+    scroll: tp("scroll"),
     stack: c.stack.map((id) => ({ id, name: BRAND[id].title })),
   }));
 }

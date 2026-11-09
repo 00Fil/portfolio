@@ -2,19 +2,12 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { ArrowLeftRight, ArrowRight, CalendarDays, FileText, MessageCircle, Monitor, Smartphone, Video } from "lucide-react";
-import { Stage } from "./Stage";
 
 /**
- * Copertine dei progetti, tutte con lo stesso impianto di Relay:
- * lo sfondo vivo a fibre nei colori del progetto, l'icona dell'app a sinistra, il nome e due pillole di vetro
- * che dicono in una riga cosa fa. Cambiano colori, icona e carattere del nome: ogni progetto resta riconoscibile.
- *
- * `hero`: apertura della pagina, nome e pillole lasciano posto al titolo e l'icona sale a sinistra.
- * `mini`: miniatura (menu), solo sfondo e icona al centro.
- * `live`: al posto dell'immagine ferma, lo sfondo animato vero.
+ * Identità dei progetti, tutte con l'impianto di Relay: sfondo a fibre nei colori del progetto,
+ * icona dell'app, nome nel carattere del prodotto, due pillole di vetro.
+ * Le parti che volano dalla copertina alla pagina portano data-flip (icona e nome).
  */
-export type CoverProps = { live?: boolean; hero?: boolean; mini?: boolean; active?: boolean };
-
 type Brand = {
   bg: string;
   fibers: string;
@@ -22,13 +15,14 @@ type Brand = {
   icon: string;
   glow: string;
   name: string;
-  nameClass: string;
+  /** carattere del nome: lo stesso nella copertina e nel titolo della pagina */
+  font: string;
   pills: [ReactNode, string][];
   link: ReactNode;
   tint: string;
 };
 
-const BRANDS: Record<string, Brand> = {
+export const BRANDS: Record<string, Brand> = {
   creacloud: {
     bg: "#10122A",
     fibers: "/work/creacloud/fibers.webp",
@@ -36,12 +30,12 @@ const BRANDS: Record<string, Brand> = {
     icon: "/work/creacloud/icon.svg",
     glow: "#7C89C4",
     name: "CreaCloud",
-    nameClass: "t-serif text-[230px] leading-[0.9] tracking-[-0.03em]",
+    font: "t-serif tracking-[-0.03em] leading-[0.9]",
     pills: [
-      [<MessageCircle key="i" size={26} strokeWidth={1.6} />, "WhatsApp"],
-      [<CalendarDays key="i" size={26} strokeWidth={1.6} />, "Calendario"],
+      [<MessageCircle key="i" className="h-[1.2em] w-[1.2em]" strokeWidth={1.6} />, "WhatsApp"],
+      [<CalendarDays key="i" className="h-[1.2em] w-[1.2em]" strokeWidth={1.6} />, "Calendario"],
     ],
-    link: <ArrowRight size={30} strokeWidth={1.6} className="text-[#F4C9B6]" />,
+    link: <ArrowRight className="h-[1.4em] w-[1.4em] text-[#F4C9B6]" strokeWidth={1.6} />,
     tint: "rgba(30,32,70,.55)",
   },
   relay: {
@@ -51,12 +45,12 @@ const BRANDS: Record<string, Brand> = {
     icon: "/work/relay/icon.webp",
     glow: "#2F5FFF",
     name: "Relay",
-    nameClass: "text-[210px] font-medium leading-[0.9] tracking-[-0.06em]",
+    font: "font-medium tracking-[-0.06em] leading-[0.9]",
     pills: [
-      [<Monitor key="i" size={26} strokeWidth={1.6} />, "Windows"],
-      [<Smartphone key="i" size={26} strokeWidth={1.6} />, "Android"],
+      [<Monitor key="i" className="h-[1.2em] w-[1.2em]" strokeWidth={1.6} />, "Windows"],
+      [<Smartphone key="i" className="h-[1.2em] w-[1.2em]" strokeWidth={1.6} />, "Android"],
     ],
-    link: <ArrowLeftRight size={30} strokeWidth={1.6} className="text-[#5C9DFF]" />,
+    link: <ArrowLeftRight className="h-[1.4em] w-[1.4em] text-[#5C9DFF]" strokeWidth={1.6} />,
     tint: "rgba(20,26,48,.55)",
   },
   unispace: {
@@ -66,21 +60,19 @@ const BRANDS: Record<string, Brand> = {
     icon: "/work/unispace/mascot-base.webp",
     glow: "#3F9C97",
     name: "uniSpace",
-    nameClass: "font-[family-name:var(--font-anton)] text-[200px] uppercase leading-[0.95] tracking-[-0.01em]",
+    font: "font-[family-name:var(--font-anton)] uppercase tracking-[-0.005em] leading-[0.95]",
     pills: [
-      [<Video key="i" size={26} strokeWidth={1.6} />, "Lezione"],
-      [<FileText key="i" size={26} strokeWidth={1.6} />, "Trascrizione"],
+      [<Video key="i" className="h-[1.2em] w-[1.2em]" strokeWidth={1.6} />, "Lezione"],
+      [<FileText key="i" className="h-[1.2em] w-[1.2em]" strokeWidth={1.6} />, "Trascrizione"],
     ],
-    link: <ArrowRight size={30} strokeWidth={1.6} className="text-[#EE8A6C]" />,
+    link: <ArrowRight className="h-[1.4em] w-[1.4em] text-[#EE8A6C]" strokeWidth={1.6} />,
     tint: "rgba(14,30,30,.55)",
   },
 };
 
-const ease = "cubic-bezier(.7,0,.2,1)";
-
-export function Cover({ slug, live, hero, mini }: CoverProps & { slug: string }) {
+/** Sfondo: fibre ferme, e su richiesta l'animazione vera sopra. */
+export function BrandBackdrop({ slug, live }: { slug: string; live?: boolean }) {
   const b = BRANDS[slug];
-  const out: CSSProperties = { opacity: hero ? 0 : 1, transform: hero ? "translateY(-20px)" : "none", transition: `opacity .5s ease, transform .9s ${ease}` };
   return (
     <div className="absolute inset-0" style={{ background: b.bg }}>
       <img src={b.fibers} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover" draggable={false} />
@@ -94,37 +86,98 @@ export function Cover({ slug, live, hero, mini }: CoverProps & { slug: string })
           onLoad={(e) => (e.currentTarget.style.opacity = "1")}
         />
       )}
-      <Stage>
+    </div>
+  );
+}
+
+/** Icona dell'app con il suo alone. */
+export function BrandIcon({ slug, className = "", style }: { slug: string; className?: string; style?: CSSProperties }) {
+  const b = BRANDS[slug];
+  return (
+    <span data-flip="icon" className={`relative block shrink-0 ${className}`} style={style}>
+      <span aria-hidden className="absolute inset-[-30%] rounded-full opacity-50 blur-[40px]" style={{ background: b.glow }} />
+      <img src={b.icon} alt="" className="relative h-full w-full drop-shadow-[0_20px_30px_rgba(0,0,0,.55)]" draggable={false} />
+    </span>
+  );
+}
+
+export function BrandPills({ slug, className = "" }: { slug: string; className?: string }) {
+  const b = BRANDS[slug];
+  return (
+    <span className={`flex items-center gap-[0.7em] text-[#F2F2F0] ${className}`}>
+      <span className="drop flex h-[2.4em] items-center gap-[0.5em] px-[1em]" style={{ ["--drop-tint" as string]: b.tint }}>
+        {b.pills[0][0]} {b.pills[0][1]}
+      </span>
+      {b.link}
+      <span className="drop flex h-[2.4em] items-center gap-[0.5em] px-[1em]" style={{ ["--drop-tint" as string]: b.tint }}>
+        {b.pills[1][0]} {b.pills[1][1]}
+      </span>
+    </span>
+  );
+}
+
+/**
+ * Copertina della scheda: icona e nome centrati, pillole sotto il nome.
+ * Tutte le misure sono in cqw, frazioni della larghezza della copertina: la composizione resta identica a ogni misura.
+ * `mini`: solo l'icona al centro (miniature del menu).
+ */
+export function Cover({ slug, mini }: { slug: string; mini?: boolean }) {
+  const b = BRANDS[slug];
+  return (
+    <div className="absolute inset-0 [container-type:size]">
+      <BrandBackdrop slug={slug} />
+      <div className="absolute inset-0 flex items-center justify-center">
         {mini ? (
-          <div className="absolute" style={{ left: 560, top: 260, width: 480, height: 480 }}>
-            <div aria-hidden className="absolute inset-[-20%] rounded-full opacity-50 blur-[90px]" style={{ background: b.glow }} />
-            <img src={b.icon} alt="" className="relative h-full w-full" draggable={false} />
-          </div>
+          <BrandIcon slug={slug} className="h-[46cqh] w-[46cqh]" />
         ) : (
-          <>
-            <div
-              data-depth="1.2"
-              className="absolute"
-              style={{ left: 250, top: 290, width: 360, height: 360, transform: hero ? "translate(-110px, -170px) scale(.78)" : "none", transition: `transform 1s ${ease}` }}
-            >
-              <div aria-hidden className="absolute inset-[-30%] rounded-full opacity-50 blur-[90px]" style={{ background: b.glow }} />
-              <img src={b.icon} alt="" className="relative h-full w-full drop-shadow-[0_40px_60px_rgba(0,0,0,.6)]" draggable={false} />
+          <div className="flex items-center gap-[4cqw]">
+            <BrandIcon slug={slug} className="h-[19cqw] w-[19cqw]" />
+            <div className="flex flex-col items-start gap-[2.6cqw]">
+              <span data-flip="name" className={`block whitespace-nowrap text-[11.5cqw] text-[#F2F2F0] ${b.font}`}>
+                {b.name}
+              </span>
+              <BrandPills slug={slug} className="text-[1.6cqw]" />
             </div>
-            <div data-depth="0.6" className="absolute" style={{ left: 680, top: 330, ...out }}>
-              <span className={`block whitespace-nowrap text-[#F2F2F0] ${b.nameClass}`}>{b.name}</span>
-              <div className="mt-[44px] flex items-center gap-[18px] text-[26px] text-[#F2F2F0]">
-                <span className="drop flex h-[64px] items-center gap-[12px] px-[26px]" style={{ ["--drop-tint" as string]: b.tint }}>
-                  {b.pills[0][0]} {b.pills[0][1]}
-                </span>
-                {b.link}
-                <span className="drop flex h-[64px] items-center gap-[12px] px-[26px]" style={{ ["--drop-tint" as string]: b.tint }}>
-                  {b.pills[1][0]} {b.pills[1][1]}
-                </span>
-              </div>
-            </div>
-          </>
+          </div>
         )}
-      </Stage>
+      </div>
+    </div>
+  );
+}
+
+export type HeroText = { def: string; label: string; scroll: string };
+
+/**
+ * Apertura della pagina progetto, condivisa tra la pagina e la copertina in volo:
+ * stesse posizioni al pixel, così il passaggio dall'una all'altra non si vede.
+ * Icona e nome allineati alla griglia del sito, in basso a sinistra; a destra resta lo sfondo vivo.
+ */
+export function HeroArt({ slug, live, text }: { slug: string; live?: boolean; text: HeroText }) {
+  const b = BRANDS[slug];
+  return (
+    <div className="absolute inset-0">
+      <BrandBackdrop slug={slug} live={live} />
+      <div aria-hidden data-hero-shade className="absolute inset-x-0 bottom-0 h-[60%] bg-[linear-gradient(to_top,rgba(0,0,0,.55),transparent)]" />
+      <div className="absolute inset-x-0 bottom-0">
+        <div className="mx-auto w-full max-w-[1280px] px-5 pb-10 sm:px-8 sm:pb-14">
+          <BrandIcon slug={slug} className="h-[clamp(72px,8vw,120px)] w-[clamp(72px,8vw,120px)]" />
+          <h1 data-flip="name" className={`mt-6 whitespace-nowrap text-[clamp(60px,11vw,172px)] text-[#F2F2F0] ${b.font}`}>
+            {b.name}
+          </h1>
+          <div data-hero-rest className="mt-6 flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="max-w-[48ch] text-[clamp(17px,1.5vw,21px)] leading-[1.45] text-white/85">{text.def}</p>
+              <p className="t-label mt-4 text-white/60">{text.label}</p>
+            </div>
+            <span className="drop flex h-11 items-center gap-2 px-4 text-[14px] text-white" style={{ ["--drop-tint" as string]: "rgba(0,0,0,.35)" }}>
+              {text.scroll}
+              <svg viewBox="0 0 24 24" className="h-[15px] w-[15px]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M12 5v14M19 12l-7 7-7-7" />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -7,7 +7,7 @@
     "label": "Sezioni",
     "home": "Inizio",
     "work": "Lavori",
-    "approach": "Come lavoro",
+    "approach": "Servizi",
     "stack": "Stack",
     "path": "Percorso",
     "contact": "Contatti",
@@ -72,36 +72,18 @@
     "discover": "Scopri"
   },
   "stack": {
-    "title": "Con cosa lavoro",
-    "lead": "Le tecnologie dei progetti che ho portato online.",
-    "rows": {
-      "apps": "App e interfacce",
-      "server": "Server, dati e messa online"
-    }
-  },
-  "path": {
-    "title": "Percorso",
-    "items": {
-      "unibs": {
-        "when": "2026 —",
-        "what": "Ingegneria Informatica",
-        "where": "Università di Brescia"
-      },
-      "freelance": {
-        "when": "In corso",
-        "what": "Sviluppo su commissione",
-        "where": "Siti, piattaforme e strumenti per clienti"
-      },
-      "maturita": {
-        "when": "2026",
-        "what": "Maturità",
-        "where": "Esposizione del PCTO con maturita-2k26"
-      },
-      "pcto": {
-        "when": "Due anni",
-        "what": "PCTO, 240 ore",
-        "where": "CS Metal Europe"
-      }
+    "title": "Competenze",
+    "lead": "Dal codice alla messa online: linguaggi, framework e pratiche che uso ogni giorno.",
+    "groups": {
+      "languages": "Linguaggi",
+      "frontend": "Frontend e SEO",
+      "backend": "Backend e API",
+      "native": "App native",
+      "data": "Database",
+      "devops": "DevOps e cloud",
+      "quality": "Qualità e test",
+      "foundations": "Fondamenti",
+      "ai": "AI e ottimizzazione"
     }
   },
   "faq": {
@@ -170,33 +152,33 @@
   },
   "story": {
     "title": "Percorso",
-    "lead": "Diploma, università e i primi clienti.",
+    "lead": "Formazione tecnica, università e lavoro sul campo.",
     "chapters": [
       {
         "tag": "2026",
-        "title": "La Maturità",
-        "body": "Per l’esame ho costruito un desktop in stile macOS che racconta il mio percorso, con una modalità dimostrativa pensata per la commissione.",
-        "value": 2026,
-        "unit": "anno del diploma"
+        "title": "Diploma di Perito Informatico",
+        "body": "Istituto tecnico, indirizzo Informatica e Telecomunicazioni: programmazione, reti, sistemi e basi di dati.",
+        "value": 5,
+        "unit": "anni di istituto tecnico"
       },
       {
         "tag": "2026 — oggi",
         "title": "Ingegneria Informatica",
-        "body": "All’Università di Brescia. Studio matematica, algoritmi e sistemi, e metto subito alla prova quello che imparo: gli strumenti per studiare li costruisco io.",
+        "body": "Università degli Studi di Brescia. Matematica, algoritmi e sistemi, messi subito alla prova nei progetti.",
         "value": 180,
         "unit": "crediti della triennale"
       },
       {
         "tag": "Oggi",
         "title": "Sviluppatore freelance",
-        "body": "Realizzo software su misura per aziende e professionisti, dall’analisi alla messa online. Tra i lavori, la piattaforma per un centro didattico.",
+        "body": "Software su misura per aziende e professionisti, dall’analisi alla messa online. Tra i lavori, la piattaforma di un centro didattico.",
         "value": 3,
         "unit": "progetti pubblicati"
       },
       {
         "tag": "Progetto personale",
         "title": "Relay",
-        "body": "Il progetto più ambizioso: due app native e un server che collegano telefono e computer, con un design system disegnato da zero.",
+        "body": "Due app native e un server che collegano telefono e computer, con un design system disegnato da zero.",
         "value": 3,
         "unit": "piattaforme collegate"
       }
@@ -292,40 +274,60 @@
       }
     ]
   },
-  "process": {
-    "title": "Come lavoro",
-    "lead": "Quattro passi, dal primo messaggio al software che usi ogni giorno.",
-    "get": "Cosa ricevi",
-    "steps": [
-      {
-        "name": "Ascolto",
-        "title": "Prima di tutto, ascolto.",
-        "body": "Una chiamata per capire chi userà il software, cosa deve risolvere e cosa può aspettare. Senza gergo tecnico.",
-        "get": "un preventivo chiaro, con tempi e costi."
-      },
-      {
-        "name": "Prototipo",
-        "title": "Poi ti mostro come sarà.",
-        "body": "Prima di scrivere codice preparo un prototipo da cliccare, sul computer e sul telefono. Si cambia adesso, quando costa poco.",
-        "get": "un prototipo da provare e commentare."
-      },
-      {
-        "name": "Sviluppo",
-        "title": "Costruisco, e lo vedi crescere.",
-        "body": "Lavoro a tappe brevi. A ogni tappa trovi una versione nuova da provare e decidiamo insieme il passo successivo.",
-        "get": "aggiornamenti regolari e un link di prova sempre attivo."
-      },
-      {
-        "name": "Online",
-        "title": "Va online, e io resto.",
-        "body": "Pubblico il software, lo tengo d’occhio e lo aggiorno quando serve. Documentazione e codice restano a te.",
-        "get": "software online, assistenza e documentazione."
-      }
-    ]
-  },
   "cv": {
     "title": "Curriculum",
     "lead": "Esperienze, progetti e competenze in un foglio.",
     "download": "Scarica il PDF"
+  },
+  "services": {
+    "title": "Servizi",
+    "lead": "Dal sito alla piattaforma completa: progetto, sviluppo e messa online, con un solo referente.",
+    "items": [
+      {
+        "label": "Full stack",
+        "title": "Siti e web app",
+        "body": "Siti veloci, piattaforme e gestionali su misura, dal database all’interfaccia. Next.js, React, Node e Python."
+      },
+      {
+        "label": "SEO",
+        "title": "SEO e prestazioni",
+        "body": "Struttura, contenuti e velocità pensati per Google: Core Web Vitals in verde, dati strutturati, multilingua."
+      },
+      {
+        "label": "App",
+        "title": "App Android e Windows",
+        "body": "App native con Kotlin e .NET, sincronizzate con il tuo server."
+      },
+      {
+        "label": "Design",
+        "title": "UI/UX e prototipi",
+        "body": "Interfacce chiare e un prototipo da provare prima del codice."
+      },
+      {
+        "label": "AI",
+        "title": "Intelligenza artificiale e automazioni",
+        "body": "Assistenti su WhatsApp, estrazione di dati dai documenti, processi che prima si facevano a mano."
+      },
+      {
+        "label": "API",
+        "title": "Integrazioni",
+        "body": "Collego gestionali, pagamenti, CRM e servizi esterni con API REST e webhook."
+      },
+      {
+        "label": "E-commerce",
+        "title": "Negozi online",
+        "body": "Catalogo, pagamenti e ordini, veloci e facili da gestire."
+      },
+      {
+        "label": "DevOps",
+        "title": "Hosting, sicurezza e rilasci",
+        "body": "Server, Docker, HTTPS, backup e rilasci automatici. Tutto monitorato."
+      },
+      {
+        "label": "Assistenza",
+        "title": "Manutenzione e consulenza",
+        "body": "Aggiornamenti, nuove funzioni e consulenza tecnica dopo la consegna: un referente che conosce il progetto."
+      }
+    ]
   }
 }
