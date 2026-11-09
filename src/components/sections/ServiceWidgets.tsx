@@ -605,7 +605,7 @@ function ApiV({ t, max }: { t: WidgetText; max?: number }) {
 /* ───────────── Design: un editor come Figma. Selezioni un elemento, cambi colore, angoli e carattere ───────────── */
 
 const FIG = "#0d99ff";
-const FILLS = [SKY, "#ff7a59", "#111214", "#f5efe6"];
+const FILLS = [SKY, "#16324f", "#111214", "#f5efe6"];
 /** Il cursore di chi lavora nel file, con il nome accanto come negli editor condivisi. */
 const NamedCursor = ({ name, color, attr = "data-cur" }: { name: string; color: string; attr?: string }) => (
   <span {...{ [attr]: "" }} className="absolute left-0 top-0 z-20 flex items-start opacity-0">
@@ -652,7 +652,7 @@ function DesignV({ t, max }: { t: WidgetText; max?: number }) {
         run.to(cur, { x: 52, y: 72, duration: 0.8 }, 1.6);
         click(2.45, q("[data-fill]")[1]);
         run
-          .to(btn, { backgroundColor: FILLS[1], duration: 0.4, ease: "power2.out" }, 2.5)
+          .to(btn, { backgroundColor: FILLS[1], color: "#fff", duration: 0.4, ease: "power2.out" }, 2.5)
           .to(q("[data-fring]"), { x: 28, duration: 0.4, ease: "back.out(2)" }, 2.5)
           // 3. trascino gli angoli
           .to(cur, { x: 21, y: 116, duration: 0.6 }, 2.9)
@@ -671,7 +671,7 @@ function DesignV({ t, max }: { t: WidgetText; max?: number }) {
         run
           .to(cur, { x: 560, y: 190, autoAlpha: 0, duration: 0.8 }, 8.6)
           .to(sel, { autoAlpha: 0, duration: 0.3 }, 8.6)
-          .to(btn, { backgroundColor: FILLS[0], borderRadius: 8, duration: 0.5 }, 8.8)
+          .to(btn, { backgroundColor: FILLS[0], color: "#16161a", borderRadius: 8, duration: 0.5 }, 8.8)
           .to(q("[data-fring]"), { x: 0, duration: 0.4 }, 8.8)
           .to(q("[data-knob]"), { x: 0, duration: 0.5 }, 8.8)
           .to(q("[data-fpill]"), { x: 0, width: 56, duration: 0.4 }, 8.8)

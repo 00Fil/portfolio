@@ -6,27 +6,26 @@ import type { ServiceKey } from "@/content/services";
 import { prefersReducedMotion } from "@/lib/env";
 
 /*
- * Tavolozza stretta, intonata all'azzurro del sito: quattro toni freddi vicini (cielo, cobalto, ottanio, pervinca)
- * e un solo caldo complementare (albicocca). Le schede vicine non ripetono lo stesso tono.
+ * Un solo colore, l'azzurro del sito, in quattro sfumature appena diverse (più chiara, più profonda,
+ * verso il ciano, verso il blu): le schede si distinguono per luce e direzione, non per tinta.
  */
 const T = {
   sky: ["#03080d", "#0a2a40", "#1f6f9e", "#5ec4ff", "#cfeeff"],
-  cobalt: ["#03050d", "#0c1d4d", "#2448b8", "#5b86ff", "#c9d8ff"],
-  teal: ["#020a0b", "#06303a", "#0f6b78", "#3cc8d0", "#c4f1f3"],
-  periwinkle: ["#05050d", "#191a48", "#3f45a8", "#8b97ff", "#d9ddff"],
-  apricot: ["#0c0604", "#3a1a0c", "#a2481f", "#ff9a62", "#ffdcc7"],
+  deep: ["#02060b", "#071d33", "#155a8a", "#3f9fe0", "#bfe2fb"],
+  cyan: ["#02090c", "#082b38", "#16708a", "#5ccde6", "#cff3fa"],
+  blue: ["#03060d", "#0a1f40", "#1d5596", "#5aa8ff", "#cde4ff"],
 };
 const PICK: Record<ServiceKey, keyof typeof T> = {
   web: "sky",
-  seo: "cobalt",
-  geo: "apricot",
-  ai: "periwinkle",
-  hw: "teal",
-  apps: "cobalt",
-  api: "apricot",
-  design: "sky",
-  ops: "teal",
-  shop: "periwinkle",
+  seo: "deep",
+  geo: "blue",
+  ai: "deep",
+  hw: "cyan",
+  apps: "blue",
+  api: "sky",
+  design: "deep",
+  ops: "cyan",
+  shop: "blue",
 };
 export const HUE = Object.fromEntries(Object.entries(PICK).map(([k, v]) => [k, T[v][3]])) as Record<ServiceKey, string>;
 
