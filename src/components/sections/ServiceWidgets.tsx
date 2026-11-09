@@ -13,6 +13,7 @@ import type { ServiceKey } from "@/content/services";
 gsap.registerPlugin(useGSAP);
 
 const Strands = dynamic(() => import("@/components/reactbits/Strands"), { ssr: false });
+const SloshGauge = dynamic(() => import("@/components/reactbits/SloshGauge"), { ssr: false });
 
 /**
  * Disegni dei servizi, appoggiati direttamente sulla scheda. Ognuno racconta una piccola storia a passaggi
@@ -1013,9 +1014,20 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
   );
 }
 
-/* ───────────── Hardware: il radar dietro è la rete dei sensori; davanti la cella frigo, dal vivo ───────────── */
+/* ───────────── Hardware: la cella frigo dal vivo; il sensore è un livello di liquido che sale con la temperatura ───────────── */
+
+/** Il sensore: il liquido sale e oscilla con la temperatura, e cambia colore quando è troppo caldo. */
+function Gauge({ hook }: { hook: { current: ((v: number) => void) | null } }) {
+  const [v, setV] = useState(39);
+  useEffect(() => {
+    hook.current = (temp: number) => setV(Math.round(temp * 10));
+    return () => void (hook.current = null);
+  }, [hook]);
+  return <SloshGauge value={v} showValue={false} liquidColor={v > 55 ? "#fbbf24" : "#22d3ee"} glassColor="rgba(8,9,12,.62)" width={64} height={180} radius={22} ticks={5} viscosity={0.08} splash={0.6} tilt={0.7} />;
+}
 
 function HwV({ t, max }: { t: WidgetText; max?: number }) {
+  const level = useRef<((v: number) => void) | null>(null);
   const pts = [18, 16, 17, 15, 16, 15, 14, 15, 16, 15, 14, 15];
   const W = 218;
   const d = pts.map((y, i) => `${i ? "L" : "M"}${(i / (pts.length - 1)) * W} ${y * 1.6}`).join(" ");
@@ -1029,10 +1041,14 @@ function HwV({ t, max }: { t: WidgetText; max?: number }) {
         const temp = q("[data-temp]")[0];
         const dec = t.url.endsWith(".it") ? "," : ".";
         const o = { v: 3.9 };
-        const show = () => void (temp.textContent = o.v.toFixed(1).replace(".", dec));
+        const show = () => {
+          temp.textContent = o.v.toFixed(1).replace(".", dec);
+          level.current?.(o.v);
+        };
         const tl = gsap
           .timeline()
           .from(q("[data-panel]"), { x: -20, autoAlpha: 0, duration: 1, ease: "expo.out" })
+          .from(q("[data-gauge]"), { y: 30, autoAlpha: 0, duration: 1, ease: "expo.out" }, 0.15)
           .fromTo(q("[data-spark]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 1.6, ease: "power2.inOut" }, 0.3);
         const run = gsap.timeline({ repeat: -1 });
         const caps = q("[data-cap]");
@@ -1070,7 +1086,10 @@ function HwV({ t, max }: { t: WidgetText; max?: number }) {
         </svg>
         <Steps items={[t.hwOk, t.hwWarn, t.hwBack]} className="mt-3 text-[11.5px] font-medium text-white" />
       </Bead>
-      <Bead data-notif tint="rgba(20,22,26,.78)" radius={18} className="absolute left-[300px] top-[6px] flex w-[250px] items-start gap-2.5 p-3 text-white opacity-0 backdrop-blur-xl">
+      <div data-gauge className="absolute left-[276px] top-0 h-[180px] w-[64px] overflow-hidden rounded-[22px] shadow-[0_0_0_1px_rgba(255,255,255,.14),0_30px_50px_-20px_rgba(0,0,0,.9)] backdrop-blur-md">
+        <Gauge hook={level} />
+      </div>
+      <Bead data-notif tint="rgba(20,22,26,.78)" radius={18} className="absolute left-[360px] top-[10px] flex w-[200px] items-start gap-2.5 p-3 text-white opacity-0 backdrop-blur-xl">
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] text-[15px] font-semibold text-[#06262e]" style={{ background: "#22d3ee" }}>
           <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden>
             <path d="M10 3v9.2" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />

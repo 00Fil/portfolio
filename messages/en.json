@@ -193,8 +193,16 @@
     "systemNav": "This site’s navigation bar, with its glass and spring physics, comes from Relay."
   },
   "footer": {
-    "made": "Built with Next.js, GSAP and Lenis. Interface derived from Relay.",
-    "top": "Back to top"
+    "made": "Designed and built by me, with Next.js and GSAP.",
+    "top": "Back to top",
+    "q": "Got a project in mind?",
+    "a": "Let’s talk.",
+    "cta": "Request a quote",
+    "available": "Available for new projects",
+    "country": "Italy",
+    "pages": "Pages",
+    "services": "Services",
+    "contacts": "Contact"
   },
   "notFound": {
     "title": "Page not found",

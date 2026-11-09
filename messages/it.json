@@ -193,8 +193,16 @@
     "systemNav": "La barra di navigazione di questo sito, con il suo vetro e la sua fisica a molla, viene da Relay."
   },
   "footer": {
-    "made": "Realizzato con Next.js, GSAP e Lenis. Interfaccia derivata da Relay.",
-    "top": "Torna su"
+    "made": "Progettato e sviluppato da me, con Next.js e GSAP.",
+    "top": "Torna su",
+    "q": "Hai un progetto in mente?",
+    "a": "Parliamone.",
+    "cta": "Richiedi un preventivo",
+    "available": "Disponibile per nuovi progetti",
+    "country": "Italia",
+    "pages": "Pagine",
+    "services": "Servizi",
+    "contacts": "Contatti"
   },
   "notFound": {
     "title": "Pagina non trovata",

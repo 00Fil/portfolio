@@ -25,7 +25,7 @@ const Grainient = load(() => import("@/components/reactbits/Grainient"));
 const LineWaves = load(() => import("@/components/reactbits/LineWaves"));
 const SoftAurora = load(() => import("@/components/reactbits/SoftAurora"));
 const PlasmaWave = load(() => import("@/components/reactbits/PlasmaWave"));
-const Radar = load(() => import("@/components/reactbits/Radar"));
+const PixelBlast = load(() => import("@/components/reactbits/PixelBlast"));
 const LightRays = load(() => import("@/components/reactbits/LightRays"));
 const GradientBlinds = load(() => import("@/components/reactbits/GradientBlinds"));
 const Balatro = load(() => import("@/components/reactbits/Balatro"));
@@ -44,7 +44,7 @@ function Scene({ k }: { k: ServiceKey }) {
     case "ai":
       return <PlasmaWave colors={[c, "#4c1d95"]} speed={0.6} mouseInteraction={false} intro={false} dpr={1} />;
     case "hw":
-      return <Radar color={c} centerX={0.74} centerY={0.5} scale={1.15} targets={5} speed={0.7} mouseInteraction={false} intro={false} dpr={1} />;
+      return <PixelBlast variant="circle" color={c} pixelSize={4} patternScale={3} patternDensity={1.1} speed={0.5} enableRipples autoRipple={0.6} hoverEffect="none" edgeFade={0.25} glow={0.6} intro={false} dpr={1} />;
     case "apps":
       return <LightRays raysColor={c} raysOrigin="top-center" raysSpeed={0.7} lightSpread={1.1} followMouse={false} clickPulse={false} intro={false} maxDevicePixelRatio={1} />;
     case "api":
