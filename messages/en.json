@@ -31,7 +31,7 @@
     "status": "Available for new projects",
     "work": "See the work",
     "contact": "Request a quote",
-    "h1": "I design and build custom software: websites, web apps, apps, AI systems and hardware.",
+    "h1": "I design and build custom software, hardware, apps, websites and AI systems for restaurants, industry, retail, clinics and education.",
     "where": "Brescia, IT",
     "lines": [
       [
@@ -40,21 +40,21 @@
         "and build"
       ],
       [
-        "*custom",
+        "~",
         "#",
-        "software"
+        "made to measure"
       ],
       [
         "for",
-        "~"
+        "%"
       ]
     ],
     "words": [
-      "websites",
-      "web apps",
+      "software",
+      "hardware",
       "apps",
-      "AI systems",
-      "hardware"
+      "websites",
+      "AI systems"
     ],
     "proof": [
       [
@@ -69,6 +69,13 @@
         "24 h",
         "for a first reply"
       ]
+    ],
+    "sectors": [
+      "restaurants",
+      "industry",
+      "retail",
+      "clinics",
+      "education"
     ]
   },
   "work": {
@@ -393,7 +400,7 @@
       "aiS1": "Order read",
       "aiS2": "Prices and stock checked",
       "aiS3": "Prepared in your system",
-      "aiS4": "Approval requested",
+      "aiS4": "Needs approval",
       "aiAsk": "To approve",
       "aiCustomer": "Rossi Ltd · 40 units",
       "aiApprove": "Approve",
@@ -420,7 +427,8 @@
       "hwPlace": "Cold room 2",
       "hwWhere": "Warehouse · sensor installed",
       "hwOk": "Normal",
-      "hwChart": "Temperature · last 24 hours"
+      "hwChart": "Temperature · last 24 hours",
+      "webToast": "New quote request"
     },
     "open": "Explore",
     "includes": "What’s included",

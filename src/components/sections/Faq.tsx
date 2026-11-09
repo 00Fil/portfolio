@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { gsap } from "gsap";
 import { Plus } from "lucide-react";
+import { Bead } from "@/components/glass/Bead";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHead } from "./SectionHead";
 
@@ -21,13 +22,9 @@ function Item({ it, open, onToggle }: { it: QA; open: boolean; onToggle: () => v
     <li className="border-b border-white/[0.08]">
       <button type="button" onClick={toggle} aria-expanded={open} className="group flex w-full items-center justify-between gap-6 py-6 text-left">
         <span className="text-[clamp(18px,1.7vw,22px)] font-medium tracking-[-0.02em] text-ink">{it.q}</span>
-        <span
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-[background-color,color,rotate] duration-500 ${
-            open ? "rotate-45 bg-[var(--sky)] text-black" : "bg-white/[0.06] text-ink-2 group-hover:bg-white/[0.1]"
-          }`}
-        >
+        <Bead tint={open ? "sky" : undefined} className="flex h-10 w-10 shrink-0 items-center justify-center text-ink transition-[rotate] duration-500" style={{ rotate: open ? "45deg" : "0deg" }}>
           <Plus size={17} strokeWidth={2} />
-        </span>
+        </Bead>
       </button>
       <div ref={body} className={`overflow-hidden ${open ? "" : "h-0"}`}>
         <p className="max-w-[64ch] pb-6 text-[16px] leading-[1.6] text-ink-2">{it.a}</p>

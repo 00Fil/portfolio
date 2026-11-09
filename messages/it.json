@@ -31,7 +31,7 @@
     "status": "Disponibile per nuovi progetti",
     "work": "Vedi i lavori",
     "contact": "Richiedi un preventivo",
-    "h1": "Progetto e sviluppo software su misura: siti web, web app, app, sistemi AI e hardware.",
+    "h1": "Progetto e sviluppo software, hardware, app, siti web e sistemi AI su misura per ristorazione, industria, negozi, studi medici e formazione.",
     "where": "Brescia, IT",
     "lines": [
       [
@@ -40,21 +40,21 @@
         "e sviluppo"
       ],
       [
-        "*software",
+        "~",
         "#",
         "su misura"
       ],
       [
         "per",
-        "~"
+        "%"
       ]
     ],
     "words": [
-      "siti web",
-      "web app",
+      "software",
+      "hardware",
       "app",
-      "sistemi AI",
-      "hardware"
+      "siti web",
+      "sistemi AI"
     ],
     "proof": [
       [
@@ -69,6 +69,13 @@
         "24 h",
         "per la prima risposta"
       ]
+    ],
+    "sectors": [
+      "la ristorazione",
+      "l’industria",
+      "i negozi",
+      "gli studi medici",
+      "la formazione"
     ]
   },
   "work": {
@@ -393,7 +400,7 @@
       "aiS1": "Ordine letto",
       "aiS2": "Prezzi e magazzino controllati",
       "aiS3": "Preparato nel gestionale",
-      "aiS4": "Richiesta di approvazione",
+      "aiS4": "Da approvare",
       "aiAsk": "Da approvare",
       "aiCustomer": "Rossi Srl · 40 pezzi",
       "aiApprove": "Approva",
@@ -420,7 +427,8 @@
       "hwPlace": "Cella frigo 2",
       "hwWhere": "Magazzino · sensore installato",
       "hwOk": "Nella norma",
-      "hwChart": "Temperatura · ultime 24 ore"
+      "hwChart": "Temperatura · ultime 24 ore",
+      "webToast": "Nuova richiesta di preventivo"
     },
     "open": "Scopri",
     "includes": "Cosa include",

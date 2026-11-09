@@ -12,7 +12,7 @@ import { prefersReducedMotion } from "@/lib/env";
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const SKY = "#5ec4ff";
-const glass = "bg-[rgba(14,16,20,.7)] backdrop-blur-xl shadow-[inset_0_0_0_1px_rgba(255,255,255,.09),0_30px_70px_-30px_rgba(0,0,0,.95)]";
+const glass = "drop [--drop-tint:rgba(10,12,16,.6)] backdrop-blur-xl";
 
 /** Ogni scena ha la sua timeline: riparte da capo ogni volta che diventa la scena attiva. */
 function useScene(active: boolean, build: (q: (s: string) => Element[]) => gsap.core.Timeline) {

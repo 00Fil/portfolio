@@ -68,7 +68,7 @@ function Cycler({ items, at, kind }: { items: ReactNode[]; at: number; kind: Kin
  */
 export function Hero() {
   const t = useTranslations("hero");
-  const m = (useMessages() as unknown as { hero: { lines: string[][]; words: string[]; proof: [string, string][] } }).hero;
+  const m = (useMessages() as unknown as { hero: { lines: string[][]; words: string[]; sectors: string[]; proof: [string, string][] } }).hero;
   const proof = m.proof;
   const root = useRef<HTMLElement>(null);
   const [at, setAt] = useState(0);
@@ -146,19 +146,21 @@ export function Hero() {
           ))}
         />
       );
-    if (tok === "~")
+    if (tok === "~" || tok === "%") {
+      const list = tok === "~" ? m.words : m.sectors;
       return (
         <Cycler
           key={k}
           kind="word"
-          at={at % m.words.length}
-          items={m.words.map((w) => (
+          at={at % list.length}
+          items={list.map((w) => (
             <span key={w} className="t-serif italic text-[var(--sky)]">
               {w}
             </span>
           ))}
         />
       );
+    }
     const em = tok.startsWith("*");
     return (
       <span key={k} className={`mx-[0.14em] ${em ? "t-serif italic text-[var(--sky)]" : ""}`}>

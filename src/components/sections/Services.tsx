@@ -9,7 +9,8 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { SERVICES, type Service } from "@/content/services";
 import type { Locale } from "@/i18n/routing";
 import { SectionHead } from "./SectionHead";
-import { ServiceVisual, type WidgetText } from "./ServiceWidgets";
+import { GooDefs, ServiceVisual, type WidgetText } from "./ServiceWidgets";
+import { Bead } from "@/components/glass/Bead";
 
 /* Ingombro di ogni servizio nella griglia a 4 colonne. */
 const SPAN: Record<string, [number, number]> = {
@@ -56,21 +57,27 @@ function Body({ s, i, w, locale, open }: { s: Service; i: number; w: WidgetText;
   return (
     <div className="relative flex h-full flex-col">
       <div aria-hidden className="pointer-events-none absolute overflow-hidden" style={{ inset: "calc(var(--mb-pad, 20px) * -1)" }}>
-        <img src="/visual/fibers-sky.webp" alt="" className="h-full w-full object-cover opacity-60" style={BG[i % BG.length]} />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0d0e10]/30 via-transparent to-[#0d0e10]" />
+        <img src="/visual/fibers-sky.webp" alt="" className="h-full w-full object-cover opacity-55" style={BG[i % BG.length]} />
+      </div>
+      {/* il disegno occupa tutta la scheda, senza riquadri intorno */}
+      <div className="absolute inset-x-0 bottom-[60px] top-[36px]">
+        <ServiceVisual k={s.key} t={w} max={s.key === "web" ? 1.45 : 1.2} />
       </div>
       <div className="relative flex items-center justify-between">
         <span className="font-mono text-[11.5px] uppercase tracking-[0.1em] text-ink-2">{s.label[locale]}</span>
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] text-ink-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)] transition-colors duration-300 group-hover:bg-[var(--sky)] group-hover:text-black" aria-label={open}>
+        <Bead className="flex h-8 w-8 items-center justify-center text-ink-2 transition-colors duration-300 group-hover:text-ink" aria-label={open}>
           <ArrowUpRight size={15} strokeWidth={1.9} />
-        </span>
+        </Bead>
       </div>
-      <div className="relative min-h-0 flex-1 py-4">
-        <ServiceVisual k={s.key} t={w} max={s.key === "web" ? 1.4 : 1.15} />
-      </div>
-      <div className="relative">
-        <h3 className="text-[17px] font-semibold tracking-[-0.015em] text-ink">{s.title[locale]}</h3>
-        <p className="mt-1 text-[13.5px] leading-[1.45] text-ink-2">{s.short[locale]}</p>
+      {/* sotto il titolo una velatura sfocata che sfuma verso l'alto, per leggere sempre il testo */}
+      <div className="relative mt-auto">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-7 backdrop-blur-[10px] [mask-image:linear-gradient(to_top,#000_55%,transparent)]"
+          style={{ left: "calc(var(--mb-pad, 20px) * -1)", right: "calc(var(--mb-pad, 20px) * -1)", bottom: "calc(var(--mb-pad, 20px) * -1)", background: "linear-gradient(to top, rgba(13,14,16,.92), rgba(13,14,16,.55) 60%, transparent)" }}
+        />
+        <h3 className="relative text-[17px] font-semibold tracking-[-0.015em] text-ink">{s.title[locale]}</h3>
+        <p className="relative mt-1 text-[13.5px] leading-[1.45] text-ink-2">{s.short[locale]}</p>
       </div>
     </div>
   );
@@ -137,6 +144,7 @@ export function Services() {
 
   return (
     <section id="approach" className="relative mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-36">
+      <GooDefs />
       <Reveal>
         <SectionHead index="01" title={t("title")} lead={t("lead")} />
       </Reveal>
