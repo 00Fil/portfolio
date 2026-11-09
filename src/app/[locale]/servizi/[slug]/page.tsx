@@ -7,8 +7,6 @@ import { SiteNav } from "@/components/nav/SiteNav";
 import { Footer } from "@/components/sections/Footer";
 import type { WidgetText } from "@/components/sections/ServiceWidgets";
 import { ServiceDetail } from "@/components/services/ServiceDetail";
-import { workCards } from "@/components/sections/Work";
-import { CoverCard } from "@/components/work/CoverCard";
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) => SERVICES.map((s) => ({ locale, slug: s.slug })));
@@ -34,10 +32,8 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
   if (!s) notFound();
   const t = await getTranslations("services");
   const tm = await getTranslations("method");
-  const tw = await getTranslations("work");
   const w = t.raw("w") as WidgetText;
   const phases = (tm.raw("phases") as { name: string; title: string; out: string }[]).map(({ name, title, out }) => ({ name, title, out }));
-  const cards = (await workCards(locale)).filter((c) => s.projects.includes(c.slug));
   const i = SERVICES.findIndex((x) => x.slug === slug);
   const n = SERVICES[(i + 1) % SERVICES.length];
 
@@ -55,10 +51,9 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
           stack={s.stack}
           phases={phases}
           next={{ slug: n.slug, k: n.key, label: n.label[locale], title: n.title[locale], short: n.short[locale] }}
-          others={SERVICES.filter((x) => x.slug !== slug).map((x) => ({ slug: x.slug, title: x.title[locale] }))}
+          others={SERVICES.filter((x) => x.slug !== slug).map((x) => ({ slug: x.slug, k: x.key, title: x.title[locale] }))}
           w={w}
-          t={{ services: t("title"), cta: t("cta"), includes: t("includes"), tech: t("tech"), method: tm("title"), methodLead: tm("lead"), next: t("next"), all: t("all"), related: t("related") }}
-          related={cards.length ? <CoverCard p={cards[0]} open={tw("open")} /> : undefined}
+          t={{ services: t("title"), cta: t("cta"), includes: t("includes"), tech: t("tech"), method: tm("title"), methodLead: tm("lead"), next: t("next"), all: t("all") }}
         />
       </main>
       <Footer withContact={false} />

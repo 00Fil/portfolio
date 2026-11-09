@@ -54,7 +54,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body>
-        <Preloader first={profile.name.split(" ")[0]} last={profile.name.split(" ").slice(1).join(" ")} />
+        <Preloader label={profile.name} />
         <NextIntlClientProvider>
           <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-surface focus:px-4 focus:py-2">
             {t("skip")}

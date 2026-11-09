@@ -19,6 +19,7 @@ import { bevelImage } from "@/lib/glass";
 import { scrollToY } from "@/lib/scroll";
 import { play } from "@/lib/sound";
 import { SERVICES } from "@/content/services";
+import { ServiceIcon } from "@/components/services/ServiceIcon";
 import { ThemeToggle } from "./ThemeToggle";
 import { prefersReducedMotion } from "@/lib/env";
 import { Clock } from "@/components/sections/Clock";
@@ -323,7 +324,7 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
                 </a>
               </div>
               <ul className="grid grid-cols-2 gap-1">
-                {SERVICES.map((s, i) => (
+                {SERVICES.map((s) => (
                   <li key={s.slug} data-mi>
                     <a
                       href={`/${locale}/servizi/${s.slug}`}
@@ -333,9 +334,9 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
                         play("open");
                         router.push(`/servizi/${s.slug}`);
                       }}
-                      className="group flex items-start gap-3.5 rounded-[18px] px-3 py-3 transition-colors hover:bg-[var(--hover)]"
+                      className="group flex items-center gap-3.5 rounded-[18px] px-2.5 py-2.5 transition-colors hover:bg-[var(--hover)]"
                     >
-                      <span className="mt-[3px] font-mono text-[11px] text-ink-3 transition-colors group-hover:text-[var(--sky)]">{String(i + 1).padStart(2, "0")}</span>
+                      <ServiceIcon k={s.key} size={42} className="transition-transform duration-500 ease-[var(--ease-out)] group-hover:-rotate-6 group-hover:scale-105" />
                       <span className="min-w-0">
                         <span className="flex items-center gap-1 text-[15px] font-medium tracking-[-0.01em] text-ink">
                           {s.title[locale]}

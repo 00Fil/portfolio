@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
@@ -15,6 +15,7 @@ import { Bead } from "@/components/glass/Bead";
 import { ServiceBg } from "@/components/sections/ServiceBg";
 import { ServiceVisual, type WidgetText } from "@/components/sections/ServiceWidgets";
 import LogoLoop from "@/components/reactbits/LogoLoop";
+import { ServiceIcon } from "./ServiceIcon";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
@@ -33,10 +34,9 @@ export type ServiceDetailProps = {
   stack: { name: string; path?: string }[];
   phases: Phase[];
   next: Other;
-  others: { slug: string; title: string }[];
+  others: { slug: string; k: ServiceKey; title: string }[];
   w: WidgetText;
-  t: { services: string; cta: string; includes: string; tech: string; method: string; methodLead: string; next: string; all: string; related: string };
-  related?: ReactNode;
+  t: { services: string; cta: string; includes: string; tech: string; method: string; methodLead: string; next: string; all: string; };
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -296,8 +296,9 @@ function Next({ next, others, t }: ServiceDetailProps) {
         <ul className="grid border-t border-[var(--hair)] sm:grid-cols-2 lg:grid-cols-3 sm:gap-x-10">
           {others.map((o) => (
             <li key={o.slug} className="border-b border-[var(--hair)]">
-              <Link href={`/servizi/${o.slug}`} className="group flex items-center justify-between gap-4 py-4 text-[17px] text-ink-2 transition-colors hover:text-ink">
-                {o.title}
+              <Link href={`/servizi/${o.slug}`} className="group flex items-center gap-4 py-4 text-[17px] text-ink-2 transition-colors hover:text-ink">
+                <ServiceIcon k={o.k} size={36} className="transition-transform duration-500 ease-[var(--ease-out)] group-hover:-rotate-6" />
+                <span className="flex-1">{o.title}</span>
                 <ArrowUpRight size={16} strokeWidth={1.8} className="shrink-0 text-ink-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-ink" aria-hidden />
               </Link>
             </li>
@@ -316,12 +317,6 @@ export function ServiceDetail(p: ServiceDetailProps) {
       <Includes {...p} />
       <Method {...p} />
       {p.stack.length > 0 && <Tech {...p} />}
-      {p.related && (
-        <section className="mx-auto mt-32 w-full max-w-[1280px] px-5 sm:mt-44 sm:px-8">
-          <p className="mb-8 font-mono text-[12px] uppercase tracking-[0.14em] text-ink-3">{p.t.related}</p>
-          {p.related}
-        </section>
-      )}
       <Next {...p} />
     </>
   );
