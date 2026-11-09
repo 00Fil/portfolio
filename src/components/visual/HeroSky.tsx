@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Dither from "@/components/reactbits/Dither";
 
 /**
- * Cielo a pixel dell'hero (Dither di React Bits): onde blu di Relay su nero, retinate in Bayer.
+ * Cielo a pixel dell'hero (Dither di React Bits): onde azzurro cielo su nero, retinate in Bayer.
  * Al centro il nero resta pieno per il titolo, come lo spazio bianco tra le nuvole di andreas.vision.
  */
 export function HeroSky() {
@@ -19,7 +19,7 @@ export function HeroSky() {
       {ready && (
         <Dither
           className="absolute inset-0"
-          palette={["#000000", "#11244F", "#1F44CC", "#2F5FFF", "#5C9DFF"]}
+          palette={["#000000", "#06263A", "#0F5C88", "#3BA9E6", "#9EDCFF"]}
           ditherMode="bayer4"
           pixelSize={5}
           waveSpeed={0.03}
@@ -37,10 +37,7 @@ export function HeroSky() {
       )}
       {/* lo spazio del titolo: un'isola di nero a blocchi */}
       <div
-        className="absolute inset-0"
-        style={{
-          background: "radial-gradient(46% 34% at 50% 48%, #000 62%, transparent 100%)",
-        }}
+        className="absolute inset-0 [background:radial-gradient(95%_40%_at_50%_50%,#000_66%,transparent_100%)] sm:[background:radial-gradient(46%_34%_at_50%_48%,#000_62%,transparent_100%)]"
       />
     </div>
   );

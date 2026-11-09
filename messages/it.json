@@ -23,16 +23,14 @@
     "write": "Scrivimi"
   },
   "hero": {
-    "a1": "Sviluppatore",
-    "a2": "ogni interfaccia",
-    "b1": "Ingegnere",
-    "b2": "il sistema sotto",
+    "a": "Sviluppo",
+    "em": "software",
+    "b": "dall’interfaccia",
+    "c": "al server",
     "lead": "Sono {name}. Progetto e sviluppo software su commissione, dal primo schema alla produzione: app native, piattaforme web e strumenti interni. Studio Ingegneria Informatica all’Università di Brescia.",
     "status": "Disponibile per nuovi progetti",
     "work": "Vedi i lavori",
-    "contact": "Scrivimi",
-    "a1b": "che cura",
-    "b1b": "che costruisce"
+    "contact": "Scrivimi"
   },
   "work": {
     "title": "Lavori",

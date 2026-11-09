@@ -16,7 +16,7 @@ export function Hero() {
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--positive)]" aria-hidden />
           {t("status")}
         </p>
-        <HeroTitle a={[t("a1"), t("a1b"), t("a2")]} b={[t("b1"), t("b1b"), t("b2")]} photo={profile.photo} />
+        <HeroTitle lines={{ a: t("a"), em: t("em"), b: t("b"), c: t("c") }} />
         <p className="mt-10 max-w-[54ch] text-center text-ink sm:text-[17px] sm:leading-[27px]" data-reveal>
           {t("lead", { name: profile.name })}
         </p>

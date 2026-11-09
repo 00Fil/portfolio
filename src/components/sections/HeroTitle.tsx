@@ -1,88 +1,123 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { gsap } from "gsap";
-import Dither from "@/components/reactbits/Dither";
-import DitherVeil from "@/components/reactbits/DitherVeil";
+import { BRAND } from "@/content/brand-icons";
+import { projects } from "@/content/projects";
 import { prefersReducedMotion } from "@/lib/env";
 
-type Props = { a: [string, string, string]; b: [string, string, string]; photo?: string };
+export type HeroLines = { a: string; em: string; b: string; c: string };
 
-/**
- * Titolo come in andreas.vision: "Parola [immagine] resto / seconda riga", che alterna due frasi.
- * Le parole in uscita si sfocano e si allargano, quelle in entrata si mettono a fuoco (MorphText di Relay).
- * Nel tassello: la foto retinata (si colora sotto il cursore) o, senza foto, il cielo a pixel.
- */
-export function HeroTitle({ a, b, photo }: Props) {
-  const root = useRef<HTMLHeadingElement>(null);
-  const chip = useRef<HTMLSpanElement>(null);
-  const [state, setState] = useState(0);
-  const lines = state === 0 ? a : b;
+const Logo = ({ id }: { id: string }) => (
+  <svg viewBox="0 0 24 24" className="h-[0.42em] w-[0.42em]" fill="currentColor" aria-hidden>
+    <path d={BRAND[id].path} />
+  </svg>
+);
+
+const STACK = ["kotlin", "compose", "react", "nextjs", "typescript", "dotnet", "gsap"].map((id) => <Logo key={id} id={id} />);
+const INFRA = ["docker", "node", "fastapi", "supabase", "caddy", "githubactions", "python"].map((id) => <Logo key={id} id={id} />);
+const WORK = projects.map((p) => (
+  <span key={p.slug} className="flex items-center gap-[0.32em] whitespace-nowrap font-sans text-[0.25em] font-medium tracking-[-0.01em] text-ink">
+    <span className="h-[0.42em] w-[0.42em] rounded-full bg-[var(--sky)]" />
+    {p.name}
+  </span>
+));
+
+/** Tassello che ruota il contenuto: l'uscente sale e si sfoca, l'entrante arriva dal basso. */
+function Chip({ items, delay, width }: { items: ReactNode[]; delay: number; width: string }) {
+  const [i, setI] = useState(0);
+  const box = useRef<HTMLSpanElement>(null);
+  const first = useRef(true);
 
   useEffect(() => {
     if (prefersReducedMotion()) return;
-    const id = window.setInterval(() => {
-      const el = root.current;
-      if (!el) return;
-      gsap.to(el.querySelectorAll("[data-w]"), {
-        opacity: 0,
-        filter: "blur(10px)",
-        scale: 1.06,
-        duration: 0.32,
-        ease: "power2.in",
-        stagger: 0.025,
-        onComplete: () => setState((s) => 1 - s),
-      });
-      gsap.to(chip.current, { scaleX: 0.6, scaleY: 0.85, duration: 0.3, ease: "power2.in" });
-    }, 4600);
-    return () => window.clearInterval(id);
-  }, []);
+    let id: number;
+    const t = window.setTimeout(() => {
+      setI((x) => (x + 1) % items.length);
+      id = window.setInterval(() => setI((x) => (x + 1) % items.length), 2600);
+    }, delay);
+    return () => {
+      window.clearTimeout(t);
+      window.clearInterval(id);
+    };
+  }, [items.length, delay]);
+
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    const [out, inn] = [el.querySelector("[data-out]"), el.querySelector("[data-in]")];
+    gsap.fromTo(out, { yPercent: 0, opacity: 1, filter: "blur(0px)" }, { yPercent: -70, opacity: 0, filter: "blur(6px)", duration: 0.45, ease: "power2.in" });
+    gsap.fromTo(inn, { yPercent: 70, opacity: 0, filter: "blur(6px)" }, { yPercent: 0, opacity: 1, filter: "blur(0px)", duration: 0.6, delay: 0.12, ease: "power3.out", clearProps: "filter" });
+    gsap.fromTo(el, { scale: 0.94 }, { scale: 1, duration: 0.8, ease: "elastic.out(1, 0.6)" });
+  }, [i]);
+
+  const prev = (i - 1 + items.length) % items.length;
+  return (
+    <span
+      ref={box}
+      aria-hidden
+      data-w
+      className="relative mx-[0.12em] inline-flex h-[0.8em] -translate-y-[0.06em] items-center justify-center overflow-hidden rounded-[0.2em] bg-surface align-middle text-ink shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1),0_0.08em_0.3em_rgba(0,0,0,0.5)]"
+      style={{ width }}
+    >
+      <span key={`o${prev}-${i}`} data-out className="absolute inset-0 flex items-center justify-center opacity-0">
+        {items[prev]}
+      </span>
+      <span key={`i${i}`} data-in className="absolute inset-0 flex items-center justify-center">
+        {items[i]}
+      </span>
+    </span>
+  );
+}
+
+/**
+ * "Sviluppo *software* [stack] / dall'interfaccia [progetti] / al server [infrastruttura]".
+ * Sans per il testo, corsivo solo sulla parola che regge la frase.
+ */
+export function HeroTitle({ lines }: { lines: HeroLines }) {
+  const root = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     const el = root.current;
     if (!el || prefersReducedMotion()) return;
     gsap.fromTo(
       el.querySelectorAll("[data-w]"),
-      { opacity: 0, filter: "blur(10px)", scale: 0.92, yPercent: 12 },
-      { opacity: 1, filter: "blur(0px)", scale: 1, yPercent: 0, duration: 0.6, ease: "power3.out", stagger: 0.04, clearProps: "filter" },
+      { opacity: 0, filter: "blur(10px)", yPercent: 18 },
+      { opacity: 1, filter: "blur(0px)", yPercent: 0, duration: 0.8, ease: "power3.out", stagger: 0.06, delay: 0.15, clearProps: "filter,transform" },
     );
-    gsap.to(chip.current, { scaleX: 1, scaleY: 1, duration: 0.9, ease: "elastic.out(1, 0.55)", delay: 0.1 });
-  }, [state]);
+  }, []);
 
-  const words = (text: string, k: string) =>
-    text.split(" ").map((w, i) => (
-      <span key={`${k}-${i}-${w}`} data-w className="inline-block whitespace-pre">
-        {w}
-        {" "}
+  const w = (text: string) =>
+    text.split(" ").map((x, k) => (
+      <span key={k} data-w className="inline-block whitespace-pre">
+        {x}{" "}
       </span>
     ));
 
   return (
-    <h1 ref={root} aria-label={`${lines[0]} ${lines[1]} ${lines[2]}`} className="t-serif text-center text-[clamp(44px,7vw,112px)] leading-[1] text-ink">
-      <span aria-hidden className="block lg:whitespace-nowrap">
-        {words(lines[0], `a${state}`)}
-        <span
-          ref={chip}
-          className="relative mx-[0.06em] inline-block h-[0.72em] w-[1.25em] -translate-y-[0.04em] overflow-hidden rounded-[0.18em] align-baseline shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
-        >
-          {photo ? (
-            <DitherVeil src={photo} className="absolute inset-0" pixelSize={3} inkColor="#F2F2F0" paperColor="#11244F" revealRadius={0.5} />
-          ) : (
-            <Dither
-              className="absolute inset-0"
-              palette={["#11244F", "#1F44CC", "#2F5FFF", "#5C9DFF", "#EAF1FF"]}
-              ditherMode="bayer4"
-              pixelSize={4}
-              waveSpeed={0.06}
-              waveFrequency={3}
-              enableMouseInteraction={false}
-            />
-          )}
-        </span>{" "}
-        {words(lines[1], `b${state}`)}
+    <h1
+      ref={root}
+      aria-label={`${lines.a} ${lines.em} ${lines.b} ${lines.c}`}
+      className="text-center font-sans text-[clamp(34px,7.4vw,92px)] font-medium leading-[1.04] tracking-[-0.045em] text-ink"
+    >
+      <span aria-hidden className="block">
+        {w(lines.a)}
+        <span data-w className="t-serif inline-block pr-[0.04em] text-[1.12em] tracking-[-0.01em]">
+          {lines.em}
+        </span>
+        <Chip items={STACK} delay={400} width="1.15em" />
       </span>
       <span aria-hidden className="block">
-        {words(lines[2], `c${state}`)}
+        {w(lines.b)}
+        <Chip items={WORK} delay={1300} width="2.9em" />
+      </span>
+      <span aria-hidden className="block">
+        {w(lines.c)}
+        <Chip items={INFRA} delay={2100} width="1.15em" />
       </span>
     </h1>
   );

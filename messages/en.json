@@ -23,16 +23,14 @@
     "write": "Get in touch"
   },
   "hero": {
-    "a1": "Developer",
-    "a2": "about every interface",
-    "b1": "Engineer",
-    "b2": "the system underneath",
+    "a": "I build",
+    "em": "software",
+    "b": "from the interface",
+    "c": "to the server",
     "lead": "I’m {name}. I design and build software for clients, from first sketch to production: native apps, web platforms and internal tools. I study Computer Engineering at the University of Brescia.",
     "status": "Available for new projects",
     "work": "See the work",
-    "contact": "Get in touch",
-    "a1b": "who cares",
-    "b1b": "who builds"
+    "contact": "Get in touch"
   },
   "work": {
     "title": "Work",
