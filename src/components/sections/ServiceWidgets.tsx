@@ -269,19 +269,21 @@ function WebV({ t, max }: { t: WidgetText; max?: number }) {
 
 /* ───────────── SEO: la scheda diventa il pannello "Rendimento" di Google Search Console, una metrica alla volta ───────────── */
 
+// mesi fermi su risultati mediocri, poi il lavoro fa effetto e le curve si impennano
 const GSC = [
-  { c: "#4285f4", pts: [70, 66, 68, 60, 58, 54, 50, 46, 40, 34, 26, 16] },
-  { c: "#5e35b1", pts: [62, 60, 56, 57, 50, 46, 44, 38, 36, 30, 24, 20] },
-  { c: "#00897b", pts: [56, 58, 54, 52, 54, 50, 46, 48, 42, 40, 38, 34] },
-  { c: "#e8710a", pts: [30, 34, 32, 38, 42, 44, 48, 52, 54, 58, 62, 64] },
+  { c: "#4285f4", pts: [66, 68, 65, 67, 64, 66, 65, 63, 64, 58, 44, 28, 14, 5] },
+  { c: "#5e35b1", pts: [62, 63, 61, 64, 62, 63, 60, 61, 58, 53, 41, 30, 19, 11] },
+  { c: "#00897b", pts: [60, 58, 61, 59, 60, 58, 59, 57, 56, 51, 43, 36, 29, 24] },
+  { c: "#e8710a", pts: [68, 66, 69, 67, 68, 66, 67, 65, 61, 50, 37, 27, 20, 16] },
 ];
+const HI = 11;
 function SeoV({ t, max }: { t: WidgetText; max?: number }) {
   const W = 552;
   const H = 140;
   const path = (p: number[]) => p.map((y, i) => `${i ? "L" : "M"}${((i / (p.length - 1)) * W).toFixed(1)} ${(y * 1.9).toFixed(1)}`).join(" ");
   const labels = [t.seoM1, t.seoM2, t.seoM3, t.seoM4];
   const values = [t.seoV1, t.seoV2, t.seoV3, t.seoV4];
-  const hx = (9 / 11) * W;
+  const hx = (HI / (GSC[0].pts.length - 1)) * W;
   return (
     <Canvas
       w={600}
@@ -298,7 +300,7 @@ function SeoV({ t, max }: { t: WidgetText; max?: number }) {
             .to(tiles[i], { backgroundColor: g.c, color: "#fff", boxShadow: `0 10px 22px -10px ${g.c}`, duration: 0.35, ease: "power2.out" }, at)
             .fromTo(tiles[i].querySelector("[data-box]"), { backgroundColor: "rgba(255,255,255,0)", color: "rgba(0,0,0,0)" }, { backgroundColor: "#fff", color: g.c, duration: 0.25 }, at)
             .fromTo(tiles[i].querySelector("[data-val]"), { y: 10, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5, ease: "expo.out" }, at + 0.1)
-            .fromTo(q("[data-gl]")[i], { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 1.1, ease: "power2.inOut" }, at);
+            .fromTo(q("[data-gl]")[i], { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 1.3, ease: "power1.in" }, at);
         });
         const o = { v: 0 };
         run.fromTo(o, { v: 0 }, { v: 12480, duration: 1.2, ease: "power3.out", onUpdate: () => void (n.textContent = num(o.v, t.url)) }, 0.4);
@@ -347,7 +349,7 @@ function SeoV({ t, max }: { t: WidgetText; max?: number }) {
           <g data-hover opacity="0">
             <line x1={hx} x2={hx} y1="0" y2={H} stroke="#9aa0a6" strokeDasharray="2 3" />
             {GSC.map((g) => (
-              <circle key={g.c} data-hdot cx={hx} cy={g.pts[9] * 1.9} r="4.5" fill="#fff" stroke={g.c} strokeWidth="2.4" />
+              <circle key={g.c} data-hdot cx={hx} cy={g.pts[HI] * 1.9} r="4.5" fill="#fff" stroke={g.c} strokeWidth="2.4" />
             ))}
           </g>
         </svg>

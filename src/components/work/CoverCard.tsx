@@ -61,16 +61,33 @@ export function CoverCard({ p, open, big = false }: { p: CardData; open: string;
     };
   }, []);
 
+  // il gradiente si apre a cerchio dal punto in cui entra il cursore e si richiude verso dove esce
+  const reveal = (on: boolean, x: number, y: number) => {
+    const f = frame.current;
+    const hot = f?.querySelector<HTMLElement>("[data-hot]");
+    if (!f || !hot) return;
+    const r = f.getBoundingClientRect();
+    const at = `${(((x - r.left) / r.width) * 100).toFixed(1)}% ${(((y - r.top) / r.height) * 100).toFixed(1)}%`;
+    if (prefersReducedMotion()) return void (hot.style.clipPath = `circle(${on ? 150 : 0}% at ${at})`);
+    gsap.killTweensOf(hot);
+    if (on) gsap.fromTo(hot, { clipPath: `circle(0% at ${at})` }, { clipPath: `circle(150% at ${at})`, duration: 1.3, ease: "expo.out" });
+    else gsap.to(hot, { clipPath: `circle(0% at ${at})`, duration: 0.8, ease: "power3.inOut" });
+  };
+
   return (
     <article data-card className="group">
       <Link
         href={href}
         aria-label={`${p.name}: ${open}`}
-        onPointerEnter={() => {
+        onPointerEnter={(e) => {
           setActive(true);
+          reveal(true, e.clientX, e.clientY);
           play("tick");
         }}
-        onPointerLeave={() => setActive(false)}
+        onPointerLeave={(e) => {
+          setActive(false);
+          reveal(false, e.clientX, e.clientY);
+        }}
         onFocus={() => setActive(true)}
         onBlur={() => setActive(false)}
         onClick={(e) => {
@@ -89,10 +106,10 @@ export function CoverCard({ p, open, big = false }: { p: CardData; open: string;
           style={{ boxShadow: "0 0 0 1px var(--hair)" }}
         >
           <div ref={tilt} className="absolute inset-0 [transform-style:preserve-3d]" style={{ transformOrigin: "50% 50%" }}>
-            <Cover slug={p.slug} />
+            <Cover slug={p.slug} hot={active} />
           </div>
           <span
-            className="drop absolute bottom-4 left-4 flex h-11 items-center gap-2 px-4 text-[15px] font-medium text-ink transition-transform duration-500 ease-[cubic-bezier(.2,.8,.2,1)] group-hover:-translate-y-0.5 sm:bottom-5 sm:left-5"
+            className="drop absolute bottom-4 left-4 flex h-11 items-center gap-2 px-4 text-[15px] font-medium text-white transition-transform duration-500 ease-[cubic-bezier(.2,.8,.2,1)] group-hover:-translate-y-0.5 sm:bottom-5 sm:left-5"
             style={{ ["--drop-tint" as string]: "rgba(10,10,12,.55)" }}
           >
             {open}

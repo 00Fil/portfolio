@@ -1,6 +1,16 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import dynamic from "next/dynamic";
+
+const Grainient = dynamic(() => import("@/components/reactbits/Grainient"), { ssr: false });
+
+/** Gradiente React Bits del progetto, coi suoi colori: compare in hover sulla copertina. */
+const RAMP: Record<string, string[]> = {
+  creacloud: ["#08091a", "#10122A", "#5F6BA3", "#D98A6C", "#F4C9B6"],
+  relay: ["#02040a", "#05070F", "#18348f", "#2F5FFF", "#a9c4ff"],
+  unispace: ["#050b0b", "#0B1414", "#2E8F8A", "#EE8A6C", "#BFE7E2"],
+};
 import { ArrowLeftRight, ArrowRight, CalendarDays, FileText, MessageCircle, Monitor, Smartphone, Video } from "lucide-react";
 
 /**
@@ -71,11 +81,23 @@ export const BRANDS: Record<string, Brand> = {
 };
 
 /** Sfondo: fibre ferme, e su richiesta l'animazione vera sopra. */
-export function BrandBackdrop({ slug, live }: { slug: string; live?: boolean }) {
+export function BrandBackdrop({ slug, live, hot }: { slug: string; live?: boolean; hot?: boolean }) {
   const b = BRANDS[slug];
+  // il contesto WebGL nasce al primo hover e se ne va poco dopo l'uscita
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    if (hot) return setMounted(true);
+    const id = window.setTimeout(() => setMounted(false), 1400);
+    return () => window.clearTimeout(id);
+  }, [hot]);
   return (
     <div className="absolute inset-0" style={{ background: b.bg }}>
       <img src={b.fibers} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover" draggable={false} />
+      {hot !== undefined && (
+        <div data-hot aria-hidden className="absolute inset-0" style={{ clipPath: "circle(0% at 50% 50%)" }}>
+          {mounted && <Grainient colors={RAMP[slug]} angle={30} speed={0.7} flow={0.7} silk={0.35} grainAmount={0.05} contrast={1} interactive stir={1.8} intro={false} dpr={1} />}
+        </div>
+      )}
       {live && (
         <iframe
           title=""
@@ -121,11 +143,11 @@ export function BrandPills({ slug, className = "" }: { slug: string; className?:
  * Tutte le misure sono in cqw, frazioni della larghezza della copertina: la composizione resta identica a ogni misura.
  * `mini`: solo l'icona al centro (miniature del menu).
  */
-export function Cover({ slug, mini }: { slug: string; mini?: boolean }) {
+export function Cover({ slug, mini, hot }: { slug: string; mini?: boolean; hot?: boolean }) {
   const b = BRANDS[slug];
   return (
     <div className="absolute inset-0 [container-type:size]">
-      <BrandBackdrop slug={slug} />
+      <BrandBackdrop slug={slug} hot={hot} />
       <div className="absolute inset-0 flex items-center justify-center">
         {mini ? (
           <BrandIcon slug={slug} className="h-[46cqh] w-[46cqh]" />
