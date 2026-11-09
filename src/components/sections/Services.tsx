@@ -38,33 +38,33 @@ function useColumns() {
   return c;
 }
 
-/** Il corpo di una scheda: fondo di fibre, disegno animato, titolo e una riga. */
+/**
+ * Il corpo di una scheda. A riposo: il gradiente (che si mescola sotto il cursore) e il titolo al centro.
+ * Al passaggio del mouse il titolo si dissolve e al suo posto compare, a tutta scheda, il servizio in azione.
+ */
 function Body({ s, w, locale, open }: { s: Service; w: WidgetText; locale: Locale; open: string }) {
+  const bleed = { inset: "calc(var(--mb-pad, 20px) * -1)" };
   return (
-    <div className="theme-dark relative flex h-full flex-col">
-      <div aria-hidden className="pointer-events-none absolute overflow-hidden" style={{ inset: "calc(var(--mb-pad, 20px) * -1)" }}>
-        <ServiceBg k={s.key} />
-        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/45 to-transparent" />
+    <div className="theme-dark relative h-full">
+      <div aria-hidden className="pointer-events-none absolute overflow-hidden" style={bleed}>
+        <ServiceBg k={s.key} live />
       </div>
-      {/* il disegno compare al passaggio del mouse; a riposo resta solo lo sfondo */}
-      <div className="svc-vis absolute inset-x-2 bottom-[92px] top-[58px]">
-        <ServiceVisual k={s.key} t={w} max={1} />
+      <div className="svc-vis absolute overflow-hidden" style={bleed}>
+        <ServiceVisual k={s.key} t={w} max={1.2} />
       </div>
-      <div className="relative flex items-center justify-between">
-        <span className="font-mono text-[11.5px] uppercase tracking-[0.1em] text-white/85">{s.label[locale]}</span>
-        <Bead tint="rgba(8,9,12,.55)" className="flex h-8 w-8 items-center justify-center text-white/80 transition-colors duration-300 group-hover:text-ink" aria-label={open}>
-          <ArrowUpRight size={15} strokeWidth={1.9} />
+      <div className="svc-rest pointer-events-none absolute flex flex-col items-center justify-center px-8 text-center" style={bleed}>
+        <span className="flex items-center gap-2.5 font-mono text-[11.5px] uppercase tracking-[0.16em] text-white/75">
+          <span className="h-px w-6 bg-white/40" />
+          {s.label[locale]}
+          <span className="h-px w-6 bg-white/40" />
+        </span>
+        <h3 className="mt-4 max-w-[16ch] text-[clamp(28px,2.9vw,44px)] font-medium leading-[1.02] tracking-[-0.045em] text-white">
+          {s.title[locale]}
+        </h3>
+        <p className="mt-4 max-w-[38ch] text-[14px] leading-[1.5] text-white/70">{s.short[locale]}</p>
+        <Bead tint="rgba(255,255,255,.14)" className="svc-arrow mt-7 flex h-11 w-11 items-center justify-center text-white" aria-label={open}>
+          <ArrowUpRight size={18} strokeWidth={1.8} />
         </Bead>
-      </div>
-      {/* sotto il titolo una velatura sfocata che sfuma verso l'alto, per leggere sempre il testo */}
-      <div className="relative mt-auto">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-12 backdrop-blur-[10px] [mask-image:linear-gradient(to_top,#000_55%,transparent)]"
-          style={{ left: "calc(var(--mb-pad, 20px) * -1)", right: "calc(var(--mb-pad, 20px) * -1)", bottom: "calc(var(--mb-pad, 20px) * -1)", background: "linear-gradient(to top, rgba(6,7,9,.9), rgba(6,7,9,.55) 60%, transparent)" }}
-        />
-        <h3 className="relative text-[18px] font-semibold tracking-[-0.02em] text-ink">{s.title[locale]}</h3>
-        <p className="relative mt-1.5 max-w-[52ch] text-[13.5px] leading-[1.5] text-ink-2">{s.short[locale]}</p>
       </div>
     </div>
   );
@@ -148,12 +148,13 @@ export function Services() {
               radius={30}
               theme="dark"
               glowColor="94, 196, 255"
-              enableSpotlight={false}
+              enableSpotlight
+              spotlightRadius={420}
               enableBorderGlow
               enableStars={false}
-              enableTilt={false}
+              enableTilt
               enableMagnetism={false}
-              clickEffect={false}
+              clickEffect
               style={
                 {
                   "--mb-surface": "#0d0e10",

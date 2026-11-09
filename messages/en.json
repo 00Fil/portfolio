@@ -214,7 +214,7 @@
   },
   "story": {
     "title": "Path",
-    "lead": "Technical education, university and hands-on work.",
+    "lead": "A solid technical background, university and real projects already in use.",
     "chapters": [
       {
         "tag": "Education",
@@ -675,26 +675,38 @@
   },
   "why": {
     "title": "Why work with me",
-    "lead": "Fewer middlemen, more control: you always know where the project stands and what it costs.",
+    "lead": "You work directly with the person who designs and builds your product: every choice is explained, every cost is stated, and you always know where things stand.",
     "items": [
       {
-        "title": "One point of contact",
-        "body": "You always talk to the person who designs and writes the code: no hand-offs, no lost requests."
+        "kicker": "Communication",
+        "title": "One point of contact, from analysis to launch",
+        "body": "You talk directly to the person who designs and writes the code. No middlemen to re-explain things to: requests arrive intact and decisions are made in days, not weeks.",
+        "metric": "1",
+        "metricLabel": "person to contact, always the same"
       },
       {
-        "title": "A clear quote",
-        "body": "Costs, timing and what’s included, in writing before we start. No surprises halfway."
+        "kicker": "Cost",
+        "title": "Price agreed before we start",
+        "body": "Goals, timeline and cost are put in writing before the first line of code. If the project changes, we assess the impact together before moving on: no unexpected items on the invoice.",
+        "metric": "0",
+        "metricLabel": "costs not agreed in advance"
       },
       {
-        "title": "Try it as it grows",
-        "body": "Frequent deliveries: you see and use the project at every step, not only at the end."
+        "kicker": "Progress",
+        "title": "Watch it grow, step by step",
+        "body": "You don’t wait until the end to see the result. A working version is always available to try: you comment, we fix, and you launch knowing exactly what goes live.",
+        "metric": "24/7",
+        "metricLabel": "access to the work in progress"
       },
       {
-        "title": "Everything stays yours",
-        "body": "Code, data and access are yours. After launch I stay on for support and new features."
+        "kicker": "Ownership",
+        "title": "The product is yours, support continues",
+        "body": "Source code, data and access stay yours, documented and transferable. After launch I remain your contact for maintenance, security and new features.",
+        "metric": "100%",
+        "metricLabel": "of code and data in your name"
       }
     ],
-    "cta": "Have a project in mind?",
+    "cta": "Got a project in mind?",
     "ctaBtn": "Request a quote"
   }
 }

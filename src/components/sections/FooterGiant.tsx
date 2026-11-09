@@ -52,7 +52,7 @@ export function FooterCta({ q, a, cta, href }: { q: string; a: string; cta: stri
       </p>
       <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-8">
         <p className="overflow-hidden pb-[0.12em]">
-          <span data-cl className="t-serif block text-[var(--sky)]">
+          <span data-cl className="block text-ink-3">
             {a}
           </span>
         </p>
@@ -117,7 +117,7 @@ export function FooterGiant({ first, last }: { first: string; last: string }) {
 
   const chars = (s: string, serif = false) =>
     Array.from(s).map((c, i) => (
-      <span key={i} data-ch className={`inline-block ${serif ? "t-serif" : ""}`}>
+      <span key={i} data-ch className={`inline-block ${serif ? "font-normal" : ""}`}>
         {c === " " ? " " : c}
       </span>
     ));

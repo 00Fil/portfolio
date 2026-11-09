@@ -61,7 +61,7 @@
   --chip: rgba(255, 255, 255, 0.04);
   --card: #0d0e10;
   --bar-tint: rgba(8, 8, 10, 0.74);
-  --panel-tint: rgba(12, 12, 14, 0.8);
+  --panel-tint: rgba(14, 15, 18, 0.94);
   --pill: rgba(0, 0, 0, 0.6);
   --shadow-strong: rgba(0, 0, 0, 0.9);
   color-scheme: dark;
@@ -73,7 +73,7 @@
   --chip: rgba(255, 255, 255, 0.04);
   --card: #0d0e10;
   --bar-tint: rgba(8, 8, 10, 0.74);
-  --panel-tint: rgba(12, 12, 14, 0.8);
+  --panel-tint: rgba(14, 15, 18, 0.94);
   --pill: rgba(0, 0, 0, 0.6);
   --shadow-strong: rgba(0, 0, 0, 0.9);
 }
@@ -101,7 +101,7 @@ html[data-theme="light"] {
   --chip: rgba(15, 20, 30, 0.04);
   --card: #ffffff;
   --bar-tint: rgba(255, 255, 255, 0.72);
-  --panel-tint: rgba(255, 255, 255, 0.86);
+  --panel-tint: rgba(255, 255, 255, 0.95);
   --pill: rgba(255, 255, 255, 0.7);
   --shadow-strong: rgba(20, 30, 50, 0.18);
   color-scheme: light;
@@ -130,7 +130,7 @@ html[data-theme="light"] .theme-dark {
   --chip: rgba(255, 255, 255, 0.04);
   --card: #0d0e10;
   --bar-tint: rgba(8, 8, 10, 0.74);
-  --panel-tint: rgba(12, 12, 14, 0.8);
+  --panel-tint: rgba(14, 15, 18, 0.94);
   --pill: rgba(0, 0, 0, 0.6);
   --shadow-strong: rgba(0, 0, 0, 0.9);
   color-scheme: dark;
@@ -350,8 +350,17 @@ html[data-theme="light"] .giant-mask { background: var(--bg-canvas); color: #000
 /* immagini scure che nel tema chiaro diventano chiare con le fibre blu */
 html[data-theme="light"] .light-invert { filter: invert(1) hue-rotate(180deg) saturate(1.2); opacity: 0.55; }
 
-/* schede dei servizi: a riposo solo lo sfondo, il disegno sale al passaggio del mouse */
+/* schede dei servizi: a riposo il titolo al centro; al passaggio del mouse si dissolve nel servizio a tutta scheda */
+.svc-rest, .svc-vis { transition: opacity 0.55s var(--ease-out), transform 0.9s var(--ease-out), filter 0.55s var(--ease-out); }
+.svc-arrow { transition: transform 0.6s var(--ease-out); }
 @media (hover: hover) {
-  .svc-vis { opacity: 0; transform: translateY(22px) scale(0.96); filter: blur(10px); transition: opacity 0.6s var(--ease-out), transform 0.9s var(--ease-out), filter 0.6s var(--ease-out); }
+  .svc-vis { opacity: 0; transform: scale(1.08); filter: blur(16px); }
   .group:hover .svc-vis, .group:focus-visible .svc-vis { opacity: 1; transform: none; filter: none; }
+  .group:hover .svc-rest, .group:focus-visible .svc-rest { opacity: 0; transform: scale(0.9); filter: blur(12px); }
+}
+@media (hover: none) {
+  .svc-vis { bottom: 150px !important; }
+  .svc-rest { justify-content: flex-end !important; align-items: flex-start !important; text-align: left; padding: 0 24px 24px !important; background: linear-gradient(to top, rgba(4,6,9,.92) 30%, transparent 62%); }
+  .svc-rest h3 { font-size: 26px; }
+  .svc-arrow { display: none !important; }
 }

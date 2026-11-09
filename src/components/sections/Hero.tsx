@@ -154,7 +154,7 @@ export function Hero() {
           kind="word"
           at={at % list.length}
           items={list.map((w) => (
-            <span key={w} className="t-serif italic text-[var(--sky)]">
+            <span key={w} className="text-[var(--sky)]">
               {w}
             </span>
           ))}
@@ -163,7 +163,7 @@ export function Hero() {
     }
     const em = tok.startsWith("*");
     return (
-      <span key={k} className={`mx-[0.14em] ${em ? "t-serif italic text-[var(--sky)]" : ""}`}>
+      <span key={k} className={`mx-[0.14em] ${em ? "text-[var(--sky)]" : ""}`}>
         {em ? tok.slice(1) : tok}
       </span>
     );

@@ -74,7 +74,10 @@ function Canvas({ w, h, max = 1, build, children }: { w: number; h: number; max?
   useEffect(() => {
     const o = box.current!;
     const ro = new ResizeObserver(() => {
-      const s = Math.min(max, o.clientWidth / w, o.clientHeight / h);
+      // se le proporzioni sono quasi uguali riempie tutto lo spazio (niente bordini), altrimenti sta dentro
+      const fit = Math.min(o.clientWidth / w, o.clientHeight / h);
+      const fill = Math.max(o.clientWidth / w, o.clientHeight / h);
+      const s = fill / fit < 1.1 ? fill : Math.min(max, fit);
       stage.current!.style.transform = `translate(-50%, -50%) scale(${s})`;
     });
     ro.observe(o);
@@ -130,111 +133,131 @@ const Steps = ({ items, attr = "data-cap", className = "" }: { items: ReactNode[
 /** Migliaia sempre separate (in italiano Intl non separa i numeri di quattro cifre). */
 const num = (v: number, url: string) => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, url.endsWith(".it") ? "." : ",");
 
-/* ───────────── Siti e web app: il sito in 3D, a strati. Dati, logica, interfaccia si aprono e si richiudono ───────────── */
+/* ───────────── Siti e web app: il prodotto in 3D. Sopra il sito e l'app, sotto la logica e i dati che li tengono insieme ───────────── */
 
 function WebV({ t, max }: { t: WidgetText; max?: number }) {
   const labels = [t.webL1, t.webL2, t.webL3];
-  const OPEN = [0, 92, 184];
-  const SHUT = [0, 22, 44];
+  const OPEN = [0, 110, 220];
+  const SHUT = [0, 26, 52];
   return (
     <Canvas
-      w={520}
-      h={440}
+      w={600}
+      h={740}
       max={max}
       build={(q) => {
         const pl = q("[data-plane]");
         const tag = q("[data-tag]");
-        gsap.set(q("[data-stack]"), { rotationX: 58, rotationZ: -38, transformPerspective: 1600 });
+        gsap.set(q("[data-stack]"), { rotationX: 54, rotationZ: -30, transformPerspective: 1800 });
         gsap.set(pl, { z: (i: number) => SHUT[2 - i] });
         const tl = gsap
           .timeline()
-          .from(pl, { z: (i: number) => -160 - i * 40, autoAlpha: 0, duration: 1.4, stagger: 0.12, ease: "expo.out" })
-          .from(tag, { x: -10, autoAlpha: 0, duration: 0.6, stagger: 0.1, ease: "expo.out" }, 0.8)
-          .to(q("[data-stack]"), { rotationZ: -30, duration: 6, yoyo: true, repeat: -1, ease: "sine.inOut" }, 1);
-        const run = gsap.timeline({ repeat: -1, repeatDelay: 0.6, defaults: { ease: "expo.inOut" } });
+          .from(pl, { z: (i: number) => -200 - i * 60, autoAlpha: 0, duration: 1.4, stagger: 0.12, ease: "expo.out" })
+          .to(q("[data-stack]"), { rotationZ: -22, rotationX: 50, duration: 7, yoyo: true, repeat: -1, ease: "sine.inOut" }, 1);
+        const run = gsap.timeline({ repeat: -1, repeatDelay: 0.4, defaults: { ease: "expo.inOut" } });
         run
-          // si apre: ogni strato si stacca
-          .to(pl, { z: (i: number) => OPEN[2 - i], duration: 1.4, stagger: 0.06 }, 0)
-          .to(tag, { autoAlpha: 1, x: 0, duration: 0.5, stagger: 0.08 }, 0.6)
-          // la logica lavora e l'interfaccia si aggiorna
-          .fromTo(q("[data-ping]"), { scale: 0.4, autoAlpha: 0.9 }, { scale: 2.4, autoAlpha: 0, duration: 0.9, stagger: 0.25, ease: "power2.out" }, 1.5)
-          .fromTo(q("[data-new]"), { scaleX: 0 }, { scaleX: 1, transformOrigin: "0 50%", duration: 0.6, ease: "power3.out" }, 2.4)
-          // si richiude
-          .to(tag, { autoAlpha: 0.0, x: -6, duration: 0.4 }, 4.4)
-          .to(pl, { z: (i: number) => SHUT[2 - i], duration: 1.2, stagger: { each: 0.06, from: "end" } }, 4.4)
-          .set(q("[data-new]"), { scaleX: 0 }, 5.8);
-        return tl.add(run, 1.6);
+          // gli strati si separano
+          .to(pl, { z: (i: number) => OPEN[2 - i], duration: 1.5, stagger: 0.07 }, 0)
+          .fromTo(tag, { x: -12, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.6, stagger: 0.1, ease: "expo.out", immediateRender: false }, 0.7)
+          // un ordine arriva dai dati, passa dalla logica e compare nel sito e nell'app
+          .fromTo(q("[data-row]"), { backgroundColor: "rgba(255,255,255,.14)" }, { backgroundColor: SKY, duration: 0.3, yoyo: true, repeat: 1, immediateRender: false }, 1.8)
+          .fromTo(q("[data-ping]"), { scale: 0.4, autoAlpha: 0.9 }, { scale: 2.6, autoAlpha: 0, duration: 0.9, stagger: 0.12, ease: "power2.out", immediateRender: false }, 2.1)
+          .fromTo(q("[data-new]"), { scaleX: 0 }, { scaleX: 1, transformOrigin: "0 50%", duration: 0.7, stagger: 0.15, ease: "power3.out", immediateRender: false }, 2.6)
+          .fromTo(q("[data-badge]"), { scale: 0 }, { scale: 1, duration: 0.6, ease: "back.out(3)", immediateRender: false }, 2.9)
+          // si richiudono
+          .to(tag, { autoAlpha: 0, x: -8, duration: 0.4 }, 5)
+          .to(pl, { z: (i: number) => SHUT[2 - i], duration: 1.3, stagger: { each: 0.07, from: "end" } }, 5)
+          .set(q("[data-new]"), { scaleX: 0 }, 6.4)
+          .set(q("[data-badge]"), { scale: 0 }, 6.4);
+        return tl.add(run, 1.4);
       }}
     >
-      <div className="absolute inset-0 flex items-center pl-[30px]">
-        <div data-stack className="relative h-[230px] w-[320px] [transform-style:preserve-3d]">
-          {/* interfaccia */}
-          <div data-plane className="absolute inset-0 overflow-hidden rounded-[18px] bg-[#f6f3ee] p-4 shadow-[0_40px_60px_-20px_rgba(0,0,0,.6)]">
-            <div className="flex items-center justify-between">
-              <span className="h-2.5 w-14 rounded-full bg-[#16161a]" />
-              <span className="flex gap-2">
+      <div className="absolute inset-y-0 left-0 right-[150px] flex items-center justify-center">
+        <div data-stack className="relative h-[300px] w-[420px] [transform-style:preserve-3d]">
+          {/* sopra: il sito e l'app, sullo stesso piano */}
+          <div data-plane className="absolute inset-0 [transform-style:preserve-3d]">
+            <div className="absolute left-0 top-0 h-[300px] w-[292px] overflow-hidden rounded-[18px] bg-[#f6f3ee] shadow-[0_40px_70px_-20px_rgba(0,0,0,.55)]">
+              <div className="flex h-7 items-center gap-1.5 bg-[#e8e3dc] px-3">
                 {[0, 1, 2].map((i) => (
-                  <span key={i} className="h-1.5 w-7 rounded-full bg-black/20" />
+                  <span key={i} className="h-2 w-2 rounded-full bg-black/15" />
                 ))}
+              </div>
+              <div className="p-5">
+                <div className="flex items-center justify-between">
+                  <span className="h-2.5 w-14 rounded-full bg-[#16161a]" />
+                  <span className="flex gap-2">
+                    {[0, 1, 2].map((i) => (
+                      <span key={i} className="h-1.5 w-7 rounded-full bg-black/20" />
+                    ))}
+                  </span>
+                </div>
+                <span className="mt-6 block h-5 w-[80%] rounded-[5px] bg-[#16161a]" />
+                <span className="mt-2 block h-5 w-[56%] rounded-[5px] bg-[#16161a]" />
+                <span className="mt-4 block h-2 w-[66%] rounded-full bg-black/20" />
+                <span className="mt-5 block h-8 w-28 rounded-full" style={{ background: SKY }} />
+                <span className="mt-5 grid grid-cols-3 gap-2">
+                  {[0, 1, 2].map((i) => (
+                    <span key={i} className="relative h-12 overflow-hidden rounded-[8px] bg-black/[0.06]">
+                      {i === 0 && <span data-new className="absolute inset-0" style={{ background: "rgba(94,196,255,.5)", transform: "scaleX(0)" }} />}
+                    </span>
+                  ))}
+                </span>
+              </div>
+            </div>
+            <div className="absolute right-0 top-[20px] h-[260px] w-[116px] overflow-hidden rounded-[24px] border-[5px] border-[#16161a] bg-[#f6f3ee] p-3 shadow-[0_40px_70px_-20px_rgba(0,0,0,.55)]">
+              <span className="mx-auto block h-1.5 w-8 rounded-full bg-[#16161a]" />
+              <span className="mt-5 block h-3 w-[80%] rounded-[3px] bg-[#16161a]" />
+              <span className="mt-1.5 block h-3 w-[56%] rounded-[3px] bg-[#16161a]" />
+              <span className="mt-4 block h-16 rounded-[10px] bg-black/[0.06]">
+                <span data-new className="block h-full rounded-[10px]" style={{ background: "rgba(94,196,255,.5)", transform: "scaleX(0)" }} />
+              </span>
+              <span className="mt-3 block h-7 rounded-full" style={{ background: SKY }} />
+              <span data-badge className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#16161a] text-[9px] font-semibold text-white" style={{ transform: "scale(0)" }}>
+                1
               </span>
             </div>
-            <span className="mt-6 block h-5 w-[78%] rounded-[5px] bg-[#16161a]" />
-            <span className="mt-2 block h-5 w-[52%] rounded-[5px] bg-[#16161a]" />
-            <span className="mt-4 block h-2 w-[64%] rounded-full bg-black/20" />
-            <span className="mt-5 flex items-center gap-2">
-              <span className="h-7 w-24 rounded-full" style={{ background: SKY }} />
-              <span className="h-7 w-20 rounded-full shadow-[inset_0_0_0_1.5px_rgba(0,0,0,.2)]" />
-            </span>
-            <span className="absolute bottom-4 left-4 right-4 grid grid-cols-3 gap-2">
-              {[0, 1, 2].map((i) => (
-                <span key={i} className="relative h-9 overflow-hidden rounded-[8px] bg-black/[0.06]">
-                  {i === 0 && <span data-new className="absolute inset-y-0 left-0 w-full" style={{ background: "rgba(94,196,255,.45)", transform: "scaleX(0)" }} />}
-                </span>
-              ))}
-            </span>
           </div>
-          {/* logica */}
-          <div data-plane className="absolute inset-0 rounded-[18px] bg-[rgba(10,24,36,.72)] shadow-[inset_0_0_0_1px_rgba(255,255,255,.18),0_30px_50px_-20px_rgba(0,0,0,.6)] backdrop-blur-sm">
-            <svg viewBox="0 0 320 230" className="absolute inset-0 h-full w-full" aria-hidden>
+          {/* in mezzo: la logica */}
+          <div data-plane className="absolute inset-0 rounded-[22px] bg-[rgba(10,24,36,.7)] shadow-[inset_0_0_0_1px_rgba(255,255,255,.2)]">
+            <svg viewBox="0 0 420 300" className="absolute inset-0 h-full w-full" aria-hidden>
               {[
-                [70, 70, 160, 115],
-                [70, 160, 160, 115],
-                [160, 115, 250, 70],
-                [160, 115, 250, 160],
+                [90, 90, 210, 150],
+                [90, 210, 210, 150],
+                [210, 150, 330, 90],
+                [210, 150, 330, 210],
               ].map(([a, b, c, d], i) => (
-                <line key={i} x1={a} y1={b} x2={c} y2={d} stroke="rgba(158,220,255,.5)" strokeWidth="1.5" />
+                <line key={i} x1={a} y1={b} x2={c} y2={d} stroke="rgba(158,220,255,.55)" strokeWidth="1.8" />
               ))}
               {[
-                [70, 70],
-                [70, 160],
-                [160, 115],
-                [250, 70],
-                [250, 160],
+                [90, 90],
+                [90, 210],
+                [210, 150],
+                [330, 90],
+                [330, 210],
               ].map(([x, y], i) => (
                 <g key={i}>
-                  <circle data-ping cx={x} cy={y} r="10" fill="none" stroke={SKY} strokeWidth="1.5" style={{ transformBox: "fill-box", transformOrigin: "center" }} />
-                  <circle cx={x} cy={y} r={i === 2 ? 9 : 6} fill={i === 2 ? SKY : "#d9f2ff"} />
+                  <circle data-ping cx={x} cy={y} r="12" fill="none" stroke={SKY} strokeWidth="1.8" style={{ transformBox: "fill-box", transformOrigin: "center" }} />
+                  <circle cx={x} cy={y} r={i === 2 ? 11 : 7} fill={i === 2 ? SKY : "#d9f2ff"} />
                 </g>
               ))}
             </svg>
           </div>
-          {/* dati */}
-          <div data-plane className="absolute inset-0 rounded-[18px] bg-[rgba(6,14,22,.8)] p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,.14)]">
-            {[0, 1, 2, 3, 4, 5].map((r) => (
-              <span key={r} className="mb-[11px] flex gap-2">
-                <span className="h-2 w-10 rounded-full bg-white/25" />
-                <span className="h-2 flex-1 rounded-full bg-white/12" />
-                <span className="h-2 w-14 rounded-full" style={{ background: r === 2 ? SKY : "rgba(255,255,255,.18)" }} />
+          {/* sotto: i dati */}
+          <div data-plane className="absolute inset-0 rounded-[22px] bg-[rgba(6,14,22,.78)] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,.16)]">
+            {[0, 1, 2, 3, 4, 5, 6].map((r) => (
+              <span key={r} className="mb-[16px] flex gap-3">
+                <span className="h-2.5 w-14 rounded-full bg-white/25" />
+                <span className="h-2.5 flex-1 rounded-full bg-white/[0.12]" />
+                <span {...(r === 3 ? { "data-row": "" } : {})} className="h-2.5 w-16 rounded-full bg-white/[0.14]" />
               </span>
             ))}
           </div>
-</div>
+        </div>
       </div>
       {/* etichette degli strati */}
-      <div className="absolute right-0 top-[70px] flex flex-col gap-[52px]">
+      <div className="absolute right-0 top-[272px] flex flex-col gap-[70px]">
         {labels.map((l, i) => (
-          <span key={l} data-tag className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-white/80 opacity-0">
-            <span className="h-px w-8 bg-white/40" />
+          <span key={l} data-tag className="flex items-center gap-2.5 font-mono text-[12px] uppercase tracking-[0.14em] text-white/85 opacity-0">
+            <span className="h-px w-10 bg-white/45" />
             {l}
             <span className="text-white/40">{String(i + 1).padStart(2, "0")}</span>
           </span>
@@ -244,7 +267,7 @@ function WebV({ t, max }: { t: WidgetText; max?: number }) {
   );
 }
 
-/* ───────────── SEO: il pannello "Rendimento" di Google Search Console, una metrica alla volta ───────────── */
+/* ───────────── SEO: la scheda diventa il pannello "Rendimento" di Google Search Console, una metrica alla volta ───────────── */
 
 const GSC = [
   { c: "#4285f4", pts: [70, 66, 68, 60, 58, 54, 50, 46, 40, 34, 26, 16] },
@@ -253,26 +276,26 @@ const GSC = [
   { c: "#e8710a", pts: [30, 34, 32, 38, 42, 44, 48, 52, 54, 58, 62, 64] },
 ];
 function SeoV({ t, max }: { t: WidgetText; max?: number }) {
-  const W = 536;
-  const H = 74;
-  const path = (p: number[]) => p.map((y, i) => `${i ? "L" : "M"}${((i / (p.length - 1)) * W).toFixed(1)} ${y}`).join(" ");
+  const W = 552;
+  const H = 140;
+  const path = (p: number[]) => p.map((y, i) => `${i ? "L" : "M"}${((i / (p.length - 1)) * W).toFixed(1)} ${(y * 1.9).toFixed(1)}`).join(" ");
   const labels = [t.seoM1, t.seoM2, t.seoM3, t.seoM4];
   const values = [t.seoV1, t.seoV2, t.seoV3, t.seoV4];
   const hx = (9 / 11) * W;
   return (
     <Canvas
-      w={560}
-      h={196}
+      w={600}
+      h={360}
       max={max}
       build={(q) => {
-        const tl = gsap.timeline().from(q("[data-panel]"), { y: 30, autoAlpha: 0, duration: 1, ease: "expo.out" });
+        const tl = gsap.timeline().from(q("[data-tile]"), { y: 16, autoAlpha: 0, duration: 0.8, stagger: 0.06, ease: "expo.out" });
         const tiles = q("[data-tile]");
         const n = q("[data-count]")[0];
         const run = gsap.timeline({ repeat: -1, repeatDelay: 1.2 });
         GSC.forEach((g, i) => {
           const at = 0.3 + i * 1.15;
           run
-            .to(tiles[i], { backgroundColor: g.c, color: "#fff", boxShadow: `0 8px 18px -8px ${g.c}`, duration: 0.35, ease: "power2.out" }, at)
+            .to(tiles[i], { backgroundColor: g.c, color: "#fff", boxShadow: `0 10px 22px -10px ${g.c}`, duration: 0.35, ease: "power2.out" }, at)
             .fromTo(tiles[i].querySelector("[data-box]"), { backgroundColor: "rgba(255,255,255,0)", color: "rgba(0,0,0,0)" }, { backgroundColor: "#fff", color: g.c, duration: 0.25 }, at)
             .fromTo(tiles[i].querySelector("[data-val]"), { y: 10, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5, ease: "expo.out" }, at + 0.1)
             .fromTo(q("[data-gl]")[i], { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 1.1, ease: "power2.inOut" }, at);
@@ -288,51 +311,51 @@ function SeoV({ t, max }: { t: WidgetText; max?: number }) {
           .to(q("[data-val]"), { autoAlpha: 0, duration: 0.3 }, 7.8)
           .to(q("[data-box]"), { backgroundColor: "rgba(255,255,255,0)", color: "rgba(0,0,0,0)", duration: 0.3 }, 7.8)
           .to(q("[data-gl]"), { strokeDashoffset: -100, duration: 0.6, ease: "power2.in" }, 7.8);
-        return tl.add(run, 0.6);
+        return tl.add(run, 0.4);
       }}
     >
-      <div data-panel className="absolute inset-0 overflow-hidden rounded-[16px] bg-white text-[#202124] shadow-[0_40px_80px_-30px_rgba(0,0,0,.9)]">
-        <div className="absolute inset-x-3 top-2.5 flex items-center justify-between text-[11px]">
-          <span className="flex items-center gap-2 font-medium">
-            <Brand icon={si.siGooglesearchconsole} className="h-3.5 w-3.5 text-[#4285f4]" />
+      <div className="absolute inset-0 bg-white text-[#202124]">
+        <div className="absolute inset-x-6 top-6 flex items-center justify-between text-[13px]">
+          <span className="flex items-center gap-2.5 font-medium">
+            <Brand icon={si.siGooglesearchconsole} className="h-[18px] w-[18px] text-[#4285f4]" />
             {t.seoTitle}
           </span>
-          <span className="text-[#5f6368]">{t.seoRange}</span>
+          <span className="rounded-full px-3 py-1 text-[12px] text-[#5f6368] shadow-[inset_0_0_0_1px_#dadce0]">{t.seoRange}</span>
         </div>
-        <div className="absolute left-3 top-[32px] flex gap-1.5">
+        <div className="absolute left-6 top-[66px] flex gap-2">
           {GSC.map((g, i) => (
-            <div key={g.c} data-tile className="relative h-[66px] w-[128.5px] rounded-[8px] px-2.5 pt-2 text-[#5f6368] shadow-[inset_0_0_0_1px_#dadce0]" style={{ backgroundColor: "#fff" }}>
-              <span className="flex items-center gap-1.5 text-[10.5px] leading-tight">
-                <span data-box className="flex h-3 w-3 shrink-0 items-center justify-center rounded-[2px] shadow-[inset_0_0_0_1.5px_currentColor]" style={{ color: "rgba(0,0,0,0)" }}>
-                  <Tick className="h-2.5 w-2.5" w={3.4} />
+            <div key={g.c} data-tile className="relative h-[88px] w-[132px] rounded-[10px] px-3 pt-3 text-[#5f6368] shadow-[inset_0_0_0_1px_#dadce0]" style={{ backgroundColor: "#fff" }}>
+              <span className="flex items-center gap-1.5 text-[11.5px] leading-tight">
+                <span data-box className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-[3px] shadow-[inset_0_0_0_1.5px_currentColor]" style={{ color: "rgba(0,0,0,0)" }}>
+                  <Tick className="h-3 w-3" w={3.4} />
                 </span>
                 {labels[i]}
               </span>
-              <span data-val className="tabular-nums mt-1.5 block text-[22px] font-normal leading-none tracking-[-0.02em] opacity-0">
+              <span data-val className="mt-3 block text-[28px] font-normal leading-none tracking-[-0.02em] tabular-nums opacity-0">
                 {i ? values[i] : <span data-count>{values[0]}</span>}
               </span>
             </div>
           ))}
         </div>
-        <svg viewBox={`0 0 ${W} ${H}`} className="absolute left-3 top-[110px] overflow-visible" style={{ width: W, height: H }}>
-          {[0, 1, 2, 3].map((i) => (
-            <line key={i} x1="0" x2={W} y1={4 + i * 22} y2={4 + i * 22} stroke="#e8eaed" />
+        <svg viewBox={`0 0 ${W} ${H}`} className="absolute left-6 top-[186px] overflow-visible" style={{ width: W, height: H }}>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <line key={i} x1="0" x2={W} y1={4 + i * 33} y2={4 + i * 33} stroke="#e8eaed" />
           ))}
           {GSC.map((g) => (
-            <path key={g.c} data-gl d={path(g.pts)} fill="none" stroke={g.c} strokeWidth="2.2" strokeLinejoin="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+            <path key={g.c} data-gl d={path(g.pts)} fill="none" stroke={g.c} strokeWidth="2.6" strokeLinejoin="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
           ))}
           <g data-hover opacity="0">
             <line x1={hx} x2={hx} y1="0" y2={H} stroke="#9aa0a6" strokeDasharray="2 3" />
             {GSC.map((g) => (
-              <circle key={g.c} data-hdot cx={hx} cy={g.pts[9]} r="3.6" fill="#fff" stroke={g.c} strokeWidth="2" />
+              <circle key={g.c} data-hdot cx={hx} cy={g.pts[9] * 1.9} r="4.5" fill="#fff" stroke={g.c} strokeWidth="2.4" />
             ))}
           </g>
         </svg>
-        <div data-tip className="absolute top-[104px] rounded-[6px] bg-[#3c4043] px-2.5 py-1.5 text-[10px] leading-[1.45] text-white opacity-0 shadow-lg" style={{ left: 12 + hx - 150 }}>
+        <div data-tip className="absolute top-[176px] rounded-[8px] bg-[#3c4043] px-3 py-2 text-[11.5px] leading-[1.5] text-white opacity-0 shadow-lg" style={{ left: 24 + hx - 170 }}>
           <span className="block font-medium">{t.seoTipD}</span>
           {GSC.map((g, i) => (
-            <span key={g.c} className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: g.c }} />
+            <span key={g.c} className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full" style={{ background: g.c }} />
               {t[`seoT${i + 1}`]}
             </span>
           ))}
@@ -342,7 +365,7 @@ function SeoV({ t, max }: { t: WidgetText; max?: number }) {
   );
 }
 
-/* ───────────── GEO: Claude, riconoscibile, risponde e cita il sito come fonte ───────────── */
+/* ───────────── GEO: la scheda diventa Claude, che risponde e cita il sito come fonte ───────────── */
 
 const CLAUDE = "#D97757";
 const SERIF = { fontFamily: "ui-serif, Georgia, Cambria, 'Times New Roman', serif" };
@@ -350,11 +373,11 @@ function GeoV({ t, max }: { t: WidgetText; max?: number }) {
   const words = t.geoA.split(" ");
   return (
     <Canvas
-      w={560}
-      h={196}
+      w={600}
+      h={360}
       max={max}
       build={(q) => {
-        const tl = gsap.timeline().from(q("[data-panel]"), { y: 30, autoAlpha: 0, duration: 1, ease: "expo.out" });
+        const tl = gsap.timeline().from(q("[data-in]"), { y: 16, autoAlpha: 0, duration: 0.8, stagger: 0.08, ease: "expo.out" });
         const run = gsap.timeline({ repeat: -1, repeatDelay: 2 });
         run
           .fromTo(q("[data-q]"), { x: 20, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.7, ease: "expo.out" }, 0)
@@ -364,33 +387,39 @@ function GeoV({ t, max }: { t: WidgetText; max?: number }) {
           .fromTo(q("[data-src]"), { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.9, ease: "elastic.out(1, 0.55)" })
           .to(q("[data-src]"), { boxShadow: `0 0 0 1px ${CLAUDE}, 0 0 24px -4px ${CLAUDE}`, duration: 0.6, yoyo: true, repeat: 3 })
           .to(q("[data-q], [data-w], [data-src]"), { autoAlpha: 0, duration: 0.4 }, "+=1.4");
-        return tl.add(run, 0.6);
+        return tl.add(run, 0.5);
       }}
     >
-      <div data-panel className="absolute inset-0 overflow-hidden rounded-[18px] bg-[#262624] shadow-[0_0_0_1px_rgba(255,255,255,.08),0_40px_80px_-30px_rgba(0,0,0,.95)]">
-        <p data-q className="absolute right-4 top-3.5 max-w-[340px] rounded-[14px] bg-[#141413] px-3.5 py-2 text-[12.5px] text-[#f5f4ef] opacity-0">
+      <div className="absolute inset-0 bg-[#262624]">
+        <div data-in className="absolute inset-x-7 top-6 flex items-center justify-between text-[12.5px] text-[#9a988f]">
+          <span className="flex items-center gap-2 text-[#c2c0b6]">
+            <Brand icon={si.siClaude} className="h-4 w-4 text-[#D97757]" />
+            Claude
+          </span>
+          <span>Sonnet 5.5</span>
+        </div>
+        <p data-q className="absolute right-7 top-[70px] max-w-[400px] rounded-[16px] bg-[#141413] px-4 py-2.5 text-[14.5px] text-[#f5f4ef] opacity-0">
           {t.geoQ}
         </p>
-        <div className="absolute left-4 right-6 top-[60px] flex gap-3">
-          <span data-star className="mt-1 h-[18px] w-[18px] shrink-0" style={{ color: CLAUDE }}>
-            <Brand icon={si.siClaude} className="h-[18px] w-[18px]" />
+        <div className="absolute left-7 right-10 top-[132px] flex gap-3.5">
+          <span data-star className="mt-1 h-[22px] w-[22px] shrink-0" style={{ color: CLAUDE }}>
+            <Brand icon={si.siClaude} className="h-[22px] w-[22px]" />
           </span>
-          <p className="text-[14.5px] leading-[1.5] text-[#f5f4ef]" style={SERIF}>
+          <p className="text-[18px] leading-[1.5] text-[#f5f4ef]" style={SERIF}>
             {words.map((w, i) => (
               <span key={i} data-w className="inline-block opacity-0">
                 {w}&nbsp;
               </span>
             ))}
-            <span data-src className="ml-0.5 inline-flex h-5 items-center rounded-[6px] bg-[#3a3937] px-1.5 align-middle font-sans text-[10.5px] text-[#c2c0b6] opacity-0">
+            <span data-src className="ml-0.5 inline-flex h-6 items-center rounded-[7px] bg-[#3a3937] px-2 align-middle font-sans text-[12px] text-[#c2c0b6] opacity-0">
               {t.url}
             </span>
           </p>
         </div>
-        <div className="absolute inset-x-3 bottom-3 flex h-10 items-center gap-2.5 rounded-[14px] bg-[#30302e] px-4 text-[11.5px] text-[#9a988f] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
-          <span className="text-[15px] leading-none">+</span>
+        <div data-in className="absolute inset-x-6 bottom-6 flex h-[54px] items-center gap-3 rounded-[18px] bg-[#30302e] px-5 text-[13.5px] text-[#9a988f] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
+          <span className="text-[18px] leading-none">+</span>
           <span className="flex-1">{t.geoReply}</span>
-          <span className="text-[#c2c0b6]">Sonnet 5.5</span>
-          <span className="flex h-6 w-6 items-center justify-center rounded-[7px] text-[12px] text-white" style={{ background: "#c6613f" }}>
+          <span className="flex h-8 w-8 items-center justify-center rounded-[9px] text-[14px] text-white" style={{ background: "#c6613f" }}>
             ↑
           </span>
         </div>
@@ -478,12 +507,12 @@ function AppsV({ max }: { max?: number }) {
 const LINKED = [si.siStripe, si.siHubspot, si.siGooglecalendar, si.siWhatsapp];
 function ApiV({ t, max }: { t: WidgetText; max?: number }) {
   const names = [t.apiPay, t.apiCrm, t.apiCal, "WhatsApp"];
-  const xs = [80, 213, 347, 480];
-  const paths = xs.map((x) => `M280 42 C280 64 ${x} 50 ${x} 72`);
+  const xs = [90, 230, 370, 510];
+  const paths = xs.map((x) => `M300 76 C300 118 ${x} 104 ${x} 146`);
   return (
     <Canvas
-      w={560}
-      h={192}
+      w={600}
+      h={360}
       max={max}
       build={(q) => {
         const tl = gsap
@@ -496,7 +525,7 @@ function ApiV({ t, max }: { t: WidgetText; max?: number }) {
         const caps = q("[data-cap]");
         q("[data-glow]").forEach((g, i) => {
           const at = i * 1.5;
-          run.to(q("[data-core]"), { scale: 1.06, duration: 0.15, yoyo: true, repeat: 1 }, at);
+          run.to(q("[data-core]"), { scale: 1.05, duration: 0.15, yoyo: true, repeat: 1 }, at);
           travel(run, g, at + 0.05, 0.7);
           run.to(q("[data-svcb]")[i], { ["--drop-tint" as string]: FLASH, color: "#fff", scale: 1.1, duration: 0.2, yoyo: true, repeat: 1, repeatDelay: 0.5 }, at + 0.7);
           step(run, caps, i, at + 0.7);
@@ -504,48 +533,51 @@ function ApiV({ t, max }: { t: WidgetText; max?: number }) {
         return tl.add(run, 1.2);
       }}
     >
-      <Links paths={paths} w={560} h={192} />
-      <Bead data-core tint={DARK} className="absolute left-[280px] top-1.5 -ml-[70px] flex h-9 w-[140px] items-center justify-center whitespace-nowrap text-[12px] font-medium text-white backdrop-blur-md">
+      <Links paths={paths} w={600} h={360} />
+      <Bead data-core tint={DARK} radius={22} className="absolute left-[300px] top-[32px] -ml-[100px] flex h-11 w-[200px] items-center justify-center whitespace-nowrap text-[14px] font-medium text-white backdrop-blur-md">
         {t.apiCore}
       </Bead>
       {LINKED.map((ic, i) => (
-        <span key={ic.slug} data-svc className="absolute top-[72px] -ml-12 flex w-24 flex-col items-center gap-1.5" style={{ left: xs[i] }}>
-          <Bead data-svcb tint={DARK} radius={14} className="flex h-11 w-11 items-center justify-center text-white/75 backdrop-blur-md">
-            <Brand icon={ic} className="h-[18px] w-[18px]" />
+        <span key={ic.slug} data-svc className="absolute top-[148px] -ml-[60px] flex w-[120px] flex-col items-center gap-2.5" style={{ left: xs[i] }}>
+          <Bead data-svcb tint={DARK} radius={18} className="flex h-14 w-14 items-center justify-center text-white/80 backdrop-blur-md">
+            <Brand icon={ic} className="h-6 w-6" />
           </Bead>
-          <span className="text-[11px] text-white [text-shadow:0_1px_6px_rgba(0,0,0,.7)]">{names[i]}</span>
+          <span className="text-[12.5px] text-white [text-shadow:0_1px_6px_rgba(0,0,0,.7)]">{names[i]}</span>
         </span>
       ))}
-      <Bead data-log tint={DARK} className="absolute bottom-0 left-[280px] -ml-[130px] flex h-9 w-[260px] items-center justify-center px-3.5 text-[11px] text-white backdrop-blur-md">
-        <Steps items={[t.apiL1, t.apiL2, t.apiL3, t.apiL4].map((l) => <><Tick className="h-3 w-3 text-[#fde68a]" /> {l}</>)} className="justify-center" />
+      <Bead data-log tint={DARK} radius={22} className="absolute left-[300px] top-[276px] -ml-[160px] flex h-11 w-[320px] items-center justify-center px-4 text-[13px] text-white backdrop-blur-md">
+        <Steps items={[t.apiL1, t.apiL2, t.apiL3, t.apiL4].map((l) => <><Tick className="h-3.5 w-3.5 text-[#bfe8ff]" /> {l}</>)} className="justify-center" />
       </Bead>
     </Canvas>
   );
 }
 
-/* ───────────── Design: un editor come Figma. Selezioni un elemento, cambi colore, angoli e carattere ───────────── */
+/* ───────────── Design: la scheda diventa un editor come Figma. Selezioni, cambi colore, angoli e carattere ───────────── */
 
 const FIG = "#0d99ff";
 const FILLS = [SKY, "#16324f", "#111214", "#f5efe6"];
 /** Il cursore di chi lavora nel file, con il nome accanto come negli editor condivisi. */
 const NamedCursor = ({ name, color, attr = "data-cur" }: { name: string; color: string; attr?: string }) => (
   <span {...{ [attr]: "" }} className="absolute left-0 top-0 z-20 flex items-start opacity-0">
-    <svg viewBox="0 0 16 16" className="h-4 w-4 drop-shadow-[0_2px_4px_rgba(0,0,0,.5)]" aria-hidden>
+    <svg viewBox="0 0 16 16" className="h-[18px] w-[18px] drop-shadow-[0_2px_4px_rgba(0,0,0,.5)]" aria-hidden>
       <path d="M2 1l11 6-5 1.5L6 14z" fill={color} stroke="#fff" strokeWidth="1" />
     </svg>
-    <span className="ml-0.5 mt-3 whitespace-nowrap rounded-[5px] px-1.5 py-0.5 text-[9.5px] font-semibold text-white" style={{ background: color }}>
+    <span className="ml-0.5 mt-3.5 whitespace-nowrap rounded-[6px] px-2 py-0.5 text-[11px] font-semibold text-white" style={{ background: color }}>
       {name}
     </span>
   </span>
 );
 function DesignV({ t, max }: { t: WidgetText; max?: number }) {
-  const BTN = { x: 228, y: 112, w: 120, h: 36 };
-  const TTL = { x: 228, y: 46, w: 196, h: 28 };
-  const box = (r: typeof BTN) => ({ x: r.x - 3, y: r.y - 3, width: r.w + 6, height: r.h + 6 });
+  const MX = 258;
+  const MY = 80;
+  const BTN = { x: MX + 24, y: MY + 128, w: 136, h: 42 };
+  const TTL = { x: MX + 24, y: MY + 46, w: 240, h: 36 };
+  const box = (r: typeof BTN) => ({ x: r.x - 4, y: r.y - 4, width: r.w + 8, height: r.h + 8 });
+  const SW = (i: number) => 24 + 13 + i * 36;
   return (
     <Canvas
-      w={560}
-      h={180}
+      w={600}
+      h={360}
       max={max}
       build={(q) => {
         const cur = q("[data-cur]")[0];
@@ -555,92 +587,94 @@ function DesignV({ t, max }: { t: WidgetText; max?: number }) {
         const o = { r: 8 };
         const tl = gsap
           .timeline()
-          .from(q("[data-insp]"), { x: -20, autoAlpha: 0, duration: 0.9, ease: "expo.out" })
+          .from(q("[data-insp] > *"), { x: -12, autoAlpha: 0, duration: 0.7, stagger: 0.05, ease: "expo.out" })
           .from(q("[data-mock]"), { y: 24, autoAlpha: 0, duration: 0.9, ease: "expo.out" }, 0.1);
         const run = gsap.timeline({ repeat: -1, repeatDelay: 0.4, defaults: { ease: "power3.inOut" } });
         const click = (at: number, el?: Element) => {
           run.to(cur, { scale: 0.85, duration: 0.1, yoyo: true, repeat: 1, transformOrigin: "0 0" }, at);
           if (el) run.to(el, { scale: 0.92, duration: 0.1, yoyo: true, repeat: 1 }, at);
         };
-        run
-          .set(sel, { ...box(BTN), autoAlpha: 0 })
-          .fromTo(cur, { x: 560, y: 190, autoAlpha: 0 }, { x: 300, y: 128, autoAlpha: 1, duration: 0.9 }, 0.2);
+        run.set(sel, { ...box(BTN), autoAlpha: 0 }).fromTo(cur, { x: 620, y: 380, autoAlpha: 0 }, { x: BTN.x + 70, y: BTN.y + 22, autoAlpha: 1, duration: 0.9 }, 0.2);
         // 1. seleziono il tasto
         click(1.15);
         run.fromTo(sel, { autoAlpha: 0, scale: 0.94 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 1.2);
         step(run, q("[data-layer]"), 0, 1.2);
         // 2. cambio colore
-        run.to(cur, { x: 52, y: 72, duration: 0.8 }, 1.6);
+        run.to(cur, { x: SW(1), y: 105, duration: 0.8 }, 1.6);
         click(2.45, q("[data-fill]")[1]);
         run
           .to(btn, { backgroundColor: FILLS[1], color: "#fff", duration: 0.4, ease: "power2.out" }, 2.5)
-          .to(q("[data-fring]"), { x: 28, duration: 0.4, ease: "back.out(2)" }, 2.5)
+          .to(q("[data-fring]"), { x: 36, duration: 0.4, ease: "back.out(2)" }, 2.5)
           // 3. trascino gli angoli
-          .to(cur, { x: 21, y: 116, duration: 0.6 }, 2.9)
-          .to([cur, q("[data-knob]")[0]], { x: "+=70", duration: 0.9, ease: "power2.inOut" }, 3.6)
-          .fromTo(o, { r: 8 }, { r: 18, duration: 0.9, ease: "power2.inOut", onUpdate: () => { rad.textContent = String(Math.round(o.r)); (btn as HTMLElement).style.borderRadius = `${o.r}px`; } }, 3.6)
+          .to(cur, { x: 32, y: 176, duration: 0.6 }, 2.9)
+          .to([cur, q("[data-knob]")[0]], { x: "+=84", duration: 0.9, ease: "power2.inOut" }, 3.6)
+          .fromTo(o, { r: 8 }, { r: 21, duration: 0.9, ease: "power2.inOut", onUpdate: () => { rad.textContent = String(Math.round(o.r)); (btn as HTMLElement).style.borderRadius = `${o.r}px`; } }, 3.6)
           // 4. seleziono il titolo e cambio carattere
-          .to(cur, { x: 330, y: 62, duration: 0.8 }, 4.7);
+          .to(cur, { x: TTL.x + 120, y: TTL.y + 18, duration: 0.8 }, 4.7);
         click(5.55);
         run.to(sel, { ...box(TTL), duration: 0.45, ease: "expo.out" }, 5.6);
         step(run, q("[data-layer]"), 1, 5.6);
-        run.to(cur, { x: 120, y: 160, duration: 0.8 }, 6);
+        run.to(cur, { x: 150, y: 246, duration: 0.8 }, 6);
         click(6.85, q("[data-font]")[1]);
-        run.to(q("[data-fpill]"), { x: 66, width: 82, duration: 0.4, ease: "back.out(1.6)" }, 6.9);
+        run.to(q("[data-fpill]"), { x: 80, width: 100, duration: 0.4, ease: "back.out(1.6)" }, 6.9);
         step(run, q("[data-ttl]"), 1, 6.9);
         // si ricomincia
         run
-          .to(cur, { x: 560, y: 190, autoAlpha: 0, duration: 0.8 }, 8.6)
+          .to(cur, { x: 620, y: 380, autoAlpha: 0, duration: 0.8 }, 8.6)
           .to(sel, { autoAlpha: 0, duration: 0.3 }, 8.6)
           .to(btn, { backgroundColor: FILLS[0], color: "#16161a", borderRadius: 8, duration: 0.5 }, 8.8)
           .to(q("[data-fring]"), { x: 0, duration: 0.4 }, 8.8)
           .to(q("[data-knob]"), { x: 0, duration: 0.5 }, 8.8)
-          .to(q("[data-fpill]"), { x: 0, width: 56, duration: 0.4 }, 8.8)
+          .to(q("[data-fpill]"), { x: 0, width: 72, duration: 0.4 }, 8.8)
           .call(() => void (rad.textContent = "8"), [], 8.8);
         step(run, q("[data-ttl]"), 0, 8.8);
         step(run, q("[data-layer]"), 0, 8.8);
         return tl.add(run, 0.9);
       }}
     >
-      {/* pannello delle proprietà */}
-      <Bead data-insp tint={DARK} radius={16} className="absolute left-0 top-0 block h-[180px] w-[176px] text-white backdrop-blur-md">
-        <span className="absolute left-3.5 top-3.5 flex items-center gap-2 text-[11.5px] font-semibold">
-          <span className="h-2.5 w-2.5 rounded-[3px] border-[1.5px]" style={{ borderColor: FIG }} />
+      {/* pannello delle proprietà, a tutta altezza */}
+      <div data-insp className="absolute inset-y-0 left-0 w-[214px] bg-[rgba(10,12,16,.78)] text-white shadow-[1px_0_0_rgba(255,255,255,.08)] backdrop-blur-xl">
+        <span className="absolute left-6 top-6 flex items-center gap-2.5 text-[13px] font-semibold">
+          <span className="h-3 w-3 rounded-[3px] border-[1.5px]" style={{ borderColor: FIG }} />
           <Steps items={[t.dLayer1, t.dLayer2]} attr="data-layer" />
         </span>
-        <span className="absolute left-3.5 top-[42px] text-[9.5px] text-white/55">{t.dFill}</span>
-        <span className="absolute left-3.5 top-[60px] flex gap-2">
+        <span className="absolute left-6 top-[70px] text-[11px] text-white/55">{t.dFill}</span>
+        <span className="absolute left-6 top-[92px] flex gap-[10px]">
           {FILLS.map((f) => (
-            <span key={f} data-fill className="h-5 w-5 rounded-[6px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.2)]" style={{ background: f }} />
+            <span key={f} data-fill className="h-[26px] w-[26px] rounded-[7px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.2)]" style={{ background: f }} />
           ))}
-          <span data-fring className="absolute -left-[3px] -top-[3px] h-[26px] w-[26px] rounded-[8px]" style={{ boxShadow: `0 0 0 1.5px ${FIG}` }} />
+          <span data-fring className="absolute -left-[3px] -top-[3px] h-8 w-8 rounded-[9px]" style={{ boxShadow: `0 0 0 1.5px ${FIG}` }} />
         </span>
-        <span className="absolute left-3.5 top-[92px] text-[9.5px] text-white/55">{t.dRadius}</span>
-        <span className="absolute left-3.5 top-[114px] h-1 w-[110px] rounded-full bg-white/15">
-          <span data-knob className="absolute -top-[5px] left-0 h-3.5 w-3.5 rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,.5)]" />
+        <span className="absolute left-6 top-[146px] text-[11px] text-white/55">{t.dRadius}</span>
+        <span className="absolute left-6 top-[174px] h-1 w-[124px] rounded-full bg-white/15">
+          <span data-knob className="absolute -top-[6px] left-0 h-4 w-4 rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,.5)]" />
         </span>
-        <span data-rad className="absolute left-[136px] top-[107px] text-[11px] tabular-nums text-white/85">
+        <span data-rad className="absolute left-[164px] top-[166px] w-7 text-right text-[12px] tabular-nums text-white/85">
           8
         </span>
-        <span className="absolute left-3.5 top-[132px] text-[9.5px] text-white/55">{t.dText}</span>
-        <span className="absolute left-3.5 top-[148px] flex text-[10.5px]">
-          <span data-fpill className="absolute left-0 top-0 h-[22px] w-[56px] rounded-full bg-white/15" />
-          <span data-font className="relative flex h-[22px] w-[60px] items-center justify-center">
+        <span className="absolute left-6 top-[210px] text-[11px] text-white/55">{t.dText}</span>
+        <span className="absolute left-6 top-[232px] flex text-[12px]">
+          <span data-fpill className="absolute left-0 top-0 h-7 w-[72px] rounded-full bg-white/15" />
+          <span data-font className="relative flex h-7 w-[72px] items-center justify-center">
             Geist
           </span>
-          <span data-font className="t-serif relative ml-1.5 flex h-[22px] w-[82px] items-center justify-center text-[12.5px]">
+          <span data-font className="t-serif relative ml-2 flex h-7 w-[100px] items-center justify-center text-[14px]">
             Instrument
           </span>
         </span>
-      </Bead>
-      {/* la tela con la schermata in lavorazione */}
-      <div data-mock className="absolute left-[210px] top-3 h-[156px] w-[330px] rounded-[16px] bg-[#f6f3ee] shadow-[0_30px_60px_-24px_rgba(0,0,0,.9)]" />
-      <p className="absolute left-[228px] top-[30px] text-[9.5px] font-semibold uppercase tracking-[0.12em] text-[#8a857d]">{t.dKick}</p>
-      <div className="absolute left-[228px] top-[46px] h-[28px] w-[196px] text-[22px] leading-[28px] tracking-[-0.03em] text-[#16161a]">
-        <Steps items={[<span key="a" className="font-semibold">{t.dTitle}</span>, <span key="b" className="t-serif text-[25px]">{t.dTitle}</span>]} attr="data-ttl" />
       </div>
-      <p className="absolute left-[228px] top-[80px] text-[11px] text-[#6b6862]">{t.dSub}</p>
-      <span data-btn className="absolute flex items-center justify-center text-[12px] font-semibold text-[#16161a]" style={{ left: BTN.x, top: BTN.y, width: BTN.w, height: BTN.h, borderRadius: 8, background: FILLS[0] }}>
+      {/* la tela con la schermata in lavorazione */}
+      <div data-mock className="absolute h-[204px] w-[300px] rounded-[18px] bg-[#f6f3ee] shadow-[0_30px_60px_-24px_rgba(0,0,0,.8)]" style={{ left: MX, top: MY }} />
+      <p className="absolute text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#8a857d]" style={{ left: MX + 24, top: MY + 24 }}>
+        {t.dKick}
+      </p>
+      <div className="absolute text-[28px] leading-[36px] tracking-[-0.03em] text-[#16161a]" style={{ left: TTL.x, top: TTL.y, width: TTL.w, height: TTL.h }}>
+        <Steps items={[<span key="a" className="font-semibold">{t.dTitle}</span>, <span key="b" className="t-serif text-[32px]">{t.dTitle}</span>]} attr="data-ttl" />
+      </div>
+      <p className="absolute text-[12px] text-[#6b6862]" style={{ left: MX + 24, top: MY + 92 }}>
+        {t.dSub}
+      </p>
+      <span data-btn className="absolute flex items-center justify-center text-[13px] font-semibold text-[#16161a]" style={{ left: BTN.x, top: BTN.y, width: BTN.w, height: BTN.h, borderRadius: 8, background: FILLS[0] }}>
         {t.dBtn}
       </span>
       {/* la selezione, come in Figma */}
@@ -654,10 +688,10 @@ function DesignV({ t, max }: { t: WidgetText; max?: number }) {
   );
 }
 
-/* ───────────── AI: un agente (Claude) che lavora da solo: legge la posta, apre il gestionale, compila, risponde ───────────── */
+/* ───────────── AI: la scheda diventa la chat con l'agente (Claude) e lo schermo su cui lavora da solo ───────────── */
 
 const Spinner = () => (
-  <svg data-spin viewBox="0 0 16 16" className="absolute inset-0 h-3.5 w-3.5" aria-hidden>
+  <svg data-spin viewBox="0 0 16 16" className="absolute inset-0 h-4 w-4" aria-hidden>
     <circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,.18)" strokeWidth="2" />
     <path d="M8 2a6 6 0 0 1 6 6" fill="none" stroke={CLAUDE} strokeWidth="2" strokeLinecap="round" />
   </svg>
@@ -670,18 +704,21 @@ function AiV({ t, max }: { t: WidgetText; max?: number }) {
     [t.aiF3, t.aiV3],
     [t.aiF4, t.aiV4],
   ];
-  const FX = [12, 160];
-  const FY = [66, 112];
+  /* tutto in coordinate della finestra di destra (340 × 360) */
+  const FX = [20, 180];
+  const FY = [110, 180];
+  const FW = 140;
   return (
     <Canvas
-      w={560}
-      h={180}
+      w={600}
+      h={360}
       max={max}
       build={(q) => {
         const cur = q("[data-agent]")[0];
         const rows = q("[data-tool]");
         const vals = q("[data-val]");
         const reply = q("[data-reply]")[0];
+        const run = gsap.timeline({ repeat: -1, repeatDelay: 0.3 });
         const type = (el: Element, text: string, at: number, d: number) => {
           const o = { n: 0 };
           run.fromTo(o, { n: 0 }, { n: text.length, duration: d, ease: "none", immediateRender: false, onUpdate: () => void (el.textContent = text.slice(0, Math.round(o.n))) }, at);
@@ -700,15 +737,13 @@ function AiV({ t, max }: { t: WidgetText; max?: number }) {
         const view = (i: number, at: number) =>
           run
             .to(q("[data-view]"), { autoAlpha: (j: number) => (j === i ? 1 : 0), duration: 0.35 }, at)
-            .to(q("[data-tabpill]"), { x: i ? 64 : 0, width: i ? 84 : 58, duration: 0.4, ease: "back.out(1.6)" }, at)
+            .to(q("[data-tabpill]"), { x: i ? 74 : 0, width: i ? 104 : 70, duration: 0.4, ease: "back.out(1.6)" }, at)
             .to(q("[data-tab]"), { color: (j: number) => (j === i ? "#fff" : "rgba(255,255,255,.5)"), duration: 0.3 }, at);
 
         const tl = gsap
           .timeline()
-          .from(q("[data-chat]"), { x: -20, autoAlpha: 0, duration: 0.9, ease: "expo.out" })
-          .from(q("[data-win]"), { x: 20, autoAlpha: 0, duration: 0.9, ease: "expo.out" }, 0.1);
-        const run = gsap.timeline({ repeat: -1, repeatDelay: 0.3 });
-        // riparte da capo
+          .from(q("[data-chat]"), { autoAlpha: 0, duration: 0.8, ease: "power2.out" })
+          .from(q("[data-win]"), { autoAlpha: 0, duration: 0.8, ease: "power2.out" }, 0.1);
         run
           .set(rows, { autoAlpha: 0 })
           .set(q("[data-ok]"), { scale: 0 })
@@ -724,54 +759,58 @@ function AiV({ t, max }: { t: WidgetText; max?: number }) {
         run
           .fromTo(q("[data-user]"), { autoAlpha: 0, x: 14 }, { autoAlpha: 1, x: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, 0.1)
           .fromTo(q("[data-star]"), { rotate: 0 }, { rotate: 360, duration: 9, ease: "none", immediateRender: false }, 0.4)
-          .fromTo(cur, { x: 330, y: 200, autoAlpha: 0 }, { x: 150, y: 86, autoAlpha: 1, duration: 0.8, ease: "power3.out", immediateRender: false }, 0.6);
+          .fromTo(cur, { x: 360, y: 380, autoAlpha: 0 }, { x: 200, y: 150, autoAlpha: 1, duration: 0.8, ease: "power3.out", immediateRender: false }, 0.6);
         // 1. legge l'email
         tool(0, 0.6, 2);
         run.to(q("[data-mark]"), { scaleX: 1, duration: 0.45, stagger: 0.45, ease: "power2.inOut" }, 1.1);
-        go(250, 86, 1.1, 0.8);
+        go(250, 158, 1.1, 0.8);
         // 2. apre il gestionale
         tool(1, 2.1, 2.9);
-        go(118, 15, 2.1);
+        go(150, 32, 2.1);
         press(2.75, q("[data-tab]")[1]);
         view(1, 2.8);
         // 3. compila e salva
         tool(2, 3, 5.6);
         fields.forEach(([, v], i) => {
           const at = 3.05 + i * 0.5;
-          go(FX[i % 2] + 70, FY[Math.floor(i / 2)] + 11, at, 0.35);
+          go(FX[i % 2] + FW / 2, FY[Math.floor(i / 2)] + 38, at, 0.35);
           type(vals[i], v, at + 0.3, 0.2 + v.length * 0.02);
         });
-        go(268, 158, 5.05, 0.4);
+        go(276, 318, 5.05, 0.4);
         press(5.45, q("[data-save]")[0]);
         run.fromTo(q("[data-toast]"), { autoAlpha: 0, x: -8 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: "expo.out", immediateRender: false }, 5.5);
         // 4. risponde al cliente
         tool(3, 5.8, 8.4);
-        go(42, 15, 5.8);
+        go(55, 32, 5.8);
         press(6.3, q("[data-tab]")[0]);
         view(0, 6.35);
         run.to(q("[data-replybox]"), { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, 6.5);
-        go(150, 124, 6.5, 0.4);
+        go(150, 262, 6.5, 0.4);
         type(reply, t.aiReply, 6.8, 1.2);
-        go(265, 151, 7.9, 0.4);
+        go(266, 310, 7.9, 0.4);
         press(8.3, q("[data-sendb]")[0]);
         step(run, q("[data-send]"), 1, 8.3);
-        run.to(cur, { x: 330, y: 200, autoAlpha: 0, duration: 0.7, ease: "power3.in" }, 9.4).to([...q("[data-user]"), ...rows], { autoAlpha: 0, duration: 0.4 }, 10);
-        return tl.add(run, 0.8);
+        run.to(cur, { x: 360, y: 380, autoAlpha: 0, duration: 0.7, ease: "power3.in" }, 9.4).to([...q("[data-user]"), ...rows], { autoAlpha: 0, duration: 0.4 }, 10);
+        return tl.add(run, 0.6);
       }}
     >
       {/* la chat con l'agente */}
-      <div data-chat className="absolute left-0 top-0 h-[180px] w-[232px] overflow-hidden rounded-[16px] bg-[#262624] p-3 shadow-[0_0_0_1px_rgba(255,255,255,.08),0_30px_60px_-24px_rgba(0,0,0,.9)]">
-        <p data-user className="ml-auto w-fit max-w-[190px] rounded-[12px] bg-[#141413] px-2.5 py-1.5 text-[10.5px] leading-snug text-[#f5f4ef] opacity-0">
+      <div data-chat className="absolute inset-y-0 left-0 w-[260px] bg-[#262624] shadow-[1px_0_0_rgba(255,255,255,.08)]">
+        <p className="absolute left-5 top-5 flex items-center gap-2 text-[12px] text-[#9a988f]">
+          <Brand icon={si.siClaude} className="h-3.5 w-3.5 text-[#D97757]" />
+          Claude
+        </p>
+        <p data-user className="absolute right-5 top-[52px] max-w-[210px] rounded-[14px] bg-[#141413] px-3.5 py-2.5 text-[12.5px] leading-[1.45] text-[#f5f4ef] opacity-0">
           {t.aiUser}
         </p>
-        <div className="mt-2.5 flex gap-2">
-          <span data-star className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: CLAUDE }}>
-            <Brand icon={si.siClaude} className="h-3.5 w-3.5" />
+        <div className="absolute left-5 right-5 top-[128px] flex gap-3">
+          <span data-star className="mt-[2px] h-4 w-4 shrink-0" style={{ color: CLAUDE }}>
+            <Brand icon={si.siClaude} className="h-4 w-4" />
           </span>
-          <div className="flex-1 space-y-1">
+          <div className="flex-1 space-y-2.5">
             {tools.map((x) => (
-              <div key={x} data-tool className="flex h-[18px] items-center gap-2 text-[10.5px] text-[#c2c0b6] opacity-0">
-                <span className="relative h-3.5 w-3.5 shrink-0">
+              <div key={x} data-tool className="flex h-5 items-center gap-2.5 text-[12.5px] text-[#c2c0b6] opacity-0">
+                <span className="relative h-4 w-4 shrink-0">
                   <Spinner />
                   <span data-ok className="absolute inset-0 flex scale-0 items-center justify-center rounded-full text-[#262624]" style={{ background: CLAUDE }}>
                     <Tick className="h-2.5 w-2.5" w={3.4} />
@@ -782,32 +821,32 @@ function AiV({ t, max }: { t: WidgetText; max?: number }) {
             ))}
           </div>
         </div>
-        <div className="absolute inset-x-2.5 bottom-2.5 flex h-6 items-center gap-2 rounded-[9px] bg-[#30302e] px-2.5 text-[9.5px] text-[#9a988f]">
+        <div className="absolute inset-x-4 bottom-4 flex h-11 items-center gap-2.5 rounded-[14px] bg-[#30302e] px-4 text-[12px] text-[#9a988f] shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)]">
           <span className="flex-1">{t.geoReply}</span>
-          <span className="flex h-4 w-4 items-center justify-center rounded-[5px] text-[9px] text-white" style={{ background: "#c6613f" }}>
+          <span className="flex h-7 w-7 items-center justify-center rounded-[8px] text-[12px] text-white" style={{ background: "#c6613f" }}>
             ↑
           </span>
         </div>
       </div>
       {/* lo schermo su cui lavora */}
-      <div data-win className="absolute left-[246px] top-0 h-[180px] w-[314px] overflow-hidden rounded-[14px] bg-[#16171a] text-white shadow-[0_0_0_1px_rgba(255,255,255,.1),0_30px_60px_-24px_rgba(0,0,0,.9)]">
-        <div className="relative flex h-[30px] items-center gap-1.5 border-b border-white/[0.07] px-3 text-[10.5px]">
-          <span data-tabpill className="absolute left-3 top-[5px] h-5 w-[58px] rounded-full bg-white/10" />
-          <span data-tab className="relative flex h-5 w-[58px] items-center justify-center">
+      <div data-win className="absolute inset-y-0 left-[260px] right-0 overflow-hidden bg-[#16171a] text-white">
+        <div className="relative flex h-16 items-center gap-2 border-b border-white/[0.07] px-5 text-[12.5px]">
+          <span data-tabpill className="absolute left-5 top-[19px] h-[26px] w-[70px] rounded-full bg-white/10" />
+          <span data-tab className="relative flex h-[26px] w-[70px] items-center justify-center">
             {t.aiTab1}
           </span>
-          <span data-tab className="relative flex h-5 w-[84px] items-center justify-center text-white/50">
+          <span data-tab className="relative ml-1 flex h-[26px] w-[104px] items-center justify-center text-white/50">
             {t.aiTab2}
           </span>
         </div>
         {/* posta */}
-        <div data-view className="absolute inset-x-0 bottom-0 top-[30px]">
-          <p className="absolute left-3 right-3 top-[10px] flex justify-between text-[10.5px]">
+        <div data-view className="absolute inset-x-0 bottom-0 top-16">
+          <p className="absolute left-5 right-5 top-5 flex justify-between text-[12.5px]">
             <span className="font-semibold">{t.aiFrom}</span>
             <span className="text-white/45">09:41</span>
           </p>
-          <p className="absolute left-3 top-[26px] text-[11px] font-medium text-white/90">{t.aiSubj}</p>
-          <p className="absolute left-3 right-3 top-[44px] text-[10.5px] leading-[1.5] text-white/70">
+          <p className="absolute left-5 top-[44px] text-[13px] font-medium text-white/90">{t.aiSubj}</p>
+          <p className="absolute left-5 right-5 top-[70px] text-[12.5px] leading-[1.6] text-white/70">
             {t.aiMailA}{" "}
             <span className="relative whitespace-nowrap text-white">
               <span data-mark className="absolute -inset-x-0.5 inset-y-0 origin-left rounded-[3px] bg-[rgba(217,119,87,.4)]" />
@@ -820,27 +859,27 @@ function AiV({ t, max }: { t: WidgetText; max?: number }) {
             </span>
             {t.aiMailE}
           </p>
-          <div data-replybox className="absolute left-3 right-3 top-[74px] h-[66px] rounded-[10px] bg-white/[0.06] p-2.5 opacity-0">
-            <p data-reply className="text-[10.5px] leading-[1.45] text-white/90" />
-            <span data-sendb className="absolute bottom-2 right-2 flex h-[22px] w-[60px] items-center justify-center rounded-full bg-white text-[10px] font-semibold text-[#16161a]">
+          <div data-replybox className="absolute bottom-5 left-5 right-5 h-[110px] rounded-[14px] bg-white/[0.06] p-3.5 opacity-0">
+            <p data-reply className="text-[12.5px] leading-[1.5] text-white/90" />
+            <span data-sendb className="absolute bottom-3 right-3 flex h-8 w-[84px] items-center justify-center rounded-full bg-white text-[12px] font-semibold text-[#16161a]">
               <Steps items={[t.aiSendBtn, t.aiSentBtn]} attr="data-send" className="justify-center" />
             </span>
           </div>
         </div>
         {/* gestionale */}
-        <div data-view className="absolute inset-x-0 bottom-0 top-[30px] opacity-0">
-          <p className="absolute left-3 top-[8px] text-[11.5px] font-semibold">{t.aiNew}</p>
+        <div data-view className="absolute inset-x-0 bottom-0 top-16 opacity-0">
+          <p className="absolute left-5 top-5 text-[13.5px] font-semibold">{t.aiNew}</p>
           {fields.map(([l], i) => (
-            <div key={l} className="absolute w-[142px]" style={{ left: FX[i % 2], top: FY[Math.floor(i / 2)] - 30 - 12 }}>
-              <p className="text-[9px] text-white/50">{l}</p>
-              <p data-val className="mt-1 flex h-[22px] items-center rounded-[6px] bg-white/[0.07] px-2 text-[10.5px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]" />
+            <div key={l} className="absolute" style={{ left: FX[i % 2], top: FY[Math.floor(i / 2)] - 64, width: FW }}>
+              <p className="text-[11px] text-white/50">{l}</p>
+              <p data-val className="mt-1.5 flex h-[34px] items-center rounded-[8px] bg-white/[0.07] px-3 text-[12.5px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]" />
             </div>
           ))}
-          <p data-toast className="absolute bottom-3 left-3 flex items-center gap-1.5 text-[10px] text-[#86efac] opacity-0">
-            <Tick className="h-3 w-3" />
+          <p data-toast className="absolute bottom-[30px] left-5 flex items-center gap-1.5 text-[12px] text-[#86efac] opacity-0">
+            <Tick className="h-3.5 w-3.5" />
             {t.aiSaved}
           </p>
-          <span data-save className="absolute bottom-[8px] right-3 flex h-6 w-16 items-center justify-center rounded-full text-[10.5px] font-semibold text-[#16161a]" style={{ background: CLAUDE }}>
+          <span data-save className="absolute bottom-5 right-5 flex h-9 w-[88px] items-center justify-center rounded-full text-[12.5px] font-semibold text-[#16161a]" style={{ background: CLAUDE }}>
             {t.aiSave}
           </span>
         </div>
@@ -933,7 +972,7 @@ function ShopV({ t, max }: { t: WidgetText; max?: number }) {
   );
 }
 
-/* ───────────── Gestione: il sito resta acceso mentre succedono le cose, una alla volta ───────────── */
+/* ───────────── Gestione: a sinistra il sito sempre acceso, a destra quello che succede, una cosa alla volta ───────────── */
 
 function OpsV({ t, max }: { t: WidgetText; max?: number }) {
   const C = "#34d399";
@@ -941,46 +980,45 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
     { time: "09:12", title: t.opsE1t, sub: t.opsE1s, kind: "bar" },
     { time: "03:00", title: t.opsE2t, sub: t.opsE2s, kind: "ring" },
     { time: "14:47", title: t.opsE3t, sub: t.opsE3s, kind: "block" },
-    { time: "", title: t.opsE4t, sub: t.opsE4s, kind: "up" },
   ];
   return (
     <Canvas
-      w={560}
-      h={180}
+      w={600}
+      h={360}
       max={max}
       build={(q) => {
         const vis = q("[data-vis]")[0];
         const o = { v: 34 };
         const tl = gsap
           .timeline()
-          .from(q("[data-site]"), { y: 20, autoAlpha: 0, duration: 1, ease: "expo.out" })
+          .from(q("[data-site] > *"), { y: 14, autoAlpha: 0, duration: 0.8, stagger: 0.06, ease: "expo.out" })
+          .from(q("[data-ub]"), { scaleY: 0, transformOrigin: "50% 100%", duration: 0.6, stagger: 0.01, ease: "back.out(2)" }, 0.2)
           .to(q("[data-ping]"), { scale: 3, autoAlpha: 0, duration: 1.6, repeat: -1, ease: "power1.out" }, 0.4)
           .to(o, { v: 41, duration: 1.4, repeat: -1, yoyo: true, ease: "steps(7)", onUpdate: () => void (vis.textContent = String(Math.round(o.v))) }, 0.5);
         const ev = q("[data-ev]");
         const run = gsap.timeline({ repeat: -1 });
         ev.forEach((e, i) => {
-          const at = i * 2.8;
+          const at = i * 2.9;
           run
             .fromTo(e, { y: 26, autoAlpha: 0, filter: "blur(6px)" }, { y: 0, autoAlpha: 1, filter: "blur(0px)", duration: 0.7, ease: "expo.out" }, at)
-            .to(e, { y: -26, autoAlpha: 0, filter: "blur(6px)", duration: 0.45, ease: "power2.in" }, at + 2.35);
+            .to(e, { y: -26, autoAlpha: 0, filter: "blur(6px)", duration: 0.45, ease: "power2.in" }, at + 2.45);
         });
         run
           .fromTo(q("[data-prog]"), { scaleX: 0 }, { scaleX: 1, transformOrigin: "0 50%", duration: 1.4, ease: "power2.inOut" }, 0.4)
           .fromTo(q("[data-sbar]"), { scaleX: 0, autoAlpha: 1 }, { scaleX: 1, transformOrigin: "0 50%", duration: 1.4, ease: "power2.inOut" }, 0.4)
           .to(q("[data-sbar]"), { autoAlpha: 0, duration: 0.3 }, 1.9)
-          .fromTo(q("[data-ring]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut" }, 3.2)
-          .fromTo(q("[data-ev]")[2], { boxShadow: "0 0 0 0 rgba(248,113,113,0)" }, { boxShadow: "0 0 0 1.5px rgba(248,113,113,.9), 0 0 30px -6px rgba(248,113,113,.8)", duration: 0.25, yoyo: true, repeat: 3 }, 6)
-          .fromTo(q("[data-shield]"), { scale: 0 }, { scale: 1, duration: 0.7, ease: "elastic.out(1, 0.5)" }, 6.2)
-          .fromTo(q("[data-ub]"), { scaleY: 0 }, { scaleY: 1, transformOrigin: "50% 100%", duration: 0.6, stagger: 0.015, ease: "back.out(2)" }, 8.6);
+          .fromTo(q("[data-ring]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut" }, 3.3)
+          .fromTo(q("[data-ev]")[2], { boxShadow: "0 0 0 0 rgba(248,113,113,0)" }, { boxShadow: "0 0 0 1.5px rgba(248,113,113,.9), 0 0 30px -6px rgba(248,113,113,.8)", duration: 0.25, yoyo: true, repeat: 3 }, 6.1)
+          .fromTo(q("[data-shield]"), { scale: 0 }, { scale: 1, duration: 0.7, ease: "elastic.out(1, 0.5)" }, 6.3);
         return tl.add(run, 0.8);
       }}
     >
-      {/* il sito, sempre acceso */}
-      <Bead data-site tint={DARK} radius={16} className="absolute left-0 top-0 block h-[180px] w-[250px] overflow-hidden backdrop-blur-md">
-        <span data-sbar className="absolute inset-x-0 top-0 h-[2px] opacity-0" style={{ background: C, transform: "scaleX(0)" }} />
-        <span className="absolute inset-x-3 top-3 flex items-center justify-between">
-          <span className="font-mono text-[10px] text-white/70">{t.url}</span>
-          <span className="flex items-center gap-1.5 text-[10px] text-white">
+      {/* il sito, sempre acceso, a tutta altezza */}
+      <div data-site className="absolute inset-y-0 left-0 w-[300px] overflow-hidden bg-[#0d1315] shadow-[1px_0_0_rgba(255,255,255,.08)]">
+        <span data-sbar className="absolute inset-x-0 top-0 h-[3px] opacity-0" style={{ background: C, transform: "scaleX(0)" }} />
+        <span className="absolute inset-x-5 top-5 flex h-8 items-center justify-between rounded-full bg-white/[0.06] px-3.5">
+          <span className="font-mono text-[11.5px] text-white/70">{t.url}</span>
+          <span className="flex items-center gap-1.5 text-[11.5px] text-white">
             <span className="relative flex h-2 w-2">
               <span data-ping className="absolute inset-0 rounded-full" style={{ background: C }} />
               <span className="relative h-2 w-2 rounded-full" style={{ background: C }} />
@@ -988,58 +1026,66 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
             {t.opsLive}
           </span>
         </span>
-        <span className="absolute inset-x-3 top-[34px] h-[58px] overflow-hidden rounded-[10px]" style={{ background: "linear-gradient(135deg,#1d2b28,#0f1716)" }}>
-          <span className="absolute -right-4 -top-6 h-20 w-20 rounded-full opacity-70 blur-xl" style={{ background: C }} />
-          <span className="absolute left-3 top-3 h-2 w-24 rounded-full bg-white/85" />
-          <span className="absolute left-3 top-7 h-2 w-16 rounded-full bg-white/50" />
-          <span className="absolute bottom-3 left-3 h-4 w-14 rounded-full bg-white" />
+        <span className="absolute inset-x-5 top-[72px] h-[118px] overflow-hidden rounded-[14px]" style={{ background: "linear-gradient(135deg,#1b2a30,#0f1719)" }}>
+          <span className="absolute -right-6 -top-8 h-28 w-28 rounded-full opacity-60 blur-2xl" style={{ background: SKY }} />
+          <span className="absolute left-4 top-5 h-3 w-36 rounded-full bg-white/85" />
+          <span className="absolute left-4 top-10 h-3 w-24 rounded-full bg-white/50" />
+          <span className="absolute bottom-5 left-4 h-7 w-24 rounded-full bg-white" />
         </span>
-        <span className="absolute inset-x-3 top-[102px] flex gap-1.5">
+        <span className="absolute inset-x-5 top-[204px] flex gap-2">
           {[0, 1, 2].map((i) => (
-            <span key={i} className="h-7 flex-1 rounded-[6px] bg-white/[0.07]" />
+            <span key={i} className="h-14 flex-1 rounded-[10px] bg-white/[0.06]" />
           ))}
         </span>
-        <span className="absolute bottom-3 left-3 flex items-baseline gap-1.5 text-white">
-          <span data-vis className="tabular-nums text-[22px] font-medium leading-none tracking-[-0.03em]">
+        <span className="absolute bottom-5 left-5 flex items-baseline gap-2 text-white">
+          <span data-vis className="text-[34px] font-medium leading-none tracking-[-0.03em] tabular-nums">
             34
           </span>
-          <span className="text-[10.5px] text-white/65">{t.opsVisitors}</span>
+          <span className="text-[12px] text-white/65">{t.opsVisitors}</span>
         </span>
-      </Bead>
+      </div>
       {/* quello che succede, un evento alla volta */}
-      <div className="absolute left-[270px] top-[24px] h-[132px] w-[290px]">
+      <div className="absolute left-[324px] right-6 top-6 flex items-center justify-between text-[12px] text-white/70">
+        <span className="font-mono uppercase tracking-[0.12em]">24/7</span>
+        <span>{t.opsE4t}</span>
+      </div>
+      <div className="absolute left-[324px] right-6 top-[70px] h-[150px]">
         {events.map((e) => (
-          <Bead key={e.title} data-ev tint={DARK} radius={16} className="absolute inset-0 block p-4 text-white opacity-0 backdrop-blur-md">
-            <span className="font-mono text-[10px] text-white/60">{e.time || "24/7"}</span>
-            <span className="mt-1 block text-[15px] font-medium tracking-[-0.02em]">{e.title}</span>
-            <span className="mt-0.5 block text-[11.5px] text-white/70">{e.sub}</span>
-            <span className="absolute inset-x-4 bottom-4 block h-[18px]">
+          <Bead key={e.title} data-ev tint={DARK} radius={18} className="absolute inset-0 block p-5 text-white opacity-0 backdrop-blur-md">
+            <span className="font-mono text-[11px] text-white/60">{e.time}</span>
+            <span className="mt-1.5 block text-[17px] font-medium tracking-[-0.02em]">{e.title}</span>
+            <span className="mt-1 block text-[12.5px] leading-snug text-white/70">{e.sub}</span>
+            <span className="absolute inset-x-5 bottom-5 block h-5">
               {e.kind === "bar" && (
-                <span className="absolute inset-x-0 top-[7px] h-1 overflow-hidden rounded-full bg-white/15">
+                <span className="absolute inset-x-0 top-2 h-1 overflow-hidden rounded-full bg-white/15">
                   <span data-prog className="block h-full rounded-full" style={{ background: C, transform: "scaleX(0)" }} />
                 </span>
               )}
               {e.kind === "ring" && (
-                <svg viewBox="0 0 20 20" className="h-[18px] w-[18px] -rotate-90">
+                <svg viewBox="0 0 20 20" className="h-5 w-5 -rotate-90">
                   <circle cx="10" cy="10" r="8" fill="none" stroke="rgba(255,255,255,.15)" strokeWidth="2.6" />
                   <circle data-ring cx="10" cy="10" r="8" fill="none" stroke={C} strokeWidth="2.6" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
                 </svg>
               )}
               {e.kind === "block" && (
-                <span data-shield className="inline-flex h-[18px] items-center rounded-full bg-[rgba(248,113,113,.18)] px-2 text-[10px] font-medium text-[#fecaca]" style={{ transform: "scale(0)" }}>
+                <span data-shield className="inline-flex h-5 items-center rounded-full bg-[rgba(248,113,113,.18)] px-2.5 text-[11px] font-medium text-[#fecaca]" style={{ transform: "scale(0)" }}>
                   {t.opsBlocked}
-                </span>
-              )}
-              {e.kind === "up" && (
-                <span className="flex h-full items-end gap-[3px]">
-                  {Array.from({ length: 40 }).map((_, j) => (
-                    <span key={j} data-ub className="h-full flex-1 rounded-full" style={{ background: C, opacity: j === 27 ? 0.35 : 0.9 }} />
-                  ))}
                 </span>
               )}
             </span>
           </Bead>
         ))}
+      </div>
+      {/* disponibilità degli ultimi giorni, sempre visibile */}
+      <div className="absolute bottom-6 left-[324px] right-6">
+        <span className="flex h-10 items-end gap-[3px]">
+          {Array.from({ length: 45 }).map((_, j) => (
+            <span key={j} data-ub className="h-full flex-1 rounded-full" style={{ background: C, opacity: j === 31 ? 0.3 : 0.85 }} />
+          ))}
+        </span>
+        <span className="mt-2.5 flex justify-between text-[11.5px] text-white/65">
+          <span>{t.opsE4s}</span>
+        </span>
       </div>
     </Canvas>
   );

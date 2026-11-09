@@ -33,17 +33,17 @@ const Grainient = dynamic(() => import("@/components/reactbits/Grainient"), { ss
 
 const ANGLE: Record<ServiceKey, number> = { web: 35, seo: 145, geo: 60, ai: 160, hw: 25, apps: 120, api: 70, design: 150, ops: 40, shop: 110 };
 
-function Scene({ k }: { k: ServiceKey }) {
+function Scene({ k, live }: { k: ServiceKey; live?: boolean }) {
   const colors = T[PICK[k]];
   const angle = ANGLE[k];
-  return <Grainient colors={colors} angle={angle} speed={0.55} flow={0.55} silk={0.3} grainAmount={0.05} contrast={0.95} interactive={false} clickSwirl={false} intro={false} dpr={1} />;
+  return <Grainient colors={colors} angle={angle} speed={0.55} flow={0.55} silk={0.3} grainAmount={0.05} contrast={0.95} interactive={!!live} stir={1.6} clickSwirl={!!live} intro={false} dpr={1} />;
 }
 
 /**
  * Sfondo React Bits della scheda. Il contesto WebGL esiste solo mentre la scheda è vicina allo schermo,
  * così dieci schede non tengono aperti dieci contesti insieme.
  */
-export function ServiceBg({ k }: { k: ServiceKey }) {
+export function ServiceBg({ k, live = false }: { k: ServiceKey; live?: boolean }) {
   const box = useRef<HTMLDivElement>(null);
   const [on, setOn] = useState(false);
   useEffect(() => {
@@ -56,7 +56,7 @@ export function ServiceBg({ k }: { k: ServiceKey }) {
     <div ref={box} aria-hidden className="pointer-events-none absolute inset-0" style={{ background: `radial-gradient(120% 90% at 70% 20%, color-mix(in srgb, ${HUE[k]} 30%, #050506), #050506)` }}>
       {on && !still && (
         <div className="absolute inset-0 animate-[fadeIn_1s_ease_both]">
-          <Scene k={k} />
+          <Scene k={k} live={live} />
         </div>
       )}
     </div>

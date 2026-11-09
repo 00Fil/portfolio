@@ -214,7 +214,7 @@
   },
   "story": {
     "title": "Percorso",
-    "lead": "Formazione tecnica, università e lavoro sul campo.",
+    "lead": "Una formazione tecnica solida, l’università e progetti reali già in uso.",
     "chapters": [
       {
         "tag": "Formazione",
@@ -675,23 +675,35 @@
   },
   "why": {
     "title": "Perché lavorare con me",
-    "lead": "Meno intermediari, più controllo: sai sempre a che punto è il progetto e quanto costa.",
+    "lead": "Lavori direttamente con chi progetta e sviluppa il tuo prodotto: ogni scelta è motivata, ogni costo è dichiarato, e sai sempre a che punto siamo.",
     "items": [
       {
-        "title": "Un solo referente",
-        "body": "Parli sempre con chi progetta e scrive il codice: nessun passaggio di mano, nessuna richiesta che si perde."
+        "kicker": "Comunicazione",
+        "title": "Un unico referente, dall’analisi al lancio",
+        "body": "Parli direttamente con chi progetta e scrive il codice. Nessun intermediario a cui rispiegare le cose: le richieste arrivano intatte e le decisioni si prendono in giorni, non in settimane.",
+        "metric": "1",
+        "metricLabel": "persona da contattare, sempre la stessa"
       },
       {
-        "title": "Preventivo chiaro",
-        "body": "Costi, tempi e cosa è incluso, scritti prima di iniziare. Niente sorprese a metà lavoro."
+        "kicker": "Costi",
+        "title": "Prezzo definito prima di iniziare",
+        "body": "Obiettivi, tempi e costi sono messi per iscritto prima della prima riga di codice. Se il progetto cambia, valutiamo insieme l’impatto prima di procedere: nessuna voce inattesa in fattura.",
+        "metric": "0",
+        "metricLabel": "costi non concordati in anticipo"
       },
       {
-        "title": "Lo provi mentre nasce",
-        "body": "Consegne frequenti: vedi e usi il progetto a ogni passo, non solo alla fine."
+        "kicker": "Avanzamento",
+        "title": "Lo vedi crescere, passo dopo passo",
+        "body": "Non aspetti la fine per vedere il risultato. Hai sempre a disposizione una versione funzionante da provare: commenti, correggiamo, e arrivi al lancio sapendo esattamente cosa stai pubblicando.",
+        "metric": "24/7",
+        "metricLabel": "accesso alla versione in lavorazione"
       },
       {
-        "title": "Tutto resta tuo",
-        "body": "Codice, dati e accessi sono tuoi. Dopo la consegna resto il riferimento per assistenza e nuove funzioni."
+        "kicker": "Proprietà",
+        "title": "Il prodotto è tuo, l’assistenza continua",
+        "body": "Codice sorgente, dati e accessi restano di tua proprietà, documentati e trasferibili. Dopo il lancio resto il riferimento per manutenzione, sicurezza e nuove funzioni.",
+        "metric": "100%",
+        "metricLabel": "di codice e dati intestati a te"
       }
     ],
     "cta": "Hai un progetto in mente?",

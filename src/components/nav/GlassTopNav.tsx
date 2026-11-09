@@ -154,12 +154,23 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
     }, 140);
   };
 
+  // scorrendo la pagina il menu si chiude, così non resta sospeso sopra i contenuti
+  useEffect(() => {
+    if (!menu) return;
+    const y0 = window.scrollY;
+    const on = () => Math.abs(window.scrollY - y0) > 40 && setMenu(null);
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, [menu]);
+
   useEffect(() => {
     const p = panel.current;
     if (!p) return;
     const reduce = prefersReducedMotion();
     const d = reduce ? 0 : 1;
+    gsap.killTweensOf(p);
     if (!menu) {
+      p.style.pointerEvents = "none";
       gsap.to(p, { opacity: 0, y: -6, scale: 0.97, duration: 0.2 * d, ease: "power2.in", onComplete: () => (p.style.visibility = "hidden") });
       lastMenu.current = null;
       return;
@@ -174,6 +185,7 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
     const left = Math.max(0, Math.min(shellRect.width - w, aRect.left - shellRect.left + aRect.width / 2 - w / 2));
     const first = lastMenu.current === null;
     p.style.visibility = "visible";
+    p.style.pointerEvents = "auto";
     if (first) {
       gsap.set(p, { width: w, height: h, x: left });
       gsap.fromTo(p, { opacity: 0, y: -8, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.42 * d, ease: "back.out(1.6)" });

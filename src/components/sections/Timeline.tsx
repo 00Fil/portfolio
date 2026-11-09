@@ -91,7 +91,7 @@ export function Timeline({ title, lead, items }: { title: string; lead: string; 
 
             {items.map((m, i) => (
               <li key={m.title} data-step className="tl-step relative lg:w-[min(560px,44vw)] lg:pr-16">
-                <p className="t-serif text-[clamp(64px,9.5vw,150px)] italic leading-[0.9] tracking-[-0.03em] text-[var(--sky)] lg:h-[clamp(118px,13vw,190px)] lg:pb-6">
+                <p className="text-[clamp(56px,8vw,128px)] font-medium leading-[0.9] tracking-[-0.06em] text-ink lg:flex lg:h-[clamp(118px,13vw,190px)] lg:items-end lg:pb-8">
                   {m.big}
                 </p>
                 {/* nodo sulla linea */}

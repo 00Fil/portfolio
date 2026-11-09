@@ -27,7 +27,7 @@ export const SERVICES: Service[] = [
     need: 0,
     label: { it: "Full stack", en: "Full stack" },
     title: { it: "Siti e web app", en: "Websites and web apps" },
-    short: { it: "Siti, piattaforme e gestionali su misura, dal database all’interfaccia.", en: "Custom websites, platforms and management tools, from database to interface." },
+    short: { it: "Siti e applicazioni web su misura che lavorano per la tua attività: veloci, sicuri e facili da aggiornare.", en: "Custom websites and web apps that work for your business: fast, secure and easy to update." },
     lead: {
       it: "Dal sito aziendale al gestionale interno: progetto l’interfaccia, scrivo il codice e lo metto online, veloce e facile da aggiornare.",
       en: "From a company website to internal management software: I design the interface, write the code and put it online, fast and easy to update.",
@@ -47,7 +47,7 @@ export const SERVICES: Service[] = [
     need: 4,
     label: { it: "SEO", en: "SEO" },
     title: { it: "SEO tecnica e prestazioni", en: "Technical SEO and performance" },
-    short: { it: "Core Web Vitals entro le soglie di Google, dati strutturati e multilingua.", en: "Core Web Vitals within Google’s thresholds, structured data and multilingual pages." },
+    short: { it: "Un sito veloce e tecnicamente impeccabile, che Google capisce e mette davanti ai concorrenti.", en: "A fast, technically flawless site that Google understands and ranks ahead of competitors." },
     lead: {
       it: "Un sito che si apre in un attimo e che Google capisce: struttura, velocità e contenuti pensati per farti trovare da chi cerca quello che fai.",
       en: "A site that opens instantly and that Google understands: structure, speed and content designed so people looking for what you do can find you.",
@@ -67,7 +67,7 @@ export const SERVICES: Service[] = [
     need: 4,
     label: { it: "GEO", en: "GEO" },
     title: { it: "Visibilità nelle risposte AI", en: "Visibility in AI answers" },
-    short: { it: "Perché ChatGPT, Gemini e Perplexity citino il tuo sito quando rispondono.", en: "So ChatGPT, Gemini and Perplexity cite your site when they answer." },
+    short: { it: "Fai in modo che ChatGPT, Gemini e Perplexity citino la tua azienda quando i clienti chiedono.", en: "Make sure ChatGPT, Gemini and Perplexity cite your business when customers ask." },
     lead: {
       it: "Sempre più persone chiedono a un assistente invece di cercare su Google. Preparo il sito perché le AI lo leggano bene e lo citino come fonte.",
       en: "More and more people ask an assistant instead of searching Google. I prepare your site so AI models read it well and cite it as a source.",
@@ -107,7 +107,7 @@ export const SERVICES: Service[] = [
     need: 7,
     label: { it: "Design", en: "Design" },
     title: { it: "UI/UX e prototipi", en: "UI/UX and prototypes" },
-    short: { it: "Dal wireframe all’interfaccia, con un prototipo da provare prima del codice.", en: "From wireframe to interface, with a prototype to try before any code." },
+    short: { it: "Interfacce chiare e coerenti, provate con un prototipo prima di investire nello sviluppo.", en: "Clear, consistent interfaces, tested with a prototype before investing in development." },
     lead: {
       it: "Interfacce chiare e coerenti, con un design system che tiene insieme sito, app e gestionale. Prima si prova il prototipo, poi si scrive il codice.",
       en: "Clear, consistent interfaces, with a design system that ties website, apps and back office together. First you try the prototype, then the code gets written.",
@@ -127,7 +127,7 @@ export const SERVICES: Service[] = [
     need: 5,
     label: { it: "AI", en: "AI" },
     title: { it: "AI e sistemi integrati", en: "AI and integrated systems" },
-    short: { it: "Sistemi che automatizzano i processi complessi dell’azienda, assistenti compresi.", en: "Systems that automate complex business processes, assistants included." },
+    short: { it: "Agenti AI che svolgono i lavori ripetitivi al posto tuo: leggono, compilano, rispondono. Tu approvi.", en: "AI agents that take over repetitive work: they read, fill in and reply. You approve." },
     lead: {
       it: "Collego l’AI ai tuoi strumenti per automatizzare procedure intere: documenti letti e controllati, gestionale aggiornato, clienti avvisati, con una persona che approva i passaggi critici.",
       en: "I connect AI to your tools to automate whole procedures: documents read and checked, records updated, customers notified, with a person approving the critical steps.",
@@ -167,7 +167,7 @@ export const SERVICES: Service[] = [
     need: 6,
     label: { it: "Integrazioni", en: "Integrations" },
     title: { it: "Programmi che si parlano", en: "Tools that talk to each other" },
-    short: { it: "Gestionale, pagamenti, clienti e calendari collegati: i dati passano da soli.", en: "Back office, payments, customers and calendars connected: data moves on its own." },
+    short: { it: "I tuoi programmi collegati tra loro: pagamenti, clienti e agenda si aggiornano da soli.", en: "Your tools connected to each other: payments, customers and calendar update themselves." },
     lead: {
       it: "Basta copiare dati a mano da un programma all’altro. Collego i tuoi strumenti perché quando succede qualcosa in uno, gli altri si aggiornano da soli, in modo affidabile.",
       en: "No more copying data by hand from one tool to another. I connect your tools so that when something happens in one, the others update on their own, reliably.",
@@ -207,7 +207,7 @@ export const SERVICES: Service[] = [
     need: 8,
     label: { it: "Gestione", en: "Care" },
     title: { it: "Hosting, sicurezza e assistenza", en: "Hosting, security and support" },
-    short: { it: "Il sito sempre online, veloce e protetto, e qualcuno che se ne occupa per te.", en: "Your site always online, fast and protected, with someone looking after it for you." },
+    short: { it: "Sito sempre online, aggiornato e protetto, con un referente che interviene prima che tu te ne accorga.", en: "Your site always online, updated and protected, with someone stepping in before you even notice." },
     lead: {
       it: "Ti consegno il progetto e resto a occuparmene: lo tengo online e veloce, lo proteggo, faccio una copia di sicurezza ogni notte e lo aggiorno senza fermarlo.",
       en: "I deliver your project and keep looking after it: online and fast, protected, backed up every night and updated without downtime.",
