@@ -8,7 +8,6 @@ import {
   LayoutTemplate,
   Network,
   Server,
-  Sigma,
   Smartphone,
   Waypoints,
   Cloud,
@@ -40,8 +39,7 @@ const GROUPS: Group[] = [
     items: [
       { name: "Next.js", match: "Next.js", brand: "nextjs" },
       { name: "React", match: "Next.js", brand: "react" },
-      { name: "shadcn/ui", match: "shadcn/ui", brand: "shadcn" },
-      { name: "KaTeX", match: "KaTeX", icon: Sigma },
+      { name: "TypeScript", match: "Next.js", brand: "typescript" },
     ],
   },
   {
@@ -52,7 +50,6 @@ const GROUPS: Group[] = [
       { name: "WebSocket", match: "WebSocket", icon: Cable },
       { name: "Python", match: "Python", brand: "python" },
       { name: "FastAPI", match: "FastAPI", brand: "fastapi" },
-      { name: "PHP", match: "PHP", brand: "php" },
     ],
   },
   {
@@ -62,7 +59,6 @@ const GROUPS: Group[] = [
     items: [
       { name: "Supabase", match: "Supabase", brand: "supabase" },
       { name: "SQLite", match: "SQLite", brand: "sqlite" },
-      { name: "MySQL", match: "MySQL", brand: "mysql" },
       { name: "OR-Tools CP-SAT", match: "OR-Tools", icon: Network },
       { name: "Gemini", match: "Gemini", brand: "gemini" },
       { name: "faster-whisper", match: "faster-whisper", icon: AudioLines },
@@ -104,7 +100,7 @@ export function Stack() {
   return (
     <section id="stack" className="py-24 sm:py-32">
       <Reveal className="mx-auto w-full max-w-[1280px] px-5 sm:px-8">
-        <SectionHead index="02" title={t("title")} lead={t("lead")} />
+        <SectionHead index="03" title={t("title")} lead={t("lead")} />
       </Reveal>
       <div className="space-y-4 sm:space-y-6">
         {rows.map((row, r) => (

@@ -327,3 +327,234 @@ export function CanaryTile() {
     </div>
   );
 }
+
+/* ───────── Requisiti: le priorità decidono l'ordine, la lista si riordina ───────── */
+
+const PRI = ["must", "should", "could", "won't"] as const;
+const REQS = [
+  { id: "auth", p: 0 },
+  { id: "booking", p: 0 },
+  { id: "notifications", p: 1 },
+  { id: "export.csv", p: 2 },
+  { id: "dark-mode", p: 3 },
+];
+
+export function RequirementsTile() {
+  const [ref, vis] = useVisible<HTMLDivElement>();
+  const list = useRef<HTMLUListElement>(null);
+  const [rows, setRows] = useState(REQS);
+  const touched = useRef(false);
+  const flip = useRef<unknown>(null);
+
+  const change = useCallback(async (id: string, user = false) => {
+    if (user) {
+      touched.current = true;
+      play("toggle");
+    }
+    const { Flip } = await import("gsap/Flip");
+    gsap.registerPlugin(Flip);
+    flip.current = Flip.getState(list.current!.children);
+    setRows((r) => r.map((x) => (x.id === id ? { ...x, p: (x.p + (user ? 1 : 3)) % 4 } : x)));
+  }, []);
+
+  useEffect(() => {
+    if (!flip.current) return;
+    void import("gsap/Flip").then(({ Flip }) => {
+      Flip.from(flip.current as ReturnType<typeof Flip.getState>, { duration: 0.6, ease: "power3.inOut", absolute: false });
+      flip.current = null;
+    });
+  }, [rows]);
+
+  useEffect(() => {
+    if (!vis || prefersReducedMotion()) return;
+    let n = 0;
+    const order = ["notifications", "export.csv", "booking", "dark-mode", "export.csv"];
+    const id = window.setInterval(() => !touched.current && change(order[n++ % order.length]), 2300);
+    return () => window.clearInterval(id);
+  }, [vis, change]);
+
+  const sorted = [...rows].sort((a, b) => a.p - b.p || REQS.findIndex((x) => x.id === a.id) - REQS.findIndex((x) => x.id === b.id));
+  return (
+    <div ref={ref} className="relative flex h-full w-full flex-col justify-center px-5 pb-5 pt-12">
+      <Tag>scope / moscow</Tag>
+      <ul ref={list} className="space-y-1.5">
+        {sorted.map((r) => (
+          <li key={r.id} data-flip-id={r.id} className={`flex h-10 items-center gap-3 rounded-[10px] bg-sunken pl-3 pr-1.5 transition-opacity duration-300 ${r.p === 3 ? "opacity-40" : ""}`}>
+            <span className={`font-mono text-[13px] ${r.p === 3 ? "text-ink-3 line-through" : "text-ink"}`}>{r.id}</span>
+            <button
+              type="button"
+              onClick={() => change(r.id, true)}
+              className={`ml-auto w-[68px] rounded-[7px] py-1 font-mono text-[11px] transition-colors duration-300 active:scale-95 ${r.p === 0 ? "bg-accent-subtle text-accent-on-subtle" : "bg-white/[0.04] text-ink-2 hover:text-ink"}`}
+            >
+              {PRI[r.p]}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* ───────── Architettura: una richiesta attraversa il sistema; i collegamenti si leggono passando sopra ───────── */
+
+const NODES = [
+  { id: "app", x: 40, y: 120 },
+  { id: "api", x: 130, y: 120 },
+  { id: "auth", x: 130, y: 44 },
+  { id: "db", x: 214, y: 82 },
+  { id: "queue", x: 214, y: 158 },
+] as const;
+const EDGES: [number, number][] = [
+  [0, 1],
+  [1, 2],
+  [1, 3],
+  [1, 4],
+];
+
+export function ArchitectureTile() {
+  const [ref, vis] = useVisible<HTMLDivElement>();
+  const svg = useRef<SVGSVGElement>(null);
+  const [hot, setHot] = useState<number | null>(null);
+
+  useEffect(() => {
+    const root = svg.current;
+    if (!root || !vis || prefersReducedMotion()) return;
+    const ctx = gsap.context(() => {
+      const lines = gsap.utils.toArray<SVGLineElement>("[data-e]");
+      lines.forEach((l) => {
+        const len = Math.hypot(+l.getAttribute("x2")! - +l.getAttribute("x1")!, +l.getAttribute("y2")! - +l.getAttribute("y1")!);
+        gsap.set(l, { strokeDasharray: len, strokeDashoffset: len });
+      });
+      gsap.set("[data-n]", { scale: 0, transformOrigin: "50% 50%" });
+      gsap.set("[data-adr]", { autoAlpha: 0, scale: 1.4 });
+      const intro = gsap.timeline();
+      intro.to("[data-n]", { scale: 1, duration: 0.5, ease: "back.out(2)", stagger: 0.08 }).to(lines, { strokeDashoffset: 0, duration: 0.5, ease: "power2.inOut", stagger: 0.12 }, "-=0.2").to("[data-adr]", { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(3)" });
+      // il pacchetto: app → api → (auth, db, queue) e ritorno
+      const dot = root.querySelector("[data-dot]");
+      const hop = (a: number, b: number) => [
+        { x: NODES[a].x, y: NODES[a].y },
+        { x: NODES[b].x, y: NODES[b].y },
+      ];
+      const loop = gsap.timeline({ repeat: -1, repeatDelay: 0.8, delay: intro.duration() });
+      loop.set(dot, { autoAlpha: 1, attr: { cx: NODES[0].x, cy: NODES[0].y } });
+      [
+        [0, 1],
+        [1, 2],
+        [2, 1],
+        [1, 3],
+        [3, 1],
+        [1, 4],
+        [4, 1],
+        [1, 0],
+      ].forEach(([a, b]) => {
+        const [, to] = hop(a, b);
+        loop.to(dot, { attr: { cx: to.x, cy: to.y }, duration: 0.42, ease: "power1.inOut" });
+      });
+      loop.set(dot, { autoAlpha: 0 });
+    }, root);
+    return () => ctx.revert();
+  }, [vis]);
+
+  const linked = (e: [number, number]) => hot !== null && (e[0] === hot || e[1] === hot);
+  return (
+    <div ref={ref} className="relative h-full w-full">
+      <Tag>design / system</Tag>
+      <svg ref={svg} viewBox="0 0 254 210" className="absolute inset-x-0 top-8 bottom-10 h-[calc(100%-4.5rem)] w-full" fill="none">
+        {EDGES.map((e, i) => (
+          <line
+            key={i}
+            data-e
+            x1={NODES[e[0]].x}
+            y1={NODES[e[0]].y}
+            x2={NODES[e[1]].x}
+            y2={NODES[e[1]].y}
+            stroke={linked(e) ? "#5ec4ff" : "#3a3a3c"}
+            strokeWidth={linked(e) ? 2 : 1.5}
+            style={{ transition: "stroke .25s, stroke-width .25s" }}
+          />
+        ))}
+        <circle data-dot r="4" fill="#5ec4ff" opacity="0" />
+        {NODES.map((n, i) => (
+          <g key={n.id} data-n onPointerEnter={() => { setHot(i); play("tick"); }} onPointerLeave={() => setHot(null)}>
+            <rect x={n.x - 26} y={n.y - 14} width="52" height="28" rx="9" fill={hot === i ? "#11244f" : "#2c2c2e"} style={{ transition: "fill .25s" }} />
+            <text x={n.x} y={n.y + 4} textAnchor="middle" fontSize="11" fill={hot === i ? "#b4d2ff" : "#f2f2f0"} fontFamily="var(--font-geist-mono)">
+              {n.id}
+            </text>
+          </g>
+        ))}
+      </svg>
+      <div data-adr className="absolute bottom-4 left-5 inline-flex items-center gap-2 rounded-full border border-[var(--positive)]/40 px-2.5 py-0.5 font-mono text-[11px] text-[var(--positive)]">
+        ADR-004 · accepted
+      </div>
+    </div>
+  );
+}
+
+/* ───────── Esercizio: latenza contro l'obiettivo di servizio, un picco genera un avviso ───────── */
+
+const SLO = 300;
+const W = 240;
+const H = 120;
+const POINTS = 40;
+
+export function MonitorTile() {
+  const [ref, vis] = useVisible<HTMLDivElement>();
+  const [data, setData] = useState<number[]>(() => Array.from({ length: POINTS }, (_, i) => 150 + Math.sin(i / 3) * 25));
+  const [hover, setHover] = useState<number | null>(null);
+  const tick = useRef(0);
+
+  useEffect(() => {
+    if (!vis || prefersReducedMotion()) return;
+    const id = window.setInterval(() => {
+      tick.current++;
+      const t = tick.current % 46;
+      const spike = t >= 30 && t < 35 ? 220 * Math.sin(((t - 30) / 5) * Math.PI) : 0;
+      setData((d) => [...d.slice(1), Math.max(80, 150 + Math.sin(tick.current / 3) * 25 + (Math.random() - 0.5) * 40 + spike)]);
+    }, 260);
+    return () => window.clearInterval(id);
+  }, [vis]);
+
+  const y = (v: number) => H - (Math.min(v, 520) / 520) * H;
+  const x = (i: number) => (i / (POINTS - 1)) * W;
+  const d = data.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
+  const last = data[data.length - 1];
+  const shown = hover !== null ? data[hover] : last;
+  const alert = last > SLO;
+
+  return (
+    <div ref={ref} className="relative flex h-full w-full flex-col justify-end gap-3 px-5 pb-5 pt-12">
+      <Tag>ops / latency p95</Tag>
+      <span
+        className={`absolute right-5 top-3.5 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-mono text-[11px] transition-colors duration-300 ${alert ? "bg-[var(--negative)]/15 text-[var(--negative)]" : "bg-white/[0.04] text-[var(--positive)]"}`}
+      >
+        <span className={`h-1.5 w-1.5 rounded-full ${alert ? "animate-pulse bg-[var(--negative)]" : "bg-[var(--positive)]"}`} />
+        {alert ? "alert" : "ok"}
+      </span>
+      <div className="flex items-baseline gap-1 font-mono">
+        <span className="t-fig text-[40px] leading-none text-ink">
+          <RollingNumber value={Math.round(shown)} />
+        </span>
+        <span className="text-[14px] text-ink-3">ms</span>
+        <span className="ml-auto text-[12px] text-ink-3">uptime 99.95%</span>
+      </div>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="h-[46%] w-full overflow-visible"
+        preserveAspectRatio="none"
+        onPointerMove={(e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          setHover(Math.max(0, Math.min(POINTS - 1, Math.round(((e.clientX - r.left) / r.width) * (POINTS - 1)))));
+        }}
+        onPointerLeave={() => setHover(null)}
+      >
+        <line x1="0" x2={W} y1={y(SLO)} y2={y(SLO)} stroke="#ff5a52" strokeOpacity="0.5" strokeDasharray="3 4" vectorEffect="non-scaling-stroke" />
+        <path d={d} stroke={alert ? "#ff5a52" : "#5ec4ff"} strokeWidth="1.8" fill="none" vectorEffect="non-scaling-stroke" style={{ transition: "stroke .3s" }} />
+        {hover !== null && <line x1={x(hover)} x2={x(hover)} y1="0" y2={H} stroke="#f2f2f0" strokeOpacity="0.35" vectorEffect="non-scaling-stroke" />}
+      </svg>
+      <div className="flex justify-between font-mono text-[11px] text-ink-3">
+        <span>slo {SLO}ms</span>
+        <span>-10s</span>
+      </div>
+    </div>
+  );
+}

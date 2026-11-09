@@ -14,8 +14,8 @@ const Logo = ({ id }: { id: string }) => (
   </svg>
 );
 
-const STACK = ["kotlin", "compose", "react", "nextjs", "typescript", "dotnet", "gsap"].map((id) => <Logo key={id} id={id} />);
-const INFRA = ["docker", "node", "fastapi", "supabase", "caddy", "githubactions", "python"].map((id) => <Logo key={id} id={id} />);
+const STACK = ["kotlin", "compose", "dotnet", "typescript", "react", "nextjs"].map((id) => <Logo key={id} id={id} />);
+const INFRA = ["node", "python", "fastapi", "supabase", "docker", "githubactions"].map((id) => <Logo key={id} id={id} />);
 const WORK = projects.map((p) => (
   <span key={p.slug} className="flex items-center gap-[0.32em] whitespace-nowrap font-sans text-[0.25em] font-medium tracking-[-0.01em] text-ink">
     <span className="h-[0.42em] w-[0.42em] rounded-full bg-[var(--sky)]" />
@@ -75,7 +75,7 @@ function Chip({ items, delay, width }: { items: ReactNode[]; delay: number; widt
 }
 
 /**
- * "Sviluppo *software* [stack] / dall'interfaccia [progetti] / al server [infrastruttura]".
+ * "Sviluppo *software* [stack] / su misura, dall'idea [progetti] / al rilascio [infrastruttura]".
  * Sans per il testo, corsivo solo sulla parola che regge la frase.
  */
 export function HeroTitle({ lines }: { lines: HeroLines }) {

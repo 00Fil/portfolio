@@ -25,23 +25,27 @@
   "hero": {
     "a": "I build",
     "em": "software",
-    "b": "from the interface",
-    "c": "to the server",
-    "lead": "I’m {name}. I design and build software for clients, from first sketch to production: native apps, web platforms and internal tools. I study Computer Engineering at the University of Brescia.",
+    "b": "made to measure, from idea",
+    "c": "to release",
+    "lead": "I’m {name}. I build custom software for companies and professionals: apps, web platforms and internal tools. I take each project from analysis to release and stay on as the point of contact afterwards. I study Computer Engineering at the University of Brescia.",
     "status": "Available for new projects",
     "work": "See the work",
     "contact": "Get in touch"
   },
   "work": {
-    "title": "Work",
-    "lead": "Four projects, from network protocol to interface.",
+    "title": "Selected work",
+    "lead": "Three complete projects, chosen from the ones I saw through to the end.",
     "view": "Open",
-    "open": "Open {name}"
-  },
-  "approach": {
-    "title": "Built to connect",
-    "body": "The largest project I have built was called Ponte, Italian for bridge. It links phone and PC over the local network, a server, Bluetooth and Wi-Fi Direct, and drops the duplicates. I work the same way. I keep interface, protocol and infrastructure together, so nothing gets lost between one step and the next.",
-    "cta": "See Relay"
+    "open": "Open {name}",
+    "case": "Read the case study",
+    "all": "All work",
+    "pageTitle": "Work",
+    "pageLead": "Client projects and products of my own, each with the starting problem, the choices made and the stated limits.",
+    "index": "Index",
+    "colProject": "Project",
+    "colRole": "Role",
+    "colPlatforms": "Platforms",
+    "colYear": "Year"
   },
   "stack": {
     "title": "Tools",
@@ -165,8 +169,98 @@
         "tag": "Today",
         "title": "Software for clients",
         "body": "A platform for a tutoring centre, an app that links phone and PC across three platforms, and more client work.",
-        "value": 4,
+        "value": 3,
         "unit": "published projects"
+      }
+    ]
+  },
+  "method": {
+    "label": "Method",
+    "title": "How I work",
+    "lead": "The same process for an app, a platform or an internal tool: five phases, each closed by a result you can check.",
+    "phases": [
+      {
+        "name": "Understand",
+        "title": "The problem before the code.",
+        "body": "I start from the people who will use the software and what has to change in their work. The outcome is prioritised requirements, testable acceptance criteria and the risks to settle early.",
+        "practices": [
+          "Requirements with explicit priorities",
+          "Written acceptance criteria",
+          "Estimates with a stated margin"
+        ],
+        "out": "Analysis document"
+      },
+      {
+        "name": "Design",
+        "title": "Decisions written down, not remembered.",
+        "body": "I shape the architecture around real needs, not trends. Every significant choice goes into a short record with context, alternatives and consequences, so whoever comes next knows why things are the way they are.",
+        "practices": [
+          "Architecture decision records",
+          "Interfaces between services defined first",
+          "Data and permissions designed from the start"
+        ],
+        "out": "Architecture and decisions"
+      },
+      {
+        "name": "Build",
+        "title": "Small steps, always verified.",
+        "body": "I work in short increments on separate branches. Every change goes through review and automated tests before it reaches the main branch, and the version number follows the kind of change.",
+        "practices": [
+          "Short branches, small changes",
+          "Automated tests and code review",
+          "Semantic versioning"
+        ],
+        "out": "Working increments"
+      },
+      {
+        "name": "Release",
+        "title": "Boring releases, on purpose.",
+        "body": "The pipeline checks, builds and publishes with no manual steps. New versions reach a share of users first; if errors rise, the release rolls itself back.",
+        "practices": [
+          "Continuous integration and delivery",
+          "Gradual rollout with automatic rollback",
+          "Identical environments, configured as code"
+        ],
+        "out": "Production release"
+      },
+      {
+        "name": "Operate",
+        "title": "The work goes on after release.",
+        "body": "I measure response times and errors against agreed objectives and get an alert before a problem reaches users. Documentation and handover are part of the delivery.",
+        "practices": [
+          "Monitoring against service objectives",
+          "Alerts that matter, not noise",
+          "Documentation and handover"
+        ],
+        "out": "Measured service"
+      }
+    ],
+    "output": "Outcome",
+    "principlesTitle": "Principles that hold in every phase",
+    "principles": [
+      {
+        "title": "Security from the start",
+        "body": "Secrets out of the code, least privilege, dependencies kept current and checked."
+      },
+      {
+        "title": "Justified simplicity",
+        "body": "The simplest solution that meets the requirements. Extra complexity is argued in writing."
+      },
+      {
+        "title": "Measured performance",
+        "body": "Load and response times with a budget and real numbers, not impressions."
+      },
+      {
+        "title": "Accessibility built in",
+        "body": "Contrast, keyboard and screen readers checked during development, not at the end."
+      },
+      {
+        "title": "Regular communication",
+        "body": "Updates on a fixed rhythm, problems raised as soon as they appear, decisions shared."
+      },
+      {
+        "title": "Code that lasts",
+        "body": "Clear names, shared conventions, no part that only one person can maintain."
       }
     ]
   }

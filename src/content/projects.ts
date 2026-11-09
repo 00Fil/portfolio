@@ -98,7 +98,7 @@ export const projects: Project[] = [
   },
   {
     slug: "creacloud",
-    headline: { it: "Un mese di lezioni pianificato da un solver e gestito su WhatsApp", en: "A month of lessons scheduled by a solver and run over WhatsApp" },
+    headline: { it: "Un mese di lezioni organizzato in automatico e gestito su WhatsApp", en: "A month of lessons scheduled automatically and run over WhatsApp" },
     context: { it: "CreaCloud, per un centro didattico", en: "CreaCloud, for a tutoring centre" },
     tags: { it: ["Piattaforma web", "AI", "Ottimizzazione"], en: ["Web platform", "AI", "Optimisation"] },
     name: "CreaCloud",
@@ -220,63 +220,6 @@ export const projects: Project[] = [
       { value: "3×", label: { it: "velocità massima di riproduzione", en: "maximum playback speed" } },
       { value: "2 GB", label: { it: "di quota per utente", en: "quota per user" } },
       { value: "1", label: { it: "file per aggiungere un tool", en: "file to add a tool" } },
-    ],
-  },
-  {
-    slug: "maturita-2k26",
-    headline: { it: "240 ore di PCTO raccontate in dieci minuti, dentro un desktop macOS", en: "240 hours of work placement told in ten minutes, inside a macOS desktop" },
-    context: { it: "maturita-2k26, esame di Maturità", en: "maturita-2k26, school leaving exam" },
-    tags: { it: ["Web", "PHP e MySQL", "Interfaccia"], en: ["Web", "PHP and MySQL", "Interface"] },
-    name: "maturita-2k26",
-    year: "2026",
-    platforms: { it: "Web", en: "Web" },
-    role: { it: "Esame di Maturità", en: "Final school exam" },
-    stack: ["PHP 8.3", "Apache", "MySQL 8.4", "Docker Compose", "Dokploy"],
-    repo: "https://github.com/00Fil/maturita-2k26",
-    line: {
-      it: "La presentazione del PCTO per la Maturità, costruita come un desktop macOS.",
-      en: "A high-school internship presentation, built as a macOS-style desktop.",
-    },
-    summary: {
-      it: "Un login animato porta a un desktop in stile macOS che guida dieci minuti di esposizione in sei capitoli. Una modalità demo mostra alla commissione, passo per passo, la richiesta dal browser al server PHP fino a MySQL.",
-      en: "An animated login leads to a macOS-style desktop that walks through a ten-minute talk in six chapters. A demo mode shows the examiners, step by step, the request travelling from the browser to the PHP server and MySQL.",
-    },
-    problem: {
-      it: "Raccontare due anni di PCTO in dieci minuti, e mostrare alla commissione come funziona un'applicazione web invece di descriverlo.",
-      en: "Telling two years of work placement in ten minutes, and showing the examiners how a web application works instead of describing it.",
-    },
-    built: {
-      it: [
-        "Login con tasto animato, autenticazione PHP su MySQL, desktop protetto dalla sessione.",
-        "Window manager scritto da zero: finestre, dock con ingrandimento e rimbalzo, Finder, calendario PCTO.",
-        "Modalità demo nascosta con i nove passaggi reali della richiesta, controllabili con play e pausa.",
-      ],
-      en: [
-        "A login with an animated button, PHP authentication against MySQL, a desktop protected by the session.",
-        "A window manager written from scratch: windows, a dock with magnification and bounce, a Finder, a placement calendar.",
-        "A hidden demo mode with the nine real steps of the request, controlled with play and pause.",
-      ],
-    },
-    decisions: {
-      it: [
-        "Password con bcrypt, rigenerazione della sessione contro la session fixation, query con prepared statement.",
-        "Un solo file CSS come design system.",
-        "Focus visibile e supporto a reduced motion.",
-      ],
-      en: [
-        "Passwords hashed with bcrypt, session regeneration against session fixation, prepared statements for queries.",
-        "A single CSS file as the design system.",
-        "Visible focus and reduced-motion support.",
-      ],
-    },
-    limits: {
-      it: [],
-      en: [],
-    },
-    figures: [
-      { value: "240 h", label: { it: "di PCTO raccontate", en: "of work placement covered" } },
-      { value: "6", label: { it: "capitoli", en: "chapters" } },
-      { value: "9", label: { it: "passaggi nella demo", en: "steps in the demo" } },
     ],
   },
 ];

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowUpRight, AudioLines, CalendarClock, ChevronDown, FileText, Monitor, MonitorSmartphone, Volume2, VolumeX } from "lucide-react";
+import { ArrowUpRight, AudioLines, CalendarClock, ChevronDown, FileText, MonitorSmartphone, Volume2, VolumeX } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
@@ -21,7 +21,7 @@ import { Clock } from "@/components/sections/Clock";
 gsap.registerPlugin(ScrollTrigger);
 
 type Item = { id: string; label: string; menu?: "work" | "contact" };
-const ICONS = { relay: MonitorSmartphone, creacloud: CalendarClock, unispace: AudioLines, "maturita-2k26": Monitor } as const;
+const ICONS = { relay: MonitorSmartphone, creacloud: CalendarClock, unispace: AudioLines } as const;
 const NAMES: Record<Locale, string> = { it: "Italiano", en: "English" };
 
 /**
@@ -345,10 +345,10 @@ export function GlassTopNav({ home }: { home: boolean }) {
                   );
                 })}
               </ul>
-              <button type="button" data-mi onClick={() => go("work")} className="t-foot mx-3 mb-1 mt-2 inline-flex items-center gap-1 text-ink-2 hover:text-ink">
+              <a href={`/${locale}/lavori`} data-mi className="t-foot mx-3 mb-1 mt-2 inline-flex items-center gap-1 text-ink-2 hover:text-ink">
                 {t("allWork")}
                 <ArrowUpRight size={13} strokeWidth={1.8} aria-hidden />
-              </button>
+              </a>
             </div>
             <div
               ref={(el) => {
