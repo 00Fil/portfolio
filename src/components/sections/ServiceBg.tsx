@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState, type ComponentType } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ServiceKey } from "@/content/services";
 import { prefersReducedMotion } from "@/lib/env";
 
@@ -19,43 +19,25 @@ export const HUE: Record<ServiceKey, string> = {
   shop: "#aeb6c2",
 };
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const load = (f: () => Promise<{ default: ComponentType<any> }>) => dynamic(f, { ssr: false });
-const Grainient = load(() => import("@/components/reactbits/Grainient"));
-const LineWaves = load(() => import("@/components/reactbits/LineWaves"));
-const SoftAurora = load(() => import("@/components/reactbits/SoftAurora"));
-const PlasmaWave = load(() => import("@/components/reactbits/PlasmaWave"));
-const PixelBlast = load(() => import("@/components/reactbits/PixelBlast"));
-const LightRays = load(() => import("@/components/reactbits/LightRays"));
-const GradientBlinds = load(() => import("@/components/reactbits/GradientBlinds"));
-const Balatro = load(() => import("@/components/reactbits/Balatro"));
-const LightPillar = load(() => import("@/components/reactbits/LightPillar"));
-const LiquidChrome = load(() => import("@/components/reactbits/LiquidChrome"));
+const Grainient = dynamic(() => import("@/components/reactbits/Grainient"), { ssr: false });
+
+/* Uno sfondo solo (Grainient di React Bits), cambia la tavolozza: dal quasi nero al colore della scheda. */
+const RAMP: Record<ServiceKey, [string[], number]> = {
+  web: [["#0d0408", "#3d0a22", "#b0174f", "#ff4d8d", "#ffb3cf"], 35],
+  seo: [["#03060f", "#0b2156", "#1a56db", "#4285f4", "#b9d1ff"], 145],
+  geo: [["#0d0604", "#3a140a", "#9a3412", "#d97757", "#f3c4ad"], 60],
+  ai: [["#08040f", "#250d52", "#6127c9", "#9b6bff", "#d9ccff"], 160],
+  hw: [["#020b0c", "#06343a", "#0e7490", "#22d3ee", "#bff3fb"], 25],
+  apps: [["#060a02", "#1a3108", "#4d7c0f", "#a3e635", "#e4f8c2"], 120],
+  api: [["#0d0802", "#3d2208", "#b45309", "#fbbf24", "#fde6a8"], 70],
+  design: [["#0d0303", "#420a07", "#b91c1c", "#ff4b3e", "#ffc6c0"], 150],
+  ops: [["#020c08", "#04362a", "#047857", "#10b981", "#bff2dc"], 40],
+  shop: [["#060708", "#1f2329", "#525a66", "#aeb6c2", "#e9edf2"], 110],
+};
 
 function Scene({ k }: { k: ServiceKey }) {
-  const c = HUE[k];
-  switch (k) {
-    case "web":
-      return <Grainient colors={["#1a0510", c, "#5c0f33", "#ffb3cf", "#2a0718"]} speed={0.4} grainAmount={0.06} interactive={false} clickSwirl={false} intro={false} dpr={1} />;
-    case "seo":
-      return <LineWaves color1={c} color2="#1a3fa0" color3="#8ab4f8" speed={0.5} enableMouseInteraction={false} clickRipple={false} intro={false} maxDevicePixelRatio={1} />;
-    case "geo":
-      return <SoftAurora color1={c} color2="#7a2e18" brightness={1.5} speed={0.5} enableMouseInteraction={false} clickPulse={false} intro={false} />;
-    case "ai":
-      return <PlasmaWave colors={[c, "#4c1d95"]} speed={0.6} mouseInteraction={false} intro={false} dpr={1} />;
-    case "hw":
-      return <PixelBlast variant="circle" color={c} pixelSize={4} patternScale={3} patternDensity={1.1} speed={0.5} enableRipples autoRipple={0.6} hoverEffect="none" edgeFade={0.25} glow={0.6} intro={false} dpr={1} />;
-    case "apps":
-      return <LightRays raysColor={c} raysOrigin="top-center" raysSpeed={0.7} lightSpread={1.1} followMouse={false} clickPulse={false} intro={false} maxDevicePixelRatio={1} />;
-    case "api":
-      return <GradientBlinds gradientColors={["#3d2401", c, "#7c4a03"]} angle={20} blindCount={10} hoverTilt={0} clickEffect="none" idle="drift" spotlightOpacity={0.6} intro={false} dpr={1} />;
-    case "design":
-      return <Balatro color1={c} color2="#f5e6c8" color3="#160807" speed={0.5} mouseInteraction={false} clickSwirl={false} intro={false} maxDevicePixelRatio={1} />;
-    case "ops":
-      return <LightPillar topColor={c} bottomColor="#064e3b" intensity={0.9} interactive={false} clickPulse={false} intro={false} quality="low" />;
-    case "shop":
-      return <LiquidChrome color="#8d96a3" speed={0.5} exposure={0.75} interactive={false} intro={false} maxDevicePixelRatio={1} />;
-  }
+  const [colors, angle] = RAMP[k];
+  return <Grainient colors={colors} angle={angle} speed={0.55} flow={0.55} silk={0.3} grainAmount={0.05} contrast={0.95} interactive={false} clickSwirl={false} intro={false} dpr={1} />;
 }
 
 /**

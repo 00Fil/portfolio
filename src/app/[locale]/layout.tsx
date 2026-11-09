@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { BriefOverlay } from "@/components/sections/BriefOverlay";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -55,6 +56,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           <SmoothScroll />
           <TopBar />
           <CoverTransition>{children}</CoverTransition>
+          <BriefOverlay />
         </NextIntlClientProvider>
       </body>
     </html>

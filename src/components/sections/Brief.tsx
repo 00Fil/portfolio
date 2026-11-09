@@ -34,7 +34,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  * Richiesta di progetto a passi, come un Typeform: una domanda alla volta, avanzamento in alto,
  * scelta singola che va avanti da sola, Invio per proseguire. Per ora non invia nulla.
  */
-export function Brief({ preset }: { preset?: number }) {
+export function Brief({ preset, full = false }: { preset?: number; full?: boolean }) {
   const t = (useMessages() as unknown as { brief: T }).brief;
   const steps = t.steps;
   const [i, setI] = useState(0);
@@ -132,14 +132,14 @@ export function Brief({ preset }: { preset?: number }) {
   const progress = done ? 1 : i / steps.length;
 
   return (
-    <div className="relative overflow-hidden rounded-[28px] bg-[#0b0c0e] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08),0_40px_80px_-40px_rgba(0,0,0,.9)]">
+    <div className={full ? "relative" : "relative overflow-hidden rounded-[28px] bg-[#0b0c0e] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08),0_40px_80px_-40px_rgba(0,0,0,.9)]"}>
       {/* barra di avanzamento sul bordo, come nei moduli a domande */}
-      <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-white/[0.06]">
+      <span aria-hidden className={`${full ? "fixed" : "absolute"} inset-x-0 top-0 z-10 h-[3px] bg-white/[0.06]`}>
         <span className="block h-full origin-left bg-[var(--sky)] transition-transform duration-700 ease-[cubic-bezier(.2,.8,.2,1)]" style={{ transform: `scaleX(${done ? 1 : (i + 1) / steps.length})` }} />
       </span>
-      <span aria-hidden className="pointer-events-none absolute -right-28 -top-28 h-72 w-72 rounded-full bg-[var(--sky)] opacity-[0.07] blur-[70px]" />
+      {!full && <span aria-hidden className="pointer-events-none absolute -right-28 -top-28 h-72 w-72 rounded-full bg-[var(--sky)] opacity-[0.07] blur-[70px]" />}
 
-      <div className="relative flex items-center justify-between border-b border-white/[0.06] px-6 py-4 sm:px-10">
+      <div className={`relative flex items-center justify-between ${full ? "pb-6 sm:pl-9" : "border-b border-white/[0.06] px-6 py-4 sm:px-10"}`}>
         <span className="flex items-center gap-2 text-[13px] text-ink-2">
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--sky)] shadow-[0_0_8px_var(--sky)]" />
           {t.kicker}
@@ -150,7 +150,7 @@ export function Brief({ preset }: { preset?: number }) {
       </div>
       <span className="sr-only">{Math.round(progress * 100)}%</span>
 
-      <div className="relative px-6 pb-6 pt-8 sm:px-10 sm:pb-8 sm:pt-12">
+      <div className={full ? "relative pt-6" : "relative px-6 pb-6 pt-8 sm:px-10 sm:pb-8 sm:pt-12"}>
       <form
         className="relative min-h-[380px]"
         onSubmit={(e) => {
@@ -173,7 +173,7 @@ export function Brief({ preset }: { preset?: number }) {
             </div>
           ) : (
             <fieldset>
-              <legend className="flex items-start gap-3 text-[clamp(24px,2.8vw,36px)] font-medium leading-[1.15] tracking-[-0.03em] text-ink">
+              <legend className={`flex items-start gap-3 ${full ? "text-[clamp(28px,3.8vw,50px)]" : "text-[clamp(24px,2.8vw,36px)]"} font-medium leading-[1.15] tracking-[-0.03em] text-ink`}>
                 <span className="t-fig mt-[0.45em] flex shrink-0 items-center gap-1 text-[14px] font-medium text-[var(--sky)]">
                   {i + 1}
                   <ArrowRight size={13} strokeWidth={2.4} />

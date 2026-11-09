@@ -29,7 +29,7 @@ export function Why() {
           {t("cta")}
         </p>
         <div data-reveal>
-          <Drop href="#contact" accent className="h-12 px-5 font-medium text-ink">
+          <Drop href="#brief" accent className="h-12 px-5 font-medium text-ink">
             {t("ctaBtn")}
             <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
           </Drop>

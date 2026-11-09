@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { routing, type Locale } from "@/i18n/routing";
 import { SERVICES, getService } from "@/content/services";
 import { Link } from "@/i18n/navigation";
@@ -9,7 +9,6 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Drop } from "@/components/glass/Drop";
 import { SiteNav } from "@/components/nav/SiteNav";
 import { Footer } from "@/components/sections/Footer";
-import { Brief } from "@/components/sections/Brief";
 import { ServiceBackdrop } from "@/components/services/ServiceBackdrop";
 import { ServiceStory } from "@/components/services/ServiceStory";
 import { STORIES } from "@/content/service-stories";
@@ -60,9 +59,9 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
               {s.lead[locale]}
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-3" data-reveal>
-              <Drop href="#brief" accent className="h-12 px-5 font-medium text-ink">
+              <Drop href={`#brief-${s.need}`} accent className="h-12 px-5 font-medium text-ink">
                 {t("cta")}
-                <ArrowDown size={18} strokeWidth={1.6} aria-hidden />
+                <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
               </Drop>
             </div>
           </Reveal>
@@ -107,21 +106,6 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
             </div>
           </section>
         )}
-
-        {/* richiesta, con il servizio già scelto */}
-        <section id="brief" className="mx-auto mt-24 grid w-full max-w-[1280px] scroll-mt-28 gap-10 px-5 sm:mt-36 sm:px-8 lg:grid-cols-12 lg:gap-12">
-          <Reveal className="lg:col-span-4">
-            <p className="t-title2 max-w-[18ch] text-ink sm:text-[40px] sm:leading-[46px]" data-reveal data-split>
-              {t("cta")}
-            </p>
-            <p className="mt-5 max-w-[36ch] text-ink-2" data-reveal>
-              {t("ctaLead")}
-            </p>
-          </Reveal>
-          <div className="lg:col-span-8">
-            <Brief preset={s.need} />
-          </div>
-        </section>
 
         {/* altri servizi */}
         <Reveal className="mx-auto mt-24 w-full max-w-[1280px] px-5 sm:mt-36 sm:px-8">

@@ -11,7 +11,7 @@ import { scrollToY } from "@/lib/scroll";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-const LiquidEther = dynamic(() => import("@/components/reactbits/LiquidEther"), { ssr: false });
+const Grainient = dynamic(() => import("@/components/reactbits/Grainient"), { ssr: false });
 
 /** Invito finale: la domanda enorme, la risposta in corsivo e un tasto che segue il cursore. */
 export function FooterCta({ q, a, cta, href }: { q: string; a: string; cta: string; href: string }) {
@@ -70,8 +70,8 @@ export function FooterCta({ q, a, cta, href }: { q: string; a: string; cta: stri
 }
 
 /**
- * Il nome a tutta larghezza in fondo al sito. Le lettere sono finestre su un liquido azzurro (Liquid Ether di React Bits)
- * che si muove da solo e segue il cursore: sopra c'è un velo nero con il testo bianco in "multiply".
+ * Il nome a tutta larghezza in fondo al sito. Le lettere sono finestre su un gradiente azzurro (Grainient di React Bits)
+ * che scorre da solo e si mescola sotto il cursore: sopra c'è un velo nero con il testo bianco in "multiply".
  */
 export function FooterGiant({ first, last }: { first: string; last: string }) {
   const band = useRef<HTMLDivElement>(null);
@@ -126,18 +126,7 @@ export function FooterGiant({ first, last }: { first: string; last: string }) {
     <div ref={band} className="relative isolate overflow-hidden" aria-label={`${first} ${last}`} role="img">
       <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(90% 140% at 50% 110%, #5ec4ff, #1f7fb8 45%, #0b2f45 85%)" }}>
         {on && !still && (
-          <LiquidEther
-            colors={["#5ec4ff", "#d9f2ff", "#1f7fb8"]}
-            mouseForce={18}
-            cursorSize={110}
-            autoDemo
-            autoSpeed={0.45}
-            autoIntensity={2}
-            resolution={0.45}
-            clickBurst={false}
-            intro={false}
-            maxDevicePixelRatio={1}
-          />
+          <Grainient colors={["#061722", "#0b3550", "#1f7fb8", "#5ec4ff", "#d9f2ff"]} angle={20} speed={0.6} flow={0.7} silk={0.4} grainAmount={0.04} stir={1.4} intro={false} dpr={1} />
         )}
       </div>
       <div aria-hidden className="pointer-events-none relative flex justify-center bg-black text-white mix-blend-multiply">

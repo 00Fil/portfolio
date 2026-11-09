@@ -296,7 +296,7 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
             >
               {sound ? <Volume2 size={17} strokeWidth={1.6} aria-hidden /> : <VolumeX size={17} strokeWidth={1.6} aria-hidden className="text-ink-2" />}
             </Drop>
-            <Drop href={home ? "#contact" : "/#contact"} accent className="h-[42px] px-4 text-[14px] font-medium text-ink">
+            <Drop href="#brief" accent className="h-[42px] px-4 text-[14px] font-medium text-ink">
               {t("write")}
             </Drop>
           </div>

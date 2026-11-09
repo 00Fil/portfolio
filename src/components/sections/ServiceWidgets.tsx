@@ -12,7 +12,6 @@ import type { ServiceKey } from "@/content/services";
 
 gsap.registerPlugin(useGSAP);
 
-const Strands = dynamic(() => import("@/components/reactbits/Strands"), { ssr: false });
 const SloshGauge = dynamic(() => import("@/components/reactbits/SloshGauge"), { ssr: false });
 
 /**
@@ -545,7 +544,7 @@ function AppsV({ max }: { max?: number }) {
             <Bead data-pfb tint={DARK} radius={14} className="flex h-11 w-11 items-center justify-center text-white/70 backdrop-blur-md">
               {ic}
             </Bead>
-            <span className="text-[10px] text-white/80">{n}</span>
+            <span className="text-[10px] text-white [text-shadow:0_1px_6px_rgba(0,0,0,.7)]">{n}</span>
           </div>
         ))}
       </div>
@@ -593,7 +592,7 @@ function ApiV({ t, max }: { t: WidgetText; max?: number }) {
           <Bead data-svcb tint={DARK} radius={14} className="flex h-11 w-11 items-center justify-center text-white/75 backdrop-blur-md">
             <Brand icon={ic} className="h-[18px] w-[18px]" />
           </Bead>
-          <span className="text-[9.5px] text-white/85">{names[i]}</span>
+          <span className="text-[9.5px] text-white [text-shadow:0_1px_6px_rgba(0,0,0,.7)]">{names[i]}</span>
         </span>
       ))}
       <Bead data-log tint={DARK} className="absolute bottom-0 left-[160px] -ml-[110px] flex h-8 w-[220px] items-center justify-center px-3.5 text-[11px] text-white backdrop-blur-md">
@@ -603,218 +602,329 @@ function ApiV({ t, max }: { t: WidgetText; max?: number }) {
   );
 }
 
-/* ───────────── Design: dal disordine all'ordine. Griglia, poi i pezzi al loro posto, poi la palette ───────────── */
+/* ───────────── Design: un editor come Figma. Selezioni un elemento, cambi colore, angoli e carattere ───────────── */
 
-type Piece = { k: string; x: number; y: number; w: number; h: number; r: number; color: string; chaos: [number, number, number, number] };
-const PIECES: Piece[] = [
-  { k: "nav", x: 16, y: 14, w: 338, h: 12, r: 6, color: "rgba(255,255,255,.16)", chaos: [-30, -40, -8, 0.8] },
-  { k: "img", x: 16, y: 38, w: 164, h: 86, r: 12, color: "#ffd166", chaos: [-60, 30, 12, 1.15] },
-  { k: "t1", x: 190, y: 42, w: 164, h: 13, r: 4, color: "#f5efe6", chaos: [40, -36, -14, 1.2] },
-  { k: "t2", x: 190, y: 60, w: 110, h: 13, r: 4, color: "#f5efe6", chaos: [70, 50, 18, 0.9] },
-  { k: "p1", x: 190, y: 84, w: 164, h: 5, r: 3, color: "rgba(255,255,255,.4)", chaos: [-110, 70, 24, 1] },
-  { k: "p2", x: 190, y: 94, w: 140, h: 5, r: 3, color: "rgba(255,255,255,.4)", chaos: [30, 76, -30, 1.1] },
-  { k: "btn", x: 190, y: 106, w: 70, h: 18, r: 9, color: SKY, chaos: [90, -20, 28, 1.3] },
-  { k: "c1", x: 16, y: 136, w: 106, h: 30, r: 8, color: "rgba(255,255,255,.12)", chaos: [40, -70, 16, 0.9] },
-  { k: "c2", x: 132, y: 136, w: 106, h: 30, r: 8, color: "rgba(255,255,255,.12)", chaos: [-50, -20, -22, 1.1] },
-  { k: "c3", x: 248, y: 136, w: 106, h: 30, r: 8, color: "rgba(255,255,255,.12)", chaos: [20, -90, 10, 0.85] },
-];
-const PALETTE = ["#f5efe6", "#ffd166", SKY, "#2b2d42", "#111214"];
-const RAW = "rgba(255,255,255,.22)";
+const FIG = "#0d99ff";
+const FILLS = [SKY, "#ff7a59", "#111214", "#f5efe6"];
+/** Il cursore di chi lavora nel file, con il nome accanto come negli editor condivisi. */
+const NamedCursor = ({ name, color, attr = "data-cur" }: { name: string; color: string; attr?: string }) => (
+  <span {...{ [attr]: "" }} className="absolute left-0 top-0 z-20 flex items-start opacity-0">
+    <svg viewBox="0 0 16 16" className="h-4 w-4 drop-shadow-[0_2px_4px_rgba(0,0,0,.5)]" aria-hidden>
+      <path d="M2 1l11 6-5 1.5L6 14z" fill={color} stroke="#fff" strokeWidth="1" />
+    </svg>
+    <span className="ml-0.5 mt-3 whitespace-nowrap rounded-[5px] px-1.5 py-0.5 text-[9.5px] font-semibold text-white" style={{ background: color }}>
+      {name}
+    </span>
+  </span>
+);
 function DesignV({ t, max }: { t: WidgetText; max?: number }) {
+  const BTN = { x: 228, y: 112, w: 120, h: 36 };
+  const TTL = { x: 228, y: 46, w: 196, h: 28 };
+  const box = (r: typeof BTN) => ({ x: r.x - 3, y: r.y - 3, width: r.w + 6, height: r.h + 6 });
   return (
     <Canvas
       w={560}
       h={180}
       max={max}
       build={(q) => {
-        const pcs = q("[data-pc]");
-        const chaos = (i: number) => {
-          const [x, y, r, s] = PIECES[i].chaos;
-          return { x, y, rotate: r, scale: s };
-        };
-        gsap.set(pcs, { x: (i: number) => chaos(i).x, y: (i: number) => chaos(i).y, rotate: (i: number) => chaos(i).rotate, scale: (i: number) => chaos(i).scale, backgroundColor: RAW });
+        const cur = q("[data-cur]")[0];
+        const sel = q("[data-sel]")[0];
+        const rad = q("[data-rad]")[0];
+        const btn = q("[data-btn]")[0];
+        const o = { r: 8 };
         const tl = gsap
           .timeline()
-          .from(q("[data-aa]"), { yPercent: 60, autoAlpha: 0, skewY: 8, duration: 1, ease: "expo.out" })
-          .from(q("[data-sw]"), { scale: 0, duration: 0.7, stagger: 0.06, ease: "back.out(2.5)" }, 0.3)
-          .from(q("[data-frame]"), { autoAlpha: 0, scale: 0.96, duration: 0.8, ease: "expo.out" }, 0.2)
-          .from(pcs, { autoAlpha: 0, duration: 0.6, stagger: 0.04 }, 0.4);
-        const run = gsap.timeline({ repeat: -1, repeatDelay: 0.6 });
-        const caps = q("[data-cap]");
-        step(run, caps, 0, 0);
+          .from(q("[data-insp]"), { x: -20, autoAlpha: 0, duration: 0.9, ease: "expo.out" })
+          .from(q("[data-mock]"), { y: 24, autoAlpha: 0, duration: 0.9, ease: "expo.out" }, 0.1);
+        const run = gsap.timeline({ repeat: -1, repeatDelay: 0.4, defaults: { ease: "power3.inOut" } });
+        const click = (at: number, el?: Element) => {
+          run.to(cur, { scale: 0.85, duration: 0.1, yoyo: true, repeat: 1, transformOrigin: "0 0" }, at);
+          if (el) run.to(el, { scale: 0.92, duration: 0.1, yoyo: true, repeat: 1 }, at);
+        };
         run
-          .to(pcs, { x: "+=6", y: "-=5", rotate: "+=4", duration: 0.9, yoyo: true, repeat: 1, ease: "sine.inOut", stagger: 0.04 }, 0)
-          // 1. la griglia
-          .fromTo(q("[data-col]"), { scaleY: 0 }, { scaleY: 1, transformOrigin: "50% 0%", duration: 0.7, stagger: 0.06, ease: "expo.out" }, 1.2);
-        step(run, caps, 1, 1.2);
-        // 2. ogni pezzo al suo posto
-        run.to(pcs, { x: 0, y: 0, rotate: 0, scale: 1, duration: 1, stagger: 0.06, ease: "expo.inOut" }, 2.1);
-        step(run, caps, 2, 2.1);
-        // 3. la palette colora i pezzi
-        step(run, caps, 3, 3.6);
-        PALETTE.slice(0, 3).forEach((c, i) => {
-          const at = 3.6 + i * 0.35;
-          run.to(q("[data-sw]")[i], { scale: 1.35, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out" }, at);
-          pcs.forEach((p, j) => {
-            if (PIECES[j].color === c) run.to(p, { backgroundColor: c, duration: 0.4 }, at + 0.12);
-          });
-        });
-        pcs.forEach((p, j) => {
-          if (!PALETTE.includes(PIECES[j].color)) run.to(p, { backgroundColor: PIECES[j].color, duration: 0.4 }, 4.6);
-        });
+          .set(sel, { ...box(BTN), autoAlpha: 0 })
+          .fromTo(cur, { x: 560, y: 190, autoAlpha: 0 }, { x: 300, y: 128, autoAlpha: 1, duration: 0.9 }, 0.2);
+        // 1. seleziono il tasto
+        click(1.15);
+        run.fromTo(sel, { autoAlpha: 0, scale: 0.94 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 1.2);
+        step(run, q("[data-layer]"), 0, 1.2);
+        // 2. cambio colore
+        run.to(cur, { x: 52, y: 72, duration: 0.8 }, 1.6);
+        click(2.45, q("[data-fill]")[1]);
         run
-          .fromTo(q("[data-shape]"), { scale: 0, rotate: -90 }, { scale: 1, rotate: 0, duration: 0.9, ease: "elastic.out(1, 0.5)" }, 4.4)
-          .to(q("[data-col]"), { autoAlpha: 0, duration: 0.5 }, 5)
-          // si ricomincia
-          .to(pcs, { x: (i: number) => chaos(i).x, y: (i: number) => chaos(i).y, rotate: (i: number) => chaos(i).rotate, scale: (i: number) => chaos(i).scale, backgroundColor: RAW, duration: 1, ease: "expo.inOut", stagger: 0.03 }, 7.4)
-          .to(q("[data-shape]"), { scale: 0, duration: 0.4 }, 7.4)
-          .set(q("[data-col]"), { autoAlpha: 1, scaleY: 0 }, 8.4);
-        return tl.add(run, 1);
+          .to(btn, { backgroundColor: FILLS[1], duration: 0.4, ease: "power2.out" }, 2.5)
+          .to(q("[data-fring]"), { x: 28, duration: 0.4, ease: "back.out(2)" }, 2.5)
+          // 3. trascino gli angoli
+          .to(cur, { x: 21, y: 116, duration: 0.6 }, 2.9)
+          .to([cur, q("[data-knob]")[0]], { x: "+=70", duration: 0.9, ease: "power2.inOut" }, 3.6)
+          .fromTo(o, { r: 8 }, { r: 18, duration: 0.9, ease: "power2.inOut", onUpdate: () => { rad.textContent = String(Math.round(o.r)); (btn as HTMLElement).style.borderRadius = `${o.r}px`; } }, 3.6)
+          // 4. seleziono il titolo e cambio carattere
+          .to(cur, { x: 330, y: 62, duration: 0.8 }, 4.7);
+        click(5.55);
+        run.to(sel, { ...box(TTL), duration: 0.45, ease: "expo.out" }, 5.6);
+        step(run, q("[data-layer]"), 1, 5.6);
+        run.to(cur, { x: 120, y: 160, duration: 0.8 }, 6);
+        click(6.85, q("[data-font]")[1]);
+        run.to(q("[data-fpill]"), { x: 66, width: 82, duration: 0.4, ease: "back.out(1.6)" }, 6.9);
+        step(run, q("[data-ttl]"), 1, 6.9);
+        // si ricomincia
+        run
+          .to(cur, { x: 560, y: 190, autoAlpha: 0, duration: 0.8 }, 8.6)
+          .to(sel, { autoAlpha: 0, duration: 0.3 }, 8.6)
+          .to(btn, { backgroundColor: FILLS[0], borderRadius: 8, duration: 0.5 }, 8.8)
+          .to(q("[data-fring]"), { x: 0, duration: 0.4 }, 8.8)
+          .to(q("[data-knob]"), { x: 0, duration: 0.5 }, 8.8)
+          .to(q("[data-fpill]"), { x: 0, width: 56, duration: 0.4 }, 8.8)
+          .call(() => void (rad.textContent = "8"), [], 8.8);
+        step(run, q("[data-ttl]"), 0, 8.8);
+        step(run, q("[data-layer]"), 0, 8.8);
+        return tl.add(run, 0.9);
       }}
     >
-      <div className="absolute left-0 top-0 w-[160px]">
-        <span data-aa className="t-serif block text-[76px] leading-[0.9] text-white">
-          Aa
+      {/* pannello delle proprietà */}
+      <Bead data-insp tint={DARK} radius={16} className="absolute left-0 top-0 block h-[180px] w-[176px] text-white backdrop-blur-md">
+        <span className="absolute left-3.5 top-3.5 flex items-center gap-2 text-[11.5px] font-semibold">
+          <span className="h-2.5 w-2.5 rounded-[3px] border-[1.5px]" style={{ borderColor: FIG }} />
+          <Steps items={[t.dLayer1, t.dLayer2]} attr="data-layer" />
         </span>
-        <span className="mt-2 block font-mono text-[10px] text-white/70">Instrument Serif</span>
-        <div className="mt-4 flex gap-1.5">
-          {PALETTE.map((c) => (
-            <span key={c} data-sw className="h-[26px] w-[26px] rounded-full shadow-[0_0_0_1.5px_rgba(255,255,255,.5),0_6px_14px_-6px_rgba(0,0,0,.8)]" style={{ background: c }} />
+        <span className="absolute left-3.5 top-[42px] text-[9.5px] text-white/55">{t.dFill}</span>
+        <span className="absolute left-3.5 top-[60px] flex gap-2">
+          {FILLS.map((f) => (
+            <span key={f} data-fill className="h-5 w-5 rounded-[6px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.2)]" style={{ background: f }} />
           ))}
-        </div>
-        <Steps items={[t.designS1, t.designS2, t.designS3, t.designS4]} className="mt-4 text-[11px] font-medium text-white" />
-      </div>
-      <Bead data-frame tint={DARK} radius={16} className="absolute left-[190px] top-0 block h-[180px] w-[370px] backdrop-blur-md">
-        {[0, 1, 2, 3, 4, 5].map((i) => (
-          <span key={i} data-col className="absolute top-2 bottom-2 w-[48px] rounded-[4px] bg-[rgba(255,75,62,.13)] shadow-[inset_0_0_0_1px_rgba(255,120,110,.35)]" style={{ left: 16 + i * 58, transform: "scaleY(0)" }} />
-        ))}
-        {PIECES.map((p) => (
-          <span key={p.k} data-pc className="absolute overflow-hidden" style={{ left: p.x, top: p.y, width: p.w, height: p.h, borderRadius: p.r }}>
-            {p.k === "img" && (
-              <span data-shape className="absolute right-3 top-3 block h-12 w-12" style={{ transform: "scale(0)" }}>
-                <Shape kind="flower" id="design-flower" className="h-full w-full" />
-              </span>
-            )}
+          <span data-fring className="absolute -left-[3px] -top-[3px] h-[26px] w-[26px] rounded-[8px]" style={{ boxShadow: `0 0 0 1.5px ${FIG}` }} />
+        </span>
+        <span className="absolute left-3.5 top-[92px] text-[9.5px] text-white/55">{t.dRadius}</span>
+        <span className="absolute left-3.5 top-[114px] h-1 w-[110px] rounded-full bg-white/15">
+          <span data-knob className="absolute -top-[5px] left-0 h-3.5 w-3.5 rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,.5)]" />
+        </span>
+        <span data-rad className="absolute left-[136px] top-[107px] text-[11px] tabular-nums text-white/85">
+          8
+        </span>
+        <span className="absolute left-3.5 top-[132px] text-[9.5px] text-white/55">{t.dText}</span>
+        <span className="absolute left-3.5 top-[148px] flex text-[10.5px]">
+          <span data-fpill className="absolute left-0 top-0 h-[22px] w-[56px] rounded-full bg-white/15" />
+          <span data-font className="relative flex h-[22px] w-[60px] items-center justify-center">
+            Geist
           </span>
-        ))}
+          <span data-font className="t-serif relative ml-1.5 flex h-[22px] w-[82px] items-center justify-center text-[12.5px]">
+            Instrument
+          </span>
+        </span>
       </Bead>
+      {/* la tela con la schermata in lavorazione */}
+      <div data-mock className="absolute left-[210px] top-3 h-[156px] w-[330px] rounded-[16px] bg-[#f6f3ee] shadow-[0_30px_60px_-24px_rgba(0,0,0,.9)]" />
+      <p className="absolute left-[228px] top-[30px] text-[9.5px] font-semibold uppercase tracking-[0.12em] text-[#8a857d]">{t.dKick}</p>
+      <div className="absolute left-[228px] top-[46px] h-[28px] w-[196px] text-[22px] leading-[28px] tracking-[-0.03em] text-[#16161a]">
+        <Steps items={[<span key="a" className="font-semibold">{t.dTitle}</span>, <span key="b" className="t-serif text-[25px]">{t.dTitle}</span>]} attr="data-ttl" />
+      </div>
+      <p className="absolute left-[228px] top-[80px] text-[11px] text-[#6b6862]">{t.dSub}</p>
+      <span data-btn className="absolute flex items-center justify-center text-[12px] font-semibold text-[#16161a]" style={{ left: BTN.x, top: BTN.y, width: BTN.w, height: BTN.h, borderRadius: 8, background: FILLS[0] }}>
+        {t.dBtn}
+      </span>
+      {/* la selezione, come in Figma */}
+      <span data-sel className="pointer-events-none absolute left-0 top-0 opacity-0" style={{ boxShadow: `inset 0 0 0 1.5px ${FIG}` }}>
+        {["-left-[4px] -top-[4px]", "-right-[4px] -top-[4px]", "-left-[4px] -bottom-[4px]", "-right-[4px] -bottom-[4px]"].map((p) => (
+          <span key={p} className={`absolute h-2 w-2 bg-white ${p}`} style={{ boxShadow: `inset 0 0 0 1.5px ${FIG}` }} />
+        ))}
+      </span>
+      <NamedCursor name="Filippo" color={FIG} />
     </Canvas>
   );
 }
 
-/* ───────────── AI: l'assistente (Strands) riceve una richiesta, la lavora a passaggi, aspetta il tuo ok ───────────── */
+/* ───────────── AI: un agente (Claude) che lavora da solo: legge la posta, apre il gestionale, compila, risponde ───────────── */
 
-function Avatar({ hook }: { hook: { current: ((v: number) => void) | null } }) {
-  const [energy, setEnergy] = useState(0.35);
-  useEffect(() => {
-    hook.current = setEnergy;
-    return () => void (hook.current = null);
-  }, [hook]);
-  return <Strands energy={energy} interactive={false} clickPulse={false} maxDevicePixelRatio={1.5} className="h-full w-full" />;
-}
+const Spinner = () => (
+  <svg data-spin viewBox="0 0 16 16" className="absolute inset-0 h-3.5 w-3.5" aria-hidden>
+    <circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,.18)" strokeWidth="2" />
+    <path d="M8 2a6 6 0 0 1 6 6" fill="none" stroke={CLAUDE} strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
 function AiV({ t, max }: { t: WidgetText; max?: number }) {
-  const energy = useRef<((v: number) => void) | null>(null);
-  const caps = [t.aiSt0, t.aiSt1, t.aiSt2, t.aiSt3, t.aiSt4, t.aiSt5, t.aiSt6];
+  const tools = [t.aiT1, t.aiT2, t.aiT3, t.aiT4];
+  const fields: [string, string][] = [
+    [t.aiF1, t.aiV1],
+    [t.aiF2, t.aiV2],
+    [t.aiF3, t.aiV3],
+    [t.aiF4, t.aiV4],
+  ];
+  const FX = [12, 160];
+  const FY = [66, 112];
   return (
     <Canvas
       w={560}
       h={180}
       max={max}
       build={(q) => {
-        const cap = q("[data-cap]");
-        const doc = q("[data-doc]");
-        const tot = q("[data-total]")[0];
-        const o = { v: 0 };
-        const tl = gsap.timeline().from(q("[data-orb]"), { scale: 0.6, autoAlpha: 0, duration: 1.2, ease: "expo.out" });
-        const run = gsap.timeline({ repeat: -1, repeatDelay: 0.6 });
-        const at = (s: number, i: number) => step(run, cap, i, s);
-        at(0, 0);
+        const cur = q("[data-agent]")[0];
+        const rows = q("[data-tool]");
+        const vals = q("[data-val]");
+        const reply = q("[data-reply]")[0];
+        const type = (el: Element, text: string, at: number, d: number) => {
+          const o = { n: 0 };
+          run.fromTo(o, { n: 0 }, { n: text.length, duration: d, ease: "none", immediateRender: false, onUpdate: () => void (el.textContent = text.slice(0, Math.round(o.n))) }, at);
+        };
+        const tool = (i: number, on: number, off: number) =>
+          run
+            .fromTo(rows[i], { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out", immediateRender: false }, on)
+            .fromTo(rows[i].querySelector("[data-spin]"), { autoAlpha: 1, rotate: 0 }, { rotate: 360 * 3, duration: off - on, ease: "none", transformOrigin: "50% 50%", immediateRender: false }, on)
+            .to(rows[i].querySelector("[data-spin]"), { autoAlpha: 0, duration: 0.15 }, off)
+            .fromTo(rows[i].querySelector("[data-ok]"), { scale: 0 }, { scale: 1, duration: 0.5, ease: "back.out(3)", immediateRender: false }, off);
+        const go = (x: number, y: number, at: number, d = 0.6) => run.to(cur, { x, y, duration: d, ease: "power3.inOut" }, at);
+        const press = (at: number, el?: Element) => {
+          run.to(cur, { scale: 0.85, duration: 0.1, yoyo: true, repeat: 1, transformOrigin: "0 0" }, at);
+          if (el) run.to(el, { scale: 0.93, duration: 0.1, yoyo: true, repeat: 1 }, at);
+        };
+        const view = (i: number, at: number) =>
+          run
+            .to(q("[data-view]"), { autoAlpha: (j: number) => (j === i ? 1 : 0), duration: 0.35 }, at)
+            .to(q("[data-tabpill]"), { x: i ? 64 : 0, width: i ? 84 : 58, duration: 0.4, ease: "back.out(1.6)" }, at)
+            .to(q("[data-tab]"), { color: (j: number) => (j === i ? "#fff" : "rgba(255,255,255,.5)"), duration: 0.3 }, at);
+
+        const tl = gsap
+          .timeline()
+          .from(q("[data-chat]"), { x: -20, autoAlpha: 0, duration: 0.9, ease: "expo.out" })
+          .from(q("[data-win]"), { x: 20, autoAlpha: 0, duration: 0.9, ease: "expo.out" }, 0.1);
+        const run = gsap.timeline({ repeat: -1, repeatDelay: 0.3 });
+        // riparte da capo
         run
-          .set(doc, { autoAlpha: 0, x: 0 })
-          .set(q("[data-row]"), { autoAlpha: 0 })
-          .call(() => energy.current?.(0.35), [], 0)
-          // 1. arriva la richiesta
-          .fromTo(q("[data-mail]"), { x: 40, y: 0, scale: 1, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.8, ease: "expo.out" }, 0.1)
-          // 2. l'assistente la legge
-          .to(q("[data-mail]"), { x: -292, y: 8, scale: 0.12, autoAlpha: 0, duration: 0.75, ease: "power3.in" }, 1.8)
-          .call(() => energy.current?.(1), [], 2.3);
-        at(2.3, 1);
-        run.fromTo(doc, { autoAlpha: 0, y: 14, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "expo.out" }, 3);
-        // 3. magazzino, consegna, preventivo
-        at(3.2, 2);
-        run.fromTo(q("[data-row]")[0], { autoAlpha: 0, x: -8 }, { autoAlpha: 1, x: 0, duration: 0.5 }, 3.4);
-        at(4.2, 3);
-        run.fromTo(q("[data-row]")[1], { autoAlpha: 0, x: -8 }, { autoAlpha: 1, x: 0, duration: 0.5 }, 4.4);
-        at(5.2, 4);
+          .set(rows, { autoAlpha: 0 })
+          .set(q("[data-ok]"), { scale: 0 })
+          .set(q("[data-mark]"), { scaleX: 0 })
+          .set(q("[data-replybox]"), { autoAlpha: 0, y: 8 })
+          .set(q("[data-toast]"), { autoAlpha: 0 })
+          .call(() => {
+            vals.forEach((v) => (v.textContent = ""));
+            reply.textContent = "";
+          }, [], 0);
+        view(0, 0);
+        step(run, q("[data-send]"), 0, 0);
         run
-          .fromTo(q("[data-row]")[2], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, 5.3)
-          .fromTo(o, { v: 0 }, { v: 1640, duration: 0.9, ease: "power3.out", onUpdate: () => void (tot.textContent = `€ ${num(o.v, t.url)}`) }, 5.3)
-          .call(() => energy.current?.(0.45), [], 6.2);
-        // 4. aspetta il tuo ok
-        at(6.3, 5);
-        run
-          .fromTo(q("[data-row]")[3], { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.8, ease: "elastic.out(1, 0.55)" }, 6.3)
-          .fromTo(q("[data-cur]"), { x: 600, y: 190, autoAlpha: 0 }, { x: 466, y: 140, autoAlpha: 1, duration: 0.8, ease: "power3.inOut" }, 6.6)
-          .to(q("[data-send]"), { scale: 0.9, duration: 0.1, yoyo: true, repeat: 1 }, 7.45)
-          .to(q("[data-cur]"), { autoAlpha: 0, duration: 0.3 }, 7.7);
-        step(run, q("[data-sendl]"), 1, 7.5);
-        // 5. inviato
-        at(8, 6);
-        run
-          .call(() => energy.current?.(0.7), [], 8)
-          .to(doc, { x: 60, autoAlpha: 0, duration: 0.8, ease: "power3.in" }, 8.6)
-          .call(() => energy.current?.(0.35), [], 9.2);
-        step(run, q("[data-sendl]"), 0, 9.6);
-        return tl.add(run, 0.6);
+          .fromTo(q("[data-user]"), { autoAlpha: 0, x: 14 }, { autoAlpha: 1, x: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, 0.1)
+          .fromTo(q("[data-star]"), { rotate: 0 }, { rotate: 360, duration: 9, ease: "none", immediateRender: false }, 0.4)
+          .fromTo(cur, { x: 330, y: 200, autoAlpha: 0 }, { x: 150, y: 86, autoAlpha: 1, duration: 0.8, ease: "power3.out", immediateRender: false }, 0.6);
+        // 1. legge l'email
+        tool(0, 0.6, 2);
+        run.to(q("[data-mark]"), { scaleX: 1, duration: 0.45, stagger: 0.45, ease: "power2.inOut" }, 1.1);
+        go(250, 86, 1.1, 0.8);
+        // 2. apre il gestionale
+        tool(1, 2.1, 2.9);
+        go(118, 15, 2.1);
+        press(2.75, q("[data-tab]")[1]);
+        view(1, 2.8);
+        // 3. compila e salva
+        tool(2, 3, 5.6);
+        fields.forEach(([, v], i) => {
+          const at = 3.05 + i * 0.5;
+          go(FX[i % 2] + 70, FY[Math.floor(i / 2)] + 11, at, 0.35);
+          type(vals[i], v, at + 0.3, 0.2 + v.length * 0.02);
+        });
+        go(268, 158, 5.05, 0.4);
+        press(5.45, q("[data-save]")[0]);
+        run.fromTo(q("[data-toast]"), { autoAlpha: 0, x: -8 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: "expo.out", immediateRender: false }, 5.5);
+        // 4. risponde al cliente
+        tool(3, 5.8, 8.4);
+        go(42, 15, 5.8);
+        press(6.3, q("[data-tab]")[0]);
+        view(0, 6.35);
+        run.to(q("[data-replybox]"), { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, 6.5);
+        go(150, 124, 6.5, 0.4);
+        type(reply, t.aiReply, 6.8, 1.2);
+        go(265, 151, 7.9, 0.4);
+        press(8.3, q("[data-sendb]")[0]);
+        step(run, q("[data-send]"), 1, 8.3);
+        run.to(cur, { x: 330, y: 200, autoAlpha: 0, duration: 0.7, ease: "power3.in" }, 9.4).to([...q("[data-user]"), ...rows], { autoAlpha: 0, duration: 0.4 }, 10);
+        return tl.add(run, 0.8);
       }}
     >
-      <div data-orb className="absolute left-0 top-0 h-[142px] w-[142px] overflow-hidden rounded-full">
-        <Avatar hook={energy} />
-      </div>
-      <div className="absolute left-0 top-[150px] w-[142px] text-[11.5px] font-medium text-white">
-        <Steps items={caps} className="justify-center" />
-      </div>
-      {/* la richiesta che arriva */}
-      <Bead data-mail tint={DARK} radius={16} className="absolute left-[200px] top-[30px] block w-[330px] p-3.5 text-white opacity-0 backdrop-blur-md">
-        <span className="flex items-center justify-between text-[11px]">
-          <span className="font-semibold">{t.aiFrom}</span>
-          <span className="text-white/60">{t.aiNow}</span>
-        </span>
-        <span className="mt-1.5 block text-[12.5px] leading-snug text-white/90">{t.aiMail}</span>
-      </Bead>
-      {/* il preventivo che si compone */}
-      <Bead data-doc tint={DARK} radius={16} className="absolute left-[196px] top-[6px] block h-[168px] w-[350px] p-4 text-white opacity-0 backdrop-blur-md">
-        <span className="flex items-center justify-between text-[11px] text-white/70">
-          <span className="font-semibold text-white">{t.aiQuote}</span>
-          {t.aiFrom}
-        </span>
-        <span data-row className="mt-3 flex items-baseline justify-between text-[12px]">
-          <span>
-            {t.aiRow1}
-            <span className="ml-2 text-[10px] text-[#86efac]">{t.aiRow1b}</span>
+      {/* la chat con l'agente */}
+      <div data-chat className="absolute left-0 top-0 h-[180px] w-[232px] overflow-hidden rounded-[16px] bg-[#262624] p-3 shadow-[0_0_0_1px_rgba(255,255,255,.08),0_30px_60px_-24px_rgba(0,0,0,.9)]">
+        <p data-user className="ml-auto w-fit max-w-[190px] rounded-[12px] bg-[#141413] px-2.5 py-1.5 text-[10.5px] leading-snug text-[#f5f4ef] opacity-0">
+          {t.aiUser}
+        </p>
+        <div className="mt-2.5 flex gap-2">
+          <span data-star className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: CLAUDE }}>
+            <Brand icon={si.siClaude} className="h-3.5 w-3.5" />
           </span>
-          <span className="tabular-nums">€ 1.560</span>
-        </span>
-        <span data-row className="mt-2 flex items-baseline justify-between text-[12px]">
-          <span>
-            {t.aiRow2}
-            <span className="ml-2 text-[10px] text-[#86efac]">{t.aiRow2b}</span>
+          <div className="flex-1 space-y-1">
+            {tools.map((x) => (
+              <div key={x} data-tool className="flex h-[18px] items-center gap-2 text-[10.5px] text-[#c2c0b6] opacity-0">
+                <span className="relative h-3.5 w-3.5 shrink-0">
+                  <Spinner />
+                  <span data-ok className="absolute inset-0 flex scale-0 items-center justify-center rounded-full text-[#262624]" style={{ background: CLAUDE }}>
+                    <Tick className="h-2.5 w-2.5" w={3.4} />
+                  </span>
+                </span>
+                {x}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="absolute inset-x-2.5 bottom-2.5 flex h-6 items-center gap-2 rounded-[9px] bg-[#30302e] px-2.5 text-[9.5px] text-[#9a988f]">
+          <span className="flex-1">{t.geoReply}</span>
+          <span className="flex h-4 w-4 items-center justify-center rounded-[5px] text-[9px] text-white" style={{ background: "#c6613f" }}>
+            ↑
           </span>
-          <span className="tabular-nums">€ 80</span>
-        </span>
-        <span className="mt-3 flex items-center justify-between border-t border-white/15 pt-3">
-          <span data-row className="flex items-baseline gap-2.5 text-[13px] font-semibold">
-            {t.aiTotal}
-            <span data-total className="text-[18px] tabular-nums tracking-[-0.02em]">
-              € 1.640
+        </div>
+      </div>
+      {/* lo schermo su cui lavora */}
+      <div data-win className="absolute left-[246px] top-0 h-[180px] w-[314px] overflow-hidden rounded-[14px] bg-[#16171a] text-white shadow-[0_0_0_1px_rgba(255,255,255,.1),0_30px_60px_-24px_rgba(0,0,0,.9)]">
+        <div className="relative flex h-[30px] items-center gap-1.5 border-b border-white/[0.07] px-3 text-[10.5px]">
+          <span data-tabpill className="absolute left-3 top-[5px] h-5 w-[58px] rounded-full bg-white/10" />
+          <span data-tab className="relative flex h-5 w-[58px] items-center justify-center">
+            {t.aiTab1}
+          </span>
+          <span data-tab className="relative flex h-5 w-[84px] items-center justify-center text-white/50">
+            {t.aiTab2}
+          </span>
+        </div>
+        {/* posta */}
+        <div data-view className="absolute inset-x-0 bottom-0 top-[30px]">
+          <p className="absolute left-3 right-3 top-[10px] flex justify-between text-[10.5px]">
+            <span className="font-semibold">{t.aiFrom}</span>
+            <span className="text-white/45">09:41</span>
+          </p>
+          <p className="absolute left-3 top-[26px] text-[11px] font-medium text-white/90">{t.aiSubj}</p>
+          <p className="absolute left-3 right-3 top-[44px] text-[10.5px] leading-[1.5] text-white/70">
+            {t.aiMailA}{" "}
+            <span className="relative whitespace-nowrap text-white">
+              <span data-mark className="absolute -inset-x-0.5 inset-y-0 origin-left rounded-[3px] bg-[rgba(217,119,87,.4)]" />
+              <span className="relative">{t.aiMailB}</span>
+            </span>{" "}
+            {t.aiMailC}{" "}
+            <span className="relative whitespace-nowrap text-white">
+              <span data-mark className="absolute -inset-x-0.5 inset-y-0 origin-left rounded-[3px] bg-[rgba(217,119,87,.4)]" />
+              <span className="relative">{t.aiMailD}</span>
             </span>
+            {t.aiMailE}
+          </p>
+          <div data-replybox className="absolute left-3 right-3 top-[74px] h-[66px] rounded-[10px] bg-white/[0.06] p-2.5 opacity-0">
+            <p data-reply className="text-[10.5px] leading-[1.45] text-white/90" />
+            <span data-sendb className="absolute bottom-2 right-2 flex h-[22px] w-[60px] items-center justify-center rounded-full bg-white text-[10px] font-semibold text-[#16161a]">
+              <Steps items={[t.aiSendBtn, t.aiSentBtn]} attr="data-send" className="justify-center" />
+            </span>
+          </div>
+        </div>
+        {/* gestionale */}
+        <div data-view className="absolute inset-x-0 bottom-0 top-[30px] opacity-0">
+          <p className="absolute left-3 top-[8px] text-[11.5px] font-semibold">{t.aiNew}</p>
+          {fields.map(([l], i) => (
+            <div key={l} className="absolute w-[142px]" style={{ left: FX[i % 2], top: FY[Math.floor(i / 2)] - 30 - 12 }}>
+              <p className="text-[9px] text-white/50">{l}</p>
+              <p data-val className="mt-1 flex h-[22px] items-center rounded-[6px] bg-white/[0.07] px-2 text-[10.5px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]" />
+            </div>
+          ))}
+          <p data-toast className="absolute bottom-3 left-3 flex items-center gap-1.5 text-[10px] text-[#86efac] opacity-0">
+            <Tick className="h-3 w-3" />
+            {t.aiSaved}
+          </p>
+          <span data-save className="absolute bottom-[8px] right-3 flex h-6 w-16 items-center justify-center rounded-full text-[10.5px] font-semibold text-[#16161a]" style={{ background: CLAUDE }}>
+            {t.aiSave}
           </span>
-        <span data-row data-send className="flex h-8 w-[136px] items-center justify-center rounded-full bg-white text-[11.5px] font-semibold text-[#16161a]">
-          <Steps items={[t.aiSend, <><Tick className="h-3 w-3" /> {t.aiSent}</>]} attr="data-sendl" className="justify-center" />
-        </span>
-        </span>
-      </Bead>
-      <Cursor />
+        </div>
+        <NamedCursor name="Claude" color={CLAUDE} attr="data-agent" />
+      </div>
     </Canvas>
   );
 }

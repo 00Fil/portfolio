@@ -193,7 +193,7 @@ export function Hero() {
             {t("lead", { name: profile.name })}
           </p>
           <div className="mt-9 flex flex-wrap justify-center gap-3" data-hero-rest>
-            <Drop href="#contact" accent className="h-12 px-5 font-medium text-ink">
+            <Drop href="#brief" accent className="h-12 px-5 font-medium text-ink">
               {t("contact")}
               <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
             </Drop>

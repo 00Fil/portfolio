@@ -2,13 +2,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { profile } from "@/content/profile";
 import { SERVICES } from "@/content/services";
 import type { Locale } from "@/i18n/routing";
-import { CopyEmail } from "./CopyEmail";
 import { Clock } from "./Clock";
-import { Brief } from "./Brief";
 import { FooterCta, FooterGiant, ToTop } from "./FooterGiant";
 import { Reveal } from "@/components/motion/Reveal";
 
-/** Chiusura: modulo di contatto, invito enorme, indice del sito e il nome a tutta larghezza pieno di liquido azzurro. */
+/** Chiusura: invito enorme (apre il modulo a schermo intero), indice del sito e il nome a tutta larghezza pieno di liquido azzurro. */
 export function Footer({ withContact = true }: { withContact?: boolean }) {
   const t = useTranslations("contact");
   const tn = useTranslations("nav");
@@ -28,27 +26,6 @@ export function Footer({ withContact = true }: { withContact?: boolean }) {
   return (
     <footer id={withContact ? "contact" : undefined} className="relative overflow-hidden">
       <Reveal className="mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-32">
-        {withContact && (
-          <div className="mb-24 grid gap-10 sm:mb-36 lg:grid-cols-12 lg:gap-12">
-            <div className="lg:col-span-4">
-              <p className="t-label mb-4 text-ink-3" data-reveal>
-                {t("title")}
-              </p>
-              <p className="t-title2 max-w-[24ch] text-ink sm:text-[40px] sm:leading-[46px]" data-reveal data-split>
-                {t("lead")}
-              </p>
-              {profile.email && (
-                <div className="mt-10">
-                  <CopyEmail email={profile.email} copy={t("copy")} copied={t("copied")} />
-                </div>
-              )}
-            </div>
-            <div id="brief" className="scroll-mt-28 lg:col-span-8" data-reveal>
-              <Brief />
-            </div>
-          </div>
-        )}
-
         <FooterCta q={tf("q")} a={tf("a")} cta={tf("cta")} href="#brief" />
 
         <div className="mt-20 grid grid-cols-2 gap-x-8 gap-y-12 border-t border-white/[0.08] pt-10 sm:mt-28 lg:grid-cols-12">
