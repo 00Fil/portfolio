@@ -5,38 +5,38 @@ import { useEffect, useRef, useState } from "react";
 import type { ServiceKey } from "@/content/services";
 import { prefersReducedMotion } from "@/lib/env";
 
-/* Ogni scheda ha il suo colore: lo sfondo è quel colore, quello che ci sta sopra è vetro scuro o chiaro, mai lo stesso tono. */
-export const HUE: Record<ServiceKey, string> = {
-  web: "#ff4d8d",
-  seo: "#4285f4",
-  geo: "#d97757",
-  ai: "#9b6bff",
-  hw: "#22d3ee",
-  apps: "#a3e635",
-  api: "#fbbf24",
-  design: "#ff4b3e",
-  ops: "#10b981",
-  shop: "#aeb6c2",
+/*
+ * Tavolozza stretta, intonata all'azzurro del sito: quattro toni freddi vicini (cielo, cobalto, ottanio, pervinca)
+ * e un solo caldo complementare (albicocca). Le schede vicine non ripetono lo stesso tono.
+ */
+const T = {
+  sky: ["#03080d", "#0a2a40", "#1f6f9e", "#5ec4ff", "#cfeeff"],
+  cobalt: ["#03050d", "#0c1d4d", "#2448b8", "#5b86ff", "#c9d8ff"],
+  teal: ["#020a0b", "#06303a", "#0f6b78", "#3cc8d0", "#c4f1f3"],
+  periwinkle: ["#05050d", "#191a48", "#3f45a8", "#8b97ff", "#d9ddff"],
+  apricot: ["#0c0604", "#3a1a0c", "#a2481f", "#ff9a62", "#ffdcc7"],
 };
+const PICK: Record<ServiceKey, keyof typeof T> = {
+  web: "sky",
+  seo: "cobalt",
+  geo: "apricot",
+  ai: "periwinkle",
+  hw: "teal",
+  apps: "cobalt",
+  api: "apricot",
+  design: "sky",
+  ops: "teal",
+  shop: "periwinkle",
+};
+export const HUE = Object.fromEntries(Object.entries(PICK).map(([k, v]) => [k, T[v][3]])) as Record<ServiceKey, string>;
 
 const Grainient = dynamic(() => import("@/components/reactbits/Grainient"), { ssr: false });
 
-/* Uno sfondo solo (Grainient di React Bits), cambia la tavolozza: dal quasi nero al colore della scheda. */
-const RAMP: Record<ServiceKey, [string[], number]> = {
-  web: [["#0d0408", "#3d0a22", "#b0174f", "#ff4d8d", "#ffb3cf"], 35],
-  seo: [["#03060f", "#0b2156", "#1a56db", "#4285f4", "#b9d1ff"], 145],
-  geo: [["#0d0604", "#3a140a", "#9a3412", "#d97757", "#f3c4ad"], 60],
-  ai: [["#08040f", "#250d52", "#6127c9", "#9b6bff", "#d9ccff"], 160],
-  hw: [["#020b0c", "#06343a", "#0e7490", "#22d3ee", "#bff3fb"], 25],
-  apps: [["#060a02", "#1a3108", "#4d7c0f", "#a3e635", "#e4f8c2"], 120],
-  api: [["#0d0802", "#3d2208", "#b45309", "#fbbf24", "#fde6a8"], 70],
-  design: [["#0d0303", "#420a07", "#b91c1c", "#ff4b3e", "#ffc6c0"], 150],
-  ops: [["#020c08", "#04362a", "#047857", "#10b981", "#bff2dc"], 40],
-  shop: [["#060708", "#1f2329", "#525a66", "#aeb6c2", "#e9edf2"], 110],
-};
+const ANGLE: Record<ServiceKey, number> = { web: 35, seo: 145, geo: 60, ai: 160, hw: 25, apps: 120, api: 70, design: 150, ops: 40, shop: 110 };
 
 function Scene({ k }: { k: ServiceKey }) {
-  const [colors, angle] = RAMP[k];
+  const colors = T[PICK[k]];
+  const angle = ANGLE[k];
   return <Grainient colors={colors} angle={angle} speed={0.55} flow={0.55} silk={0.3} grainAmount={0.05} contrast={0.95} interactive={false} clickSwirl={false} intro={false} dpr={1} />;
 }
 

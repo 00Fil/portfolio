@@ -260,7 +260,7 @@ function WebV({ t, max }: { t: WidgetText; max?: number }) {
             </span>
           </div>
           {/* scheda prodotto */}
-          <p className="absolute left-[280px] top-[84px] text-[9.5px] font-semibold uppercase tracking-[0.14em] text-[#c23a6b]">{t.webNew}</p>
+          <p className="absolute left-[280px] top-[84px] text-[9.5px] font-semibold uppercase tracking-[0.14em] text-[#1f7fb8]">{t.webNew}</p>
           <p className="absolute left-[280px] top-[100px] text-[24px] font-semibold leading-[28px] tracking-[-0.03em]">Halden One</p>
           <p className="absolute left-[280px] top-[132px] w-[240px] text-[11px] leading-[14px] text-[#6b6862]">{t.webSub}</p>
           <p className="absolute left-[280px] top-[154px] flex items-center gap-1.5 text-[10.5px] leading-[14px] text-[#6b6862]">
@@ -1133,7 +1133,7 @@ function Gauge({ hook }: { hook: { current: ((v: number) => void) | null } }) {
     hook.current = (temp: number) => setV(Math.round(temp * 10));
     return () => void (hook.current = null);
   }, [hook]);
-  return <SloshGauge value={v} showValue={false} liquidColor={v > 55 ? "#fbbf24" : "#22d3ee"} glassColor="rgba(8,9,12,.62)" width={64} height={180} radius={22} ticks={5} viscosity={0.08} splash={0.6} tilt={0.7} />;
+  return <SloshGauge value={v} showValue={false} liquidColor={v > 55 ? "#fbbf24" : "#e6f6ff"} glassColor="rgba(8,9,12,.62)" width={64} height={180} radius={22} ticks={5} viscosity={0.08} splash={0.6} tilt={0.7} />;
 }
 
 function HwV({ t, max }: { t: WidgetText; max?: number }) {
@@ -1177,14 +1177,14 @@ function HwV({ t, max }: { t: WidgetText; max?: number }) {
           .to(o, { v: 4, duration: 2.6, ease: "power2.out", onUpdate: show }, 7.2)
           .to(q("[data-tempw]"), { color: "#fff", duration: 0.8 }, 8);
         step(run, caps, 2, 7.2);
-        run.to(q("[data-dot]"), { backgroundColor: "#22d3ee", boxShadow: "0 0 12px #22d3ee", duration: 0.5 }, 9.4);
+        run.to(q("[data-dot]"), { backgroundColor: "#5ec4ff", boxShadow: "0 0 12px #5ec4ff", duration: 0.5 }, 9.4);
         step(run, caps, 0, 10);
         return tl.add(run.to({}, { duration: 1.4 }), 0.6);
       }}
     >
       <Bead data-panel tint={DARK} radius={18} className="absolute left-0 top-0 block h-[180px] w-[252px] p-4 text-white backdrop-blur-md">
         <span className="flex items-center gap-2 text-[11.5px] text-white/75">
-          <span data-dot className="h-2 w-2 rounded-full" style={{ background: "#22d3ee", boxShadow: "0 0 12px #22d3ee" }} />
+          <span data-dot className="h-2 w-2 rounded-full" style={{ background: "#5ec4ff", boxShadow: "0 0 12px #5ec4ff" }} />
           {t.hwPlace}
         </span>
         <span data-tempw className="tabular-nums mt-2 block text-[50px] font-medium leading-none tracking-[-0.045em] text-white">
@@ -1200,7 +1200,7 @@ function HwV({ t, max }: { t: WidgetText; max?: number }) {
         <Gauge hook={level} />
       </div>
       <Bead data-notif tint="rgba(20,22,26,.78)" radius={18} className="absolute left-[360px] top-[10px] flex w-[200px] items-start gap-2.5 p-3 text-white opacity-0 backdrop-blur-xl">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] text-[15px] font-semibold text-[#06262e]" style={{ background: "#22d3ee" }}>
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] text-[15px] font-semibold text-[#06263a]" style={{ background: "#5ec4ff" }}>
           <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden>
             <path d="M10 3v9.2" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
             <circle cx="10" cy="14.5" r="3" fill="currentColor" />
