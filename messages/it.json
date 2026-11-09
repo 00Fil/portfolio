@@ -27,10 +27,42 @@
     "em": "software",
     "b": "su misura, dall’idea",
     "c": "al rilascio",
-    "lead": "Sono {name}. Realizzo software su misura per aziende e professionisti: app, piattaforme web e strumenti interni. Seguo ogni progetto dall’analisi al rilascio e resto il riferimento anche dopo. Studio Ingegneria Informatica all’Università di Brescia.",
+    "lead": "Sono {name}. Realizzo software su misura per aziende e professionisti: piattaforme web, app per telefono e computer, sistemi con AI che automatizzano i processi. Seguo ogni progetto dall’analisi al rilascio e resto il riferimento anche dopo.",
     "status": "Disponibile per nuovi progetti",
     "work": "Vedi i lavori",
-    "contact": "Scrivimi"
+    "contact": "Scrivimi",
+    "rows": [
+      [
+        "Sviluppo",
+        "@creacloud",
+        "*software",
+        "#star",
+        "su misura",
+        "#squiggle"
+      ],
+      [
+        "dall’idea",
+        "#flower",
+        "al rilascio",
+        "@relay",
+        "per aziende",
+        "#ring"
+      ],
+      [
+        "Siti",
+        "#burst",
+        "Web app",
+        "@unispace",
+        "App",
+        "#blob",
+        "AI",
+        "#pill",
+        "SEO",
+        "#moon"
+      ]
+    ],
+    "h1": "Sviluppo software su misura, dall’idea al rilascio, per aziende: siti, web app, app, AI e SEO.",
+    "where": "Brescia, IT"
   },
   "work": {
     "title": "Lavori",
@@ -155,26 +187,29 @@
     "lead": "Formazione tecnica, università e lavoro sul campo.",
     "chapters": [
       {
-        "tag": "2026",
+        "tag": "Formazione",
         "title": "Diploma di Perito Informatico",
         "body": "Istituto tecnico, indirizzo Informatica e Telecomunicazioni: programmazione, reti, sistemi e basi di dati.",
         "value": 5,
-        "unit": "anni di istituto tecnico"
+        "unit": "anni di istituto tecnico",
+        "big": "2021–26"
       },
       {
-        "tag": "2026 — oggi",
+        "tag": "Università",
         "title": "Ingegneria Informatica",
         "body": "Università degli Studi di Brescia. Matematica, algoritmi e sistemi, messi subito alla prova nei progetti.",
         "value": 180,
-        "unit": "crediti della triennale"
+        "unit": "crediti della triennale",
+        "big": "2026 →"
       },
       {
-        "tag": "Oggi",
+        "tag": "Lavoro",
         "title": "Sviluppatore freelance",
         "body": "Software su misura per aziende e professionisti, dall’analisi alla messa online. Tra i lavori, la piattaforma di un centro didattico.",
         "value": 80,
         "unit": "famiglie usano ogni giorno un mio software",
-        "suffix": "+"
+        "suffix": "+",
+        "big": "Oggi"
       },
       {
         "tag": "Progetto personale",
@@ -182,7 +217,8 @@
         "body": "Due app native e un server che collegano telefono e computer, con un design system disegnato da zero.",
         "value": 45,
         "unit": "ore di sviluppo, distribuzione in arrivo",
-        "suffix": "+"
+        "suffix": "+",
+        "big": "Beta"
       }
     ]
   },
@@ -284,81 +320,39 @@
   "services": {
     "title": "Servizi",
     "lead": "Dal sito alla piattaforma completa: progetto, sviluppo e messa online, con un solo referente.",
-    "items": [
-      {
-        "key": "web",
-        "label": "Full stack",
-        "title": "Siti e web app",
-        "body": "Siti, piattaforme e gestionali su misura, dal database all’interfaccia."
-      },
-      {
-        "key": "seo",
-        "label": "SEO",
-        "title": "SEO tecnica e prestazioni",
-        "body": "Core Web Vitals entro le soglie di Google, dati strutturati, sitemap e multilingua: il sito si trova e si apre subito."
-      },
-      {
-        "key": "geo",
-        "label": "GEO",
-        "title": "Visibilità nelle risposte AI",
-        "body": "Contenuti chiari, Schema.org e llms.txt, perché ChatGPT, Gemini e Perplexity citino il tuo sito quando rispondono."
-      },
-      {
-        "key": "apps",
-        "label": "App",
-        "title": "App Android e Windows",
-        "body": "App native con Kotlin e .NET, sincronizzate con il tuo server."
-      },
-      {
-        "key": "design",
-        "label": "Design",
-        "title": "UI/UX e prototipi",
-        "body": "Dal wireframe all’interfaccia, con un prototipo da provare prima del codice."
-      },
-      {
-        "key": "ai",
-        "label": "AI",
-        "title": "Assistenti e automazioni",
-        "body": "Assistenti su WhatsApp, dati estratti dai documenti, processi che prima si facevano a mano."
-      },
-      {
-        "key": "api",
-        "label": "API",
-        "title": "Integrazioni",
-        "body": "Gestionali, pagamenti, CRM e servizi esterni collegati con API REST e webhook."
-      },
-      {
-        "key": "shop",
-        "label": "E-commerce",
-        "title": "Negozi online",
-        "body": "Catalogo, pagamenti e ordini, veloci e facili da gestire."
-      },
-      {
-        "key": "ops",
-        "label": "DevOps",
-        "title": "Hosting, rilasci e manutenzione",
-        "body": "Server, HTTPS, backup e rilasci automatici. Dopo la consegna, un referente che conosce il progetto."
-      }
-    ],
     "w": {
       "url": "tuosito.it",
-      "q": "Chi sviluppa gestionali su misura a Brescia?",
-      "a": "Risposta AI",
-      "src": "Fonte",
-      "msgIn": "Giovedì posso alle 17 invece che alle 15?",
-      "msgOut": "Spostata a giovedì alle 17",
-      "add": "Aggiungi",
-      "item": "Prodotto",
-      "done": "Ordine confermato",
+      "lcp": "Caricamento",
+      "inp": "Reattività",
+      "cls": "Stabilità",
+      "geoLabel": "Assistente AI",
+      "geoQ": "Chi sviluppa gestionali su misura a Brescia?",
+      "geoA": "Per un gestionale su misura a Brescia conviene uno sviluppatore che segua progetto, sviluppo e assistenza: tuosito.it realizza piattaforme web e automazioni per aziende.",
+      "frame": "Prenotazione",
+      "designTitle": "Lezione di matematica",
+      "designSub": "Giovedì 14 novembre",
+      "designCta": "Conferma",
+      "ai1": "Email con l’ordine in PDF",
+      "ai2": "Lettura e controllo con AI",
+      "ai3": "Gestionale aggiornato",
+      "ai4": "Conferma al cliente",
+      "order": "Ordine",
+      "pending": "In attesa",
+      "paid": "Pagato",
+      "item1": "Felpa · M",
+      "item2": "Spedizione",
+      "total": "Totale",
+      "passed": "superati",
       "online": "Online",
-      "build": "Build",
-      "test": "Test",
-      "deploy": "Deploy",
-      "https": "HTTPS",
-      "backup": "Backup",
-      "wire": "Wireframe",
-      "ui": "Interfaccia"
-    }
+      "backup": "backup"
+    },
+    "open": "Scopri",
+    "includes": "Cosa include",
+    "tech": "Tecnologie",
+    "related": "Lavori collegati",
+    "others": "Altri servizi",
+    "cta": "Parliamo del tuo progetto",
+    "ctaLead": "Rispondi a qualche domanda: ti ricontatto con una proposta."
   },
   "brief": {
     "kicker": "Nuovo progetto",
@@ -403,11 +397,13 @@
         "options": [
           "Sito web",
           "Web app o gestionale",
-          "App Android o Windows",
+          "App multipiattaforma",
           "E-commerce",
           "SEO e GEO",
-          "Automazioni con AI",
+          "AI e automazioni",
           "Integrazioni",
+          "Design UI/UX",
+          "Hosting e manutenzione",
           "Altro"
         ]
       },
@@ -466,37 +462,5 @@
     "doneBody": "Grazie {name}. Ti rispondo entro un giorno lavorativo con le prime domande e una stima.",
     "again": "Nuova richiesta",
     "demo": "Anteprima: il modulo non invia ancora i dati."
-  },
-  "manifesto": {
-    "label": "Creo software su misura: siti, web app, app native, SEO e automazioni",
-    "rows": [
-      [
-        "Creo",
-        "@creacloud",
-        "*software",
-        "#star",
-        "su misura",
-        "@relay",
-        "dall’idea",
-        "#squiggle",
-        "al rilascio",
-        "@unispace",
-        "#flower"
-      ],
-      [
-        "Siti",
-        "#ring",
-        "Web app",
-        "#pill",
-        "App native",
-        "#burst",
-        "SEO e GEO",
-        "#blob",
-        "Automazioni",
-        "#moon",
-        "Gestionali",
-        "#star"
-      ]
-    ]
   }
 }

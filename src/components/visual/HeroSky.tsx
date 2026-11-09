@@ -35,12 +35,8 @@ export function HeroSky() {
           intro={!reduce}
         />
       )}
-      {/* in fondo il cielo sfuma nel nero della pagina: nessuno stacco */}
-      <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-black" />
-      {/* lo spazio del titolo: un'isola di nero a blocchi */}
-      <div
-        className="absolute inset-0 [background:radial-gradient(95%_40%_at_50%_50%,#000_66%,transparent_100%)] sm:[background:radial-gradient(46%_34%_at_50%_48%,#000_62%,transparent_100%)]"
-      />
+      {/* il cielo resta in alto e in basso; dietro i nastri si scurisce, poi sfuma nel nero della pagina */}
+      <div className="absolute inset-0 [background:linear-gradient(to_bottom,rgba(0,0,0,.15),rgba(0,0,0,.86)_30%,rgba(0,0,0,.86)_70%,#000)]" />
     </div>
   );
 }

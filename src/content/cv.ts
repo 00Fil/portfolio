@@ -21,14 +21,14 @@ const SKILLS_IT = [
   { title: "Linguaggi", items: ["TypeScript", "JavaScript", "Python", "Kotlin", "C#", "Java", "C", "SQL", "Bash"] },
   { title: "Frontend", items: ["React", "Next.js", "Tailwind CSS", "HTML · CSS", "GSAP", "Accessibilità", "SEO tecnica"] },
   { title: "Backend e API", items: ["Node.js", "FastAPI", "REST", "WebSocket", "Autenticazione · JWT"] },
-  { title: "App native", items: ["Android · Jetpack Compose", ".NET · WinUI 3"] },
+  { title: "App multipiattaforma", items: ["Android · Jetpack Compose", "iOS · macOS · Swift", "Windows · .NET", "Linux", "Flutter · Tauri"] },
   { title: "Dati", items: ["PostgreSQL", "Supabase", "SQLite", "MySQL", "Redis"] },
   { title: "DevOps e cloud", items: ["Docker", "Linux", "Git", "GitHub Actions · CI/CD", "Caddy · Nginx", "VPS · Dokploy"] },
   { title: "Qualità", items: ["Test unitari ed end-to-end", "Playwright", "Code review", "Design pattern"] },
   { title: "Fondamenti", items: ["Algoritmi e strutture dati", "OOP", "Reti", "Sistemi operativi", "Basi di dati"] },
   { title: "AI", items: ["Gemini · LLM", "Whisper", "OR-Tools CP-SAT"] },
 ];
-const SKILLS_EN_T = ["Languages", "Frontend", "Backend and APIs", "Native apps", "Data", "DevOps and cloud", "Quality", "Foundations", "AI"];
+const SKILLS_EN_T = ["Languages", "Frontend", "Backend and APIs", "Cross-platform apps", "Data", "DevOps and cloud", "Quality", "Foundations", "AI"];
 const EN_ITEMS: Record<string, string> = {
   "Accessibilità": "Accessibility",
   "SEO tecnica": "Technical SEO",
@@ -47,7 +47,7 @@ export const CV: Record<"it" | "en", Cv> = {
     role: "Software developer freelance · Studente di Ingegneria Informatica",
     where: "Brescia, Italia",
     profile:
-      "Progetto e sviluppo software completo, dall’interfaccia al server: app native per Android e Windows, piattaforme web e strumenti su misura. Seguo ogni progetto dall’analisi alla messa online, con cura per il design, il codice e chi lo userà ogni giorno.",
+      "Progetto e sviluppo software completo, dall’interfaccia al server: app per Android, iOS, macOS, Windows e Linux, piattaforme web e strumenti su misura. Seguo ogni progetto dall’analisi alla messa online, con cura per il design, il codice e chi lo userà ogni giorno.",
     workTitle: "Esperienza e progetti",
     work: [
       {
@@ -91,7 +91,7 @@ export const CV: Record<"it" | "en", Cv> = {
     skillsTitle: "Competenze",
     skills: SKILLS_IT,
     howTitle: "Servizi",
-    how: ["Siti web e SEO", "Web app full stack", "App Android e Windows", "API e integrazioni", "Automazioni con AI", "Hosting e manutenzione"],
+    how: ["Siti web e SEO", "Web app full stack", "App multipiattaforma", "API e integrazioni", "AI e sistemi integrati", "Hosting e manutenzione"],
     footer: "Filippo Corsini · Portfolio e progetti su github.com/00Fil",
   },
   en: {
@@ -99,7 +99,7 @@ export const CV: Record<"it" | "en", Cv> = {
     role: "Freelance software developer · Computer Engineering student",
     where: "Brescia, Italy",
     profile:
-      "I design and build complete software, from interface to server: native Android and Windows apps, web platforms and custom tools. I follow every project from analysis to launch, with care for design, code and the people who use it every day.",
+      "I design and build complete software, from interface to server: apps for Android, iOS, macOS, Windows and Linux, web platforms and custom tools. I follow every project from analysis to launch, with care for design, code and the people who use it every day.",
     workTitle: "Experience and projects",
     work: [
       {
@@ -143,7 +143,7 @@ export const CV: Record<"it" | "en", Cv> = {
     skillsTitle: "Skills",
     skills: SKILLS_EN,
     howTitle: "Services",
-    how: ["Websites and SEO", "Full-stack web apps", "Android and Windows apps", "APIs and integrations", "AI automation", "Hosting and maintenance"],
+    how: ["Websites and SEO", "Full-stack web apps", "Cross-platform apps", "APIs and integrations", "AI and integrated systems", "Hosting and maintenance"],
     footer: "Filippo Corsini · Portfolio and projects at github.com/00Fil",
   },
 };

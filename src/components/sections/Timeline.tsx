@@ -4,40 +4,59 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { Briefcase, GraduationCap, Landmark, Sparkles } from "lucide-react";
-import BlurText from "@/components/reactbits/BlurText";
 import CountUp from "@/components/reactbits/CountUp";
 import { Reveal } from "@/components/motion/Reveal";
 import { SectionHead } from "./SectionHead";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-export type Milestone = { tag: string; title: string; body: string; value: number; suffix?: string; unit: string };
-const ICONS = [GraduationCap, Landmark, Briefcase, Sparkles];
+export type Milestone = { tag: string; big: string; title: string; body: string; value: number; suffix?: string; unit: string };
 
 /**
- * Percorso come pila di schede: ognuna si ferma in alto e la successiva le scorre sopra,
- * mentre quella sotto arretra e si spegne. Un solo colore, l'azzurro cielo, solo come dettaglio.
+ * Percorso come viaggio orizzontale: su desktop la sezione si ferma e le tappe scorrono di lato,
+ * lungo una linea che si riempie d'azzurro; la tappa raggiunta si accende, le altre restano in penombra.
+ * Su telefono le stesse tappe scendono in verticale lungo la linea.
  */
 export function Timeline({ title, lead, items }: { title: string; lead: string; items: Milestone[] }) {
   const root = useRef<HTMLElement>(null);
 
   useGSAP(
     () => {
+      const el = root.current!;
+      const steps = gsap.utils.toArray<HTMLElement>("[data-step]", el);
       const mm = gsap.matchMedia();
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        const cards = gsap.utils.toArray<HTMLElement>("[data-stack-card]");
-        const bar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--bar-h")) || 66;
-        cards.forEach((card, i) => {
-          const next = cards[i + 1];
-          if (!next) return;
-          gsap.to(card.querySelector("[data-stack-face]"), {
-            scale: 0.9 + i * 0.015,
-            filter: "brightness(0.45)",
-            ease: "none",
-            scrollTrigger: { trigger: next, start: "top 55%", end: () => `top ${bar + 28 + (i + 1) * 14}px`, scrub: true },
-          });
+
+      const light = (i: number) =>
+        steps.forEach((s, k) => {
+          s.classList.toggle("is-on", k <= i);
+          s.classList.toggle("is-now", k === i);
         });
+
+      mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
+        const track = el.querySelector<HTMLElement>("[data-track]")!;
+        const dist = () => track.scrollWidth - window.innerWidth + 64;
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: el.querySelector("[data-pin]"),
+            pin: true,
+            start: "top top",
+            end: () => `+=${dist() * 1.1}`,
+            scrub: 0.6,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => light(Math.min(steps.length - 1, Math.floor(self.progress * steps.length * 0.999 + 0.25))),
+          },
+        });
+        tl.to(track, { x: () => -dist(), ease: "none" }, 0)
+          .fromTo("[data-fill]", { scaleX: 0 }, { scaleX: 1, ease: "none" }, 0)
+          .to("[data-bg]", { xPercent: -12, ease: "none" }, 0);
+        light(0);
+      });
+
+      mm.add("(max-width: 1023px), (prefers-reduced-motion: reduce)", () => {
+        steps.forEach((s, i) =>
+          ScrollTrigger.create({ trigger: s, start: "top 65%", onEnter: () => light(i), onLeaveBack: () => light(i - 1) }),
+        );
+        gsap.fromTo("[data-vfill]", { scaleY: 0 }, { scaleY: 1, ease: "none", scrollTrigger: { trigger: "[data-track]", start: "top 65%", end: "bottom 65%", scrub: 0.4 } });
       });
       return () => mm.revert();
     },
@@ -45,68 +64,54 @@ export function Timeline({ title, lead, items }: { title: string; lead: string; 
   );
 
   return (
-    <section ref={root} id="path" className="relative mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-36">
-      <Reveal>
-        <SectionHead index="04" title={title} lead={lead} />
-      </Reveal>
+    <section ref={root} id="path" className="relative pt-24 sm:pt-36">
+      <div data-pin className="relative overflow-hidden lg:flex lg:h-[100svh] lg:flex-col lg:justify-center">
+        {/* fondo di fibre azzurre che scorre più lento delle tappe; sfuma nel nero su tutti i lati */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block [mask-image:radial-gradient(75%_42%_at_50%_55%,#000_25%,transparent_100%)]">
+          <img data-bg src="/visual/fibers-sky.webp" alt="" className="absolute inset-y-0 left-0 h-full w-[130%] max-w-none object-cover opacity-40" />
+        </div>
 
-      <div data-stack className="relative mt-12 sm:mt-16">
-        <ol className="relative">
-          {items.map((m, i) => {
-            const I = ICONS[i % ICONS.length];
-            return (
-              <li
-                key={m.title}
-                data-stack-card
-                className="sticky pb-6 sm:pb-10"
-                style={{ top: `calc(var(--bar-h) + 28px + ${i * 14}px)` }}
-              >
-                <article
-                  data-stack-face
-                  className="relative origin-top overflow-hidden rounded-[32px] bg-[#0d0e10] shadow-[inset_0_0_0_1px_rgba(255,255,255,.07),0_-24px_60px_-20px_rgba(0,0,0,.9)] will-change-transform"
-                >
-                  {/* luce azzurra in un angolo e marchio della tappa in filigrana */}
-                  <span aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[var(--sky)] opacity-[0.10] blur-[70px]" />
-                  <I aria-hidden strokeWidth={0.6} className="pointer-events-none absolute -bottom-10 right-6 h-56 w-56 text-white/[0.025] sm:h-72 sm:w-72" />
+        <div className="relative mx-auto w-full max-w-[1280px] px-5 sm:px-8">
+          <Reveal>
+            <SectionHead index="04" title={title} lead={lead} />
+          </Reveal>
+        </div>
 
-                  <div className="relative grid gap-8 p-7 sm:p-10 lg:min-h-[400px] lg:grid-cols-12 lg:gap-10 lg:p-14">
-                    <div className="flex flex-col justify-between gap-8 lg:col-span-5">
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.05] text-[var(--sky)] shadow-[inset_0_0_0_1px_rgba(94,196,255,.25)]">
-                          <I size={19} strokeWidth={1.7} aria-hidden />
-                        </span>
-                        <span className="font-mono text-[13px] tracking-[0.04em] text-[var(--sky)]">{m.tag}</span>
-                      </div>
-                      <p className="t-fig hidden font-mono text-[clamp(64px,9vw,128px)] lg:block leading-[0.85] tracking-[-0.06em] text-white/[0.09]" aria-hidden>
-                        {String(i + 1).padStart(2, "0")}
-                      </p>
-                    </div>
+        <div className="relative">
+          {/* linea orizzontale (desktop) */}
+          <span aria-hidden className="absolute left-0 right-0 top-[clamp(118px,13vw,190px)] hidden h-px bg-white/10 lg:block">
+            <span data-fill className="block h-full w-full origin-left bg-[var(--sky)] shadow-[0_0_14px_var(--sky)]" />
+          </span>
 
-                    <div className="flex flex-col justify-between gap-8 lg:col-span-7">
-                      <div>
-                        <BlurText
-                          text={m.title}
-                          animateBy="words"
-                          direction="bottom"
-                          delay={60}
-                          className="text-[clamp(30px,3.6vw,52px)] font-medium leading-[1.04] tracking-[-0.04em] text-ink"
-                        />
-                        <p className="mt-4 max-w-[46ch] text-[17px] leading-[1.55] text-ink-2">{m.body}</p>
-                      </div>
-                      <div className="flex items-baseline gap-3 border-t border-white/[0.07] pt-6">
-                        <span className="t-fig text-[clamp(44px,5vw,64px)] font-medium leading-none tracking-[-0.045em] text-ink">
-                          <CountUp to={m.value} duration={1.6} separator="" />
-                          {m.suffix && <span className="text-[var(--sky)]">{m.suffix}</span>}
-                        </span>
-                        <span className="text-[15px] leading-snug text-ink-3">{m.unit}</span>
-                      </div>
-                    </div>
-                  </div>
-                </article>
+          <ol data-track className="relative flex flex-col gap-14 px-5 pl-12 sm:px-8 sm:pl-16 lg:w-max lg:flex-row lg:gap-0 lg:pl-[max(32px,calc((100vw-1280px)/2+32px))] lg:pr-[20vw]">
+            {/* linea verticale (telefono) */}
+            <span aria-hidden className="absolute bottom-0 left-[22px] top-2 w-px bg-white/10 sm:left-[30px] lg:hidden">
+              <span data-vfill className="block h-full w-full origin-top bg-[var(--sky)] shadow-[0_0_12px_var(--sky)]" />
+            </span>
+
+            {items.map((m, i) => (
+              <li key={m.title} data-step className="tl-step relative lg:w-[min(560px,44vw)] lg:pr-16">
+                <p className="t-serif text-[clamp(64px,9.5vw,150px)] italic leading-[0.9] tracking-[-0.03em] text-[var(--sky)] lg:h-[clamp(118px,13vw,190px)] lg:pb-6">
+                  {m.big}
+                </p>
+                {/* nodo sulla linea */}
+                <span aria-hidden className="tl-node absolute -left-[31px] top-[0.55em] block h-3.5 w-3.5 rounded-full sm:-left-[39px] lg:left-0 lg:top-[clamp(118px,13vw,190px)] lg:-translate-y-1/2" />
+                <div className="mt-6 lg:mt-10">
+                  <p className="font-mono text-[12px] uppercase tracking-[0.12em] text-ink-3">{m.tag}</p>
+                  <h3 className="mt-3 text-[clamp(28px,2.8vw,40px)] font-medium leading-[1.06] tracking-[-0.035em] text-ink">{m.title}</h3>
+                  <p className="mt-4 max-w-[42ch] text-[16px] leading-[1.55] text-ink-2">{m.body}</p>
+                  <p className="mt-7 flex items-baseline gap-3">
+                    <span className="t-fig text-[clamp(40px,4vw,56px)] font-medium leading-none tracking-[-0.045em] text-ink">
+                      <CountUp to={m.value} duration={1.6} separator="" />
+                      {m.suffix && <span className="text-[var(--sky)]">{m.suffix}</span>}
+                    </span>
+                    <span className="max-w-[24ch] text-[14px] leading-snug text-ink-3">{m.unit}</span>
+                  </p>
+                </div>
               </li>
-            );
-          })}
-        </ol>
+            ))}
+          </ol>
+        </div>
       </div>
     </section>
   );

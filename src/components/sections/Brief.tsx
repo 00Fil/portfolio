@@ -29,12 +29,16 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  * Richiesta di progetto a passi, come un Typeform: una domanda alla volta, avanzamento in alto,
  * scelta singola che va avanti da sola, Invio per proseguire. Per ora non invia nulla.
  */
-export function Brief() {
+export function Brief({ preset }: { preset?: number }) {
   const t = (useMessages() as unknown as { brief: T }).brief;
   const steps = t.steps;
   const [i, setI] = useState(0);
   const [done, setDone] = useState(false);
-  const [data, setData] = useState<Record<string, string | string[]>>({});
+  const initial = (): Record<string, string | string[]> => {
+    const o = t.steps.find((x) => x.key === "need")?.options?.[preset ?? -1];
+    return o ? { need: [o] } : {};
+  };
+  const [data, setData] = useState<Record<string, string | string[]>>(initial);
   const stage = useRef<HTMLDivElement>(null);
   const dir = useRef(1);
   const step = steps[i];
@@ -79,7 +83,12 @@ export function Brief() {
   }, [i, done]);
 
   // il primo campo prende il fuoco quando la domanda ha dei campi
+  const mounted = useRef(false);
   useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
     if (done) return;
     stage.current?.querySelector<HTMLInputElement>("input")?.focus({ preventScroll: true });
   }, [i, done]);
@@ -95,7 +104,7 @@ export function Brief() {
   };
 
   const restart = () => {
-    setData({});
+    setData(initial());
     setDone(false);
     dir.current = -1;
     setI(0);
@@ -164,7 +173,7 @@ export function Brief() {
                         onChange={(e) => set(f.id, e.target.value)}
                         placeholder={f.req ? f.ph : `${f.ph} · ${t.optional}`}
                         autoComplete={f.id === "name" ? "name" : f.id === "email" ? "email" : f.id === "phone" ? "tel" : f.id === "company" ? "organization" : "off"}
-                        className="h-14 w-full border-b border-white/15 bg-transparent text-[clamp(18px,1.8vw,22px)] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-[var(--sky)]"
+                        className="h-14 w-full border-b border-white/15 bg-transparent text-[clamp(18px,1.8vw,22px)] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-[var(--sky)] focus-visible:outline-none"
                       />
                     </label>
                   ))}
@@ -210,7 +219,7 @@ export function Brief() {
                     value={String(val(`${step.key}Note`) ?? "")}
                     onChange={(e) => set(`${step.key}Note`, e.target.value)}
                     placeholder={`${step.note} · ${t.optional}`}
-                    className="w-full resize-none border-b border-white/15 bg-transparent py-3 text-[17px] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-[var(--sky)]"
+                    className="w-full resize-none border-b border-white/15 bg-transparent py-3 text-[17px] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-[var(--sky)] focus-visible:outline-none"
                   />
                 </label>
               )}

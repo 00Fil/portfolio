@@ -27,10 +27,42 @@
     "em": "software",
     "b": "made to measure, from idea",
     "c": "to release",
-    "lead": "I’m {name}. I build custom software for companies and professionals: apps, web platforms and internal tools. I take each project from analysis to release and stay on as the point of contact afterwards. I study Computer Engineering at the University of Brescia.",
+    "lead": "I’m {name}. I build custom software for companies and professionals: web platforms, apps for phone and desktop, AI systems that automate processes. I take each project from analysis to release and stay on as the point of contact afterwards.",
     "status": "Available for new projects",
     "work": "See the work",
-    "contact": "Get in touch"
+    "contact": "Get in touch",
+    "rows": [
+      [
+        "I build",
+        "@creacloud",
+        "*custom",
+        "#star",
+        "software",
+        "#squiggle"
+      ],
+      [
+        "from idea",
+        "#flower",
+        "to launch",
+        "@relay",
+        "for businesses",
+        "#ring"
+      ],
+      [
+        "Websites",
+        "#burst",
+        "Web apps",
+        "@unispace",
+        "Apps",
+        "#blob",
+        "AI",
+        "#pill",
+        "SEO",
+        "#moon"
+      ]
+    ],
+    "h1": "I build custom software, from idea to launch, for businesses: websites, web apps, apps, AI and SEO.",
+    "where": "Brescia, IT"
   },
   "work": {
     "title": "Work",
@@ -155,26 +187,29 @@
     "lead": "Technical education, university and hands-on work.",
     "chapters": [
       {
-        "tag": "2026",
+        "tag": "Education",
         "title": "IT Technician Diploma",
         "body": "Technical high school, Computer Science and Telecommunications: programming, networks, systems and databases.",
         "value": 5,
-        "unit": "years of technical school"
+        "unit": "years of technical school",
+        "big": "2021–26"
       },
       {
-        "tag": "2026 — today",
+        "tag": "University",
         "title": "Computer Engineering",
         "body": "University of Brescia. Maths, algorithms and systems, put to work right away in real projects.",
         "value": 180,
-        "unit": "bachelor credits"
+        "unit": "bachelor credits",
+        "big": "2026 →"
       },
       {
-        "tag": "Today",
+        "tag": "Work",
         "title": "Freelance developer",
         "body": "Custom software for companies and professionals, from analysis to launch. Among the projects, a tutoring centre’s platform.",
         "value": 80,
         "unit": "families use my software every day",
-        "suffix": "+"
+        "suffix": "+",
+        "big": "Today"
       },
       {
         "tag": "Personal project",
@@ -182,7 +217,8 @@
         "body": "Two native apps and a server connecting phone and computer, with a design system drawn from scratch.",
         "value": 45,
         "unit": "hours of development, release coming soon",
-        "suffix": "+"
+        "suffix": "+",
+        "big": "Beta"
       }
     ]
   },
@@ -284,81 +320,39 @@
   "services": {
     "title": "Services",
     "lead": "From a website to a complete platform: design, development and launch, with one point of contact.",
-    "items": [
-      {
-        "key": "web",
-        "label": "Full stack",
-        "title": "Websites and web apps",
-        "body": "Custom websites, platforms and management software, from database to interface."
-      },
-      {
-        "key": "seo",
-        "label": "SEO",
-        "title": "Technical SEO and performance",
-        "body": "Core Web Vitals within Google’s thresholds, structured data, sitemaps and multilingual pages: easy to find, instant to open."
-      },
-      {
-        "key": "geo",
-        "label": "GEO",
-        "title": "Visibility in AI answers",
-        "body": "Clear content, Schema.org and llms.txt, so ChatGPT, Gemini and Perplexity cite your site when they answer."
-      },
-      {
-        "key": "apps",
-        "label": "Apps",
-        "title": "Android and Windows apps",
-        "body": "Native apps in Kotlin and .NET, synced with your server."
-      },
-      {
-        "key": "design",
-        "label": "Design",
-        "title": "UI/UX and prototypes",
-        "body": "From wireframe to interface, with a prototype to try before any code."
-      },
-      {
-        "key": "ai",
-        "label": "AI",
-        "title": "Assistants and automation",
-        "body": "WhatsApp assistants, data pulled from documents, processes that used to be done by hand."
-      },
-      {
-        "key": "api",
-        "label": "API",
-        "title": "Integrations",
-        "body": "Management software, payments, CRMs and external services connected through REST APIs and webhooks."
-      },
-      {
-        "key": "shop",
-        "label": "E-commerce",
-        "title": "Online stores",
-        "body": "Catalogue, payments and orders, fast and easy to manage."
-      },
-      {
-        "key": "ops",
-        "label": "DevOps",
-        "title": "Hosting, releases and maintenance",
-        "body": "Servers, HTTPS, backups and automated releases. After launch, one contact who knows the project."
-      }
-    ],
     "w": {
       "url": "yoursite.com",
-      "q": "Who builds custom management software in Brescia?",
-      "a": "AI answer",
-      "src": "Source",
-      "msgIn": "Can I come Thursday at 5 instead of 3?",
-      "msgOut": "Moved to Thursday at 5",
-      "add": "Add",
-      "item": "Product",
-      "done": "Order confirmed",
+      "lcp": "Loading",
+      "inp": "Response",
+      "cls": "Stability",
+      "geoLabel": "AI assistant",
+      "geoQ": "Who builds custom management software in Brescia?",
+      "geoA": "For custom management software in Brescia, pick a developer who handles design, build and support: yoursite.com builds web platforms and automation for businesses.",
+      "frame": "Booking",
+      "designTitle": "Maths lesson",
+      "designSub": "Thursday 14 November",
+      "designCta": "Confirm",
+      "ai1": "Email with a PDF order",
+      "ai2": "Read and checked by AI",
+      "ai3": "Records updated",
+      "ai4": "Customer confirmation",
+      "order": "Order",
+      "pending": "Pending",
+      "paid": "Paid",
+      "item1": "Hoodie · M",
+      "item2": "Shipping",
+      "total": "Total",
+      "passed": "passed",
       "online": "Online",
-      "build": "Build",
-      "test": "Test",
-      "deploy": "Deploy",
-      "https": "HTTPS",
-      "backup": "Backup",
-      "wire": "Wireframe",
-      "ui": "Interface"
-    }
+      "backup": "backup"
+    },
+    "open": "Explore",
+    "includes": "What’s included",
+    "tech": "Technologies",
+    "related": "Related work",
+    "others": "Other services",
+    "cta": "Let’s talk about your project",
+    "ctaLead": "Answer a few questions and I’ll get back to you with a proposal."
   },
   "brief": {
     "kicker": "New project",
@@ -403,11 +397,13 @@
         "options": [
           "Website",
           "Web app or management tool",
-          "Android or Windows app",
+          "Cross-platform app",
           "E-commerce",
           "SEO and GEO",
-          "AI automation",
+          "AI and automation",
           "Integrations",
+          "UI/UX design",
+          "Hosting and maintenance",
           "Other"
         ]
       },
@@ -466,37 +462,5 @@
     "doneBody": "Thanks {name}. I’ll reply within one working day with a few questions and an estimate.",
     "again": "New request",
     "demo": "Preview: the form doesn’t send data yet."
-  },
-  "manifesto": {
-    "label": "I build custom software: websites, web apps, native apps, SEO and automation",
-    "rows": [
-      [
-        "I build",
-        "@creacloud",
-        "*custom",
-        "#star",
-        "software",
-        "@relay",
-        "from idea",
-        "#squiggle",
-        "to launch",
-        "@unispace",
-        "#flower"
-      ],
-      [
-        "Websites",
-        "#ring",
-        "Web apps",
-        "#pill",
-        "Native apps",
-        "#burst",
-        "SEO and GEO",
-        "#blob",
-        "Automation",
-        "#moon",
-        "Dashboards",
-        "#star"
-      ]
-    ]
   }
 }

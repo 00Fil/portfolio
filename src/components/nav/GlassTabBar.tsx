@@ -18,7 +18,7 @@ type Props = {
   tabs: Tab[];
   navLabel: string;
   /** Pagina di dettaglio: la barra si allunga verso l'alto con il titolo e il ritorno (come il brano in Relay). */
-  detail?: { title: string; backLabel: string; activeIndex: number };
+  detail?: { title: string; backLabel: string; activeIndex: number; section?: string };
 };
 
 const ROW_H = 66;
@@ -382,11 +382,11 @@ export function GlassTabBar({ tabs, navLabel, detail }: Props) {
         {detail && (
           <div className="absolute inset-x-0 top-0 flex items-center gap-2 px-4" style={{ height: EXTRA_H }}>
             <a
-              href={`/${locale}#work`}
+              href={`/${locale}#${detail.section ?? "work"}`}
               onClick={(e) => {
                 e.preventDefault();
                 play("open");
-                router.push("/#work");
+                router.push(`/#${detail.section ?? "work"}`);
               }}
               className="t-foot inline-flex items-center gap-1 rounded-full py-1 pr-2 text-ink-2 hover:text-ink"
             >

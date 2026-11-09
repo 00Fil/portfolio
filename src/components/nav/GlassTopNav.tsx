@@ -32,7 +32,7 @@ const NAMES: Record<Locale, string> = { it: "Italiano", en: "English" };
  * Le voci con menu aprono un pannello di vetro che cambia misura con una molla e fa scorrere il contenuto
  * nel verso in cui ti sposti tra i menu.
  */
-export function GlassTopNav({ home }: { home: boolean }) {
+export function GlassTopNav({ home, section = "work" }: { home: boolean; section?: "work" | "approach" }) {
   const t = useTranslations("nav");
   const tc = useTranslations("contact");
   const locale = useLocale() as Locale;
@@ -53,7 +53,7 @@ export function GlassTopNav({ home }: { home: boolean }) {
   const itemRefs = useRef<(HTMLElement | null)[]>([]);
   const panel = useRef<HTMLDivElement>(null);
   const panes = useRef<Record<string, HTMLDivElement | null>>({});
-  const [active, setActive] = useState(home ? -1 : 0);
+  const [active, setActive] = useState(home ? -1 : section === "approach" ? 1 : 0);
   const [hover, setHover] = useState<number | null>(null);
   const [menu, setMenu] = useState<"work" | "contact" | null>(null);
   const [sound, setS] = useState(false);

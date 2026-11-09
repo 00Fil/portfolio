@@ -33,7 +33,7 @@ export const SKILL_GROUPS: { key: string; items: Skill[] }[] = [
   },
   {
     key: "native",
-    items: [k("Android", si.siAndroid), k("Jetpack Compose", si.siJetpackcompose), k(".NET · WinUI 3", si.siDotnet), k("Coroutines"), k("MVVM")],
+    items: [k("Android", si.siAndroid), k("iOS · macOS", si.siApple), k("Swift", si.siSwift), k("Jetpack Compose", si.siJetpackcompose), k(".NET · WinUI 3", si.siDotnet), k("Flutter", si.siFlutter), k("Tauri", si.siTauri), k("Coroutines"), k("MVVM")],
   },
   {
     key: "data",

@@ -230,3 +230,11 @@ html.js [data-reveal] { visibility: hidden; }
 }
 
 /* Percorso: il nodo si accende quando la linea lo raggiunge */
+
+/* Percorso: tappe in penombra finché la linea non le raggiunge */
+.tl-step { opacity: .32; transition: opacity .7s var(--ease-out); }
+.tl-step.is-on { opacity: 1; }
+.tl-node { background: #000; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.25); transition: background-color .5s, box-shadow .5s, scale .6s cubic-bezier(.34,1.56,.64,1); }
+.tl-step.is-on .tl-node { background: var(--sky); box-shadow: 0 0 0 5px rgba(94,196,255,.14), 0 0 22px rgba(94,196,255,.6); }
+.tl-step.is-now .tl-node { scale: 1.25; }
+@media (prefers-reduced-motion: reduce) { .tl-step { opacity: 1; } }
