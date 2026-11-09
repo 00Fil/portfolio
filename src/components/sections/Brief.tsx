@@ -5,6 +5,12 @@ import { useMessages } from "next-intl";
 import { gsap } from "gsap";
 import { ArrowRight, Check, ChevronDown, ChevronUp, CornerDownLeft } from "lucide-react";
 import { prefersReducedMotion } from "@/lib/env";
+import { Bead } from "@/components/glass/Bead";
+
+/** Fondo di vetro (Goccia) per tasti e opzioni: niente colori al neon. */
+const Glass = ({ on = false, radius = 14 }: { on?: boolean; radius?: number }) => (
+  <Bead aria-hidden radius={radius} tint={on ? "rgba(255,255,255,.2)" : "rgba(12,14,18,.46)"} className="pointer-events-none absolute inset-0 -z-0 backdrop-blur-xl transition-[background] duration-300" />
+);
 
 type Field = { id: string; ph: string; req?: boolean; type?: string };
 type Step = { key: string; q: string; hint?: string; multi?: boolean; options?: string[]; fields?: Field[]; note?: string };
@@ -135,13 +141,13 @@ export function Brief({ preset, full = false }: { preset?: number; full?: boolea
     <div className={full ? "relative" : "relative overflow-hidden rounded-[28px] bg-[#0b0c0e] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08),0_40px_80px_-40px_rgba(0,0,0,.9)]"}>
       {/* barra di avanzamento sul bordo, come nei moduli a domande */}
       <span aria-hidden className={`${full ? "fixed" : "absolute"} inset-x-0 top-0 z-10 h-[3px] bg-white/[0.06]`}>
-        <span className="block h-full origin-left bg-[var(--sky)] transition-transform duration-700 ease-[cubic-bezier(.2,.8,.2,1)]" style={{ transform: `scaleX(${done ? 1 : (i + 1) / steps.length})` }} />
+        <span className="block h-full origin-left bg-white/80 transition-transform duration-700 ease-[cubic-bezier(.2,.8,.2,1)]" style={{ transform: `scaleX(${done ? 1 : (i + 1) / steps.length})` }} />
       </span>
       {!full && <span aria-hidden className="pointer-events-none absolute -right-28 -top-28 h-72 w-72 rounded-full bg-[var(--sky)] opacity-[0.07] blur-[70px]" />}
 
       <div className={`relative flex items-center justify-between ${full ? "pb-6 sm:pl-9" : "border-b border-white/[0.06] px-6 py-4 sm:px-10"}`}>
         <span className="flex items-center gap-2 text-[13px] text-ink-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--sky)] shadow-[0_0_8px_var(--sky)]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
           {t.kicker}
         </span>
         <span className="t-fig font-mono text-[12px] text-ink-3" aria-live="polite">
@@ -161,20 +167,22 @@ export function Brief({ preset, full = false }: { preset?: number; full?: boolea
         <div ref={stage}>
           {done ? (
             <div className="flex min-h-[360px] flex-col items-start justify-center">
-              <span data-tick className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--sky)] text-black shadow-[0_0_40px_-6px_var(--sky)]">
-                <Check size={26} strokeWidth={2.6} />
+              <span data-tick className="relative flex h-14 w-14 items-center justify-center text-ink">
+                <Glass on radius={28} />
+                <Check size={26} strokeWidth={2.6} className="relative" />
               </span>
               <h3 className="mt-8 text-[clamp(28px,3vw,40px)] font-medium tracking-[-0.035em] text-ink">{t.doneTitle}</h3>
               <p className="mt-3 max-w-[44ch] text-[17px] leading-[1.55] text-ink-2">{t.doneBody.replace("{name}", String(val("name") ?? "").split(" ")[0])}</p>
               <p className="mt-6 font-mono text-[12px] text-ink-3">{t.demo}</p>
-              <button type="button" onClick={restart} className="mt-8 h-11 rounded-full px-5 text-[15px] text-ink shadow-[inset_0_0_0_1px_rgba(255,255,255,.14)] transition-colors hover:bg-white/[0.06]">
-                {t.again}
+              <button type="button" onClick={restart} className="relative mt-8 h-11 rounded-full px-5 text-[15px] text-ink">
+                <Glass radius={22} />
+                <span className="relative">{t.again}</span>
               </button>
             </div>
           ) : (
             <fieldset>
               <legend className={`flex items-start gap-3 ${full ? "text-[clamp(28px,3.8vw,50px)]" : "text-[clamp(24px,2.8vw,36px)]"} font-medium leading-[1.15] tracking-[-0.03em] text-ink`}>
-                <span className="t-fig mt-[0.45em] flex shrink-0 items-center gap-1 text-[14px] font-medium text-[var(--sky)]">
+                <span className="t-fig mt-[0.45em] flex shrink-0 items-center gap-1 text-[14px] font-medium text-ink-3">
                   {i + 1}
                   <ArrowRight size={13} strokeWidth={2.4} />
                 </span>
@@ -193,7 +201,7 @@ export function Brief({ preset, full = false }: { preset?: number; full?: boolea
                         onChange={(e) => set(f.id, e.target.value)}
                         placeholder={f.req ? f.ph : `${f.ph} · ${t.optional}`}
                         autoComplete={f.id === "name" ? "name" : f.id === "email" ? "email" : f.id === "phone" ? "tel" : f.id === "company" ? "organization" : "off"}
-                        className="h-14 w-full border-b border-[rgba(94,196,255,.35)] bg-transparent text-[clamp(19px,1.9vw,24px)] text-[var(--sky)] caret-[var(--sky)] outline-none transition-colors placeholder:text-[rgba(94,196,255,.35)] focus:border-[var(--sky)] focus-visible:outline-none"
+                        className="h-14 w-full border-b border-white/20 bg-transparent text-[clamp(19px,1.9vw,24px)] text-ink caret-white outline-none transition-colors placeholder:text-white/35 focus:border-white/70 focus-visible:outline-none"
                       />
                     </label>
                   ))}
@@ -213,21 +221,18 @@ export function Brief({ preset, full = false }: { preset?: number; full?: boolea
                         role={step.multi ? "checkbox" : "radio"}
                         aria-checked={on}
                         onClick={() => pick(o)}
-                        className={`flex min-h-[46px] items-center gap-3 rounded-[8px] px-2 py-1.5 text-left text-[15px] transition-[background-color,box-shadow,color] duration-200 ${
-                          on
-                            ? "bg-[rgba(94,196,255,.18)] text-ink shadow-[inset_0_0_0_2px_var(--sky)]"
-                            : "bg-[rgba(94,196,255,.06)] text-ink-2 shadow-[inset_0_0_0_1px_rgba(94,196,255,.32)] hover:bg-[rgba(94,196,255,.11)] hover:text-ink"
-                        }`}
+                        className={`relative isolate flex min-h-[50px] items-center gap-3 rounded-[14px] px-2.5 py-1.5 text-left text-[15px] transition-[color,transform] duration-200 active:scale-[0.98] ${on ? "text-ink" : "text-ink-2 hover:text-ink"}`}
                       >
+                        <Glass on={on} />
                         <span
-                          className={`flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-[4px] font-mono text-[11px] font-medium transition-colors duration-200 ${
-                            on ? "bg-[var(--sky)] text-black" : "bg-black/40 text-[var(--sky)] shadow-[inset_0_0_0_1px_rgba(94,196,255,.45)]"
+                          className={`relative flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-[8px] font-mono text-[11px] font-medium transition-colors duration-200 ${
+                            on ? "bg-white text-black" : "bg-white/10 text-ink-2"
                           }`}
                         >
                           {String.fromCharCode(65 + k)}
                         </span>
-                        <span className="flex-1">{o}</span>
-                        {on && <Check size={16} strokeWidth={2.6} className="mr-1 text-[var(--sky)]" />}
+                        <span className="relative flex-1">{o}</span>
+                        {on && <Check size={16} strokeWidth={2.6} className="relative mr-1 text-ink" />}
                       </button>
                     );
                   })}
@@ -242,7 +247,7 @@ export function Brief({ preset, full = false }: { preset?: number; full?: boolea
                     value={String(val(`${step.key}Note`) ?? "")}
                     onChange={(e) => set(`${step.key}Note`, e.target.value)}
                     placeholder={`${step.note} · ${t.optional}`}
-                    className="w-full resize-none border-b border-[rgba(94,196,255,.35)] bg-transparent py-3 text-[17px] text-[var(--sky)] caret-[var(--sky)] outline-none transition-colors placeholder:text-[rgba(94,196,255,.35)] focus:border-[var(--sky)] focus-visible:outline-none"
+                    className="w-full resize-none border-b border-white/20 bg-transparent py-3 text-[17px] text-ink caret-white outline-none transition-colors placeholder:text-white/35 focus:border-white/70 focus-visible:outline-none"
                   />
                 </label>
               )}
@@ -256,10 +261,11 @@ export function Brief({ preset, full = false }: { preset?: number; full?: boolea
               <button
                 type="submit"
                 disabled={!valid}
-                className="flex h-11 items-center gap-2 rounded-[8px] bg-[var(--sky)] px-5 text-[15px] font-semibold text-black transition-[opacity,transform] duration-200 active:scale-[0.97] disabled:opacity-40"
+                className="relative isolate flex h-12 items-center gap-2 rounded-full px-6 text-[15px] font-semibold text-ink transition-[opacity,transform] duration-200 active:scale-[0.97] disabled:opacity-40"
               >
-                {last ? t.send : "OK"}
-                <Check size={16} strokeWidth={2.8} />
+                <Glass on radius={24} />
+                <span className="relative">{last ? t.send : "OK"}</span>
+                <Check size={16} strokeWidth={2.8} className="relative" />
               </button>
               <span className="hidden items-center gap-1.5 text-[12.5px] text-ink-3 sm:flex">
                 {t.enter}
@@ -268,12 +274,13 @@ export function Brief({ preset, full = false }: { preset?: number; full?: boolea
                 </span>
               </span>
             </div>
-            <div className="flex overflow-hidden rounded-[8px] bg-[var(--sky)] text-black">
-              <button type="button" aria-label={t.back} onClick={() => go(i - 1)} disabled={i === 0} className="flex h-9 w-9 items-center justify-center transition-opacity disabled:opacity-40">
+            <div className="relative isolate flex overflow-hidden rounded-full text-ink">
+              <Glass radius={20} />
+              <button type="button" aria-label={t.back} onClick={() => go(i - 1)} disabled={i === 0} className="relative flex h-10 w-11 items-center justify-center transition-opacity disabled:opacity-30">
                 <ChevronUp size={18} strokeWidth={2.4} />
               </button>
-              <span className="w-px bg-black/20" />
-              <button type="button" aria-label={t.next} onClick={next} disabled={!valid} className="flex h-9 w-9 items-center justify-center transition-opacity disabled:opacity-40">
+              <span className="relative my-2 w-px bg-white/15" />
+              <button type="button" aria-label={t.next} onClick={next} disabled={!valid} className="relative flex h-10 w-11 items-center justify-center transition-opacity disabled:opacity-30">
                 <ChevronDown size={18} strokeWidth={2.4} />
               </button>
             </div>

@@ -1,11 +1,14 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMessages } from "next-intl";
 import { gsap } from "gsap";
 import { getLenis } from "@/lib/scroll";
 import { prefersReducedMotion } from "@/lib/env";
 import { Brief } from "./Brief";
+
+const Grainient = dynamic(() => import("@/components/reactbits/Grainient"), { ssr: false });
 
 /**
  * Il modulo di richiesta a schermo intero. Si apre solo dai tasti che puntano a "#brief"
@@ -78,7 +81,10 @@ export function BriefOverlay() {
   if (!open) return null;
   return (
     <div ref={root} role="dialog" aria-modal="true" className="fixed inset-0 z-[80] overflow-y-auto bg-[#050608]" data-lenis-prevent>
-      <span aria-hidden className="pointer-events-none fixed left-1/2 top-[-30%] h-[70vh] w-[90vw] -translate-x-1/2 rounded-full bg-[var(--sky)] opacity-[0.09] blur-[120px]" />
+      <div aria-hidden className="pointer-events-none fixed inset-0">
+        <Grainient colors={["#040a10", "#0a2a40", "#1f6f9e", "#5ec4ff", "#cfeeff"]} angle={30} speed={0.5} flow={0.6} silk={0.35} grainAmount={0.05} interactive={false} clickSwirl={false} intro={false} dpr={1} />
+        <div className="absolute inset-0 bg-black/45" />
+      </div>
       <button
         type="button"
         data-close
