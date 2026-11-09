@@ -48,8 +48,8 @@ function Body({ s, w, locale, open }: { s: Service; w: WidgetText; locale: Local
         <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/45 to-transparent" />
       </div>
       {/* il disegno occupa tutta la scheda, senza riquadri intorno */}
-      <div className="absolute inset-x-0 bottom-[60px] top-[36px]">
-        <ServiceVisual k={s.key} t={w} max={1.2} />
+      <div className="absolute inset-x-2 bottom-[92px] top-[58px]">
+        <ServiceVisual k={s.key} t={w} max={1} />
       </div>
       <div className="relative flex items-center justify-between">
         <span className="font-mono text-[11.5px] uppercase tracking-[0.1em] text-white/85">{s.label[locale]}</span>
@@ -61,11 +61,11 @@ function Body({ s, w, locale, open }: { s: Service; w: WidgetText; locale: Local
       <div className="relative mt-auto">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-7 backdrop-blur-[10px] [mask-image:linear-gradient(to_top,#000_55%,transparent)]"
+          className="pointer-events-none absolute -top-12 backdrop-blur-[10px] [mask-image:linear-gradient(to_top,#000_55%,transparent)]"
           style={{ left: "calc(var(--mb-pad, 20px) * -1)", right: "calc(var(--mb-pad, 20px) * -1)", bottom: "calc(var(--mb-pad, 20px) * -1)", background: "linear-gradient(to top, rgba(6,7,9,.9), rgba(6,7,9,.55) 60%, transparent)" }}
         />
-        <h3 className="relative text-[17px] font-semibold tracking-[-0.015em] text-ink">{s.title[locale]}</h3>
-        <p className="relative mt-1 text-[13.5px] leading-[1.45] text-ink-2">{s.short[locale]}</p>
+        <h3 className="relative text-[18px] font-semibold tracking-[-0.02em] text-ink">{s.title[locale]}</h3>
+        <p className="relative mt-1.5 max-w-[52ch] text-[13.5px] leading-[1.5] text-ink-2">{s.short[locale]}</p>
       </div>
     </div>
   );
@@ -91,7 +91,7 @@ function Carousel({ w, locale, open }: { w: WidgetText; locale: Locale; open: st
           <Link
             key={s.slug}
             href={`/servizi/${s.slug}`}
-            className="group relative h-[400px] w-[84vw] max-w-[380px] shrink-0 snap-start overflow-hidden rounded-[28px] bg-[#0d0e10] p-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,.07)] [--mb-pad:20px]"
+            className="group relative h-[440px] w-[84vw] max-w-[380px] shrink-0 snap-start overflow-hidden rounded-[30px] bg-[#0d0e10] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,.07)] [--mb-pad:24px]"
           >
             <Body s={s} w={w} locale={locale} open={open} />
           </Link>
@@ -144,9 +144,9 @@ export function Services() {
             <MagicBento
               items={items}
               columns={cols}
-              rowHeight={310}
-              gap={14}
-              radius={28}
+              rowHeight={360}
+              gap={22}
+              radius={30}
               theme="dark"
               glowColor="94, 196, 255"
               enableSpotlight={false}
@@ -158,6 +158,7 @@ export function Services() {
               style={
                 {
                   "--mb-surface": "#0d0e10",
+                  "--mb-pad": "28px",
                   "--mb-tile": "#1c1c1e",
                   "--mb-edge": "rgba(255,255,255,0.07)",
                 } as CSSProperties
