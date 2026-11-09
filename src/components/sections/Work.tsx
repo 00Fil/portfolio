@@ -7,7 +7,7 @@ import { RelayPreview } from "@/components/previews/RelayPreview";
 import { CreaCloudPreview } from "@/components/previews/CreaCloudPreview";
 import { UniSpacePreview } from "@/components/previews/UniSpacePreview";
 import { MaturitaPreview } from "@/components/previews/MaturitaPreview";
-import { CopyDemo, RollingDemo, SegmentedDemo, SlatsDemo } from "@/components/previews/Playground";
+import { CanaryTile, GitTile, PipelineTile, ReleaseTile } from "@/components/previews/Workflow";
 import { SectionHead } from "./SectionHead";
 
 const PREVIEW = {
@@ -19,7 +19,6 @@ const PREVIEW = {
 
 export function Work() {
   const t = useTranslations("work");
-  const tc = useTranslations("contact");
   const locale = useLocale() as Locale;
   const tile = (slug: keyof typeof PREVIEW, className: string, aspect: string) => {
     const p = projects.find((x) => x.slug === slug)!;
@@ -47,16 +46,16 @@ export function Work() {
         {tile("relay", "lg:col-span-7", "aspect-[4/3]")}
         <div className="grid grid-cols-2 gap-4 self-start lg:col-span-5">
           <div className={demo}>
-            <SegmentedDemo />
+            <PipelineTile />
           </div>
           <div className={demo}>
-            <SlatsDemo />
+            <GitTile />
           </div>
           <div className={demo}>
-            <RollingDemo />
+            <ReleaseTile />
           </div>
           <div className={demo}>
-            <CopyDemo label={tc("copied")} />
+            <CanaryTile />
           </div>
         </div>
         {tile("creacloud", "lg:col-span-6", "aspect-[4/3]")}
