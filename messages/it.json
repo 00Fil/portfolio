@@ -172,15 +172,17 @@
         "tag": "Oggi",
         "title": "Sviluppatore freelance",
         "body": "Software su misura per aziende e professionisti, dall’analisi alla messa online. Tra i lavori, la piattaforma di un centro didattico.",
-        "value": 3,
-        "unit": "progetti pubblicati"
+        "value": 80,
+        "unit": "famiglie usano ogni giorno un mio software",
+        "suffix": "+"
       },
       {
         "tag": "Progetto personale",
         "title": "Relay",
         "body": "Due app native e un server che collegano telefono e computer, con un design system disegnato da zero.",
-        "value": 3,
-        "unit": "piattaforme collegate"
+        "value": 45,
+        "unit": "ore di sviluppo, distribuzione in arrivo",
+        "suffix": "+"
       }
     ]
   },
@@ -284,50 +286,217 @@
     "lead": "Dal sito alla piattaforma completa: progetto, sviluppo e messa online, con un solo referente.",
     "items": [
       {
+        "key": "web",
         "label": "Full stack",
         "title": "Siti e web app",
-        "body": "Siti veloci, piattaforme e gestionali su misura, dal database all’interfaccia. Next.js, React, Node e Python."
+        "body": "Siti, piattaforme e gestionali su misura, dal database all’interfaccia."
       },
       {
+        "key": "seo",
         "label": "SEO",
-        "title": "SEO e prestazioni",
-        "body": "Struttura, contenuti e velocità pensati per Google: Core Web Vitals in verde, dati strutturati, multilingua."
+        "title": "SEO tecnica e prestazioni",
+        "body": "Core Web Vitals entro le soglie di Google, dati strutturati, sitemap e multilingua: il sito si trova e si apre subito."
       },
       {
+        "key": "geo",
+        "label": "GEO",
+        "title": "Visibilità nelle risposte AI",
+        "body": "Contenuti chiari, Schema.org e llms.txt, perché ChatGPT, Gemini e Perplexity citino il tuo sito quando rispondono."
+      },
+      {
+        "key": "apps",
         "label": "App",
         "title": "App Android e Windows",
         "body": "App native con Kotlin e .NET, sincronizzate con il tuo server."
       },
       {
+        "key": "design",
         "label": "Design",
         "title": "UI/UX e prototipi",
-        "body": "Interfacce chiare e un prototipo da provare prima del codice."
+        "body": "Dal wireframe all’interfaccia, con un prototipo da provare prima del codice."
       },
       {
+        "key": "ai",
         "label": "AI",
-        "title": "Intelligenza artificiale e automazioni",
-        "body": "Assistenti su WhatsApp, estrazione di dati dai documenti, processi che prima si facevano a mano."
+        "title": "Assistenti e automazioni",
+        "body": "Assistenti su WhatsApp, dati estratti dai documenti, processi che prima si facevano a mano."
       },
       {
+        "key": "api",
         "label": "API",
         "title": "Integrazioni",
-        "body": "Collego gestionali, pagamenti, CRM e servizi esterni con API REST e webhook."
+        "body": "Gestionali, pagamenti, CRM e servizi esterni collegati con API REST e webhook."
       },
       {
+        "key": "shop",
         "label": "E-commerce",
         "title": "Negozi online",
         "body": "Catalogo, pagamenti e ordini, veloci e facili da gestire."
       },
       {
+        "key": "ops",
         "label": "DevOps",
-        "title": "Hosting, sicurezza e rilasci",
-        "body": "Server, Docker, HTTPS, backup e rilasci automatici. Tutto monitorato."
+        "title": "Hosting, rilasci e manutenzione",
+        "body": "Server, HTTPS, backup e rilasci automatici. Dopo la consegna, un referente che conosce il progetto."
+      }
+    ],
+    "w": {
+      "url": "tuosito.it",
+      "q": "Chi sviluppa gestionali su misura a Brescia?",
+      "a": "Risposta AI",
+      "src": "Fonte",
+      "msgIn": "Giovedì posso alle 17 invece che alle 15?",
+      "msgOut": "Spostata a giovedì alle 17",
+      "add": "Aggiungi",
+      "item": "Prodotto",
+      "done": "Ordine confermato",
+      "online": "Online",
+      "build": "Build",
+      "test": "Test",
+      "deploy": "Deploy",
+      "https": "HTTPS",
+      "backup": "Backup",
+      "wire": "Wireframe",
+      "ui": "Interfaccia"
+    }
+  },
+  "brief": {
+    "kicker": "Nuovo progetto",
+    "next": "Avanti",
+    "back": "Indietro",
+    "send": "Invia la richiesta",
+    "enter": "oppure premi Invio",
+    "optional": "facoltativo",
+    "step": "Passo",
+    "steps": [
+      {
+        "key": "who",
+        "q": "Come ti chiami?",
+        "fields": [
+          {
+            "id": "name",
+            "ph": "Nome e cognome",
+            "req": true
+          },
+          {
+            "id": "company",
+            "ph": "Azienda o attività"
+          }
+        ]
       },
       {
-        "label": "Assistenza",
-        "title": "Manutenzione e consulenza",
-        "body": "Aggiornamenti, nuove funzioni e consulenza tecnica dopo la consegna: un referente che conosce il progetto."
+        "key": "role",
+        "q": "Di cosa ti occupi?",
+        "options": [
+          "Azienda",
+          "Professionista",
+          "Startup",
+          "Ente o associazione",
+          "Privato"
+        ]
+      },
+      {
+        "key": "need",
+        "q": "Cosa ti serve?",
+        "hint": "Puoi sceglierne più di uno.",
+        "multi": true,
+        "options": [
+          "Sito web",
+          "Web app o gestionale",
+          "App Android o Windows",
+          "E-commerce",
+          "SEO e GEO",
+          "Automazioni con AI",
+          "Integrazioni",
+          "Altro"
+        ]
+      },
+      {
+        "key": "goal",
+        "q": "Qual è l’obiettivo?",
+        "options": [
+          "Trovare nuovi clienti",
+          "Risparmiare tempo",
+          "Vendere online",
+          "Rinnovare uno strumento",
+          "Lanciare un prodotto"
+        ],
+        "note": "Raccontami in breve il progetto"
+      },
+      {
+        "key": "budget",
+        "q": "Che budget hai in mente?",
+        "options": [
+          "Fino a 2.000 €",
+          "2.000 – 5.000 €",
+          "5.000 – 15.000 €",
+          "Oltre 15.000 €",
+          "Da definire insieme"
+        ]
+      },
+      {
+        "key": "when",
+        "q": "Per quando ti serve?",
+        "options": [
+          "Entro un mese",
+          "Da 1 a 3 mesi",
+          "Da 3 a 6 mesi",
+          "Nessuna fretta"
+        ]
+      },
+      {
+        "key": "reach",
+        "q": "Dove ti rispondo?",
+        "fields": [
+          {
+            "id": "email",
+            "ph": "Email",
+            "req": true,
+            "type": "email"
+          },
+          {
+            "id": "phone",
+            "ph": "Telefono",
+            "type": "tel"
+          }
+        ]
       }
+    ],
+    "doneTitle": "Richiesta ricevuta",
+    "doneBody": "Grazie {name}. Ti rispondo entro un giorno lavorativo con le prime domande e una stima.",
+    "again": "Nuova richiesta",
+    "demo": "Anteprima: il modulo non invia ancora i dati."
+  },
+  "manifesto": {
+    "label": "Creo software su misura: siti, web app, app native, SEO e automazioni",
+    "rows": [
+      [
+        "Creo",
+        "@creacloud",
+        "*software",
+        "#star",
+        "su misura",
+        "@relay",
+        "dall’idea",
+        "#squiggle",
+        "al rilascio",
+        "@unispace",
+        "#flower"
+      ],
+      [
+        "Siti",
+        "#ring",
+        "Web app",
+        "#pill",
+        "App native",
+        "#burst",
+        "SEO e GEO",
+        "#blob",
+        "Automazioni",
+        "#moon",
+        "Gestionali",
+        "#star"
+      ]
     ]
   }
 }

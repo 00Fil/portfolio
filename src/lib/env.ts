@@ -32,5 +32,5 @@ export function lerpColor(a: [number, number, number], b: [number, number, numbe
 }
 
 export const INK_2: [number, number, number] = [0xa6, 0xa6, 0xa1];
-export const ACCENT: [number, number, number] = [0x2f, 0x5f, 0xff];
+export const ACCENT: [number, number, number] = [0x5e, 0xc4, 0xff];
 export const ON_SUBTLE: [number, number, number] = [0xb4, 0xd2, 0xff];

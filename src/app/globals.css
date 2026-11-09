@@ -11,24 +11,24 @@
   --label-disabled: #6b6b66;
   --line-separator: #2c2c2e;
   --line-strong: #3a3a3c;
-  --accent: #2f5fff;
-  --accent-pressed: #1f44cc;
-  --accent-subtle: #11244f;
-  --accent-on-subtle: #b4d2ff;
+  --accent: #5ec4ff;
+  --accent-pressed: #3aa9e6;
+  --accent-subtle: #0a2633;
+  --accent-on-subtle: #bfe8ff;
   --positive: #4cc38a;
   --negative: #ff5a52;
   --sky: #5ec4ff;
   --caution: #f0a54a;
   --critical: #ff7a73;
-  --brand-sky: #5c9dff;
-  --brand-mid: #1f44cc;
-  --brand-royal: #11244f;
+  --brand-sky: #9edcff;
+  --brand-mid: #5ec4ff;
+  --brand-royal: #0a2633;
   --brand-gradient: linear-gradient(180deg, var(--brand-sky), var(--brand-mid), var(--brand-royal));
 
   /* Goccia (Goccia.kt, tema scuro) */
-  --drop-veil: rgba(157, 182, 240, 0.09);
+  --drop-veil: rgba(158, 220, 255, 0.08);
   --drop-edge: rgba(255, 255, 255, 0.14);
-  --drop-body: #1a2f63;
+  --drop-body: #0e3346;
 
   --bar-h: 66px;
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
@@ -171,7 +171,7 @@ body {
   z-index: -1;
   opacity: var(--p, 0);
   background:
-    radial-gradient(circle var(--gr, 240px) at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.24), rgba(47, 95, 255, 0.1) 45%, transparent 100%),
+    radial-gradient(circle var(--gr, 240px) at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.24), rgba(94, 196, 255, 0.1) 45%, transparent 100%),
     rgba(255, 255, 255, 0.05);
 }
 
@@ -230,5 +230,3 @@ html.js [data-reveal] { visibility: hidden; }
 }
 
 /* Percorso: il nodo si accende quando la linea lo raggiunge */
-.tl-dot { transition: background-color .5s var(--ease-out, ease), color .5s, border-color .5s, box-shadow .5s, scale .5s cubic-bezier(.34,1.56,.64,1); }
-.tl-dot.is-on { background: var(--sky); color: #000; border-color: var(--sky); scale: 1.08; box-shadow: 0 0 0 6px rgba(94,196,255,.15), 0 0 24px rgba(94,196,255,.5); }

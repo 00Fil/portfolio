@@ -185,7 +185,7 @@ export function GlassSegmented({ options, selected, onSelect, label, id }: Props
               </div>
             </div>
           </div>
-          <div ref={dropRef} className="drop absolute inset-0" style={{ ["--drop-tint" as string]: "rgba(47,95,255,0.16)" }} />
+          <div ref={dropRef} className="drop absolute inset-0" style={{ ["--drop-tint" as string]: "rgba(94,196,255,0.16)" }} />
         </div>
       </div>
     </div>

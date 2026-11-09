@@ -49,7 +49,7 @@ export function RollingText({ text, className = "" }: { text: string; className?
             </span>
           </span>
         ) : (
-          <span key={i} aria-hidden style={{ whiteSpace: "pre" }}>
+          <span key={i} aria-hidden className="inline-block" style={{ whiteSpace: "pre", height: "1em", lineHeight: "1em" }}>
             {ch}
           </span>
         ),

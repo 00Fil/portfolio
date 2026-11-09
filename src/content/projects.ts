@@ -91,9 +91,9 @@ export const projects: Project[] = [
       ],
     },
     figures: [
-      { value: "3", label: { it: "implementazioni dello stesso protocollo", en: "implementations of one protocol" } },
-      { value: "48 KiB", label: { it: "per blocco di file", en: "per file chunk" } },
-      { value: "50 MB", label: { it: "per file negli appunti", en: "per file on the clipboard" } },
+      { value: "45+ h", label: { it: "di progettazione e sviluppo", en: "of design and development" } },
+      { value: "3", label: { it: "piattaforme che parlano tra loro: Android, Windows e server", en: "platforms talking to each other: Android, Windows and server" } },
+      { value: "Beta", label: { it: "privata, distribuzione in arrivo", en: "private, release coming soon" } },
     ],
   },
   {
@@ -158,9 +158,9 @@ export const projects: Project[] = [
       ],
     },
     figures: [
-      { value: "4", label: { it: "livelli di vincoli", en: "constraint priorities" } },
-      { value: "24 h", label: { it: "preavviso per annullare senza costo", en: "notice for a free cancellation" } },
-      { value: "3", label: { it: "durate di lezione", en: "lesson lengths" } },
+      { value: "80+", label: { it: "famiglie la usano ogni giorno", en: "families use it every day" } },
+      { value: "1 mese", label: { it: "di lezioni pianificato in automatico", en: "of lessons scheduled automatically" } },
+      { value: "0", label: { it: "app da installare: si usa da WhatsApp", en: "apps to install: it runs on WhatsApp" } },
     ],
   },
   {
@@ -217,9 +217,9 @@ export const projects: Project[] = [
       en: [],
     },
     figures: [
-      { value: "3×", label: { it: "velocità massima di riproduzione", en: "maximum playback speed" } },
-      { value: "2 GB", label: { it: "di quota per utente", en: "quota per user" } },
-      { value: "1", label: { it: "file per aggiungere un tool", en: "file to add a tool" } },
+      { value: "3×", label: { it: "più veloce riascoltare una lezione, senza i silenzi", en: "faster to replay a lecture, without the silences" } },
+      { value: "LaTeX", label: { it: "formule trascritte come sul libro", en: "formulas transcribed as in the textbook" } },
+      { value: "1", label: { it: "accesso per tutti gli strumenti", en: "sign-in for every tool" } },
     ],
   },
 ];

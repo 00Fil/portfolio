@@ -172,15 +172,17 @@
         "tag": "Today",
         "title": "Freelance developer",
         "body": "Custom software for companies and professionals, from analysis to launch. Among the projects, a tutoring centre’s platform.",
-        "value": 3,
-        "unit": "projects shipped"
+        "value": 80,
+        "unit": "families use my software every day",
+        "suffix": "+"
       },
       {
         "tag": "Personal project",
         "title": "Relay",
         "body": "Two native apps and a server connecting phone and computer, with a design system drawn from scratch.",
-        "value": 3,
-        "unit": "connected platforms"
+        "value": 45,
+        "unit": "hours of development, release coming soon",
+        "suffix": "+"
       }
     ]
   },
@@ -284,50 +286,217 @@
     "lead": "From a website to a complete platform: design, development and launch, with one point of contact.",
     "items": [
       {
+        "key": "web",
         "label": "Full stack",
         "title": "Websites and web apps",
-        "body": "Fast websites, platforms and custom management tools, from database to interface. Next.js, React, Node and Python."
+        "body": "Custom websites, platforms and management software, from database to interface."
       },
       {
+        "key": "seo",
         "label": "SEO",
-        "title": "SEO and performance",
-        "body": "Structure, content and speed designed for Google: green Core Web Vitals, structured data, multilingual."
+        "title": "Technical SEO and performance",
+        "body": "Core Web Vitals within Google’s thresholds, structured data, sitemaps and multilingual pages: easy to find, instant to open."
       },
       {
+        "key": "geo",
+        "label": "GEO",
+        "title": "Visibility in AI answers",
+        "body": "Clear content, Schema.org and llms.txt, so ChatGPT, Gemini and Perplexity cite your site when they answer."
+      },
+      {
+        "key": "apps",
         "label": "Apps",
         "title": "Android and Windows apps",
-        "body": "Native apps in Kotlin and .NET, in sync with your server."
+        "body": "Native apps in Kotlin and .NET, synced with your server."
       },
       {
+        "key": "design",
         "label": "Design",
         "title": "UI/UX and prototypes",
-        "body": "Clear interfaces and a prototype to try before any code."
+        "body": "From wireframe to interface, with a prototype to try before any code."
       },
       {
+        "key": "ai",
         "label": "AI",
-        "title": "AI and automation",
-        "body": "WhatsApp assistants, data extraction from documents, processes that used to be manual."
+        "title": "Assistants and automation",
+        "body": "WhatsApp assistants, data pulled from documents, processes that used to be done by hand."
       },
       {
+        "key": "api",
         "label": "API",
         "title": "Integrations",
-        "body": "I connect management systems, payments, CRMs and external services through REST APIs and webhooks."
+        "body": "Management software, payments, CRMs and external services connected through REST APIs and webhooks."
       },
       {
+        "key": "shop",
         "label": "E-commerce",
         "title": "Online stores",
         "body": "Catalogue, payments and orders, fast and easy to manage."
       },
       {
+        "key": "ops",
         "label": "DevOps",
-        "title": "Hosting, security and releases",
-        "body": "Servers, Docker, HTTPS, backups and automated releases. All monitored."
+        "title": "Hosting, releases and maintenance",
+        "body": "Servers, HTTPS, backups and automated releases. After launch, one contact who knows the project."
+      }
+    ],
+    "w": {
+      "url": "yoursite.com",
+      "q": "Who builds custom management software in Brescia?",
+      "a": "AI answer",
+      "src": "Source",
+      "msgIn": "Can I come Thursday at 5 instead of 3?",
+      "msgOut": "Moved to Thursday at 5",
+      "add": "Add",
+      "item": "Product",
+      "done": "Order confirmed",
+      "online": "Online",
+      "build": "Build",
+      "test": "Test",
+      "deploy": "Deploy",
+      "https": "HTTPS",
+      "backup": "Backup",
+      "wire": "Wireframe",
+      "ui": "Interface"
+    }
+  },
+  "brief": {
+    "kicker": "New project",
+    "next": "Next",
+    "back": "Back",
+    "send": "Send the request",
+    "enter": "or press Enter",
+    "optional": "optional",
+    "step": "Step",
+    "steps": [
+      {
+        "key": "who",
+        "q": "What’s your name?",
+        "fields": [
+          {
+            "id": "name",
+            "ph": "Full name",
+            "req": true
+          },
+          {
+            "id": "company",
+            "ph": "Company or business"
+          }
+        ]
       },
       {
-        "label": "Support",
-        "title": "Maintenance and consulting",
-        "body": "Updates, new features and technical advice after delivery: one person who knows the project."
+        "key": "role",
+        "q": "What do you do?",
+        "options": [
+          "Company",
+          "Professional",
+          "Startup",
+          "Organisation",
+          "Private individual"
+        ]
+      },
+      {
+        "key": "need",
+        "q": "What do you need?",
+        "hint": "You can pick more than one.",
+        "multi": true,
+        "options": [
+          "Website",
+          "Web app or management tool",
+          "Android or Windows app",
+          "E-commerce",
+          "SEO and GEO",
+          "AI automation",
+          "Integrations",
+          "Other"
+        ]
+      },
+      {
+        "key": "goal",
+        "q": "What’s the goal?",
+        "options": [
+          "Find new customers",
+          "Save time",
+          "Sell online",
+          "Replace an old tool",
+          "Launch a product"
+        ],
+        "note": "Tell me briefly about the project"
+      },
+      {
+        "key": "budget",
+        "q": "What budget do you have in mind?",
+        "options": [
+          "Up to €2,000",
+          "€2,000 – 5,000",
+          "€5,000 – 15,000",
+          "Over €15,000",
+          "To be defined together"
+        ]
+      },
+      {
+        "key": "when",
+        "q": "When do you need it?",
+        "options": [
+          "Within a month",
+          "1 to 3 months",
+          "3 to 6 months",
+          "No rush"
+        ]
+      },
+      {
+        "key": "reach",
+        "q": "Where should I reply?",
+        "fields": [
+          {
+            "id": "email",
+            "ph": "Email",
+            "req": true,
+            "type": "email"
+          },
+          {
+            "id": "phone",
+            "ph": "Phone",
+            "type": "tel"
+          }
+        ]
       }
+    ],
+    "doneTitle": "Request received",
+    "doneBody": "Thanks {name}. I’ll reply within one working day with a few questions and an estimate.",
+    "again": "New request",
+    "demo": "Preview: the form doesn’t send data yet."
+  },
+  "manifesto": {
+    "label": "I build custom software: websites, web apps, native apps, SEO and automation",
+    "rows": [
+      [
+        "I build",
+        "@creacloud",
+        "*custom",
+        "#star",
+        "software",
+        "@relay",
+        "from idea",
+        "#squiggle",
+        "to launch",
+        "@unispace",
+        "#flower"
+      ],
+      [
+        "Websites",
+        "#ring",
+        "Web apps",
+        "#pill",
+        "Native apps",
+        "#burst",
+        "SEO and GEO",
+        "#blob",
+        "Automation",
+        "#moon",
+        "Dashboards",
+        "#star"
+      ]
     ]
   }
 }

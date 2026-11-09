@@ -89,7 +89,7 @@ export function PixelNetwork() {
             const phase = ((t * 0.6 + li * 0.37 + (dir < 0 ? 0.5 : 0)) % 1 + 1) % 1;
             const i = Math.floor((dir > 0 ? phase : 1 - phase) * (pts.length - 1));
             const [x, y] = pts[i];
-            ctx.fillStyle = dir > 0 ? "#ffffff" : "#B4D2FF";
+            ctx.fillStyle = dir > 0 ? "#ffffff" : "#9EDCFF";
             ctx.fillRect(Math.round(ox + x * s - s * 0.5), Math.round(oy + y * s - s * 0.5), Math.ceil(s * 2) - 1, Math.ceil(s * 2) - 1);
           }
         });

@@ -37,7 +37,7 @@ export default async function CvPage({ params, searchParams }: { params: Promise
   const Sheet = (
     <article className="cv-sheet relative mx-auto flex flex-col overflow-hidden bg-black text-[#F2F2F0]" style={{ width: "210mm", height: "297mm", padding: "11mm 15mm 9mm" }}>
       {/* luce di Relay nell'angolo: solo un dettaglio */}
-      <div aria-hidden className="pointer-events-none absolute -right-[40mm] -top-[50mm] h-[120mm] w-[120mm] rounded-full bg-[#2F5FFF] opacity-25 blur-[60px]" />
+      <div aria-hidden className="pointer-events-none absolute -right-[40mm] -top-[50mm] h-[120mm] w-[120mm] rounded-full bg-[#5ec4ff] opacity-20 blur-[60px]" />
 
       <header className="relative">
         <p className="font-mono text-[8pt] uppercase tracking-[0.12em] text-[#5ec4ff]">{d.kicker}</p>

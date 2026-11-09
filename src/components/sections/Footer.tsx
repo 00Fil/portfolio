@@ -4,6 +4,7 @@ import { profile } from "@/content/profile";
 import type { Locale } from "@/i18n/routing";
 import { CopyEmail } from "./CopyEmail";
 import { Clock } from "./Clock";
+import { Brief } from "./Brief";
 import { Reveal } from "@/components/motion/Reveal";
 
 const STAR = "M512 196Q556 468 828 512Q556 556 512 828Q468 556 196 512Q468 468 512 196Z";
@@ -23,18 +24,23 @@ export function Footer({ withContact = true }: { withContact?: boolean }) {
     <footer id={withContact ? "contact" : undefined} className="relative overflow-hidden">
       <Reveal className="mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-32">
         {withContact && (
-          <div className="mb-16 sm:mb-24">
-            <p className="t-label mb-4 text-ink-3" data-reveal>
-              {t("title")}
-            </p>
-            <p className="t-title2 max-w-[24ch] text-ink sm:text-[40px] sm:leading-[46px]" data-reveal data-split>
-              {t("lead")}
-            </p>
-            {profile.email && (
-              <div className="mt-10">
-                <CopyEmail email={profile.email} copy={t("copy")} copied={t("copied")} />
-              </div>
-            )}
+          <div className="mb-16 grid gap-10 sm:mb-24 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-4">
+              <p className="t-label mb-4 text-ink-3" data-reveal>
+                {t("title")}
+              </p>
+              <p className="t-title2 max-w-[24ch] text-ink sm:text-[40px] sm:leading-[46px]" data-reveal data-split>
+                {t("lead")}
+              </p>
+              {profile.email && (
+                <div className="mt-10">
+                  <CopyEmail email={profile.email} copy={t("copy")} copied={t("copied")} />
+                </div>
+              )}
+            </div>
+            <div className="lg:col-span-8" data-reveal>
+              <Brief />
+            </div>
           </div>
         )}
         <div className="grid gap-12 lg:grid-cols-[1.3fr_1fr]">

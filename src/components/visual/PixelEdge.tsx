@@ -10,7 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
  * Bordo a blocchi tra il nero e il blu, come le transizioni a pixel di andreas.vision.
  * Ogni colonna ha un profilo a gradini; i blocchi compaiono con lo scroll.
  */
-export function PixelEdge({ side, color = "#2F5FFF", cell = 16 }: { side: "top" | "bottom"; color?: string; cell?: number }) {
+export function PixelEdge({ side, color = "#5EC4FF", cell = 16 }: { side: "top" | "bottom"; color?: string; cell?: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const c = ref.current;
