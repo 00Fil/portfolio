@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { routing, type Locale } from "@/i18n/routing";
 import { getProject, projects } from "@/content/projects";
+import { COVERS, getCover, type Cover } from "@/content/covers";
+import { BRAND } from "@/content/brand-icons";
 import { Reveal } from "@/components/motion/Reveal";
 import { RollingText } from "@/components/motion/RollingText";
-import { PageEnter } from "@/components/motion/PageEnter";
 import { SiteNav } from "@/components/nav/SiteNav";
-import { Drop } from "@/components/glass/Drop";
 import { Footer } from "@/components/sections/Footer";
-import { Slats } from "@/components/visual/Slats";
-import { THEMES, tokenVars } from "@/content/themes";
+import { ProjectHero } from "@/components/work/ProjectHero";
+import { Tour } from "@/components/work/Tour";
+import { RelaySystem } from "@/components/work/RelaySystem";
+import { CoverCard } from "@/components/work/CoverCard";
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) => projects.map((p) => ({ locale, slug: p.slug })));
@@ -23,10 +25,28 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   if (!p) return {};
   return {
     title: p.name,
-    description: p.line[locale as Locale],
+    description: getCover(slug).def[locale as Locale],
     alternates: { canonical: `/${locale}/lavori/${slug}`, languages: { it: `/it/lavori/${slug}`, en: `/en/lavori/${slug}` } },
   };
 }
+
+/** I token Canone ridipinti con i colori del progetto: tutto ciò che sta nella pagina li eredita. */
+const themeVars = (c: Cover) =>
+  ({
+    "--bg-canvas": c.theme.bg,
+    "--bg-surface": c.theme.surface,
+    "--bg-sunken": c.theme.light ? "#ebe6de" : "#1c1f2a",
+    "--label-primary": c.theme.fg,
+    "--label-secondary": c.theme.fg2,
+    "--label-tertiary": c.theme.fg2,
+    "--line-separator": c.theme.light ? "rgba(41,37,36,.1)" : "rgba(255,255,255,.08)",
+    "--line-strong": c.theme.light ? "rgba(41,37,36,.18)" : "rgba(255,255,255,.14)",
+    "--accent": c.theme.acc,
+    "--sky": c.theme.acc,
+    colorScheme: c.theme.light ? "light" : "dark",
+    background: c.theme.bg,
+    color: c.theme.fg,
+  }) as React.CSSProperties;
 
 export default async function ProjectPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   const { locale: l, slug } = await params;
@@ -34,9 +54,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
   const locale = l as Locale;
   const p = getProject(slug);
   if (!p) notFound();
+  const c = getCover(slug);
   const t = await getTranslations("project");
-  const idx = projects.findIndex((x) => x.slug === slug);
-  const next = projects[(idx + 1) % projects.length];
+  const tw = await getTranslations("work");
+  const order = COVERS.map((x) => x.slug);
+  const nextSlug = order[(order.indexOf(slug) + 1) % order.length];
+  const next = getCover(nextSlug);
 
   const meta: [string, string][] = [
     [t("role"), p.role[locale]],
@@ -44,120 +67,125 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
     [t("platforms"), p.platforms[locale]],
   ];
 
-  const block = (title: string, items: string[], numbered = false) =>
+  const list = (title: string, items: string[], numbered = false) =>
     items.length > 0 && (
-      <section className="grid gap-6 py-10 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:gap-8 sm:py-14">
-        <h2 className="t-label text-ink-3" data-reveal>
+      <div className="grid gap-6 border-t border-[var(--line-separator)] py-10 sm:grid-cols-12 sm:gap-8 sm:py-14">
+        <h3 className="t-label text-ink-3 sm:col-span-4" data-reveal>
           {title}
-        </h2>
-        <ol className="grid gap-5" data-stagger>
+        </h3>
+        <ol className="grid gap-5 sm:col-span-8" data-stagger>
           {items.map((it, i) => (
-            <li key={i} className="grid grid-cols-[32px_1fr] gap-2">
-              <span className="t-label t-fig pt-1 text-ink-3">{numbered ? String(i + 1).padStart(2, "0") : "—"}</span>
+            <li key={i} className="grid grid-cols-[36px_1fr] gap-2 text-[17px] leading-[1.5]">
+              <span className="t-label t-fig pt-1 text-[var(--accent)]">{numbered ? String(i + 1).padStart(2, "0") : "·"}</span>
               <span className="text-ink">{it}</span>
             </li>
           ))}
         </ol>
-      </section>
+      </div>
     );
 
   return (
     <>
-      <PageEnter>
-        <div style={tokenVars(THEMES[p.slug])}>
-        <main id="main" className="mx-auto w-full max-w-[1200px] px-5 pt-32 sm:px-8 sm:pt-40">
-          <Reveal as="header" className="pb-12 sm:pb-16">
-            <p className="t-label t-fig mb-6 text-ink-3" data-reveal>
-              {String(idx + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}
-            </p>
-            <h1 className="t-display text-[var(--accent)]" data-reveal data-split>
-              {p.name}
-            </h1>
-            <p className="t-callout mt-6 max-w-[40ch] text-ink-2" data-reveal>
-              {p.line[locale]}
-            </p>
-          </Reveal>
+      <div style={themeVars(c)}>
+        <main id="main">
+          <ProjectHero slug={slug} name={p.name} def={c.def[locale]} label={c.label[locale]} scroll={t("scroll")} />
 
-          {slug === "relay" && <Slats />}
-
-          <Reveal className="grid gap-10 py-10 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:gap-8 sm:py-14">
-            <dl className="grid content-start gap-5" data-stagger>
-              {meta.map(([k, v]) => (
-                <div key={k}>
-                  <dt className="t-label text-ink-3">{k}</dt>
-                  <dd className="mt-1 text-ink">{v}</dd>
-                </div>
-              ))}
-              <div>
-                <dt className="t-label text-ink-3">{t("stack")}</dt>
-                <dd className="mt-2 flex flex-wrap gap-1.5">
-                  {p.stack.map((s) => (
-                    <span key={s} className="t-label rounded-full bg-sunken px-2.5 py-1 normal-case tracking-normal text-ink-2">
-                      {s}
-                    </span>
-                  ))}
-                </dd>
-              </div>
-              {p.repo && (
-                <div>
-                  <dt className="t-label text-ink-3">{t("source")}</dt>
-                  <dd className="mt-1">
-                    <a href={p.repo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-ink underline decoration-line-strong underline-offset-4 hover:decoration-[var(--accent)]">
-                      GitHub
-                      <ArrowUpRight size={16} strokeWidth={1.6} aria-hidden className="text-ink-2" />
-                    </a>
-                  </dd>
-                </div>
-              )}
-            </dl>
-            <div>
-              <p className="t-callout text-ink" data-reveal>
-                {p.summary[locale]}
-              </p>
-              <ul className="mt-12 grid gap-px overflow-hidden rounded-[28px] sm:grid-cols-3" data-stagger>
-                {p.figures.map((f) => (
-                  <li key={f.value} className="plate rounded-none p-6">
-                    <RollingText text={f.value} className="t-title1 t-fig text-ink" />
-                    <p className="t-foot mt-3 text-ink-2">{f.label[locale]}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Reveal>
-
-          <Reveal>
-            <section className="grid gap-6 py-10 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:gap-8 sm:py-14">
-              <h2 className="t-label text-ink-3" data-reveal>
-                {t("problem")}
-              </h2>
-              <p className="t-callout text-ink" data-reveal>
+          {/* in breve: il problema detto semplice, chi, quando, con cosa */}
+          <Reveal className="mx-auto w-full max-w-[1280px] px-5 py-24 sm:px-8 sm:py-36">
+            <div className="grid gap-12 lg:grid-cols-12">
+              <p className="text-[clamp(26px,3.2vw,44px)] font-medium leading-[1.15] tracking-[-0.035em] text-ink lg:col-span-8" data-reveal data-split>
                 {p.problem[locale]}
               </p>
-            </section>
-            {block(t("built"), p.built[locale])}
-            {block(t("decisions"), p.decisions[locale], true)}
-            {block(t("limits"), p.limits[locale])}
-          </Reveal>
-
-          <Reveal className="py-16 sm:py-24">
-            <p className="t-label mb-4 text-ink-3" data-reveal>
-              {t("next")}
-            </p>
-            <div className="flex flex-wrap items-end justify-between gap-6" data-reveal>
-              <div>
-                <p className="t-title1 text-ink">{next.name}</p>
-                <p className="mt-2 max-w-[48ch] text-ink-2">{next.line[locale]}</p>
-              </div>
-              <Drop href={`/lavori/${next.slug}`} accent className="h-12 px-5 font-medium text-ink">
-                {next.name}
-                <ArrowRight size={18} strokeWidth={1.6} aria-hidden />
-              </Drop>
+              <dl className="grid content-start gap-6 lg:col-span-3 lg:col-start-10" data-stagger>
+                {meta.map(([k, v]) => (
+                  <div key={k}>
+                    <dt className="t-label text-ink-3">{k}</dt>
+                    <dd className="mt-1 text-ink">{v}</dd>
+                  </div>
+                ))}
+                <div>
+                  <dt className="t-label text-ink-3">{t("stack")}</dt>
+                  <dd className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+                    {c.stack.map((id) => (
+                      <span key={id} className="flex items-center gap-1.5 text-[14px] text-ink">
+                        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current text-[var(--accent)]" aria-hidden>
+                          <path d={BRAND[id].path} />
+                        </svg>
+                        {BRAND[id].title}
+                      </span>
+                    ))}
+                  </dd>
+                </div>
+              </dl>
             </div>
           </Reveal>
+
+          {c.tour ? (
+            <Tour
+              src={c.tour.src}
+              w={c.tour.w}
+              h={c.tour.h}
+              light={c.theme.light}
+              kicker={t("tour")}
+              url={slug === "unispace" ? "studykit / studycut" : "creacloud"}
+              stops={c.tour.stops.map((s) => ({ x: s.x, y: s.y, s: s.s, title: s.title[locale], body: s.body[locale] }))}
+            />
+          ) : (
+            <RelaySystem kicker={t("system")} title={t("systemTitle")} body={t("systemBody")} nav={t("systemNav")} />
+          )}
+
+          {/* sotto il cofano: qui il dettaglio tecnico */}
+          <Reveal className="mx-auto w-full max-w-[1280px] px-5 pb-10 pt-24 sm:px-8 sm:pt-36">
+            <p className="t-label text-[var(--accent)]" data-reveal>
+              {t("under")}
+            </p>
+            <p className="mt-5 max-w-[30ch] text-[clamp(26px,3.2vw,44px)] font-medium leading-[1.15] tracking-[-0.035em] text-ink" data-reveal data-split>
+              {p.summary[locale]}
+            </p>
+            <ul className="mt-14 grid gap-8 sm:grid-cols-3" data-stagger>
+              {p.figures.map((f) => (
+                <li key={f.value} className="border-t border-[var(--line-strong)] pt-5">
+                  <RollingText text={f.value} className="t-fig text-[clamp(36px,4vw,56px)] font-medium tracking-[-0.04em] text-ink" />
+                  <p className="mt-2 text-ink-2">{f.label[locale]}</p>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-16">
+              {list(t("built"), p.built[locale])}
+              {list(t("decisions"), p.decisions[locale], true)}
+              {list(t("limits"), p.limits[locale])}
+              {p.repo && (
+                <div className="grid gap-6 border-t border-[var(--line-separator)] py-10 sm:grid-cols-12 sm:gap-8">
+                  <h3 className="t-label text-ink-3 sm:col-span-4">{t("source")}</h3>
+                  <a href={p.repo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-ink underline decoration-[var(--line-strong)] underline-offset-4 hover:decoration-[var(--accent)] sm:col-span-8">
+                    GitHub
+                    <ArrowUpRight size={16} strokeWidth={1.6} aria-hidden />
+                  </a>
+                </div>
+              )}
+            </div>
+          </Reveal>
+
+          {/* progetto successivo, poi il colore sfuma nel nero del sito */}
+          <section className="mx-auto w-full max-w-[1280px] px-5 pb-24 pt-16 sm:px-8 sm:pt-24">
+            <p className="t-label mb-6 text-ink-3">{t("next")}</p>
+            <div className="max-w-[760px]">
+              <CoverCard
+                p={{
+                  slug: next.slug,
+                  name: getProject(next.slug)!.name,
+                  label: next.label[locale],
+                  def: next.def[locale],
+                  stack: next.stack.map((id) => ({ id, name: BRAND[id].title })),
+                }}
+                open={tw("open")}
+              />
+            </div>
+          </section>
+          <div aria-hidden className="h-[60vh]" style={{ background: `linear-gradient(to bottom, ${c.theme.bg}, #000)` }} />
         </main>
-        </div>
-        <Footer withContact={false} />
-      </PageEnter>
+      </div>
+      <Footer withContact={false} />
       <SiteNav detail={{ title: p.name }} />
     </>
   );

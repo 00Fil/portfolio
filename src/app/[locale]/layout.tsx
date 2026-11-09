@@ -7,6 +7,7 @@ import { GeistMono } from "geist/font/mono";
 import localFont from "next/font/local";
 import { routing } from "@/i18n/routing";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
+import { CoverTransition } from "@/components/work/CoverTransition";
 import { TopBar } from "@/components/nav/TopBar";
 import { profile } from "@/content/profile";
 import "../globals.css";
@@ -52,7 +53,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           </a>
           <SmoothScroll />
           <TopBar />
-          {children}
+          <CoverTransition>{children}</CoverTransition>
         </NextIntlClientProvider>
       </body>
     </html>

@@ -7,7 +7,7 @@
     "label": "Sections",
     "home": "Home",
     "work": "Work",
-    "approach": "Method",
+    "approach": "How I work",
     "stack": "Stack",
     "path": "Path",
     "contact": "Contact",
@@ -33,14 +33,14 @@
     "contact": "Get in touch"
   },
   "work": {
-    "title": "Selected work",
-    "lead": "Three projects, told in a few seconds.",
+    "title": "Work",
+    "lead": "Three products, taken from idea to launch.",
     "view": "Open",
-    "open": "Open {name}",
+    "open": "Open the project",
     "case": "Read the case study",
     "all": "All work",
     "pageTitle": "Work",
-    "pageLead": "Client projects and products of my own. For each: how it was, what changed, what stays.",
+    "pageLead": "Each project has its own page: how it started, how it works, how it is built.",
     "index": "Index",
     "colProject": "Project",
     "colRole": "Role",
@@ -72,14 +72,11 @@
     "discover": "Discover"
   },
   "stack": {
-    "title": "Tools",
-    "lead": "The technologies I have shipped to production in the projects above.",
-    "groups": {
-      "mobile": "Mobile and desktop",
-      "frontend": "Frontend",
-      "backend": "Backend",
-      "data": "Data and AI",
-      "infra": "Infrastructure"
+    "title": "What I work with",
+    "lead": "The technologies behind the projects I have shipped.",
+    "rows": {
+      "apps": "Apps and interfaces",
+      "server": "Servers, data and deployment"
     }
   },
   "path": {
@@ -154,7 +151,14 @@
     "decisions": "Technical decisions",
     "limits": "Limits",
     "next": "Next project",
-    "back": "All work"
+    "back": "All work",
+    "scroll": "Scroll to discover",
+    "tour": "The product, up close",
+    "under": "Under the hood",
+    "system": "Relay’s visual language",
+    "systemTitle": "A design system built for it",
+    "systemBody": "Colours, radii, type and motion are defined once and shared by both apps, Android and Windows.",
+    "systemNav": "This site’s navigation bar, with its glass and spring physics, comes from Relay."
   },
   "footer": {
     "made": "Built with Next.js, GSAP and Lenis. Interface derived from Relay.",
@@ -285,6 +289,52 @@
       {
         "title": "Built to last",
         "body": "Tidy, documented code: another developer can pick it up without starting over."
+      }
+    ]
+  },
+  "process": {
+    "title": "How I work",
+    "lead": "From the first message to live software, in four clear steps.",
+    "you": "What you do",
+    "get": "What you get",
+    "online": "Live",
+    "steps": [
+      {
+        "name": "We talk",
+        "you": "You tell me the idea or the problem to solve.",
+        "get": "A clear quote, with time and cost.",
+        "chips": [
+          "Measurable goals",
+          "Priorities agreed together"
+        ]
+      },
+      {
+        "name": "I show you",
+        "you": "You try the prototype and tell me what to change.",
+        "get": "A clickable prototype, before any code.",
+        "chips": [
+          "Revisions included",
+          "No surprises later"
+        ]
+      },
+      {
+        "name": "I build",
+        "you": "You try the work-in-progress versions whenever you like.",
+        "get": "Regular updates and an always-on preview link.",
+        "chips": [
+          "Tests before every release",
+          "Tidy, documented code"
+        ]
+      },
+      {
+        "name": "I deliver and stay",
+        "you": "You use the product, with your customers.",
+        "get": "Live software, documentation and support.",
+        "chips": [
+          "Automatic backups",
+          "Data in Europe",
+          "The code stays yours"
+        ]
       }
     ]
   }

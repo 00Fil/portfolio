@@ -8,6 +8,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 import { projects } from "@/content/projects";
+import { COVERS } from "@/content/covers";
+import { Cover } from "@/components/work/Covers";
 import { profile } from "@/content/profile";
 import { Drop } from "@/components/glass/Drop";
 import { GlassSegmented } from "./GlassSegmented";
@@ -21,7 +23,6 @@ import { Clock } from "@/components/sections/Clock";
 gsap.registerPlugin(ScrollTrigger);
 
 type Item = { id: string; label: string; menu?: "work" | "contact" };
-const ICONS = { relay: MonitorSmartphone, creacloud: CalendarClock, unispace: AudioLines } as const;
 const NAMES: Record<Locale, string> = { it: "Italiano", en: "English" };
 
 /**
@@ -42,7 +43,6 @@ export function GlassTopNav({ home }: { home: boolean }) {
     { id: "approach", label: t("approach") },
     { id: "stack", label: t("stack") },
     { id: "path", label: t("path") },
-    { id: "faq", label: t("faq") },
     { id: "contact", label: t("contact"), menu: "contact" },
   ];
 
@@ -316,8 +316,7 @@ export function GlassTopNav({ home }: { home: boolean }) {
             >
               <p className="t-label px-3 pb-2 pt-2 text-ink-3">{t("menuWork")}</p>
               <ul className="grid grid-cols-2 gap-1">
-                {projects.map((p) => {
-                  const I = ICONS[p.slug as keyof typeof ICONS];
+                {COVERS.map((c) => projects.find((x) => x.slug === c.slug)!).map((p) => {
                   return (
                     <li key={p.slug} data-mi>
                       <a
@@ -330,8 +329,8 @@ export function GlassTopNav({ home }: { home: boolean }) {
                         }}
                         className="group flex gap-3 rounded-[18px] p-3 transition-colors hover:bg-white/[0.05]"
                       >
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent-subtle text-accent-on-subtle transition-transform duration-300 ease-[var(--ease-out)] group-hover:scale-105">
-                          <I size={18} strokeWidth={1.6} aria-hidden />
+                        <span className="relative h-[52px] w-[84px] shrink-0 overflow-hidden rounded-[12px] shadow-[0_0_0_1px_rgba(255,255,255,.08)] transition-transform duration-300 ease-[var(--ease-out)] group-hover:scale-105">
+                          <Cover slug={p.slug} />
                         </span>
                         <span className="min-w-0">
                           <span className="flex items-center gap-1 font-medium text-ink">

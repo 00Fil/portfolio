@@ -1,43 +1,46 @@
-import { useTranslations } from "next-intl";
-import { ArrowUpRight } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Reveal } from "@/components/motion/Reveal";
-import { Drop } from "@/components/glass/Drop";
+import { COVERS } from "@/content/covers";
+import { BRAND } from "@/content/brand-icons";
 import { projects } from "@/content/projects";
-import { ProjectStory, type StoryItem } from "@/components/work/ProjectStory";
+import type { Locale } from "@/i18n/routing";
+import { CoverCard, type CardData } from "@/components/work/CoverCard";
 import { SectionHead } from "./SectionHead";
 
-export const STORY_ORDER = ["creacloud", "relay", "unispace"];
-
-function useStories(): StoryItem[] {
-  const t = useTranslations("work");
-  return STORY_ORDER.map((slug) => ({
-    slug,
-    name: projects.find((x) => x.slug === slug)!.name,
-    beats: t.raw(`stories.${slug}.beats`) as [string, string, string],
+export async function workCards(locale: Locale): Promise<CardData[]> {
+  return COVERS.map((c) => ({
+    slug: c.slug,
+    name: projects.find((p) => p.slug === c.slug)!.name,
+    label: c.label[locale],
+    def: c.def[locale],
+    stack: c.stack.map((id) => ({ id, name: BRAND[id].title })),
   }));
 }
 
-export function Work() {
-  const t = useTranslations("work");
+/** Tre copertine: la prima grande, le altre affiancate. Il racconto è nella pagina di ogni progetto. */
+export async function Work() {
+  const locale = (await getLocale()) as Locale;
+  const t = await getTranslations("work");
+  const cards = await workCards(locale);
   return (
-    <section id="work" className="relative">
-      <ProjectStory items={useStories()} cta={t("discover")}>
-        <Reveal className="mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-32">
-          <SectionHead index="01" title={t("title")} lead={t("lead")} />
+    <section id="work" className="relative mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-36">
+      <Reveal>
+        <SectionHead index="01" title={t("title")} lead={t("lead")} />
+      </Reveal>
+      <div className="mt-12 grid gap-x-8 gap-y-16 sm:mt-16 lg:grid-cols-2">
+        <Reveal className="lg:col-span-2">
+          <div data-reveal>
+            <CoverCard p={cards[0]} open={t("open")} big />
+          </div>
         </Reveal>
-      </ProjectStory>
-      <div className="mx-auto flex w-full max-w-[1280px] justify-center px-5 pt-16 sm:px-8 lg:justify-start">
-        <Drop href="/lavori" floating className="h-12 px-5 font-medium text-ink">
-          {t("all")}
-          <ArrowUpRight size={17} strokeWidth={1.8} aria-hidden />
-        </Drop>
+        {cards.slice(1).map((c) => (
+          <Reveal key={c.slug}>
+            <div data-reveal>
+              <CoverCard p={c} open={t("open")} />
+            </div>
+          </Reveal>
+        ))}
       </div>
     </section>
   );
-}
-
-/** Le storie senza intestazione, per la pagina dei lavori. */
-export function WorkStories() {
-  const t = useTranslations("work");
-  return <ProjectStory items={useStories()} cta={t("discover")} />;
 }

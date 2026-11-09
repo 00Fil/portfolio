@@ -7,7 +7,7 @@
     "label": "Sezioni",
     "home": "Inizio",
     "work": "Lavori",
-    "approach": "Metodo",
+    "approach": "Come lavoro",
     "stack": "Stack",
     "path": "Percorso",
     "contact": "Contatti",
@@ -33,14 +33,14 @@
     "contact": "Scrivimi"
   },
   "work": {
-    "title": "Lavori selezionati",
-    "lead": "Tre progetti, raccontati in pochi secondi.",
+    "title": "Lavori",
+    "lead": "Tre prodotti, seguiti dall’idea alla messa online.",
     "view": "Apri",
-    "open": "Apri {name}",
+    "open": "Apri il progetto",
     "case": "Leggi il caso studio",
     "all": "Tutti i lavori",
     "pageTitle": "Lavori",
-    "pageLead": "Progetti per clienti e prodotti miei. Per ognuno: com’era prima, cosa è cambiato, cosa resta.",
+    "pageLead": "Ogni progetto ha la sua pagina: com’è nato, come funziona, come è fatto.",
     "index": "Indice",
     "colProject": "Progetto",
     "colRole": "Ruolo",
@@ -72,14 +72,11 @@
     "discover": "Scopri"
   },
   "stack": {
-    "title": "Strumenti",
-    "lead": "Le tecnologie che ho portato in produzione nei progetti qui sopra.",
-    "groups": {
-      "mobile": "Mobile e desktop",
-      "frontend": "Frontend",
-      "backend": "Backend",
-      "data": "Dati e AI",
-      "infra": "Infrastruttura"
+    "title": "Con cosa lavoro",
+    "lead": "Le tecnologie dei progetti che ho portato online.",
+    "rows": {
+      "apps": "App e interfacce",
+      "server": "Server, dati e messa online"
     }
   },
   "path": {
@@ -154,7 +151,14 @@
     "decisions": "Decisioni tecniche",
     "limits": "Limiti",
     "next": "Progetto successivo",
-    "back": "Tutti i lavori"
+    "back": "Tutti i lavori",
+    "scroll": "Scorri per scoprirlo",
+    "tour": "Il prodotto, da vicino",
+    "under": "Sotto il cofano",
+    "system": "Il linguaggio di Relay",
+    "systemTitle": "Un design system fatto apposta",
+    "systemBody": "Colori, raggi, caratteri e movimenti sono definiti una volta e usati da entrambe le app, Android e Windows.",
+    "systemNav": "La barra di navigazione di questo sito, con il suo vetro e la sua fisica a molla, viene da Relay."
   },
   "footer": {
     "made": "Realizzato con Next.js, GSAP e Lenis. Interfaccia derivata da Relay.",
@@ -285,6 +289,52 @@
       {
         "title": "Fatto per durare",
         "body": "Codice ordinato e documentato: un altro sviluppatore può riprenderlo senza ripartire da zero."
+      }
+    ]
+  },
+  "process": {
+    "title": "Come lavoro",
+    "lead": "Dal primo messaggio al software online, in quattro passi chiari.",
+    "you": "Cosa fai tu",
+    "get": "Cosa ricevi",
+    "online": "Online",
+    "steps": [
+      {
+        "name": "Ci sentiamo",
+        "you": "Mi racconti l’idea o il problema da risolvere.",
+        "get": "Un preventivo chiaro, con tempi e costi.",
+        "chips": [
+          "Obiettivi misurabili",
+          "Priorità decise insieme"
+        ]
+      },
+      {
+        "name": "Ti mostro",
+        "you": "Provi il prototipo e mi dici cosa cambiare.",
+        "get": "Un prototipo cliccabile, prima di scrivere codice.",
+        "chips": [
+          "Revisioni incluse",
+          "Nessuna sorpresa dopo"
+        ]
+      },
+      {
+        "name": "Costruisco",
+        "you": "Provi le versioni intermedie quando vuoi.",
+        "get": "Aggiornamenti regolari e un link sempre attivo.",
+        "chips": [
+          "Test prima di ogni rilascio",
+          "Codice ordinato e documentato"
+        ]
+      },
+      {
+        "name": "Consegno e resto",
+        "you": "Usi il prodotto, con i tuoi clienti.",
+        "get": "Software online, documentazione e assistenza.",
+        "chips": [
+          "Backup automatici",
+          "Dati in Europa",
+          "Il codice resta tuo"
+        ]
       }
     ]
   }
