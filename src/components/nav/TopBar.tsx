@@ -51,7 +51,7 @@ export function TopBar() {
             scrollToY(0);
           }
         }}
-        className="pointer-events-auto t-label rounded-full px-2 py-2 text-ink"
+        className="pointer-events-auto t-label rounded-full px-2 py-2 text-white mix-blend-difference"
         aria-label={profile.name}
       >
         {profile.name}
@@ -60,7 +60,7 @@ export function TopBar() {
         <GlassSegmented id="lens-lang" options={options} selected={routing.locales.indexOf(locale)} onSelect={onSelect} label={t("language")} />
         <Drop
           floating
-          className="h-[42px] w-[42px]"
+          className="h-[42px] w-[42px] bg-black/55"
           label={sound ? t("soundOn") : t("soundOff")}
           onClick={() => {
             const on = !soundOn();

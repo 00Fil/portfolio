@@ -227,7 +227,7 @@ export function GlassTopNav({ home }: { home: boolean }) {
         <div
           ref={shell}
           className="drop float-glass relative flex items-center gap-2 transition-[padding] duration-500 ease-[var(--ease-out)]"
-          style={{ borderRadius: 999, padding: compact ? "5px 6px 5px 18px" : "8px 8px 8px 22px", ["--drop-tint" as string]: "rgba(0,0,0,0.42)" }}
+          style={{ borderRadius: 999, padding: compact ? "5px 6px 5px 18px" : "8px 8px 8px 22px", ["--drop-tint" as string]: "rgba(8,8,10,0.74)" }}
         >
           <a
             href={`/${locale}`}

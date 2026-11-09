@@ -34,7 +34,7 @@
   },
   "work": {
     "title": "Selected work",
-    "lead": "Three projects seen through to the end. For each: how it was, what changed, what stays.",
+    "lead": "Three projects, told in a few seconds.",
     "view": "Open",
     "open": "Open {name}",
     "case": "Read the case study",
@@ -46,37 +46,30 @@
     "colRole": "Role",
     "colPlatforms": "Platforms",
     "colYear": "Year",
-    "steps": [
-      "Before",
-      "Now",
-      "Result"
-    ],
     "stories": {
       "creacloud": {
-        "kicker": "For a tutoring centre",
-        "lines": [
-          "Every month, dozens of families and tutors fitted together by hand, one message at a time.",
-          "Now they write on WhatsApp as usual. An assistant collects requests, changes and cancellations.",
-          "The month’s schedule puts itself together. The coordinator checks it and approves."
+        "beats": [
+          "Scattered messages.",
+          "One chat.",
+          "The month is ready."
         ]
       },
       "relay": {
-        "kicker": "Apps for phone and computer",
-        "lines": [
-          "Moving an address from computer to phone meant an app, a cloud service or a cable.",
-          "Copy on the computer, paste on the phone. Screenshots and files too.",
-          "And your headphones move on their own to the device you are using."
+        "beats": [
+          "The long way round.",
+          "Copy. Paste.",
+          "Your headphones follow."
         ]
       },
       "unispace": {
-        "kicker": "Tools for studying",
-        "lines": [
-          "A recorded lecture runs for hours, full of pauses and silences.",
-          "The silences disappear and the lecture plays up to three times faster.",
-          "The transcript arrives on its own, formulas included."
+        "beats": [
+          "Hours of silence.",
+          "Three times faster.",
+          "Transcribed on its own."
         ]
       }
-    }
+    },
+    "discover": "Discover"
   },
   "stack": {
     "title": "Tools",
@@ -208,7 +201,7 @@
   "method": {
     "label": "Method",
     "title": "How I work",
-    "lead": "Whether it is an app, a website or an internal tool, the path is the same: five stages, and at the end of each you hold something concrete.",
+    "lead": "Five stages, from idea to working software.",
     "phases": [
       {
         "name": "Understand",

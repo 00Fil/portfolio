@@ -90,7 +90,8 @@ export function CreaCloudScene({ lang }: { lang: Lang }) {
                 height: "calc(20% - 0.8cqw)",
               }}
             >
-              {s.n}
+              <span data-fill className="absolute inset-0 rounded-[1cqw] bg-[var(--acc)] opacity-0" />
+              <span className="relative">{s.n}</span>
             </span>
           ))}
         </div>
@@ -99,13 +100,13 @@ export function CreaCloudScene({ lang }: { lang: Lang }) {
       <div data-phone className={`${panel} left-[3%] top-[12%] flex h-[76%] w-[31%] flex-col gap-[1.4cqw] rounded-[3.6cqw] p-[1.8cqw] pt-[5cqw]`} style={{ transform: "translateZ(60px)" }}>
         <span className="absolute left-1/2 top-[1.6cqw] h-[1cqw] w-[8cqw] -translate-x-1/2 rounded-full bg-black" />
         <p data-b className="max-w-[85%] self-start rounded-[1.6cqw] rounded-bl-[0.4cqw] bg-sunken px-[1.4cqw] py-[1cqw] text-[1.6cqw] leading-[1.3] text-ink">{t.msg[0]}</p>
-        <p data-b className="max-w-[85%] self-end rounded-[1.6cqw] rounded-br-[0.4cqw] bg-[var(--sky)] px-[1.4cqw] py-[1cqw] text-[1.6cqw] leading-[1.3] text-black">{t.msg[1]}</p>
+        <p data-b className="max-w-[85%] self-end rounded-[1.6cqw] rounded-br-[0.4cqw] bg-[var(--acc)] px-[1.4cqw] py-[1cqw] text-[1.6cqw] leading-[1.3] text-[var(--on-acc)]">{t.msg[1]}</p>
         <p data-b className="max-w-[85%] self-start rounded-[1.6cqw] rounded-bl-[0.4cqw] bg-sunken px-[1.4cqw] py-[1cqw] text-[1.6cqw] leading-[1.3] text-ink">{t.msg[2]}</p>
       </div>
 
       <div data-toast className="drop absolute bottom-[4%] left-[44%] flex items-center gap-[1.4cqw] py-[1cqw] pl-[1cqw] pr-[1.2cqw]" style={{ transform: "translateZ(120px)", ["--drop-tint" as string]: "rgba(28,28,30,0.7)" }}>
-        <span className="flex h-[3.4cqw] w-[3.4cqw] items-center justify-center rounded-full bg-[var(--sky)]">
-          <Check className="h-[2cqw] w-[2cqw] text-black" strokeWidth={2.6} />
+        <span className="flex h-[3.4cqw] w-[3.4cqw] items-center justify-center rounded-full bg-[var(--acc)]">
+          <Check className="h-[2cqw] w-[2cqw] text-[var(--on-acc)]" strokeWidth={2.6} />
         </span>
         <span className="text-[1.8cqw] font-medium text-ink">{t.ready}</span>
         <span className="rounded-full bg-white/10 px-[1.4cqw] py-[0.6cqw] text-[1.6cqw] text-ink">{t.approve}</span>
@@ -130,7 +131,8 @@ export const creaCloudBuild: Build = (tl, q) => {
     // 2: le lezioni si mettono in ordine da sole
     .to(q("[data-calgrid]"), { autoAlpha: 1, duration: 0.3 }, 1.7)
     .to(slots, { xPercent: 0, yPercent: 0, rotate: 0, duration: 0.45, stagger: 0.035, ease: "power3.inOut" }, 1.75)
-    .to(slots, { backgroundColor: "#0f3a55", color: "#d6efff", duration: 0.2, stagger: 0.035 }, 2.05)
+    .to(q("[data-fill]"), { opacity: 1, duration: 0.2, stagger: 0.035 }, 2.05)
+    .to(slots, { color: "#ffffff", duration: 0.2, stagger: 0.035 }, 2.05)
     .to(q("[data-toast]"), { autoAlpha: 1, y: 0, scale: 1, duration: 0.25, ease: "back.out(2)" }, 2.35);
 };
 
@@ -142,7 +144,7 @@ export function RelayScene({ lang }: { lang: Lang }) {
     <>
       <svg aria-hidden viewBox="0 0 100 80" preserveAspectRatio="none" className="absolute inset-0 h-full w-full" fill="none">
         <path data-detour d="M30 26 C 30 10, 42 6, 50 8 C 58 6, 74 8, 76 14" stroke="#a6a6a1" strokeWidth="1.4" strokeDasharray="2 2.4" vectorEffect="non-scaling-stroke" />
-        <path data-arc d="M34 34 Q 58 14 78 34" stroke="#5ec4ff" strokeWidth="1.6" strokeLinecap="round" vectorEffect="non-scaling-stroke" pathLength={1} strokeDasharray="1" strokeDashoffset="1" />
+        <path data-arc d="M34 34 Q 58 14 78 34" style={{ stroke: "var(--acc)" }} strokeWidth="1.6" strokeLinecap="round" vectorEffect="non-scaling-stroke" pathLength={1} strokeDasharray="1" strokeDashoffset="1" />
       </svg>
       <div data-cloud className="absolute left-1/2 top-[2%] flex -translate-x-1/2 flex-col items-center text-ink-3">
         <Cloud className="h-[6cqw] w-[6cqw]" strokeWidth={1.2} />
@@ -155,7 +157,7 @@ export function RelayScene({ lang }: { lang: Lang }) {
             <div className="h-[1.2cqw] w-[40%] rounded-full bg-white/10" />
             <div className="h-[1.2cqw] w-[70%] rounded-full bg-white/[0.06]" />
             <p className="text-[2cqw] text-ink">
-              <span data-sel className="rounded-[0.4cqw] bg-[rgba(94,196,255,0.3)] px-[0.4cqw] text-ink">{t.copied}</span>
+              <span data-sel className="rounded-[0.4cqw] bg-[color-mix(in_srgb,var(--acc)_45%,transparent)] px-[0.4cqw] text-ink">{t.copied}</span>
             </p>
             <div className="h-[1.2cqw] w-[56%] rounded-full bg-white/[0.06]" />
             <div className="h-[1.2cqw] w-[64%] rounded-full bg-white/[0.06]" />
@@ -173,9 +175,9 @@ export function RelayScene({ lang }: { lang: Lang }) {
           <p data-pasted className="mt-[0.4cqw] text-[1.6cqw] leading-tight text-ink">{t.copied}</p>
         </div>
         <div data-thumb-in className="flex aspect-[4/3] items-center justify-center rounded-[1.4cqw] bg-sunken">
-          <FileImage className="h-[4cqw] w-[4cqw] text-[var(--sky)]" strokeWidth={1.2} />
+          <FileImage className="h-[4cqw] w-[4cqw] text-[var(--acc)]" strokeWidth={1.2} />
         </div>
-        <div data-hp-in className="mt-auto flex items-center gap-[1cqw] rounded-full bg-[var(--sky)] px-[1.2cqw] py-[0.8cqw] text-black">
+        <div data-hp-in className="mt-auto flex items-center gap-[1cqw] rounded-full bg-[var(--acc)] px-[1.2cqw] py-[0.8cqw] text-[var(--on-acc)]">
           <Headphones className="h-[2.2cqw] w-[2.2cqw]" strokeWidth={2} />
           <span className="text-[1.3cqw] font-medium leading-tight">{t.phones}</span>
         </div>
@@ -190,7 +192,7 @@ export function RelayScene({ lang }: { lang: Lang }) {
       </span>
       <span data-hp className="absolute left-[44%] top-[74%] flex h-[7cqw] w-[7cqw] items-center justify-center rounded-full bg-sunken text-ink shadow-[0_0_0_1px_rgba(255,255,255,0.08)]" style={{ transform: "translateZ(100px)" }}>
         <Headphones className="h-[3.4cqw] w-[3.4cqw]" strokeWidth={1.5} />
-        <span data-ring className="absolute inset-0 rounded-full border border-[var(--sky)] opacity-0" />
+        <span data-ring className="absolute inset-0 rounded-full border border-[var(--acc)] opacity-0" />
       </span>
     </>
   );
@@ -207,7 +209,6 @@ export const relayBuild: Build = (tl, q) => {
     // 1: il cloud sparisce, il testo copiato va dritto al telefono, poi lo screenshot
     .to(q("[data-detour], [data-cloud]"), { autoAlpha: 0, duration: 0.2 }, 0.75)
     .to(q("[data-arc]"), { strokeDashoffset: 0, duration: 0.3, ease: "power2.inOut" }, 0.8)
-    .to(q("[data-sel]"), { backgroundColor: "rgba(94,196,255,0.55)", duration: 0.1 }, 0.8)
     .to(q("[data-fly]"), { autoAlpha: 1, duration: 0.06 }, 0.85)
     .to(q("[data-fly]"), { keyframes: [{ left: "40%", top: "14%", scale: 0.95 }, { left: "70%", top: "24%", scale: 0.6 }], duration: 0.4, ease: "power1.inOut" }, 0.86)
     .to(q("[data-fly]"), { autoAlpha: 0, duration: 0.08 }, 1.24)
@@ -236,7 +237,7 @@ export function UniSpaceScene({ lang }: { lang: Lang }) {
           <p className="text-[1.8cqw] font-medium text-ink">{t.lecture}</p>
           <span className="relative h-[3.2cqw] w-[6cqw] overflow-hidden rounded-full bg-sunken text-[1.6cqw] font-medium">
             <span data-x1 className="absolute inset-0 flex items-center justify-center text-ink-2">1×</span>
-            <span data-x3 className="absolute inset-0 flex items-center justify-center bg-[var(--sky)] text-black">3×</span>
+            <span data-x3 className="absolute inset-0 flex items-center justify-center bg-[var(--acc)] text-[var(--on-acc)]">3×</span>
           </span>
         </div>
         <div data-track className="mt-[2.4cqw] flex h-[9cqw] items-center">
@@ -244,7 +245,7 @@ export function UniSpaceScene({ lang }: { lang: Lang }) {
             i % 2 === 0 ? (
               <span key={i} className="flex h-full shrink-0 items-center gap-[0.35cqw] px-[0.2cqw]" style={{ width: `${w * 1.3}%` }}>
                 {BARS(i).map((h, k) => (
-                  <span key={k} data-bar className="w-[0.45cqw] flex-1 rounded-full bg-[var(--sky)]" style={{ height: `${h}%` }} />
+                  <span key={k} data-bar className="w-[0.45cqw] flex-1 rounded-full bg-[var(--acc)]" style={{ height: `${h}%` }} />
                 ))}
               </span>
             ) : (

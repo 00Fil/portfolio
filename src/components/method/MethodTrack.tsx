@@ -4,7 +4,6 @@ import { useRef, useState, type ReactNode } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { Check } from "lucide-react";
 import { ArchitectureTile, CanaryTile, GitTile, MonitorTile, PipelineTile, ReleaseTile, RequirementsTile } from "@/components/previews/Workflow";
 import { play } from "@/lib/sound";
 import { scrollToY } from "@/lib/scroll";
@@ -23,31 +22,15 @@ const VISUALS: ReactNode[][] = [
 
 const pad = (i: number) => String(i + 1).padStart(2, "0");
 
-function Text({ p, i, output }: { p: Phase; i: number; output: string }) {
+function Text({ p, i }: { p: Phase; i: number; output?: string }) {
   return (
     <div>
       <p data-pt className="t-label font-mono text-[var(--sky)]">
         {pad(i)} · {p.name}
       </p>
-      <h3 data-pt className="mt-4 text-[clamp(30px,3.4vw,48px)] font-medium leading-[1.05] tracking-[-0.035em] text-ink">
+      <h3 data-pt className="mt-5 max-w-[14ch] text-[clamp(36px,4.4vw,64px)] font-medium leading-[1.02] tracking-[-0.045em] text-ink">
         {p.title}
       </h3>
-      <p data-pt className="mt-5 max-w-[46ch] text-[16px] leading-[26px] text-ink-2">
-        {p.body}
-      </p>
-      <ul className="mt-7 space-y-2.5">
-        {p.practices.map((x) => (
-          <li data-pt key={x} className="flex items-center gap-3 text-ink">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-subtle">
-              <Check size={12} strokeWidth={2.4} className="text-accent-on-subtle" aria-hidden />
-            </span>
-            {x}
-          </li>
-        ))}
-      </ul>
-      <p data-pt className="t-foot mt-8 text-ink-3">
-        {output}: <span className="text-ink-2">{p.out}</span>
-      </p>
     </div>
   );
 }

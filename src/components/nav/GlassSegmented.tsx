@@ -171,7 +171,7 @@ export function GlassSegmented({ options, selected, onSelect, label, id }: Props
     );
 
   return (
-    <div className="drop float-glass relative" style={{ height: H, width: 44 * n + PAD * 2, ["--drop-tint" as string]: "rgba(0,0,0,0.35)" }}>
+    <div className="drop float-glass relative" style={{ height: H, width: 44 * n + PAD * 2, ["--drop-tint" as string]: "rgba(8,8,10,0.7)" }}>
       {lens && itemW > 0 && <LensFilter id={id} width={itemW} height={h} radius={h / 2} edge={9} amount={7} aberr={0.3} sat={1.3} />}
       <div ref={trackRef} role="radiogroup" aria-label={label} className="absolute flex touch-none select-none" style={{ inset: PAD }}>
         {row(labels, true)}

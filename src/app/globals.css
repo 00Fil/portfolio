@@ -185,7 +185,7 @@ html.lens .bar-glass { backdrop-filter: url(#lens-bar) blur(14px) saturate(1.5);
   -webkit-backdrop-filter: blur(14px) saturate(1.5);
   backdrop-filter: blur(14px) saturate(1.5);
 }
-.bar-veil { background: linear-gradient(180deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.3)); }
+.bar-veil { background: linear-gradient(180deg, rgba(8, 8, 10, 0.74), rgba(8, 8, 10, 0.66)); }
 
 }
 

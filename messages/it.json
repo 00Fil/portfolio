@@ -34,7 +34,7 @@
   },
   "work": {
     "title": "Lavori selezionati",
-    "lead": "Tre progetti portati fino in fondo. Per ognuno: com’era prima, cosa è cambiato, cosa resta.",
+    "lead": "Tre progetti, raccontati in pochi secondi.",
     "view": "Apri",
     "open": "Apri {name}",
     "case": "Leggi il caso studio",
@@ -46,37 +46,30 @@
     "colRole": "Ruolo",
     "colPlatforms": "Piattaforme",
     "colYear": "Anno",
-    "steps": [
-      "Prima",
-      "Ora",
-      "Risultato"
-    ],
     "stories": {
       "creacloud": {
-        "kicker": "Per un centro didattico",
-        "lines": [
-          "Ogni mese, decine di famiglie e tutor da incastrare a mano, un messaggio alla volta.",
-          "Ora scrivono su WhatsApp come sempre. Un assistente raccoglie richieste, spostamenti e disdette.",
-          "Il calendario del mese si compone da solo. Il coordinatore controlla e approva."
+        "beats": [
+          "Messaggi sparsi.",
+          "Una chat.",
+          "Il mese è pronto."
         ]
       },
       "relay": {
-        "kicker": "App per telefono e computer",
-        "lines": [
-          "Passare un indirizzo dal computer al telefono voleva dire un’app, un cloud o un cavo.",
-          "Copi sul computer, incolli sul telefono. Lo stesso vale per screenshot e file.",
-          "E le cuffie passano da sole al dispositivo che stai usando."
+        "beats": [
+          "Il giro lungo.",
+          "Copia. Incolla.",
+          "Le cuffie ti seguono."
         ]
       },
       "unispace": {
-        "kicker": "Strumenti per lo studio",
-        "lines": [
-          "Una lezione registrata dura ore, tra pause e silenzi.",
-          "I silenzi spariscono e la lezione scorre fino a tre volte più veloce.",
-          "La trascrizione arriva da sola, formule comprese."
+        "beats": [
+          "Ore di silenzi.",
+          "Tre volte più veloce.",
+          "Trascritta da sola."
         ]
       }
-    }
+    },
+    "discover": "Scopri"
   },
   "stack": {
     "title": "Strumenti",
@@ -208,7 +201,7 @@
   "method": {
     "label": "Metodo",
     "title": "Come lavoro",
-    "lead": "Che sia un’app, un sito o uno strumento per l’ufficio, il percorso è lo stesso: cinque tappe, e alla fine di ognuna hai in mano qualcosa di concreto.",
+    "lead": "Cinque tappe, dall’idea al software che funziona.",
     "phases": [
       {
         "name": "Capire",

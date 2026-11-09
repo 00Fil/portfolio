@@ -11,6 +11,7 @@ import { SiteNav } from "@/components/nav/SiteNav";
 import { Drop } from "@/components/glass/Drop";
 import { Footer } from "@/components/sections/Footer";
 import { Slats } from "@/components/visual/Slats";
+import { THEMES, tokenVars } from "@/content/themes";
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) => projects.map((p) => ({ locale, slug: p.slug })));
@@ -63,12 +64,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
   return (
     <>
       <PageEnter>
+        <div style={tokenVars(THEMES[p.slug])}>
         <main id="main" className="mx-auto w-full max-w-[1200px] px-5 pt-32 sm:px-8 sm:pt-40">
           <Reveal as="header" className="pb-12 sm:pb-16">
             <p className="t-label t-fig mb-6 text-ink-3" data-reveal>
               {String(idx + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}
             </p>
-            <h1 className="t-display text-ink" data-reveal data-split>
+            <h1 className="t-display text-[var(--accent)]" data-reveal data-split>
               {p.name}
             </h1>
             <p className="t-callout mt-6 max-w-[40ch] text-ink-2" data-reveal>
@@ -153,6 +155,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
             </div>
           </Reveal>
         </main>
+        </div>
         <Footer withContact={false} />
       </PageEnter>
       <SiteNav detail={{ title: p.name }} />
