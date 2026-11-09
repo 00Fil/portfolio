@@ -5,12 +5,12 @@ import { useTranslations } from "next-intl";
 import { GlassTabBar, type Tab } from "./GlassTabBar";
 import { GlassTopNav } from "./GlassTopNav";
 
-export const SECTION_IDS = ["home", "work", "approach", "stack", "path", "contact"] as const;
+export const SECTION_IDS = ["home", "approach", "work", "path", "stack", "contact"] as const;
 
 export function SiteNav({ detail }: { detail?: { title: string; section?: "work" | "approach" } }) {
   const sec = detail?.section ?? "work";
   const t = useTranslations("nav");
-  const icons = [House, LayoutGrid, Waypoints, Layers, Route, Mail];
+  const icons = [House, Waypoints, LayoutGrid, Route, Layers, Mail];
   const tabs: Tab[] = SECTION_IDS.map((id, i) => ({ id, label: t(id), icon: icons[i] }));
   return (
     <>

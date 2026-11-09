@@ -27,7 +27,7 @@ export async function Work() {
   return (
     <section id="work" className="relative mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-36">
       <Reveal>
-        <SectionHead index="01" title={t("title")} lead={t("lead")} />
+        <SectionHead index="02" title={t("title")} lead={t("lead")} />
       </Reveal>
       <div className="mt-12 grid gap-x-8 gap-y-16 sm:mt-16 lg:grid-cols-2">
         <Reveal className="lg:col-span-2">

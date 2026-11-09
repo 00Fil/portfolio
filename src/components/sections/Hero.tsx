@@ -5,7 +5,7 @@ import { useMessages, useTranslations } from "next-intl";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, ArrowRight } from "lucide-react";
 import { Drop } from "@/components/glass/Drop";
 import { HeroSky } from "@/components/visual/HeroSky";
 import { Cover } from "@/components/work/Covers";
@@ -52,9 +52,9 @@ function Cycler({ items, at, kind }: { items: ReactNode[]; at: number; kind: Kin
     prev.current = at;
   }, [at, kind]);
   return (
-    <span ref={box} data-cycler={kind} className="relative mx-[0.14em] inline-block h-[1em] align-[-0.12em]">
+    <span ref={box} data-cycler={kind} className="relative mx-[0.14em] block h-[1.06em] self-stretch">
       {items.map((it, i) => (
-        <span key={i} className="invisible absolute left-0 top-1/2 flex -translate-y-1/2 items-center whitespace-nowrap">
+        <span key={i} className="invisible absolute left-0 top-0 flex h-full items-center whitespace-nowrap">
           {it}
         </span>
       ))}
@@ -68,7 +68,8 @@ function Cycler({ items, at, kind }: { items: ReactNode[]; at: number; kind: Kin
  */
 export function Hero() {
   const t = useTranslations("hero");
-  const m = (useMessages() as unknown as { hero: { lines: string[][]; words: string[] } }).hero;
+  const m = (useMessages() as unknown as { hero: { lines: string[][]; words: string[]; proof: [string, string][] } }).hero;
+  const proof = m.proof;
   const root = useRef<HTMLElement>(null);
   const [at, setAt] = useState(0);
 
@@ -167,7 +168,7 @@ export function Hero() {
   };
 
   return (
-    <section ref={root} id="home" className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden pb-28 pt-32">
+    <section ref={root} id="home" className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden pb-20 pt-32">
       <HeroSky />
       <h1 className="sr-only">{t("h1")}</h1>
 
@@ -190,14 +191,24 @@ export function Hero() {
             {t("lead", { name: profile.name })}
           </p>
           <div className="mt-9 flex flex-wrap justify-center gap-3" data-hero-rest>
-            <Drop href="#work" accent className="h-12 px-5 font-medium text-ink">
+            <Drop href="#contact" accent className="h-12 px-5 font-medium text-ink">
+              {t("contact")}
+              <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
+            </Drop>
+            <Drop href="#work" floating className="h-12 px-5 font-medium text-ink">
               {t("work")}
               <ArrowDown size={18} strokeWidth={1.6} aria-hidden />
             </Drop>
-            <Drop href="#contact" floating className="h-12 px-5 font-medium text-ink">
-              {t("contact")}
-            </Drop>
           </div>
+          {/* prove subito sotto l'invito: numeri veri, niente loghi inventati */}
+          <ul className="mt-12 grid w-full max-w-[760px] grid-cols-3 gap-4 border-t border-white/[0.08] pt-6" data-hero-rest>
+            {proof.map(([v, l]) => (
+              <li key={v} className="text-center">
+                <p className="t-fig text-[clamp(22px,2.4vw,30px)] font-medium tracking-[-0.03em] text-ink">{v}</p>
+                <p className="mt-1 text-[12px] leading-snug text-ink-3 sm:text-[13px]">{l}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

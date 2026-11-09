@@ -4,6 +4,8 @@ import { Work } from "@/components/sections/Work";
 import { Services } from "@/components/sections/Services";
 import { Stack } from "@/components/sections/Stack";
 import { Path } from "@/components/sections/Path";
+import { Why } from "@/components/sections/Why";
+import { Faq } from "@/components/sections/Faq";
 import { Footer } from "@/components/sections/Footer";
 import { SiteNav } from "@/components/nav/SiteNav";
 
@@ -14,10 +16,12 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     <>
       <main id="main">
         <Hero />
-        <Work />
         <Services />
-        <Stack />
+        <Work />
+        <Why />
         <Path />
+        <Stack />
+        <Faq />
       </main>
       <Footer />
       <SiteNav />

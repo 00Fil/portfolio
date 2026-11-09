@@ -30,7 +30,7 @@
     "lead": "Sono {name}. Realizzo software su misura per aziende e professionisti: piattaforme web, app per telefono e computer, sistemi con AI che automatizzano i processi. Seguo ogni progetto dall’analisi al rilascio e resto il riferimento anche dopo.",
     "status": "Disponibile per nuovi progetti",
     "work": "Vedi i lavori",
-    "contact": "Scrivimi",
+    "contact": "Richiedi un preventivo",
     "h1": "Progetto e sviluppo software su misura: siti web, web app, app, sistemi AI e hardware.",
     "where": "Brescia, IT",
     "lines": [
@@ -55,6 +55,20 @@
       "app",
       "sistemi AI",
       "hardware"
+    ],
+    "proof": [
+      [
+        "80+",
+        "famiglie usano ogni giorno un mio software"
+      ],
+      [
+        "3",
+        "prodotti online, dall’idea al rilascio"
+      ],
+      [
+        "24 h",
+        "per la prima risposta"
+      ]
     ]
   },
   "work": {
@@ -112,28 +126,32 @@
     }
   },
   "faq": {
-    "title": "Domande",
-    "lead": "Le risposte brevi stanno qui. Per il resto, scrivimi.",
+    "title": "Domande frequenti",
+    "lead": "Le risposte alle domande che arrivano prima di ogni progetto.",
     "items": [
       {
-        "q": "Di cosa ti occupi?",
-        "a": "Progetto e sviluppo software su commissione: app native per Android e Windows, piattaforme web e strumenti interni, comprese le integrazioni con modelli AI."
+        "q": "Quanto costa un progetto?",
+        "a": "Dipende da cosa serve. Dopo una prima chiamata ricevi un preventivo scritto con costi, tempi e cosa è incluso, così sai fin dall’inizio quanto spenderai."
       },
       {
-        "q": "Dove lavori?",
-        "a": "A Brescia, in presenza o da remoto."
+        "q": "In quanto tempo è pronto?",
+        "a": "Un sito aziendale richiede di solito alcune settimane, una piattaforma su misura qualche mese. I tempi esatti sono nel preventivo, con consegne intermedie che puoi provare."
       },
       {
-        "q": "Che tipo di progetti accetti?",
-        "a": "Progetti a pagamento con un obiettivo chiaro: un sito, una piattaforma, un’app o uno strumento interno da portare in produzione."
+        "q": "Di chi sono il codice e i dati?",
+        "a": "Tuoi. Alla consegna ricevi codice, accessi e documentazione; i dati restano sui tuoi server o su servizi intestati a te."
       },
       {
-        "q": "Con quali tecnologie lavori?",
-        "a": "Dipende dal progetto. Quelle che ho già portato in produzione sono nella sezione Strumenti."
+        "q": "Cosa succede dopo la consegna?",
+        "a": "Resto il riferimento: assistenza, aggiornamenti di sicurezza e nuove funzioni, con un accordo di manutenzione se ti serve."
       },
       {
-        "q": "Come iniziamo?",
-        "a": "Scrivimi cosa ti serve, per chi e entro quando. Rispondo con le domande che mancano e una proposta."
+        "q": "Lavori anche fuori Brescia?",
+        "a": "Sì, da remoto con aziende in tutta Italia e all’estero, in italiano e in inglese. Per i progetti in zona possiamo vederci di persona."
+      },
+      {
+        "q": "Posso partire dal software che ho già?",
+        "a": "Sì. Analizzo cosa c’è, tengo quello che funziona e lo collego o lo rinnovo un pezzo alla volta, senza fermare il lavoro."
       }
     ]
   },
@@ -319,8 +337,8 @@
       "inp": "Reattività",
       "cls": "Stabilità",
       "geoLabel": "Assistente AI",
-      "geoQ": "Chi sviluppa gestionali su misura a Brescia?",
-      "geoA": "Per un gestionale su misura a Brescia conviene uno sviluppatore che segua progetto, sviluppo e assistenza: tuosito.it realizza piattaforme web e automazioni per aziende.",
+      "geoQ": "Chi può sviluppare un gestionale su misura a Brescia?",
+      "geoA": "Per un gestionale su misura a Brescia puoi rivolgerti a uno sviluppatore che segua progetto, sviluppo e assistenza nel tempo: tra i profili citati c’è",
       "frame": "Prenotazione",
       "designTitle": "Lezione di matematica",
       "designSub": "Giovedì 14 novembre",
@@ -341,8 +359,68 @@
       "hwDevice": "Sensore magazzino",
       "hwTemp": "Temperatura",
       "hwHum": "Umidità",
-      "hwOnline": "dispositivi online",
-      "hwAlert": "Avviso sotto i 4 °C"
+      "hwOnline": "3 sensori collegati",
+      "hwAlert": "Ti avviso se supera i 6 °C",
+      "webNav1": "Soluzioni",
+      "webNav2": "Progetti",
+      "webNav3": "Azienda",
+      "webCta": "Contattaci",
+      "webKicker": "ENERGIA · INDUSTRIA",
+      "webTitle": "Energia pulita per l’industria che cresce.",
+      "webBtn1": "Richiedi un’analisi",
+      "webBtn2": "Scopri di più",
+      "webStat1": "impianti attivi",
+      "webStat2": "paesi serviti",
+      "webStat3": "assistenza",
+      "webSec": "Soluzioni per ogni impianto",
+      "webCard1": "Fotovoltaico",
+      "webCard2": "Accumulo",
+      "webCard3": "Monitoraggio",
+      "webCardSub": "Progetto, installazione e controllo da remoto.",
+      "seoClicks": "Visite da Google",
+      "seoPos": "Posizione media",
+      "seoMonths": "Gen Mar Mag Lug Set Nov",
+      "seoPass": "Superati",
+      "geoReply": "Rispondi a Claude…",
+      "designType": "Serif · Sans · Mono",
+      "designGhost": "Annulla",
+      "designToggle": "Animazioni",
+      "aiDoc": "Ordine_Rossi.pdf",
+      "aiF1": "Cliente",
+      "aiF2": "Importo",
+      "aiF3": "Consegna",
+      "aiAgent": "Assistente AI",
+      "aiS1": "Ordine letto",
+      "aiS2": "Prezzi e magazzino controllati",
+      "aiS3": "Preparato nel gestionale",
+      "aiS4": "Richiesta di approvazione",
+      "aiAsk": "Da approvare",
+      "aiCustomer": "Rossi Srl · 40 pezzi",
+      "aiApprove": "Approva",
+      "aiDone": "Cliente avvisato",
+      "apiCore": "Il tuo gestionale",
+      "apiPay": "Pagamenti",
+      "apiCrm": "Clienti",
+      "apiCal": "Calendario",
+      "apiLog": "Ordine pagato: fattura e conferma inviate",
+      "shopNew": "Novità",
+      "shopName": "Vaso Onda",
+      "shopSub": "Ceramica fatta a mano",
+      "shopOr": "oppure con carta",
+      "shopPay": "Paga",
+      "shopDone": "Pagamento riuscito",
+      "opsAll": "Tutto funziona",
+      "opsDays": "ultimi 90 giorni",
+      "opsAgo": "90 giorni fa",
+      "opsUp": "online",
+      "opsToday": "oggi",
+      "opsR1": "Copia di sicurezza di stanotte salvata",
+      "opsR2": "Connessione protetta, lucchetto attivo",
+      "opsR3": "Aggiornamento pubblicato senza interruzioni",
+      "hwPlace": "Cella frigo 2",
+      "hwWhere": "Magazzino · sensore installato",
+      "hwOk": "Nella norma",
+      "hwChart": "Temperatura · ultime 24 ore"
     },
     "open": "Scopri",
     "includes": "Cosa include",
@@ -350,14 +428,16 @@
     "related": "Lavori collegati",
     "others": "Altri servizi",
     "cta": "Parliamo del tuo progetto",
-    "ctaLead": "Rispondi a qualche domanda: ti ricontatto con una proposta."
+    "ctaLead": "Rispondi a qualche domanda: ti ricontatto con una proposta.",
+    "before": "Prima",
+    "after": "Dopo"
   },
   "brief": {
     "kicker": "Nuovo progetto",
     "next": "Avanti",
     "back": "Indietro",
     "send": "Invia la richiesta",
-    "enter": "oppure premi Invio",
+    "enter": "oppure premi",
     "optional": "facoltativo",
     "step": "Passo",
     "steps": [
@@ -460,6 +540,31 @@
     "doneTitle": "Richiesta ricevuta",
     "doneBody": "Grazie {name}. Ti rispondo entro un giorno lavorativo con le prime domande e una stima.",
     "again": "Nuova richiesta",
-    "demo": "Anteprima: il modulo non invia ancora i dati."
+    "demo": "Anteprima: il modulo non invia ancora i dati.",
+    "key": "Invio"
+  },
+  "why": {
+    "title": "Perché lavorare con me",
+    "lead": "Meno intermediari, più controllo: sai sempre a che punto è il progetto e quanto costa.",
+    "items": [
+      {
+        "title": "Un solo referente",
+        "body": "Parli sempre con chi progetta e scrive il codice: nessun passaggio di mano, nessuna richiesta che si perde."
+      },
+      {
+        "title": "Preventivo chiaro",
+        "body": "Costi, tempi e cosa è incluso, scritti prima di iniziare. Niente sorprese a metà lavoro."
+      },
+      {
+        "title": "Lo provi mentre nasce",
+        "body": "Consegne frequenti: vedi e usi il progetto a ogni passo, non solo alla fine."
+      },
+      {
+        "title": "Tutto resta tuo",
+        "body": "Codice, dati e accessi sono tuoi. Dopo la consegna resto il riferimento per assistenza e nuove funzioni."
+      }
+    ],
+    "cta": "Hai un progetto in mente?",
+    "ctaBtn": "Richiedi un preventivo"
   }
 }

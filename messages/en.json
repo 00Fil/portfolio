@@ -30,7 +30,7 @@
     "lead": "I’m {name}. I build custom software for companies and professionals: web platforms, apps for phone and desktop, AI systems that automate processes. I take each project from analysis to release and stay on as the point of contact afterwards.",
     "status": "Available for new projects",
     "work": "See the work",
-    "contact": "Get in touch",
+    "contact": "Request a quote",
     "h1": "I design and build custom software: websites, web apps, apps, AI systems and hardware.",
     "where": "Brescia, IT",
     "lines": [
@@ -55,6 +55,20 @@
       "apps",
       "AI systems",
       "hardware"
+    ],
+    "proof": [
+      [
+        "80+",
+        "families use my software every day"
+      ],
+      [
+        "3",
+        "products live, from idea to launch"
+      ],
+      [
+        "24 h",
+        "for a first reply"
+      ]
     ]
   },
   "work": {
@@ -112,28 +126,32 @@
     }
   },
   "faq": {
-    "title": "Questions",
-    "lead": "The short answers live here. For anything else, write to me.",
+    "title": "Frequently asked questions",
+    "lead": "Answers to the questions that come before every project.",
     "items": [
       {
-        "q": "What do you do?",
-        "a": "I design and build software for clients: native apps for Android and Windows, web platforms and internal tools, including integrations with AI models."
+        "q": "How much does a project cost?",
+        "a": "It depends on what you need. After a first call you get a written quote with costs, timing and what’s included, so you know from day one what you’ll spend."
       },
       {
-        "q": "Where are you based?",
-        "a": "In Brescia, Italy. I work on site or remotely."
+        "q": "How long does it take?",
+        "a": "A company website usually takes a few weeks, a custom platform a few months. Exact timing is in the quote, with interim deliveries you can try."
       },
       {
-        "q": "What projects do you take on?",
-        "a": "Paid projects with a clear goal: a website, a platform, an app or an internal tool that needs to reach production."
+        "q": "Who owns the code and the data?",
+        "a": "You do. At delivery you get code, access and documentation; data stays on your servers or on services in your name."
       },
       {
-        "q": "Which technologies do you use?",
-        "a": "It depends on the project. The ones I have already shipped are listed under Tools."
+        "q": "What happens after launch?",
+        "a": "I stay your contact: support, security updates and new features, with a maintenance agreement if you need one."
       },
       {
-        "q": "How do we start?",
-        "a": "Tell me what you need, who it is for and by when. I reply with the questions still open and a proposal."
+        "q": "Do you work outside Brescia?",
+        "a": "Yes, remotely with companies across Italy and abroad, in Italian and English. For local projects we can meet in person."
+      },
+      {
+        "q": "Can we start from the software I already have?",
+        "a": "Yes. I look at what’s there, keep what works and connect or renew it one piece at a time, without stopping your work."
       }
     ]
   },
@@ -319,8 +337,8 @@
       "inp": "Response",
       "cls": "Stability",
       "geoLabel": "AI assistant",
-      "geoQ": "Who builds custom management software in Brescia?",
-      "geoA": "For custom management software in Brescia, pick a developer who handles design, build and support: yoursite.com builds web platforms and automation for businesses.",
+      "geoQ": "Who can build custom management software in Brescia?",
+      "geoA": "For custom management software in Brescia, look for a developer who handles design, build and long-term support: one of the profiles cited is",
       "frame": "Booking",
       "designTitle": "Maths lesson",
       "designSub": "Thursday 14 November",
@@ -341,8 +359,68 @@
       "hwDevice": "Warehouse sensor",
       "hwTemp": "Temperature",
       "hwHum": "Humidity",
-      "hwOnline": "devices online",
-      "hwAlert": "Alert below 4 °C"
+      "hwOnline": "3 sensors connected",
+      "hwAlert": "Alert if it goes above 6 °C",
+      "webNav1": "Solutions",
+      "webNav2": "Projects",
+      "webNav3": "Company",
+      "webCta": "Contact us",
+      "webKicker": "ENERGY · INDUSTRY",
+      "webTitle": "Clean energy for growing industry.",
+      "webBtn1": "Request an assessment",
+      "webBtn2": "Learn more",
+      "webStat1": "active plants",
+      "webStat2": "countries served",
+      "webStat3": "support",
+      "webSec": "Solutions for every plant",
+      "webCard1": "Solar",
+      "webCard2": "Storage",
+      "webCard3": "Monitoring",
+      "webCardSub": "Design, installation and remote control.",
+      "seoClicks": "Visits from Google",
+      "seoPos": "Average position",
+      "seoMonths": "Jan Mar May Jul Sep Nov",
+      "seoPass": "Passed",
+      "geoReply": "Reply to Claude…",
+      "designType": "Serif · Sans · Mono",
+      "designGhost": "Cancel",
+      "designToggle": "Motion",
+      "aiDoc": "Order_Rossi.pdf",
+      "aiF1": "Customer",
+      "aiF2": "Amount",
+      "aiF3": "Delivery",
+      "aiAgent": "AI assistant",
+      "aiS1": "Order read",
+      "aiS2": "Prices and stock checked",
+      "aiS3": "Prepared in your system",
+      "aiS4": "Approval requested",
+      "aiAsk": "To approve",
+      "aiCustomer": "Rossi Ltd · 40 units",
+      "aiApprove": "Approve",
+      "aiDone": "Customer notified",
+      "apiCore": "Your back office",
+      "apiPay": "Payments",
+      "apiCrm": "Customers",
+      "apiCal": "Calendar",
+      "apiLog": "Order paid: invoice and confirmation sent",
+      "shopNew": "New",
+      "shopName": "Onda Vase",
+      "shopSub": "Handmade ceramic",
+      "shopOr": "or pay by card",
+      "shopPay": "Pay",
+      "shopDone": "Payment successful",
+      "opsAll": "All systems working",
+      "opsDays": "last 90 days",
+      "opsAgo": "90 days ago",
+      "opsUp": "online",
+      "opsToday": "today",
+      "opsR1": "Last night’s backup saved",
+      "opsR2": "Secure connection, padlock on",
+      "opsR3": "Update published with no downtime",
+      "hwPlace": "Cold room 2",
+      "hwWhere": "Warehouse · sensor installed",
+      "hwOk": "Normal",
+      "hwChart": "Temperature · last 24 hours"
     },
     "open": "Explore",
     "includes": "What’s included",
@@ -350,14 +428,16 @@
     "related": "Related work",
     "others": "Other services",
     "cta": "Let’s talk about your project",
-    "ctaLead": "Answer a few questions and I’ll get back to you with a proposal."
+    "ctaLead": "Answer a few questions and I’ll get back to you with a proposal.",
+    "before": "Before",
+    "after": "After"
   },
   "brief": {
     "kicker": "New project",
     "next": "Next",
     "back": "Back",
     "send": "Send the request",
-    "enter": "or press Enter",
+    "enter": "or press",
     "optional": "optional",
     "step": "Step",
     "steps": [
@@ -460,6 +540,31 @@
     "doneTitle": "Request received",
     "doneBody": "Thanks {name}. I’ll reply within one working day with a few questions and an estimate.",
     "again": "New request",
-    "demo": "Preview: the form doesn’t send data yet."
+    "demo": "Preview: the form doesn’t send data yet.",
+    "key": "Enter"
+  },
+  "why": {
+    "title": "Why work with me",
+    "lead": "Fewer middlemen, more control: you always know where the project stands and what it costs.",
+    "items": [
+      {
+        "title": "One point of contact",
+        "body": "You always talk to the person who designs and writes the code: no hand-offs, no lost requests."
+      },
+      {
+        "title": "A clear quote",
+        "body": "Costs, timing and what’s included, in writing before we start. No surprises halfway."
+      },
+      {
+        "title": "Try it as it grows",
+        "body": "Frequent deliveries: you see and use the project at every step, not only at the end."
+      },
+      {
+        "title": "Everything stays yours",
+        "body": "Code, data and access are yours. After launch I stay on for support and new features."
+      }
+    ],
+    "cta": "Have a project in mind?",
+    "ctaBtn": "Request a quote"
   }
 }

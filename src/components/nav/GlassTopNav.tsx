@@ -39,10 +39,10 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
   const router = useRouter();
   const pathname = usePathname();
   const items: Item[] = [
-    { id: "work", label: t("work"), menu: "work" },
     { id: "approach", label: t("approach") },
-    { id: "stack", label: t("stack") },
+    { id: "work", label: t("work"), menu: "work" },
     { id: "path", label: t("path") },
+    { id: "stack", label: t("stack") },
     { id: "contact", label: t("contact"), menu: "contact" },
   ];
 
@@ -53,7 +53,7 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
   const itemRefs = useRef<(HTMLElement | null)[]>([]);
   const panel = useRef<HTMLDivElement>(null);
   const panes = useRef<Record<string, HTMLDivElement | null>>({});
-  const [active, setActive] = useState(home ? -1 : section === "approach" ? 1 : 0);
+  const [active, setActive] = useState(home ? -1 : section === "approach" ? 0 : 1);
   const [hover, setHover] = useState<number | null>(null);
   const [menu, setMenu] = useState<"work" | "contact" | null>(null);
   const [sound, setS] = useState(false);

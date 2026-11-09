@@ -19,13 +19,13 @@ const SPAN: Record<string, [number, number]> = {
   ai: [2, 1],
   hw: [2, 1],
   apps: [1, 1],
-  design: [1, 1],
+  design: [2, 1],
   ops: [2, 1],
-  api: [2, 1],
+  api: [1, 1],
   shop: [2, 1],
 };
 /* Ordine nella griglia: righe piene, nessun buco. */
-const ORDER = ["web", "seo", "geo", "ai", "hw", "apps", "design", "ops", "api", "shop"];
+const ORDER = ["web", "seo", "geo", "ai", "hw", "apps", "api", "design", "ops", "shop"];
 /* Ogni scheda inquadra un punto diverso dello stesso fondo di fibre. */
 const BG: CSSProperties[] = [
   { objectPosition: "20% 30%" },
@@ -138,7 +138,7 @@ export function Services() {
   return (
     <section id="approach" className="relative mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-36">
       <Reveal>
-        <SectionHead index="02" title={t("title")} lead={t("lead")} />
+        <SectionHead index="01" title={t("title")} lead={t("lead")} />
       </Reveal>
       <Reveal>
         <div data-reveal>

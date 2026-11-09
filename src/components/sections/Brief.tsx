@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useMessages } from "next-intl";
 import { gsap } from "gsap";
-import { ArrowLeft, ArrowRight, Check, CornerDownLeft } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, ChevronUp, CornerDownLeft } from "lucide-react";
 import { prefersReducedMotion } from "@/lib/env";
 
 type Field = { id: string; ph: string; req?: boolean; type?: string };
@@ -14,6 +14,7 @@ type T = {
   back: string;
   send: string;
   enter: string;
+  key: string;
   optional: string;
   step: string;
   steps: Step[];
@@ -23,6 +24,10 @@ type T = {
   demo: string;
 };
 
+const isVisible = (el: HTMLElement) => {
+  const r = el.getBoundingClientRect();
+  return r.top < window.innerHeight && r.bottom > 0;
+};
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
@@ -103,6 +108,20 @@ export function Brief({ preset }: { preset?: number }) {
     if (!step.note) window.setTimeout(() => go(Math.min(i + 1, steps.length - 1)), 320);
   };
 
+  // come nei moduli a domande: la lettera sceglie l'opzione
+  useEffect(() => {
+    if (done || !step.options) return;
+    const on = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (!stage.current?.closest("form")?.getBoundingClientRect || !isVisible(stage.current)) return;
+      const k = e.key.toUpperCase().charCodeAt(0) - 65;
+      if (e.key.length === 1 && k >= 0 && k < (step.options?.length ?? 0)) pick(step.options![k]);
+    };
+    window.addEventListener("keydown", on);
+    return () => window.removeEventListener("keydown", on);
+  });
+
   const restart = () => {
     setData(initial());
     setDone(false);
@@ -113,29 +132,27 @@ export function Brief({ preset }: { preset?: number }) {
   const progress = done ? 1 : i / steps.length;
 
   return (
-    <div className="relative overflow-hidden rounded-[32px] bg-[#0d0e10] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,.07)] sm:p-10">
-      <span aria-hidden className="pointer-events-none absolute -right-28 -top-28 h-72 w-72 rounded-full bg-[var(--sky)] opacity-[0.08] blur-[70px]" />
+    <div className="relative overflow-hidden rounded-[28px] bg-[#0b0c0e] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08),0_40px_80px_-40px_rgba(0,0,0,.9)]">
+      {/* barra di avanzamento sul bordo, come nei moduli a domande */}
+      <span aria-hidden className="absolute inset-x-0 top-0 h-[3px] bg-white/[0.06]">
+        <span className="block h-full origin-left bg-[var(--sky)] transition-transform duration-700 ease-[cubic-bezier(.2,.8,.2,1)]" style={{ transform: `scaleX(${done ? 1 : (i + 1) / steps.length})` }} />
+      </span>
+      <span aria-hidden className="pointer-events-none absolute -right-28 -top-28 h-72 w-72 rounded-full bg-[var(--sky)] opacity-[0.07] blur-[70px]" />
 
-      {/* avanzamento: un segmento per domanda */}
-      <div className="relative flex items-center gap-4">
-        <div className="flex flex-1 gap-1.5" aria-hidden>
-          {steps.map((s, k) => (
-            <span key={s.key} className="h-1 flex-1 overflow-hidden rounded-full bg-white/10">
-              <span
-                className="block h-full origin-left rounded-full bg-[var(--sky)] transition-transform duration-700 ease-[cubic-bezier(.2,.8,.2,1)]"
-                style={{ transform: `scaleX(${done || k < i ? 1 : 0})` }}
-              />
-            </span>
-          ))}
-        </div>
-        <span className="t-fig shrink-0 font-mono text-[12px] text-ink-3" aria-live="polite">
-          {done ? `${String(steps.length).padStart(2, "0")}/${String(steps.length).padStart(2, "0")}` : `${String(i + 1).padStart(2, "0")}/${String(steps.length).padStart(2, "0")}`}
+      <div className="relative flex items-center justify-between border-b border-white/[0.06] px-6 py-4 sm:px-10">
+        <span className="flex items-center gap-2 text-[13px] text-ink-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--sky)] shadow-[0_0_8px_var(--sky)]" />
+          {t.kicker}
+        </span>
+        <span className="t-fig font-mono text-[12px] text-ink-3" aria-live="polite">
+          {done ? steps.length : i + 1} / {steps.length}
         </span>
       </div>
       <span className="sr-only">{Math.round(progress * 100)}%</span>
 
+      <div className="relative px-6 pb-6 pt-8 sm:px-10 sm:pb-8 sm:pt-12">
       <form
-        className="relative mt-10 min-h-[360px] sm:mt-12"
+        className="relative min-h-[380px]"
         onSubmit={(e) => {
           e.preventDefault();
           next();
@@ -156,14 +173,17 @@ export function Brief({ preset }: { preset?: number }) {
             </div>
           ) : (
             <fieldset>
-              <legend className="flex items-baseline gap-3 text-[clamp(26px,3vw,40px)] font-medium leading-[1.1] tracking-[-0.035em] text-ink">
-                <span className="t-fig font-mono text-[14px] text-[var(--sky)]">{String(i + 1).padStart(2, "0")}</span>
+              <legend className="flex items-start gap-3 text-[clamp(24px,2.8vw,36px)] font-medium leading-[1.15] tracking-[-0.03em] text-ink">
+                <span className="t-fig mt-[0.45em] flex shrink-0 items-center gap-1 text-[14px] font-medium text-[var(--sky)]">
+                  {i + 1}
+                  <ArrowRight size={13} strokeWidth={2.4} />
+                </span>
                 {step.q}
               </legend>
-              {step.hint && <p className="mt-3 text-[15px] text-ink-3">{step.hint}</p>}
+              {step.hint && <p className="ml-9 mt-2 text-[15px] text-ink-3">{step.hint}</p>}
 
               {step.fields && (
-                <div className="mt-8 grid gap-4">
+                <div className="ml-0 mt-8 grid gap-5 sm:ml-9">
                   {step.fields.map((f) => (
                     <label key={f.id} data-opt className="block">
                       <span className="sr-only">{f.ph}</span>
@@ -173,7 +193,7 @@ export function Brief({ preset }: { preset?: number }) {
                         onChange={(e) => set(f.id, e.target.value)}
                         placeholder={f.req ? f.ph : `${f.ph} · ${t.optional}`}
                         autoComplete={f.id === "name" ? "name" : f.id === "email" ? "email" : f.id === "phone" ? "tel" : f.id === "company" ? "organization" : "off"}
-                        className="h-14 w-full border-b border-white/15 bg-transparent text-[clamp(18px,1.8vw,22px)] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-[var(--sky)] focus-visible:outline-none"
+                        className="h-14 w-full border-b border-[rgba(94,196,255,.35)] bg-transparent text-[clamp(19px,1.9vw,24px)] text-[var(--sky)] caret-[var(--sky)] outline-none transition-colors placeholder:text-[rgba(94,196,255,.35)] focus:border-[var(--sky)] focus-visible:outline-none"
                       />
                     </label>
                   ))}
@@ -181,7 +201,7 @@ export function Brief({ preset }: { preset?: number }) {
               )}
 
               {step.options && (
-                <div className="mt-8 flex flex-wrap gap-2.5" role={step.multi ? "group" : "radiogroup"}>
+                <div className={`ml-0 mt-8 grid gap-2 sm:ml-9 ${step.options.length > 5 ? "sm:grid-cols-2" : "max-w-[440px]"}`} role={step.multi ? "group" : "radiogroup"}>
                   {step.options.map((o, k) => {
                     const v = val(step.key);
                     const on = Array.isArray(v) ? v.includes(o) : v === o;
@@ -193,18 +213,21 @@ export function Brief({ preset }: { preset?: number }) {
                         role={step.multi ? "checkbox" : "radio"}
                         aria-checked={on}
                         onClick={() => pick(o)}
-                        className={`group flex h-12 items-center gap-3 rounded-full pl-2 pr-5 text-[15px] transition-[background-color,box-shadow,color] duration-300 ${
-                          on ? "bg-[rgba(94,196,255,.14)] text-ink shadow-[inset_0_0_0_1px_var(--sky)]" : "bg-white/[0.04] text-ink-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)] hover:bg-white/[0.07] hover:text-ink"
+                        className={`flex min-h-[46px] items-center gap-3 rounded-[8px] px-2 py-1.5 text-left text-[15px] transition-[background-color,box-shadow,color] duration-200 ${
+                          on
+                            ? "bg-[rgba(94,196,255,.18)] text-ink shadow-[inset_0_0_0_2px_var(--sky)]"
+                            : "bg-[rgba(94,196,255,.06)] text-ink-2 shadow-[inset_0_0_0_1px_rgba(94,196,255,.32)] hover:bg-[rgba(94,196,255,.11)] hover:text-ink"
                         }`}
                       >
                         <span
-                          className={`flex h-8 w-8 items-center justify-center rounded-full font-mono text-[11px] transition-colors duration-300 ${
-                            on ? "bg-[var(--sky)] text-black" : "bg-white/[0.06] text-ink-3"
+                          className={`flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-[4px] font-mono text-[11px] font-medium transition-colors duration-200 ${
+                            on ? "bg-[var(--sky)] text-black" : "bg-black/40 text-[var(--sky)] shadow-[inset_0_0_0_1px_rgba(94,196,255,.45)]"
                           }`}
                         >
-                          {on ? <Check size={14} strokeWidth={2.8} /> : String.fromCharCode(65 + k)}
+                          {String.fromCharCode(65 + k)}
                         </span>
-                        {o}
+                        <span className="flex-1">{o}</span>
+                        {on && <Check size={16} strokeWidth={2.6} className="mr-1 text-[var(--sky)]" />}
                       </button>
                     );
                   })}
@@ -212,14 +235,14 @@ export function Brief({ preset }: { preset?: number }) {
               )}
 
               {step.note && (
-                <label data-opt className="mt-6 block">
+                <label data-opt className="ml-0 mt-6 block sm:ml-9">
                   <span className="sr-only">{step.note}</span>
                   <textarea
                     rows={2}
                     value={String(val(`${step.key}Note`) ?? "")}
                     onChange={(e) => set(`${step.key}Note`, e.target.value)}
                     placeholder={`${step.note} · ${t.optional}`}
-                    className="w-full resize-none border-b border-white/15 bg-transparent py-3 text-[17px] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-[var(--sky)] focus-visible:outline-none"
+                    className="w-full resize-none border-b border-[rgba(94,196,255,.35)] bg-transparent py-3 text-[17px] text-[var(--sky)] caret-[var(--sky)] outline-none transition-colors placeholder:text-[rgba(94,196,255,.35)] focus:border-[var(--sky)] focus-visible:outline-none"
                   />
                 </label>
               )}
@@ -228,33 +251,36 @@ export function Brief({ preset }: { preset?: number }) {
         </div>
 
         {!done && (
-          <div className="mt-10 flex items-center justify-between gap-4">
-            <button
-              type="button"
-              onClick={() => go(i - 1)}
-              disabled={i === 0}
-              className="flex h-11 items-center gap-2 rounded-full px-4 text-[15px] text-ink-2 transition-opacity hover:text-ink disabled:pointer-events-none disabled:opacity-0"
-            >
-              <ArrowLeft size={16} strokeWidth={1.9} />
-              {t.back}
-            </button>
-            <div className="flex items-center gap-4">
-              <span className="hidden items-center gap-1.5 text-[13px] text-ink-3 sm:flex">
-                <CornerDownLeft size={13} strokeWidth={1.8} />
-                {t.enter}
-              </span>
+          <div className="mt-10 flex items-center justify-between gap-4 sm:ml-9">
+            <div className="flex items-center gap-3">
               <button
                 type="submit"
                 disabled={!valid}
-                className="flex h-12 items-center gap-2 rounded-full bg-[var(--sky)] px-6 text-[15px] font-medium text-black transition-[opacity,transform] duration-300 active:scale-[0.97] disabled:bg-white/[0.08] disabled:text-ink-3"
+                className="flex h-11 items-center gap-2 rounded-[8px] bg-[var(--sky)] px-5 text-[15px] font-semibold text-black transition-[opacity,transform] duration-200 active:scale-[0.97] disabled:opacity-40"
               >
-                {last ? t.send : t.next}
-                <ArrowRight size={16} strokeWidth={2} />
+                {last ? t.send : "OK"}
+                <Check size={16} strokeWidth={2.8} />
+              </button>
+              <span className="hidden items-center gap-1.5 text-[12.5px] text-ink-3 sm:flex">
+                {t.enter}
+                <span className="flex items-center gap-1 rounded-[4px] px-1.5 py-0.5 font-medium text-ink-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,.14)]">
+                  {t.key} <CornerDownLeft size={11} strokeWidth={2} />
+                </span>
+              </span>
+            </div>
+            <div className="flex overflow-hidden rounded-[8px] bg-[var(--sky)] text-black">
+              <button type="button" aria-label={t.back} onClick={() => go(i - 1)} disabled={i === 0} className="flex h-9 w-9 items-center justify-center transition-opacity disabled:opacity-40">
+                <ChevronUp size={18} strokeWidth={2.4} />
+              </button>
+              <span className="w-px bg-black/20" />
+              <button type="button" aria-label={t.next} onClick={next} disabled={!valid} className="flex h-9 w-9 items-center justify-center transition-opacity disabled:opacity-40">
+                <ChevronDown size={18} strokeWidth={2.4} />
               </button>
             </div>
           </div>
         )}
       </form>
+      </div>
     </div>
   );
 }
