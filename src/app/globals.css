@@ -349,3 +349,9 @@ html.theme-anim, html.theme-anim * { transition: background-color .5s var(--ease
 html[data-theme="light"] .giant-mask { background: var(--bg-canvas); color: #000; mix-blend-mode: screen; }
 /* immagini scure che nel tema chiaro diventano chiare con le fibre blu */
 html[data-theme="light"] .light-invert { filter: invert(1) hue-rotate(180deg) saturate(1.2); opacity: 0.55; }
+
+/* schede dei servizi: a riposo solo lo sfondo, il disegno sale al passaggio del mouse */
+@media (hover: hover) {
+  .svc-vis { opacity: 0; transform: translateY(22px) scale(0.96); filter: blur(10px); transition: opacity 0.6s var(--ease-out), transform 0.9s var(--ease-out), filter 0.6s var(--ease-out); }
+  .group:hover .svc-vis, .group:focus-visible .svc-vis { opacity: 1; transform: none; filter: none; }
+}

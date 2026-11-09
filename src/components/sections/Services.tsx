@@ -46,8 +46,8 @@ function Body({ s, w, locale, open }: { s: Service; w: WidgetText; locale: Local
         <ServiceBg k={s.key} />
         <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/45 to-transparent" />
       </div>
-      {/* il disegno occupa tutta la scheda, senza riquadri intorno */}
-      <div className="absolute inset-x-2 bottom-[92px] top-[58px]">
+      {/* il disegno compare al passaggio del mouse; a riposo resta solo lo sfondo */}
+      <div className="svc-vis absolute inset-x-2 bottom-[92px] top-[58px]">
         <ServiceVisual k={s.key} t={w} max={1} />
       </div>
       <div className="relative flex items-center justify-between">

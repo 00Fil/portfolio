@@ -546,7 +546,10 @@
       "aiV3": "40",
       "aiV4": "Venerdì 14",
       "aiSave": "Salva",
-      "aiSaved": "Ordine n. 214 creato"
+      "aiSaved": "Ordine n. 214 creato",
+      "webL1": "Interfaccia",
+      "webL2": "Logica",
+      "webL3": "Dati"
     },
     "open": "Scopri",
     "includes": "Cosa include",

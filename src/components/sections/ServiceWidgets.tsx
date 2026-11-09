@@ -130,194 +130,115 @@ const Steps = ({ items, attr = "data-cap", className = "" }: { items: ReactNode[
 /** Migliaia sempre separate (in italiano Intl non separa i numeri di quattro cifre). */
 const num = (v: number, url: string) => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, url.endsWith(".it") ? "." : ",");
 
-/* ───────────── Siti e web app: un negozio online vero, dal colore scelto al carrello ───────────── */
+/* ───────────── Siti e web app: il sito in 3D, a strati. Dati, logica, interfaccia si aprono e si richiudono ───────────── */
 
-const PHONES = [
-  ["#2d2e33", "#17181b", "#4a4b52"],
-  ["#dcc9a6", "#b39d78", "#efe3cc"],
-  ["#2a4a7a", "#172b4a", "#4a6ea6"],
-];
-const Phones = ({ c }: { c: string[] }) => (
-  <svg viewBox="0 0 200 200" className="h-full w-full overflow-visible" aria-hidden>
-    <path d="M44 112C44 46 156 46 156 112" fill="none" stroke={c[1]} strokeWidth="13" strokeLinecap="round" />
-    <path d="M44 112C44 50 156 50 156 112" fill="none" stroke={c[0]} strokeWidth="9" strokeLinecap="round" />
-    <path d="M70 62c18-12 42-12 60 0" fill="none" stroke={c[2]} strokeWidth="3" strokeLinecap="round" opacity=".7" />
-    {[24, 136].map((x) => (
-      <g key={x}>
-        <rect x={x} y="98" width="40" height="70" rx="19" fill={c[0]} />
-        <rect x={x + (x < 100 ? 26 : 0)} y="104" width="14" height="58" rx="7" fill={c[1]} />
-        <rect x={x + (x < 100 ? 6 : 20)} y="108" width="5" height="34" rx="2.5" fill={c[2]} opacity=".55" />
-      </g>
-    ))}
-  </svg>
-);
-const Bag = ({ className = "h-[18px] w-[18px]" }: { className?: string }) => (
-  <svg viewBox="0 0 20 20" className={className} aria-hidden>
-    <path d="M4 7h12l-1 10H5z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-    <path d="M7 7V5.5a3 3 0 0 1 6 0V7" fill="none" stroke="currentColor" strokeWidth="1.6" />
-  </svg>
-);
 function WebV({ t, max }: { t: WidgetText; max?: number }) {
-  const names = [t.webC1, t.webC2, t.webC3];
-  const sw = [292, 326, 360];
+  const labels = [t.webL1, t.webL2, t.webL3];
+  const OPEN = [0, 92, 184];
+  const SHUT = [0, 22, 44];
   return (
     <Canvas
-      w={540}
+      w={520}
       h={440}
       max={max}
       build={(q) => {
+        const pl = q("[data-plane]");
+        const tag = q("[data-tag]");
+        gsap.set(q("[data-stack]"), { rotationX: 58, rotationZ: -38, transformPerspective: 1600 });
+        gsap.set(pl, { z: (i: number) => SHUT[2 - i] });
         const tl = gsap
           .timeline()
-          .from(q("[data-win]"), { y: 70, rotateX: 24, autoAlpha: 0, duration: 1.4, ease: "expo.out" })
-          .to(q("[data-win]"), { rotateY: -4, rotateX: 3, duration: 5, yoyo: true, repeat: -1, ease: "sine.inOut" }, 1.4);
-        const cur = q("[data-cur]")[0];
-        const ph = q("[data-ph]");
-        const caps = q("[data-cname]");
-        const click = (at: number, el: Element[]) => run.to(el, { scale: 0.9, duration: 0.1, yoyo: true, repeat: 1 }, at);
-        const run = gsap.timeline({ repeat: -1, repeatDelay: 0.8, defaults: { ease: "power3.inOut" } });
-        run.set(cur, { x: 560, y: 420, autoAlpha: 0 }).to(cur, { x: sw[1], y: 244, autoAlpha: 1, duration: 0.9 }, 0.3);
-        // scelgo il colore: il prodotto cambia, il nome del colore pure
-        [1, 2].forEach((c, n) => {
-          const at = 1.3 + n * 1.4;
-          if (n) run.to(cur, { x: sw[c], duration: 0.6 }, at - 0.65);
-          click(at, [q("[data-sw]")[c]]);
-          run
-            .to(q("[data-ring]"), { x: sw[c] - sw[0], duration: 0.5, ease: "back.out(2)" }, at)
-            .to(ph, { autoAlpha: (i: number) => (i === c ? 1 : 0), duration: 0.5, ease: "power1.inOut" }, at)
-            .fromTo(ph[c], { scale: 0.92, rotate: -6 }, { scale: 1, rotate: 0, duration: 0.9, ease: "elastic.out(1, 0.6)" }, at);
-          step(run, caps, c, at);
-        });
-        // aggiungo al carrello: una miniatura vola nella borsa
-        run.to(cur, { x: 400, y: 292, duration: 0.7 }, 3.5);
-        click(4.25, q("[data-add]"));
-        step(run, q("[data-addl]"), 1, 4.3);
+          .from(pl, { z: (i: number) => -160 - i * 40, autoAlpha: 0, duration: 1.4, stagger: 0.12, ease: "expo.out" })
+          .from(tag, { x: -10, autoAlpha: 0, duration: 0.6, stagger: 0.1, ease: "expo.out" }, 0.8)
+          .to(q("[data-stack]"), { rotationZ: -30, duration: 6, yoyo: true, repeat: -1, ease: "sine.inOut" }, 1);
+        const run = gsap.timeline({ repeat: -1, repeatDelay: 0.6, defaults: { ease: "expo.inOut" } });
         run
-          .fromTo(q("[data-fly]"), { x: 0, y: 0, scale: 1, autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15 }, 4.35)
-          .to(q("[data-fly]"), { x: 352, duration: 0.85, ease: "power2.inOut" }, 4.4)
-          .to(q("[data-fly]"), { y: -160, duration: 0.85, ease: "back.in(1.4)" }, 4.4)
-          .to(q("[data-fly]"), { scale: 0.2, autoAlpha: 0, duration: 0.25 }, 5.05)
-          .fromTo(q("[data-badge]"), { scale: 0 }, { scale: 1, duration: 0.6, ease: "elastic.out(1, 0.5)" }, 5.2)
-          .to(q("[data-bag]"), { rotate: 12, duration: 0.12, yoyo: true, repeat: 3, ease: "sine.inOut" }, 5.2)
-          // si apre il carrello e vado al pagamento
-          .fromTo(q("[data-drawer]"), { xPercent: 105 }, { xPercent: 0, duration: 0.8, ease: "expo.out" }, 5.7)
-          .fromTo(q("[data-drawer] [data-in]"), { y: 10, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.08, duration: 0.5, ease: "expo.out" }, 5.9)
-          .to(cur, { x: 425, y: 214, duration: 0.8 }, 6.2);
-        click(7.05, q("[data-checkout]"));
-        run
-          .to(cur, { autoAlpha: 0, duration: 0.3 }, 7.4)
-          .to(q("[data-drawer]"), { xPercent: 105, duration: 0.7, ease: "power3.in" }, 8.8)
-          .to(q("[data-badge]"), { scale: 0, duration: 0.3 }, 9.3)
-          .to(q("[data-ring]"), { x: 0, duration: 0.5 }, 9.3)
-          .to(ph, { autoAlpha: (i: number) => (i === 0 ? 1 : 0), duration: 0.5 }, 9.3);
-        step(run, caps, 0, 9.3);
-        step(run, q("[data-addl]"), 0, 9.3);
-        return tl.add(run, 1);
+          // si apre: ogni strato si stacca
+          .to(pl, { z: (i: number) => OPEN[2 - i], duration: 1.4, stagger: 0.06 }, 0)
+          .to(tag, { autoAlpha: 1, x: 0, duration: 0.5, stagger: 0.08 }, 0.6)
+          // la logica lavora e l'interfaccia si aggiorna
+          .fromTo(q("[data-ping]"), { scale: 0.4, autoAlpha: 0.9 }, { scale: 2.4, autoAlpha: 0, duration: 0.9, stagger: 0.25, ease: "power2.out" }, 1.5)
+          .fromTo(q("[data-new]"), { scaleX: 0 }, { scaleX: 1, transformOrigin: "0 50%", duration: 0.6, ease: "power3.out" }, 2.4)
+          // si richiude
+          .to(tag, { autoAlpha: 0.0, x: -6, duration: 0.4 }, 4.4)
+          .to(pl, { z: (i: number) => SHUT[2 - i], duration: 1.2, stagger: { each: 0.06, from: "end" } }, 4.4)
+          .set(q("[data-new]"), { scaleX: 0 }, 5.8);
+        return tl.add(run, 1.6);
       }}
     >
-      <div className="absolute inset-0 [perspective:1200px]">
-        <div
-          data-win
-          className="absolute left-0 top-3 h-[410px] w-[540px] origin-[30%_50%] overflow-hidden rounded-[16px] bg-[#f6f3ee] text-[#16161a] shadow-[0_0_0_1px_rgba(255,255,255,.4),0_60px_110px_-30px_rgba(0,0,0,.95)]"
-          style={{ transform: "rotateY(-9deg) rotateX(5deg)" }}
-        >
-          {/* barra del browser */}
-          <div className="flex h-[30px] items-center gap-1.5 bg-[#e8e3dc] px-3">
-            {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
-              <span key={c} className="h-2.5 w-2.5 rounded-full" style={{ background: c }} />
-            ))}
-            <span className="mx-auto flex h-[18px] w-44 items-center justify-center rounded-full bg-white/80 font-mono text-[9.5px] text-[#6b6862]">halden.store</span>
-          </div>
-          {/* intestazione del negozio */}
-          <div className="absolute inset-x-5 top-[30px] flex h-10 items-center justify-between text-[10.5px] text-[#5d5a55]">
-            <span className="text-[13px] font-semibold tracking-[0.32em] text-[#16161a]">HALDEN</span>
-            <span className="flex gap-5">
-              <span className="text-[#16161a]">{t.webNav1}</span>
-              <span>{t.webNav2}</span>
-              <span>{t.webNav3}</span>
-            </span>
-            <span data-bag className="relative text-[#16161a]">
-              <Bag />
-              <span data-badge className="absolute -right-1.5 -top-1.5 flex h-[14px] w-[14px] scale-0 items-center justify-center rounded-full bg-[#16161a] text-[8.5px] font-semibold text-white">
-                1
+      <div className="absolute inset-0 flex items-center pl-[30px]">
+        <div data-stack className="relative h-[230px] w-[320px] [transform-style:preserve-3d]">
+          {/* interfaccia */}
+          <div data-plane className="absolute inset-0 overflow-hidden rounded-[18px] bg-[#f6f3ee] p-4 shadow-[0_40px_60px_-20px_rgba(0,0,0,.6)]">
+            <div className="flex items-center justify-between">
+              <span className="h-2.5 w-14 rounded-full bg-[#16161a]" />
+              <span className="flex gap-2">
+                {[0, 1, 2].map((i) => (
+                  <span key={i} className="h-1.5 w-7 rounded-full bg-black/20" />
+                ))}
               </span>
+            </div>
+            <span className="mt-6 block h-5 w-[78%] rounded-[5px] bg-[#16161a]" />
+            <span className="mt-2 block h-5 w-[52%] rounded-[5px] bg-[#16161a]" />
+            <span className="mt-4 block h-2 w-[64%] rounded-full bg-black/20" />
+            <span className="mt-5 flex items-center gap-2">
+              <span className="h-7 w-24 rounded-full" style={{ background: SKY }} />
+              <span className="h-7 w-20 rounded-full shadow-[inset_0_0_0_1.5px_rgba(0,0,0,.2)]" />
             </span>
-          </div>
-          {/* prodotto */}
-          <div className="absolute left-5 top-[80px] h-[240px] w-[240px] overflow-hidden rounded-[14px] bg-[#e9e4dc]">
-            <span className="absolute inset-x-8 bottom-6 h-4 rounded-full bg-black/10 blur-md" />
-            {PHONES.map((c, i) => (
-              <span key={i} data-ph className="absolute inset-6" style={{ opacity: i ? 0 : 1 }}>
-                <Phones c={c} />
-              </span>
-            ))}
-            <span className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
-              {[0, 1, 2, 3].map((i) => (
-                <span key={i} className={`h-1.5 rounded-full ${i ? "w-1.5 bg-black/15" : "w-4 bg-black/60"}`} />
+            <span className="absolute bottom-4 left-4 right-4 grid grid-cols-3 gap-2">
+              {[0, 1, 2].map((i) => (
+                <span key={i} className="relative h-9 overflow-hidden rounded-[8px] bg-black/[0.06]">
+                  {i === 0 && <span data-new className="absolute inset-y-0 left-0 w-full" style={{ background: "rgba(94,196,255,.45)", transform: "scaleX(0)" }} />}
+                </span>
               ))}
             </span>
-            <span data-fly className="absolute left-[95px] top-[95px] h-[50px] w-[50px] rounded-full bg-white p-1.5 opacity-0 shadow-[0_10px_20px_-6px_rgba(0,0,0,.4)]">
-              <Phones c={PHONES[2]} />
-            </span>
           </div>
-          {/* scheda prodotto */}
-          <p className="absolute left-[280px] top-[84px] text-[9.5px] font-semibold uppercase tracking-[0.14em] text-[#1f7fb8]">{t.webNew}</p>
-          <p className="absolute left-[280px] top-[100px] text-[24px] font-semibold leading-[28px] tracking-[-0.03em]">Halden One</p>
-          <p className="absolute left-[280px] top-[132px] w-[240px] text-[11px] leading-[14px] text-[#6b6862]">{t.webSub}</p>
-          <p className="absolute left-[280px] top-[154px] flex items-center gap-1.5 text-[10.5px] leading-[14px] text-[#6b6862]">
-            <span className="tracking-[0.1em] text-[#16161a]">★★★★★</span>
-            4,9 · {t.webReviews}
-          </p>
-          <p className="absolute left-[280px] top-[176px] text-[22px] font-medium leading-[26px] tracking-[-0.02em] tabular-nums">€ 249</p>
-          <div className="absolute left-[280px] top-[212px] flex items-baseline gap-1 text-[10px] leading-[14px] text-[#6b6862]">
-            {t.webColor} ·
-            <Steps items={names.map((n) => <span key={n} className="text-[#16161a]">{n}</span>)} attr="data-cname" />
+          {/* logica */}
+          <div data-plane className="absolute inset-0 rounded-[18px] bg-[rgba(10,24,36,.72)] shadow-[inset_0_0_0_1px_rgba(255,255,255,.18),0_30px_50px_-20px_rgba(0,0,0,.6)] backdrop-blur-sm">
+            <svg viewBox="0 0 320 230" className="absolute inset-0 h-full w-full" aria-hidden>
+              {[
+                [70, 70, 160, 115],
+                [70, 160, 160, 115],
+                [160, 115, 250, 70],
+                [160, 115, 250, 160],
+              ].map(([a, b, c, d], i) => (
+                <line key={i} x1={a} y1={b} x2={c} y2={d} stroke="rgba(158,220,255,.5)" strokeWidth="1.5" />
+              ))}
+              {[
+                [70, 70],
+                [70, 160],
+                [160, 115],
+                [250, 70],
+                [250, 160],
+              ].map(([x, y], i) => (
+                <g key={i}>
+                  <circle data-ping cx={x} cy={y} r="10" fill="none" stroke={SKY} strokeWidth="1.5" style={{ transformBox: "fill-box", transformOrigin: "center" }} />
+                  <circle cx={x} cy={y} r={i === 2 ? 9 : 6} fill={i === 2 ? SKY : "#d9f2ff"} />
+                </g>
+              ))}
+            </svg>
           </div>
-          <div className="absolute left-[280px] top-[232px] flex gap-[10px]">
-            {PHONES.map((c, i) => (
-              <span key={i} data-sw className="h-6 w-6 rounded-full shadow-[inset_0_0_0_1px_rgba(0,0,0,.12)]" style={{ background: c[0] }} />
+          {/* dati */}
+          <div data-plane className="absolute inset-0 rounded-[18px] bg-[rgba(6,14,22,.8)] p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,.14)]">
+            {[0, 1, 2, 3, 4, 5].map((r) => (
+              <span key={r} className="mb-[11px] flex gap-2">
+                <span className="h-2 w-10 rounded-full bg-white/25" />
+                <span className="h-2 flex-1 rounded-full bg-white/12" />
+                <span className="h-2 w-14 rounded-full" style={{ background: r === 2 ? SKY : "rgba(255,255,255,.18)" }} />
+              </span>
             ))}
-            <span data-ring className="absolute -left-[3px] -top-[3px] h-[30px] w-[30px] rounded-full ring-[1.5px] ring-[#16161a]" />
           </div>
-          <div data-add className="absolute left-[280px] top-[272px] flex h-10 w-[240px] items-center justify-center rounded-full bg-[#16161a] text-[12px] font-medium text-white">
-            <Steps items={[t.webAdd, <><Tick className="h-3 w-3" /> {t.webAdded}</>]} attr="data-addl" className="justify-center" />
-          </div>
-          <p className="absolute left-[280px] top-[320px] text-[10px] text-[#6b6862]">{t.webShip}</p>
-          {/* consigliati, tagliati dal bordo */}
-          <p className="absolute left-5 top-[340px] text-[12px] font-semibold tracking-[-0.01em]">{t.webMore}</p>
-          {[t.webM1, t.webM2, t.webM3].map((m, i) => (
-            <div key={m} className="absolute top-[360px] flex h-[80px] w-[160px] items-start justify-between rounded-[12px] bg-[#ece7df] p-2.5 text-[10px]" style={{ left: 20 + i * 170 }}>
-              <span className="font-medium">{m}</span>
-              <span className="h-9 w-9 rounded-full" style={{ background: PHONES[i][0], opacity: 0.85 }} />
-            </div>
-          ))}
-          {/* carrello */}
-          <div data-drawer className="absolute bottom-0 right-0 top-[30px] w-[220px] bg-white p-4 shadow-[-20px_0_40px_-20px_rgba(0,0,0,.35)]" style={{ transform: "translateX(105%)" }}>
-            <p data-in className="text-[13px] font-semibold">
-              {t.webCart} · 1
-            </p>
-            <div data-in className="mt-4 flex items-center gap-3">
-              <span className="h-14 w-14 shrink-0 rounded-[10px] bg-[#e9e4dc] p-1.5">
-                <Phones c={PHONES[2]} />
-              </span>
-              <span className="text-[10.5px] leading-snug">
-                <span className="block font-medium">Halden One</span>
-                <span className="block text-[#6b6862]">{t.webC3}</span>
-                <span className="tabular-nums block">€ 249</span>
-              </span>
-            </div>
-            <div data-in className="mt-4 flex justify-between border-t border-black/10 pt-3 text-[11.5px] font-semibold">
-              <span>{t.webTotal}</span>
-              <span className="tabular-nums">€ 249</span>
-            </div>
-            <div data-in data-checkout className="mt-3 flex h-10 items-center justify-center rounded-full bg-[#16161a] text-[11.5px] font-medium text-white">
-              {t.webCheckout}
-            </div>
-            <p data-in className="mt-2 text-center text-[9.5px] text-[#6b6862]">
-              {t.webShip}
-            </p>
-          </div>
-          <Cursor />
-        </div>
+</div>
+      </div>
+      {/* etichette degli strati */}
+      <div className="absolute right-0 top-[70px] flex flex-col gap-[52px]">
+        {labels.map((l, i) => (
+          <span key={l} data-tag className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-white/80 opacity-0">
+            <span className="h-px w-8 bg-white/40" />
+            {l}
+            <span className="text-white/40">{String(i + 1).padStart(2, "0")}</span>
+          </span>
+        ))}
       </div>
     </Canvas>
   );

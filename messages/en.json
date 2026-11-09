@@ -546,7 +546,10 @@
       "aiV3": "40",
       "aiV4": "Friday 14",
       "aiSave": "Save",
-      "aiSaved": "Order no. 214 created"
+      "aiSaved": "Order no. 214 created",
+      "webL1": "Interface",
+      "webL2": "Logic",
+      "webL3": "Data"
     },
     "open": "Explore",
     "includes": "What’s included",
