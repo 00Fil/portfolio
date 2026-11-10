@@ -10,7 +10,7 @@ import { Shape } from "@/components/visual/Shapes";
 import { prefersReducedMotion } from "@/lib/env";
 import { usePathname } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Activity01Icon, Alert02Icon, ArrowRight01Icon, ChartUpIcon, CheckmarkCircle02Icon, Shield01Icon, Timer02Icon, Wrench01Icon } from "@hugeicons/core-free-icons";
+import { ArrowRight01Icon, CheckmarkCircle02Icon, Shield01Icon, Wrench01Icon } from "@hugeicons/core-free-icons";
 import type { ServiceKey } from "@/content/services";
 
 gsap.registerPlugin(useGSAP);
@@ -988,76 +988,59 @@ function ShopV({ t, max }: { t: WidgetText; max?: number }) {
   );
 }
 
-/* ───────────── Gestione: uno spot montato sull'infrastruttura disegnata come un impianto vero (rete, scudo,
-   bilanciatore, armadio con i server). Il traffico scorre come scie di luce lungo i cavi; tra le scene il commento
-   prende tutto il quadro su vetro acrilico; il guasto lo prende in carico il tecnico reperibile, con la sua console;
+/* ───────────── Gestione: uno spot essenziale, come un'app Apple. Tre oggetti soli (la rete, lo scudo, i server),
+   tanto spazio, un solo punto d'attenzione per scena; tra le scene il commento prende tutto il quadro;
    in chiusura il marchio e il tasto per la pagina del servizio ───────────── */
 
 const OW = 700;
-const OH = 510;
-const NODE_Y = 262;
-const GLOBE = { x: 78, y: NODE_Y, r: 30 };
-const SHIELD = { x: 236, y: NODE_Y };
-const LB = { x: 392, y: NODE_Y };
-const RACK = { x: 520, w: 150, top: 136, bottom: 392 };
-const SRV_Y = [184, 264, 344];
-const UNIT_H = 62;
-const PANEL = { x: 24, y: 316, w: 304 };
+const OH = 440;
+const NODE_Y = 206;
+const GLOBE = { x: 140, y: NODE_Y, r: 32 };
+const SHIELD = { x: 340, y: NODE_Y };
+const RACK = { x: 500, w: 128 };
+const UNIT_H = 32;
+const SRV_Y = [NODE_Y - 44, NODE_Y, NODE_Y + 44];
+const UNDER = NODE_Y + 92;
 const AQUA = "#7fd0ff";
 const RED = "#ff5a52";
 const AMBER = "#f5a524";
 const GREEN = "#34d399";
 const MONO = "var(--font-geist-mono), ui-monospace, monospace";
-/** Scie per server e scie d'attacco: abbastanza da sembrare traffico continuo, poche da costare nulla. */
-const PER_SRV = 4;
-const ATTACKS = 6;
+const PER_SRV = 3;
+const ATTACKS = 5;
 
-const fullPath = (y: number) => `M${GLOBE.x + GLOBE.r + 4} ${NODE_Y} L${LB.x + 48} ${NODE_Y} C${LB.x + 92} ${NODE_Y} ${RACK.x - 52} ${y} ${RACK.x + 10} ${y}`;
+const fullPath = (y: number) => `M${GLOBE.x + GLOBE.r + 6} ${NODE_Y} L${SHIELD.x + 60} ${NODE_Y} C${SHIELD.x + 100} ${NODE_Y} ${RACK.x - 50} ${y} ${RACK.x + 4} ${y}`;
 const attackPath = (k: number) => {
-  const dy = (k - (ATTACKS - 1) / 2) * 13;
-  return `M${GLOBE.x + GLOBE.r + 2} ${NODE_Y + dy * 0.4} C${GLOBE.x + 80} ${NODE_Y + dy * 1.6} ${SHIELD.x - 80} ${NODE_Y + dy * 1.2} ${SHIELD.x - 36} ${NODE_Y + dy * 0.55}`;
+  const dy = (k - (ATTACKS - 1) / 2) * 12;
+  return `M${GLOBE.x + GLOBE.r + 4} ${NODE_Y + dy * 0.4} C${GLOBE.x + 90} ${NODE_Y + dy * 1.8} ${SHIELD.x - 90} ${NODE_Y + dy * 1.4} ${SHIELD.x - 40} ${NODE_Y + dy * 0.6}`;
 };
-const SHIELD_D = `M${SHIELD.x} ${NODE_Y - 44} L${SHIELD.x + 34} ${NODE_Y - 31} V${NODE_Y + 2} C${SHIELD.x + 34} ${NODE_Y + 24} ${SHIELD.x + 18} ${NODE_Y + 38} ${SHIELD.x} ${NODE_Y + 46} C${SHIELD.x - 18} ${NODE_Y + 38} ${SHIELD.x - 34} ${NODE_Y + 24} ${SHIELD.x - 34} ${NODE_Y + 2} V${NODE_Y - 31} Z`;
+const SHIELD_D = `M${SHIELD.x} ${NODE_Y - 46} L${SHIELD.x + 36} ${NODE_Y - 32} V${NODE_Y + 2} C${SHIELD.x + 36} ${NODE_Y + 25} ${SHIELD.x + 19} ${NODE_Y + 40} ${SHIELD.x} ${NODE_Y + 48} C${SHIELD.x - 19} ${NODE_Y + 40} ${SHIELD.x - 36} ${NODE_Y + 25} ${SHIELD.x - 36} ${NODE_Y + 2} V${NODE_Y - 32} Z`;
 
 /** Una scia di luce: testa brillante e coda sfumata sullo stesso cavo. */
 function Comet({ d, color, attr }: { d: string; color: string; attr: string }) {
   return (
     <g {...{ [attr]: "" }} opacity="0">
-      <path d={d} pathLength={100} fill="none" stroke={color} strokeOpacity=".35" strokeWidth="2.4" strokeLinecap="round" strokeDasharray="16 300" strokeDashoffset="16" data-tail />
-      <path d={d} pathLength={100} fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeDasharray="2.5 300" strokeDashoffset="2.5" data-head style={{ filter: `drop-shadow(0 0 4px ${color})` }} />
+      <path d={d} pathLength={100} fill="none" stroke={color} strokeOpacity=".35" strokeWidth="2.2" strokeLinecap="round" strokeDasharray="16 300" strokeDashoffset="16" />
+      <path d={d} pathLength={100} fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeDasharray="2.5 300" strokeDashoffset="2.5" style={{ filter: `drop-shadow(0 0 4px ${color})` }} />
     </g>
   );
 }
 
-/** Un server da armadio, 2U, visto di fronte: dischi, griglia, spia, nome e carico a segmenti. */
-function RackUnit({ i, y }: { i: number; y: number }) {
-  const x = RACK.x + 12;
-  const w = RACK.w - 24;
-  const top = y - UNIT_H / 2;
+/** Un server sottile, come in un armadio: solo la spia e il nome. */
+function Unit({ i, y }: { i: number; y: number }) {
+  const x = RACK.x + 10;
+  const w = RACK.w - 20;
   return (
-    <g data-unit transform={`translate(0 0)`}>
-      <rect x={x} y={top} width={w} height={UNIT_H} rx="7" fill="url(#ops-unit)" stroke="rgba(255,255,255,.16)" />
-      <rect data-unit-tint x={x} y={top} width={w} height={UNIT_H} rx="7" fill={RED} opacity="0" />
-      <rect x={x + 1} y={top + 1} width={w - 2} height="10" rx="6" fill="rgba(255,255,255,.06)" />
-      {/* dischi */}
-      {Array.from({ length: 6 }).map((_, k) => (
-        <g key={k}>
-          <rect x={x + 10 + k * 13} y={top + 14} width="10" height="22" rx="2" fill="rgba(0,0,0,.35)" stroke="rgba(255,255,255,.1)" strokeWidth=".75" />
-          <rect data-disk x={x + 13.5 + k * 13} y={top + 31} width="3" height="2" rx="1" fill={AQUA} opacity=".35" />
-        </g>
-      ))}
-      {/* griglia di aerazione */}
-      {Array.from({ length: 5 }).map((_, k) => (
-        <rect key={k} x={x + 92 + k * 5} y={top + 14} width="2" height="22" rx="1" fill="rgba(255,255,255,.08)" />
-      ))}
-      {/* spia di stato */}
-      <circle data-led cx={x + w - 10} cy={top + 18} r="3.2" fill={GREEN} style={{ filter: `drop-shadow(0 0 4px ${GREEN})` }} />
-      {/* nome e carico */}
-      <text x={x + 10} y={top + 51} fill="rgba(255,255,255,.75)" fontSize="9.5" fontFamily={MONO} letterSpacing=".06em">
+    <g data-unit>
+      <rect x={x} y={y - UNIT_H / 2} width={w} height={UNIT_H} rx="9" fill="url(#ops-unit)" stroke="rgba(255,255,255,.16)" />
+      <rect data-unit-tint x={x} y={y - UNIT_H / 2} width={w} height={UNIT_H} rx="9" fill={RED} opacity="0" />
+      <circle data-led cx={x + 14} cy={y} r="3.2" fill={GREEN} style={{ filter: `drop-shadow(0 0 4px ${GREEN})` }} />
+      <text x={x + 26} y={y + 3.5} fill="rgba(255,255,255,.8)" fontSize="10" fontFamily={MONO} letterSpacing=".05em">
         SRV-0{i + 1}
       </text>
-      <rect x={x + 54} y={top + 45} width="62" height="7" rx="2" fill="url(#ops-seg-off)" />
-      <rect data-load x={x + 54} y={top + 45} width="20" height="7" rx="2" fill="url(#ops-seg)" />
+      {[0, 1, 2].map((k) => (
+        <rect key={k} x={x + w - 30 + k * 7} y={y - 6} width="3" height="12" rx="1.5" fill="rgba(255,255,255,.1)" />
+      ))}
     </g>
   );
 }
@@ -1074,14 +1057,14 @@ function Say({ a, b, sub }: { a: string; b: string; sub?: string }) {
     ));
   return (
     <div data-say className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center opacity-0">
-      <p className="whitespace-nowrap text-[52px] font-semibold leading-[1.02] tracking-[-0.05em] text-white">
+      <p className="whitespace-nowrap text-[50px] font-semibold leading-[1.04] tracking-[-0.045em] text-white">
         {words(a)}
         <br />
         {words(b, "text-[#8fd8ff]")}
       </p>
       {sub && (
-        <span className="mt-6 inline-block overflow-hidden">
-          <span data-w className="inline-block font-mono text-[13px] uppercase tracking-[0.14em] text-white/65">
+        <span className="mt-5 inline-block overflow-hidden">
+          <span data-w className="inline-block text-[15px] text-white/60">
             {sub}
           </span>
         </span>
@@ -1090,28 +1073,23 @@ function Say({ a, b, sub }: { a: string; b: string; sub?: string }) {
   );
 }
 
+/** Etichetta sotto l'oggetto in scena: una riga, un numero o uno stato. */
+function Pill({ attr, x, children }: { attr: string; x: number; children: ReactNode }) {
+  return (
+    <span {...{ [attr]: "" }} className="absolute -translate-x-1/2 opacity-0" style={{ left: x, top: UNDER }}>
+      <Bead tint="rgba(10,16,24,.55)" radius={16} className="flex h-8 items-center gap-2 whitespace-nowrap px-3.5 text-[12.5px] text-white backdrop-blur-xl">
+        {children}
+      </Bead>
+    </span>
+  );
+}
+
 function OpsV({ t, max }: { t: WidgetText; max?: number }) {
   const pathname = usePathname();
   const onPage = pathname.includes("/servizi/");
-  const links = [
-    `M${GLOBE.x + GLOBE.r + 4} ${NODE_Y} L${SHIELD.x - 36} ${NODE_Y}`,
-    `M${SHIELD.x + 36} ${NODE_Y} L${LB.x - 48} ${NODE_Y}`,
-    ...SRV_Y.map((y) => `M${LB.x + 48} ${NODE_Y} C${LB.x + 92} ${NODE_Y} ${RACK.x - 52} ${y} ${RACK.x + 10} ${y}`),
-  ];
-  const wireD = `M${PANEL.x + PANEL.w} ${PANEL.y + 40} C${PANEL.x + PANEL.w + 120} ${PANEL.y + 40} ${RACK.x - 80} ${SRV_Y[2] + 24} ${RACK.x + 12} ${SRV_Y[2] + 14}`;
-  const hud = [
-    { icon: Activity01Icon, label: t.opsMReq, value: "1.240", attr: "data-m-req" },
-    { icon: Shield01Icon, label: t.opsMBlocked, value: "12.380", attr: "data-m-blk" },
-    { icon: Timer02Icon, label: t.opsMLat, value: "42 ms", attr: "data-m-lat" },
-    { icon: ChartUpIcon, label: t.opsMUp, value: "99,98%", attr: "data-m-up" },
-  ];
-  const cols = [
-    { x: GLOBE.x, label: t.opsNet },
-    { x: SHIELD.x, label: t.opsShield },
-    { x: LB.x, label: t.opsLb },
-    { x: RACK.x + RACK.w / 2, label: t.opsRack },
-  ];
-  const term = [t.opsT1, t.opsT2, t.opsT3];
+  const locale = pathname.split("/")[1] || "it";
+  const links = [`M${GLOBE.x + GLOBE.r + 6} ${NODE_Y} L${SHIELD.x - 40} ${NODE_Y}`, ...SRV_Y.map((y) => `M${SHIELD.x + 40} ${NODE_Y} L${SHIELD.x + 60} ${NODE_Y} C${SHIELD.x + 100} ${NODE_Y} ${RACK.x - 50} ${y} ${RACK.x + 4} ${y}`)];
+  const rackX = RACK.x + RACK.w / 2;
   return (
     <Canvas
       framed={false}
@@ -1125,72 +1103,48 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
         const units = q("[data-unit]");
         const leds = q("[data-led]");
         const tints = q("[data-unit-tint]");
-        const loads = q("[data-load]");
-        const disks = q("[data-disk]");
         const legit = q("[data-legit]");
         const atk = q("[data-atk]");
         const flash = q("[data-impact]")[0];
-        const blk = q("[data-m-blk]")[0];
-        const req = q("[data-m-req]")[0];
-        const lat = q("[data-m-lat]")[0];
-        const latCell = q("[data-cell-lat]")[0];
-        const maintTag = q("[data-maint]")[0];
-        const crashTag = q("[data-crash]")[0];
-        const panel = q("[data-panel]")[0];
-        const sweep = q("[data-sweep]")[0];
+        const blkPill = q("[data-p-blk]")[0];
+        const blk = q("[data-blk]")[0];
+        const maintPill = q("[data-p-maint]")[0];
+        const card = q("[data-card]")[0];
         const timer = q("[data-timer]")[0];
-        const lines = q("[data-term]");
-        const caret = q("[data-caret]")[0];
-        const stAlert = q("[data-st-alert]")[0];
-        const stOk = q("[data-st-ok]")[0];
-        const wire = q("[data-wire]")[0] as SVGPathElement;
+        const [stAlert, stWork, stOk] = q("[data-st]");
         const merid = q("[data-merid]");
         const end = q("[data-end]")[0];
         const endBits = q("[data-end-in]");
         const fmt = (n: number) => Math.round(n).toLocaleString("it-IT");
         const mmss = (v: number) => `${String(Math.floor(v / 60)).padStart(2, "0")}:${String(Math.floor(v % 60)).padStart(2, "0")}`;
-        const m = { blk: 12380, req: 1240, lat: 42, clock: 0, spin: 0 };
-        const wlen = wire.getTotalLength();
-        gsap.set(wire, { strokeDasharray: `${wlen} ${wlen}`, strokeDashoffset: wlen });
-        gsap.set(lines, { clipPath: "inset(0 100% 0 0)" });
-        gsap.set([maintTag, crashTag], { x: 8 });
+        const m = { blk: 12380, clock: 0, spin: 0 };
+        const LOOP = 25.2;
 
         const tl = gsap
           .timeline()
-          .from(q("[data-node]"), { y: 16, autoAlpha: 0, duration: 0.8, stagger: 0.06, ease: "expo.out" })
+          .from(q("[data-node]"), { y: 14, autoAlpha: 0, duration: 0.9, stagger: 0.08, ease: "expo.out" })
           .to(q("[data-base]"), { strokeDashoffset: 0, duration: 0.9, stagger: 0.06, ease: "power2.inOut" }, 0.3);
         const run = gsap.timeline({ repeat: -1 });
-        const LOOP = 28.8;
 
-        // il globo gira per tutto lo spot: i meridiani si stringono e si allargano come su una sfera
-        run.to(
-          m,
-          {
-            spin: Math.PI * 2,
-            duration: LOOP,
-            ease: "none",
-            onUpdate: () => merid.forEach((el, k) => el.setAttribute("rx", String(Math.abs(Math.cos(m.spin + (k * Math.PI) / 3)) * GLOBE.r))),
-          },
-          0,
-        );
+        // il globo gira piano per tutto lo spot
+        run.to(m, { spin: Math.PI * 2, duration: LOOP, ease: "none", onUpdate: () => merid.forEach((el, k) => el.setAttribute("rx", String(Math.abs(Math.cos(m.spin + (k * Math.PI) / 3)) * GLOBE.r))) }, 0);
 
-        // commento a tutto quadro su vetro acrilico; `keep` lascia il vetro per la scena successiva
         const say = (i: number, at: number, hold = 1.6, keep = false) => {
           const el = says[i];
           const w = el.querySelectorAll("[data-w]");
           run
             .to(scrim, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, at)
-            .to(stage, { scale: 1.035, duration: 0.6, ease: "power2.out" }, at)
+            .to(stage, { scale: 1.03, duration: 0.6, ease: "power2.out" }, at)
             .set(el, { autoAlpha: 1 }, at)
-            .fromTo(w, { yPercent: 115, rotate: 3 }, { yPercent: 0, rotate: 0, duration: 0.7, stagger: 0.055, ease: "expo.out" }, at + 0.12)
+            .fromTo(w, { yPercent: 115 }, { yPercent: 0, duration: 0.75, stagger: 0.05, ease: "expo.out" }, at + 0.12)
             .to(w, { yPercent: -115, duration: 0.42, stagger: 0.025, ease: "power3.in" }, at + hold)
             .set(el, { autoAlpha: 0 }, at + hold + 0.55);
-          if (!keep)
-            run.to(scrim, { autoAlpha: 0, duration: 0.5, ease: "power2.inOut" }, at + hold + 0.35).to(stage, { scale: 1, duration: 0.7, ease: "power2.inOut" }, at + hold + 0.35);
+          if (!keep) run.to(scrim, { autoAlpha: 0, duration: 0.5, ease: "power2.inOut" }, at + hold + 0.35).to(stage, { scale: 1, duration: 0.7, ease: "power2.inOut" }, at + hold + 0.35);
         };
+        const show = (el: Element, at: number) => run.fromTo(el, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, at);
+        const hide = (el: Element, at: number) => run.to(el, { autoAlpha: 0, y: -6, duration: 0.35, ease: "power2.in" }, at);
 
-        // traffico vero: scie azzurre lungo i cavi fino ai server accesi; i dischi lampeggiano all'arrivo
-        const flow = (from: number, to: number, targets: number[], gap = 0.3) => {
+        const flow = (from: number, to: number, targets: number[], gap = 0.32) => {
           let n = 0;
           for (let s = from; s < to; s += gap, n++) {
             const k = targets[n % targets.length];
@@ -1200,153 +1154,86 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
               .set(c, { opacity: 1 }, s)
               .fromTo(head, { strokeDashoffset: 2.5 }, { strokeDashoffset: -100, duration: 1.3, ease: "power1.inOut", immediateRender: false }, s)
               .fromTo(tail, { strokeDashoffset: 16 }, { strokeDashoffset: -86.5, duration: 1.3, ease: "power1.inOut", immediateRender: false }, s)
-              .to(disks[k * 6 + (n % 6)], { opacity: 1, duration: 0.08, yoyo: true, repeat: 1 }, s + 1.25)
               .set(c, { opacity: 0 }, s + 1.32);
           }
-          run.to(m, { req: 1180 + targets.length * 70, duration: to - from, ease: "sine.inOut", onUpdate: () => void (req.textContent = fmt(m.req)) }, from);
         };
-        const load = (k: number, v: number, at: number) => run.to(loads[k], { attr: { width: 62 * v }, duration: 0.6, ease: "power2.out" }, at);
-
-        // ondata d'attacco: scie rosse a ventaglio che si spengono sullo scudo, che si illumina nel punto colpito
         const attack = (at: number) => {
           atk.forEach((c, i) => {
             const [tail, head] = c.children;
-            const s = at + i * 0.11;
+            const s = at + i * 0.12;
             run
               .set(c, { opacity: 1 }, s)
               .fromTo(head, { strokeDashoffset: 2.5 }, { strokeDashoffset: -97.5, duration: 0.7, ease: "power2.in", immediateRender: false }, s)
               .fromTo(tail, { strokeDashoffset: 16 }, { strokeDashoffset: -84, duration: 0.7, ease: "power2.in", immediateRender: false }, s)
               .to(c, { opacity: 0, duration: 0.15 }, s + 0.68)
-              .fromTo(flash, { opacity: 0.85 }, { opacity: 0, duration: 0.45, ease: "power2.out", immediateRender: false }, s + 0.68);
+              .fromTo(flash, { opacity: 0.8 }, { opacity: 0, duration: 0.5, ease: "power2.out", immediateRender: false }, s + 0.68);
           });
-          run.to(m, { blk: `+=${ATTACKS * 61}`, duration: 0.6 + ATTACKS * 0.11, ease: "none", onUpdate: () => void (blk.textContent = fmt(m.blk)) }, at + 0.6);
+          run.to(m, { blk: `+=${ATTACKS * 73}`, duration: 0.6 + ATTACKS * 0.12, ease: "none", onUpdate: () => void (blk.textContent = fmt(m.blk)) }, at + 0.6);
         };
 
-        // 1 · attacchi fermati, traffico vero che passa
-        say(0, 0, 1.7);
+        // 1 · gli attacchi si fermano sullo scudo, il traffico vero passa
+        say(0, 0, 1.6);
+        show(blkPill, 2.5);
         attack(2.7);
         attack(3.7);
-        flow(2.8, 5.6, [0, 1, 2]);
-        load(0, 0.55, 3.2);
-        load(1, 0.62, 3.4);
-        load(2, 0.48, 3.6);
+        flow(2.8, 5.4, [0, 1, 2]);
+        hide(blkPill, 5.6);
 
-        // 2 · manutenzione: il server 2 esce dall'armadio sulle guide, gli altri due si prendono il traffico
-        say(1, 6.0, 1.6);
-        run
-          .to(units[1], { x: -22, duration: 0.8, ease: "power3.inOut" }, 8.5)
-          .to(leds[1], { attr: { fill: AMBER }, duration: 0.2 }, 8.5)
-          .to(maintTag, { autoAlpha: 1, x: 0, duration: 0.5, ease: "expo.out" }, 8.9);
-        load(1, 0.04, 8.5);
-        load(0, 0.82, 8.9);
-        load(2, 0.78, 8.9);
-        flow(8.6, 11.0, [0, 2], 0.26);
-        run
-          .to(maintTag, { autoAlpha: 0, x: 8, duration: 0.3 }, 11.0)
-          .to(units[1], { x: 0, duration: 0.8, ease: "power3.inOut" }, 11.1)
-          .to(leds[1], { attr: { fill: GREEN }, duration: 0.2 }, 11.8);
-        load(1, 0.5, 11.8);
-        load(0, 0.55, 11.8);
-        load(2, 0.5, 11.8);
+        // 2 · aggiornamento: un server esce sulle guide, gli altri due tengono il sito acceso
+        say(1, 5.9, 1.6);
+        run.to(units[1], { x: 18, duration: 0.8, ease: "power3.inOut" }, 8.2).to(leds[1], { attr: { fill: AMBER }, duration: 0.2 }, 8.2);
+        show(maintPill, 8.4);
+        flow(8.3, 10.6, [0, 2], 0.28);
+        hide(maintPill, 10.6);
+        run.to(units[1], { x: 0, duration: 0.8, ease: "power3.inOut" }, 10.7).to(leds[1], { attr: { fill: GREEN }, duration: 0.2 }, 11.3);
 
-        // 3 · guasto alle 03:12: il server 3 si ferma, il traffico si sposta, il tecnico interviene dalla sua console
-        say(2, 12.2, 1.4);
+        // 3 · guasto alle 03:12, preso in carico dal tecnico reperibile
+        say(2, 11.6, 1.4);
         run
-          .to(leds[2], { attr: { fill: RED }, duration: 0.1, repeat: 5, yoyo: true }, 14.4)
-          .set(leds[2], { attr: { fill: RED } }, 15.0)
-          .to(tints[2], { opacity: 0.22, duration: 0.3 }, 14.4)
-          .fromTo(units[2], { x: 0 }, { x: 3, duration: 0.05, yoyo: true, repeat: 7, ease: "none", immediateRender: false }, 14.4)
-          .to(crashTag, { autoAlpha: 1, x: 0, duration: 0.5, ease: "expo.out" }, 14.5)
-          .to(latCell, { ["--drop-tint" as string]: "rgba(245,165,36,.22)", duration: 0.3 }, 14.5)
-          .to(m, { lat: 186, duration: 0.6, ease: "power2.out", onUpdate: () => void (lat.textContent = `${Math.round(m.lat)} ms`) }, 14.5);
-        load(2, 0, 14.4);
-        load(0, 0.8, 14.8);
-        load(1, 0.78, 14.8);
-        flow(14.6, 18.6, [0, 1], 0.26);
+          .to(leds[2], { attr: { fill: RED }, duration: 0.1, repeat: 5, yoyo: true }, 13.7)
+          .set(leds[2], { attr: { fill: RED } }, 14.3)
+          .to(tints[2], { opacity: 0.24, duration: 0.3 }, 13.7)
+          .set(m, { clock: 0 }, 13.7)
+          .set(timer, { textContent: "00:00" }, 13.7)
+          .set([stWork, stOk], { autoAlpha: 0 }, 13.7)
+          .set(stAlert, { autoAlpha: 1 }, 13.7);
+        flow(13.8, 16.9, [0, 1], 0.3);
+        show(card, 14.1);
         run
-          .set(m, { clock: 0 }, 14.8)
-          .set([stOk], { autoAlpha: 0 }, 14.8)
-          .set(stAlert, { autoAlpha: 1 }, 14.8)
-          .set(lines, { clipPath: "inset(0 100% 0 0)" }, 14.8)
-          .fromTo(panel, { autoAlpha: 0, y: 22 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "expo.out" }, 14.9)
-          .fromTo(sweep, { xPercent: -130 }, { xPercent: 130, duration: 1.2, ease: "power2.inOut" }, 15.0)
-          .to(wire, { strokeDashoffset: 0, duration: 0.9, ease: "power2.inOut" }, 15.2)
-          .to(m, { clock: 238, duration: 3.2, ease: "power1.in", onUpdate: () => void (timer.textContent = mmss(m.clock)) }, 15.0);
-        // la console: i comandi compaiono come battuti a macchina
-        lines.forEach((l, i) => run.to(l, { clipPath: "inset(0 0% 0 0)", duration: 0.55, ease: "steps(22)" }, 15.6 + i * 0.75));
-        run
-          .to(caret, { opacity: 0, duration: 0.01, repeat: 9, yoyo: true, repeatDelay: 0.22 }, 15.6)
-          // risolto
-          .to(leds[2], { attr: { fill: GREEN }, duration: 0.2 }, 18.2)
-          .to(tints[2], { opacity: 0, duration: 0.4 }, 18.2)
-          .to(crashTag, { autoAlpha: 0, x: 8, duration: 0.3 }, 18.2)
-          .to(latCell, { ["--drop-tint" as string]: "rgba(94,196,255,.1)", duration: 0.4 }, 18.2)
-          .to(m, { lat: 42, duration: 0.8, ease: "power2.out", onUpdate: () => void (lat.textContent = `${Math.round(m.lat)} ms`) }, 18.2)
-          .to(stAlert, { autoAlpha: 0, duration: 0.2 }, 18.2)
-          .to(stOk, { autoAlpha: 1, duration: 0.3 }, 18.3);
-        load(2, 0.5, 18.3);
-        load(0, 0.55, 18.3);
-        load(1, 0.52, 18.3);
+          .to(m, { clock: 238, duration: 2.7, ease: "power1.in", onUpdate: () => void (timer.textContent = mmss(m.clock)) }, 14.3)
+          .to(stAlert, { autoAlpha: 0, duration: 0.2 }, 15.2)
+          .to(stWork, { autoAlpha: 1, duration: 0.3 }, 15.3)
+          .to(leds[2], { attr: { fill: GREEN }, duration: 0.2 }, 17.0)
+          .to(tints[2], { opacity: 0, duration: 0.4 }, 17.0)
+          .to(stWork, { autoAlpha: 0, duration: 0.2 }, 17.0)
+          .to(stOk, { autoAlpha: 1, duration: 0.3 }, 17.1);
+        flow(17.0, 18.6, [0, 1, 2]);
+        hide(card, 18.7);
 
-        // 4 · chiusura: due commenti, poi il marchio con il tasto per il servizio
-        say(3, 19.6, 1.5);
-        run.to([panel, wire], { autoAlpha: 0, duration: 0.4 }, 19.6).set(wire, { strokeDashoffset: wlen, autoAlpha: 1 }, 20.2);
-        say(4, 22.2, 1.6, true);
+        // 4 · chiusura
+        say(3, 19.0, 1.6, true);
         run
-          .set(end, { autoAlpha: 1 }, 24.3)
-          .fromTo(endBits, { yPercent: 110, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.8, stagger: 0.09, ease: "expo.out", immediateRender: false }, 24.3)
-          .to(endBits, { autoAlpha: 0, y: -10, duration: 0.4, stagger: 0.04, ease: "power2.in" }, 27.7)
-          .set(end, { autoAlpha: 0 }, 28.2)
-          .to(scrim, { autoAlpha: 0, duration: 0.5, ease: "power2.inOut" }, 27.9)
-          .to(stage, { scale: 1, duration: 0.6, ease: "power2.inOut" }, 27.9)
-          .set(endBits, { y: 0 }, 28.6)
+          .set(end, { autoAlpha: 1 }, 21.1)
+          .fromTo(endBits, { yPercent: 110, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.85, stagger: 0.09, ease: "expo.out", immediateRender: false }, 21.1)
+          .to(endBits, { autoAlpha: 0, duration: 0.4, stagger: 0.04, ease: "power2.in" }, 24.3)
+          .set(end, { autoAlpha: 0 }, 24.8)
+          .to(scrim, { autoAlpha: 0, duration: 0.5, ease: "power2.inOut" }, 24.5)
+          .to(stage, { scale: 1, duration: 0.6, ease: "power2.inOut" }, 24.5)
           .to({}, { duration: 0.01 }, LOOP - 0.01);
         return tl.add(run, 1.0);
       }}
     >
       <div data-stage className="absolute inset-0 origin-center">
-        {/* cruscotto in alto: i numeri che contano */}
-        <Bead data-node tint="rgba(8,12,18,.6)" radius={18} className="absolute flex h-[58px] items-stretch backdrop-blur-xl" style={{ left: 24, top: 18, width: OW - 48 }}>
-          {hud.map((h, i) => (
-            <Bead
-              key={h.attr}
-              {...(i === 2 ? { "data-cell-lat": "" } : {})}
-              tint={i === 2 ? "rgba(94,196,255,.1)" : "transparent"}
-              radius={14}
-              className={`m-[4px] flex flex-1 items-center gap-2.5 px-3 ${i ? "" : ""}`}
-            >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[linear-gradient(160deg,rgba(158,220,255,.32),rgba(31,127,184,.22))] text-[#cdeeff] shadow-[inset_0_0_0_1px_rgba(255,255,255,.14)]">
-                <HugeiconsIcon icon={h.icon} size={16} strokeWidth={1.7} />
-              </span>
-              <span className="min-w-0 leading-tight">
-                <span className="block truncate text-[10px] font-medium uppercase tracking-[0.08em] text-white/50">{h.label}</span>
-                <span {...{ [h.attr]: "" }} className="block font-mono text-[15px] tabular-nums text-white">
-                  {h.value}
-                </span>
-              </span>
-            </Bead>
-          ))}
-        </Bead>
-
-        {/* intestazioni delle colonne */}
-        {cols.map((c, i) => (
-          <span key={c.label} data-node className="absolute flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.12em] text-white/55" style={{ left: c.x, top: 104 }}>
-            <span className="text-[#8fd8ff]">0{i + 1}</span>
-            {c.label}
-          </span>
-        ))}
-
-        {/* impianto: cavi, globo, scudo, bilanciatore, armadio, scie */}
         <Links paths={links} w={OW} h={OH} />
         <svg viewBox={`0 0 ${OW} ${OH}`} className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" aria-hidden>
           <defs>
             <linearGradient id="ops-unit" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#1d3446" stopOpacity=".92" />
-              <stop offset="1" stopColor="#0c1822" stopOpacity=".92" />
+              <stop offset="0" stopColor="#1f3a4f" stopOpacity=".9" />
+              <stop offset="1" stopColor="#0d1a25" stopOpacity=".9" />
             </linearGradient>
             <linearGradient id="ops-glass" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#9edcff" stopOpacity=".42" />
-              <stop offset=".55" stopColor="#1f7fb8" stopOpacity=".28" />
+              <stop offset="0" stopColor="#bfe8ff" stopOpacity=".5" />
+              <stop offset=".55" stopColor="#3ea4dc" stopOpacity=".3" />
               <stop offset="1" stopColor="#0b2f45" stopOpacity=".55" />
             </linearGradient>
             <radialGradient id="ops-impact" cx="0" cy=".5" r=".9">
@@ -1355,34 +1242,27 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
               <stop offset="1" stopColor={RED} stopOpacity="0" />
             </radialGradient>
             <pattern id="ops-hex" width="10" height="17.32" patternUnits="userSpaceOnUse">
-              <path d="M5 0 L10 2.89 V8.66 L5 11.55 L0 8.66 V2.89 Z M0 14.43 L5 17.32 M10 14.43 L5 17.32 M5 11.55 V17.32" fill="none" stroke="rgba(255,255,255,.22)" strokeWidth=".6" />
-            </pattern>
-            <pattern id="ops-seg" width="6.2" height="7" patternUnits="userSpaceOnUse">
-              <rect width="4.4" height="7" rx="1" fill={AQUA} />
-            </pattern>
-            <pattern id="ops-seg-off" width="6.2" height="7" patternUnits="userSpaceOnUse">
-              <rect width="4.4" height="7" rx="1" fill="rgba(255,255,255,.12)" />
+              <path d="M5 0 L10 2.89 V8.66 L5 11.55 L0 8.66 V2.89 Z M0 14.43 L5 17.32 M10 14.43 L5 17.32 M5 11.55 V17.32" fill="none" stroke="rgba(255,255,255,.18)" strokeWidth=".6" />
             </pattern>
             <clipPath id="ops-shield-clip">
               <path d={SHIELD_D} />
             </clipPath>
           </defs>
 
-          {/* globo a fil di ferro */}
+          {/* la rete */}
           <g data-node>
-            <circle cx={GLOBE.x} cy={GLOBE.y} r={GLOBE.r + 10} fill="url(#ops-glass)" opacity=".55" />
-            <circle cx={GLOBE.x} cy={GLOBE.y} r={GLOBE.r} fill="rgba(8,20,30,.55)" stroke="rgba(255,255,255,.55)" strokeWidth="1.2" />
+            <circle cx={GLOBE.x} cy={GLOBE.y} r={GLOBE.r} fill="rgba(8,20,30,.45)" stroke="rgba(255,255,255,.6)" strokeWidth="1.2" />
             {[-0.5, 0, 0.5].map((f) => (
-              <ellipse key={f} cx={GLOBE.x} cy={GLOBE.y + f * GLOBE.r * 1.15} rx={GLOBE.r * Math.sqrt(1 - (f * 1.15) ** 2 * 0.75)} ry={GLOBE.r * 0.16} fill="none" stroke="rgba(255,255,255,.28)" strokeWidth=".8" />
+              <ellipse key={f} cx={GLOBE.x} cy={GLOBE.y + f * GLOBE.r * 1.15} rx={GLOBE.r * Math.sqrt(1 - (f * 1.15) ** 2 * 0.75)} ry={GLOBE.r * 0.16} fill="none" stroke="rgba(255,255,255,.25)" strokeWidth=".8" />
             ))}
             {[0, 1, 2].map((k) => (
-              <ellipse key={k} data-merid cx={GLOBE.x} cy={GLOBE.y} rx={GLOBE.r * Math.abs(Math.cos((k * Math.PI) / 3))} ry={GLOBE.r} fill="none" stroke={AQUA} strokeOpacity=".55" strokeWidth=".9" />
+              <ellipse key={k} data-merid cx={GLOBE.x} cy={GLOBE.y} rx={GLOBE.r * Math.abs(Math.cos((k * Math.PI) / 3))} ry={GLOBE.r} fill="none" stroke={AQUA} strokeOpacity=".6" strokeWidth=".9" />
             ))}
           </g>
 
-          {/* scudo a maglia esagonale */}
+          {/* lo scudo */}
           <g data-node>
-            <path d={SHIELD_D} fill="url(#ops-glass)" stroke="rgba(255,255,255,.55)" strokeWidth="1.2" />
+            <path d={SHIELD_D} fill="url(#ops-glass)" stroke="rgba(255,255,255,.6)" strokeWidth="1.2" />
             <g clipPath="url(#ops-shield-clip)">
               <rect x={SHIELD.x - 40} y={NODE_Y - 50} width="80" height="100" fill="url(#ops-hex)" />
               <rect data-impact x={SHIELD.x - 40} y={NODE_Y - 50} width="80" height="100" fill="url(#ops-impact)" opacity="0" />
@@ -1390,100 +1270,54 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
             <path d={`M${SHIELD.x - 11} ${NODE_Y + 1} l7 7 l15 -15`} fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
           </g>
 
-          {/* bilanciatore: un apparato da 1U con le porte */}
+          {/* i server */}
           <g data-node>
-            <rect x={LB.x - 48} y={NODE_Y - 19} width="96" height="38" rx="8" fill="url(#ops-unit)" stroke="rgba(255,255,255,.22)" />
-            <rect x={LB.x - 47} y={NODE_Y - 18} width="94" height="8" rx="6" fill="rgba(255,255,255,.07)" />
-            {[0, 1, 2, 3].map((k) => (
-              <g key={k}>
-                <rect x={LB.x - 38 + k * 15} y={NODE_Y - 5} width="11" height="9" rx="1.5" fill="rgba(0,0,0,.5)" stroke="rgba(255,255,255,.18)" strokeWidth=".75" />
-                <rect x={LB.x - 36 + k * 15} y={NODE_Y - 7.5} width="3" height="1.6" rx=".8" fill={k < 3 ? AQUA : "rgba(255,255,255,.2)"} />
-              </g>
-            ))}
-            <circle cx={LB.x + 34} cy={NODE_Y - 1} r="2.6" fill={GREEN} style={{ filter: `drop-shadow(0 0 3px ${GREEN})` }} />
-            <text x={LB.x + 24} y={NODE_Y + 13} fill="rgba(255,255,255,.55)" fontSize="7.5" fontFamily={MONO}>
-              LB-1
-            </text>
-          </g>
-
-          {/* armadio: montanti forati e tre server */}
-          <g data-node>
-            <rect x={RACK.x} y={RACK.top} width={RACK.w} height={RACK.bottom - RACK.top} rx="10" fill="rgba(6,12,18,.55)" stroke="rgba(255,255,255,.14)" />
-            {[RACK.x + 4, RACK.x + RACK.w - 10].map((x) => (
-              <g key={x}>
-                <rect x={x} y={RACK.top + 8} width="6" height={RACK.bottom - RACK.top - 16} rx="2" fill="rgba(255,255,255,.06)" />
-                {Array.from({ length: 22 }).map((_, k) => (
-                  <rect key={k} x={x + 1.75} y={RACK.top + 14 + k * 11} width="2.5" height="2.5" rx=".6" fill="rgba(0,0,0,.55)" />
-                ))}
-              </g>
-            ))}
+            <rect x={RACK.x} y={SRV_Y[0] - UNIT_H / 2 - 10} width={RACK.w} height={SRV_Y[2] - SRV_Y[0] + UNIT_H + 20} rx="18" fill="rgba(6,12,18,.4)" stroke="rgba(255,255,255,.12)" />
             {SRV_Y.map((y, i) => (
-              <RackUnit key={y} i={i} y={y} />
+              <Unit key={y} i={i} y={y} />
             ))}
           </g>
 
-          {/* filo tra la console del tecnico e il server guasto */}
-          <path data-wire d={wireD} fill="none" stroke={AQUA} strokeWidth="1.4" strokeLinecap="round" opacity=".9" style={{ filter: `drop-shadow(0 0 3px ${AQUA})` }} />
-
-          {/* scie */}
           {Array.from({ length: ATTACKS }).map((_, k) => (
             <Comet key={`a${k}`} d={attackPath(k)} color={RED} attr="data-atk" />
           ))}
           {SRV_Y.flatMap((y, k) => Array.from({ length: PER_SRV }).map((_, j) => <Comet key={`l${k}${j}`} d={fullPath(y)} color={AQUA} attr="data-legit" />))}
         </svg>
 
-        {/* etichette di stato accanto ai server */}
-        <span data-maint className="absolute flex items-center gap-1.5 rounded-full bg-[#f5a524] py-1 pl-2 pr-2.5 text-[10.5px] font-semibold text-[#1a1204] opacity-0 shadow-[0_6px_18px_-4px_rgba(245,165,36,.55)]" style={{ right: OW - (RACK.x - 36), top: NODE_Y + 30 }}>
-          <HugeiconsIcon icon={Wrench01Icon} size={12} strokeWidth={2} />
-          {t.opsMaint}
-        </span>
-        <span data-crash className="absolute flex items-center gap-1.5 rounded-full bg-[#ff453a] py-1 pl-2 pr-2.5 text-[10.5px] font-semibold text-white opacity-0 shadow-[0_6px_18px_-4px_rgba(255,69,58,.6)]" style={{ right: OW - (RACK.x - 8), top: SRV_Y[2] - 12 }}>
-          <HugeiconsIcon icon={Alert02Icon} size={12} strokeWidth={2} />
-          {t.opsCrash}
-        </span>
+        {/* un'etichetta per scena, sotto l'oggetto che conta */}
+        <Pill attr="data-p-blk" x={SHIELD.x}>
+          <HugeiconsIcon icon={Shield01Icon} size={14} strokeWidth={1.8} className="text-[#8fd8ff]" />
+          <span data-blk className="font-mono tabular-nums">12.380</span>
+          <span className="text-white/60">{t.opsBlockedN}</span>
+        </Pill>
+        <Pill attr="data-p-maint" x={rackX}>
+          <HugeiconsIcon icon={Wrench01Icon} size={14} strokeWidth={1.8} className="text-[#f5c46b]" />
+          <span>{t.opsMaintLine}</span>
+        </Pill>
 
-        {/* console del tecnico reperibile */}
-        <div data-panel className="absolute opacity-0" style={{ left: PANEL.x, top: PANEL.y, width: PANEL.w }}>
-          <Bead tint="rgba(8,12,18,.74)" radius={22} className="relative flex flex-col gap-2.5 overflow-hidden p-3 text-white backdrop-blur-xl">
-            <span data-sweep className="pointer-events-none absolute inset-y-0 left-0 w-full bg-[linear-gradient(105deg,transparent_35%,rgba(255,255,255,.12)_50%,transparent_65%)]" style={{ transform: "translateX(-130%)" }} />
-            <span className="flex items-center gap-3">
-              <span className="relative shrink-0">
-                <span className="block h-11 w-11 overflow-hidden rounded-full bg-[linear-gradient(160deg,#bfe8ff,#5ec4ff_55%,#1f7fb8)] shadow-[inset_0_0_0_1px_rgba(255,255,255,.35)]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/visual/agent.svg" alt="" className="h-full w-full translate-y-[2px] scale-110" draggable={false} />
+        {/* il tecnico reperibile: come una notifica, sotto i server */}
+        <div data-card className="absolute -translate-x-1/2 opacity-0" style={{ left: rackX - 40, top: UNDER - 6, width: 292 }}>
+          <Bead tint="rgba(10,16,24,.62)" radius={20} className="flex items-center gap-3 p-2.5 pr-3.5 text-white backdrop-blur-xl">
+            <span className="relative shrink-0">
+              <span className="block h-10 w-10 overflow-hidden rounded-full bg-[linear-gradient(160deg,#bfe8ff,#5ec4ff_55%,#1f7fb8)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/visual/agent.svg" alt="" className="h-full w-full translate-y-[2px] scale-110" draggable={false} />
+              </span>
+              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-[#30d158] shadow-[0_0_0_2px_rgba(10,16,24,.9)]" />
+            </span>
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block text-[13.5px] font-semibold tracking-[-0.01em]">{t.opsAgent}</span>
+              <span className="relative mt-0.5 block h-[16px] text-[12px]">
+                <span data-st className="absolute inset-0 truncate text-[#ffb4ae]">{t.opsAgentAlert}</span>
+                <span data-st className="absolute inset-0 truncate text-white/70 opacity-0">{t.opsAgentWork}</span>
+                <span data-st className="absolute inset-0 flex items-center gap-1 truncate text-[#8ff0ad] opacity-0">
+                  <HugeiconsIcon icon={CheckmarkCircle02Icon} size={13} strokeWidth={2} />
+                  {t.opsAgentOk}
                 </span>
-                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-[#30d158] shadow-[0_0_0_2.5px_rgba(8,12,18,.95)]" />
-              </span>
-              <span className="min-w-0 flex-1 leading-tight">
-                <span className="block text-[14px] font-semibold tracking-[-0.015em]">{t.opsAgent}</span>
-                <span className="block text-[11px] text-white/55">{t.opsAgentSub}</span>
-              </span>
-              <span className="text-right leading-tight">
-                <span data-timer className="block font-mono text-[15px] tabular-nums">00:00</span>
-                <span className="block text-[9.5px] uppercase tracking-[0.08em] text-white/45">{t.opsAgentTime}</span>
               </span>
             </span>
-            <span className="relative block h-[28px]">
-              <span data-st-alert className="absolute inset-0 flex items-center gap-2 rounded-[10px] bg-[rgba(255,69,58,.14)] px-2.5 text-[11.5px] text-[#ffb4ae]">
-                <HugeiconsIcon icon={Alert02Icon} size={14} strokeWidth={1.8} />
-                <span className="truncate">{t.opsAgentAlert}</span>
-                <span className="ml-auto font-mono text-[10px] text-[#ffb4ae]/70">{t.opsTicket}</span>
-              </span>
-              <span data-st-ok className="absolute inset-0 flex items-center gap-2 rounded-[10px] bg-[rgba(48,209,88,.14)] px-2.5 text-[11.5px] text-[#8ff0ad] opacity-0">
-                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} strokeWidth={1.8} />
-                <span className="truncate">{t.opsAgentOk}</span>
-              </span>
-            </span>
-            <span className="block rounded-[12px] bg-black/40 px-3 py-2.5 font-mono text-[10.5px] leading-[1.7] text-[#bfe8ff] shadow-[inset_0_0_0_1px_rgba(255,255,255,.07)]">
-              {term.map((l, i) => (
-                <span key={i} className="flex items-center gap-1.5">
-                  <span className="text-white/35">›</span>
-                  <span data-term className="whitespace-nowrap">
-                    {l}
-                  </span>
-                  {i === term.length - 1 && <span data-caret className="ml-0.5 inline-block h-3 w-[6px] bg-[#7fd0ff]" />}
-                </span>
-              ))}
+            <span data-timer className="self-start font-mono text-[12px] tabular-nums text-white/55">
+              00:00
             </span>
           </Bead>
         </div>
@@ -1495,16 +1329,15 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
         <Say a={t.opsS1a} b={t.opsS1b} />
         <Say a={t.opsS3a} b={t.opsS3b} />
         <Say a={t.opsS4a} b={t.opsS4b} />
-        <Say a={t.opsS5a} b={t.opsS5b} />
         <Say a={t.opsS6a} b={t.opsS6b} sub={t.opsS6s} />
         <div data-end className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-0">
           <span className="inline-block overflow-hidden pb-[0.1em]">
-            <span data-end-in className="inline-block text-[64px] leading-none tracking-[-0.055em] text-white">
+            <span data-end-in className="inline-block text-[60px] leading-none tracking-[-0.055em] text-white">
               <span className="font-medium">Filippo</span> <span className="font-normal text-white/60">Corsini</span>
             </span>
           </span>
-          <span className="mt-4 inline-block overflow-hidden">
-            <span data-end-in className="inline-block font-mono text-[12.5px] uppercase tracking-[0.16em] text-white/60">
+          <span className="mt-3 inline-block overflow-hidden">
+            <span data-end-in className="inline-block text-[16px] text-white/60">
               {t.opsEndSub}
             </span>
           </span>
@@ -1512,7 +1345,7 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
             <span data-end-in className="inline-block">
               <Bead
                 as="a"
-                href={onPage ? "#brief-ops" : `/${pathname.split("/")[1] || "it"}/servizi/devops-manutenzione`}
+                href={onPage ? "#brief-ops" : `/${locale}/servizi/devops-manutenzione`}
                 onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()}
                 tint="color-mix(in srgb, #5ec4ff 46%, transparent)"
                 radius={24}
