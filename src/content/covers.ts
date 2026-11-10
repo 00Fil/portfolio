@@ -65,10 +65,10 @@ export const COVERS: Cover[] = [
   {
     slug: "relay",
     theme: { bg: "#05070F", fg: "#F2F2F0", fg2: "#9a9caa", acc: "#4D7CFF", acc2: "#5C9DFF", surface: "#10131d", light: false },
-    label: { it: "App Android e Windows · Progetto personale · 2026", en: "Android and Windows apps · Personal project · 2026" },
+    label: { it: "Windows, macOS, Linux, iOS e Android · Progetto personale · 2026", en: "Windows, macOS, Linux, iOS and Android · Personal project · 2026" },
     def: {
-      it: "Due app che passano appunti, screenshot e file dal computer al telefono in un istante. Le cuffie seguono il dispositivo che stai usando.",
-      en: "Two apps that move clipboard, screenshots and files between computer and phone in an instant. Headphones follow the device you are using.",
+      it: "Le app che passano appunti, screenshot e file tra computer e telefono in un istante, su ogni sistema. Le cuffie seguono il dispositivo che stai usando.",
+      en: "Apps that move clipboard, screenshots and files between computer and phone in an instant, on every system. Headphones follow the device you are using.",
     },
     stack: ["kotlin", "compose", "dotnet", "node", "githubactions"],
   },

@@ -63,10 +63,10 @@ export const CV: Record<"it" | "en", Cv> = {
       },
       {
         title: "Relay",
-        what: "Progetto personale · App Android, app Windows e server",
+        what: "Progetto personale · App per Windows, macOS, Linux, iOS e Android, e server",
         when: "2026",
         points: [
-          "Due app native e un server che condividono lo stesso protocollo: appunti, screenshot e file passano tra telefono e computer in un istante.",
+          "App native per cinque sistemi e un server che condividono lo stesso protocollo: appunti, screenshot e file passano tra telefono e computer in un istante.",
           "Doppio trasporto (rete locale e server) con eliminazione dei doppioni; riserve offline via Bluetooth, Wi-Fi Direct e rete privata Headscale.",
           "Design system proprio (Canone) con controlli in vetro e fisica a molla; build e release automatiche con GitHub Actions.",
         ],
@@ -115,10 +115,10 @@ export const CV: Record<"it" | "en", Cv> = {
       },
       {
         title: "Relay",
-        what: "Personal project · Android app, Windows app and server",
+        what: "Personal project · Apps for Windows, macOS, Linux, iOS and Android, and server",
         when: "2026",
         points: [
-          "Two native apps and a server sharing one protocol: clipboard, screenshots and files move between phone and computer instantly.",
+          "Native apps for five systems and a server sharing one protocol: clipboard, screenshots and files move between phone and computer instantly.",
           "Dual transport (local network and server) with de-duplication; offline fallbacks via Bluetooth, Wi-Fi Direct and a private Headscale network.",
           "Own design system (Canone) with glass controls and spring physics; automated builds and releases with GitHub Actions.",
         ],

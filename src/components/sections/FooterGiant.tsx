@@ -8,6 +8,7 @@ import { useGSAP } from "@gsap/react";
 import { Drop } from "@/components/glass/Drop";
 import { prefersReducedMotion } from "@/lib/env";
 import { scrollToY } from "@/lib/scroll";
+import { useTheme } from "@/lib/theme";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -73,7 +74,14 @@ export function FooterCta({ q, a, cta, href }: { q: string; a: string; cta: stri
  * Il nome a tutta larghezza in fondo al sito. Le lettere sono finestre su un gradiente azzurro (Grainient di React Bits)
  * che scorre da solo e si mescola sotto il cursore: sopra c'è un velo nero con il testo bianco in "multiply".
  */
+/*
+ * Nel tema chiaro le lettere si fondono con "lighten" sul colore della pagina: nessun canale del gradiente
+ * deve superare quello del fondo (#f6f6f3), altrimenti attorno al nome compare una fascia più chiara.
+ */
+const LIGHT_RAMP = ["#061722", "#0b3550", "#1f7fb8", "#4fb6ec", "#bfe0f0"].map((c) => c.replace(/[0-9a-f]{2}$/i, (b) => Math.min(parseInt(b, 16), 0xf0).toString(16).padStart(2, "0")));
+
 export function FooterGiant({ first, last }: { first: string; last: string }) {
+  const theme = useTheme();
   const band = useRef<HTMLDivElement>(null);
   const text = useRef<HTMLParagraphElement>(null);
   const [on, setOn] = useState(false);
@@ -127,9 +135,9 @@ export function FooterGiant({ first, last }: { first: string; last: string }) {
 
   return (
     <div ref={band} className="relative isolate overflow-hidden" aria-label={`${first} ${last}`} role="img">
-      <div aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(90% 140% at 50% 110%, #5ec4ff, #1f7fb8 45%, #0b2f45 85%)" }}>
+      <div aria-hidden className="absolute inset-0" style={{ background: `radial-gradient(90% 140% at 50% 110%, ${theme === "light" ? "#4fb6ec" : "#5ec4ff"}, #1f7fb8 45%, #0b2f45 85%)` }}>
         {on && !still && (
-          <Grainient colors={["#061722", "#0b3550", "#1f7fb8", "#5ec4ff", "#d9f2ff"]} angle={20} speed={0.6} flow={0.7} silk={0.4} grainAmount={0.04} stir={1.4} intro={false} dpr={1} />
+          <Grainient colors={theme === "light" ? LIGHT_RAMP : ["#061722", "#0b3550", "#1f7fb8", "#5ec4ff", "#d9f2ff"]} angle={20} speed={0.6} flow={0.7} silk={0.4} grainAmount={0.04} stir={1.4} intro={false} dpr={1} />
         )}
       </div>
       <div aria-hidden className="giant-mask pointer-events-none relative flex justify-center">

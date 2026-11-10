@@ -168,7 +168,8 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
 
   useEffect(() => {
     setLens({ bar: supportsBackdropLens(), bubble: supportsElementLens() });
-    if (supportsBackdropLens()) document.documentElement.classList.add("lens");
+    // la rifrazione nel backdrop è un filtro SVG ricalcolato a ogni fotogramma di scroll: solo su computer
+    if (supportsBackdropLens() && window.matchMedia("(pointer: fine) and (min-width: 1024px)").matches) document.documentElement.classList.add("lens");
   }, []);
 
   // ------------------------------------------------------------ misure

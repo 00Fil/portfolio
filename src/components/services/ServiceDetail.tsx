@@ -84,7 +84,7 @@ function Hero({ k, need, label, title, short, w, t }: ServiceDetailProps) {
                 {short}
               </p>
               <div className="mt-7 sm:mt-9" data-hrest>
-                <Drop href={`#brief-${need}`} accent className="h-[52px] px-6 text-[16px] font-medium text-ink">
+                <Drop href={`#brief-${k}`} accent className="h-[52px] px-6 text-[16px] font-medium text-ink">
                   {t.cta}
                   <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
                 </Drop>

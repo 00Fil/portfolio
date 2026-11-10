@@ -200,7 +200,7 @@
     "under": "Sotto il cofano",
     "system": "Il linguaggio di Relay",
     "systemTitle": "Un design system fatto apposta",
-    "systemBody": "Colori, raggi, caratteri e movimenti sono definiti una volta e usati da entrambe le app, Android e Windows.",
+    "systemBody": "Colori, raggi, caratteri e movimenti sono definiti una volta e usati da tutte le app, su ogni sistema.",
     "systemNav": "La barra di navigazione di questo sito, con il suo vetro e la sua fisica a molla, viene da Relay."
   },
   "footer": {
@@ -260,7 +260,7 @@
       {
         "tag": "Progetto personale",
         "title": "Relay",
-        "body": "Due app native e un server che collegano telefono e computer, con un design system disegnato da zero.",
+        "body": "App native per Windows, macOS, Linux, iOS e Android e un server che le collega, con un design system disegnato da zero.",
         "value": 45,
         "unit": "ore di sviluppo, distribuzione in arrivo",
         "suffix": "+",
@@ -272,62 +272,62 @@
   "method": {
     "label": "Metodo",
     "title": "Come lavoro",
-    "lead": "Cinque tappe, dall’idea al software che funziona.",
+    "lead": "Cinque fasi gestite come un progetto: obiettivi, piano, avanzamento e rilascio sempre sotto controllo.",
     "phases": [
       {
-        "name": "Capire",
-        "title": "Prima di scrivere codice, ascolto.",
-        "body": "Parto da chi userà il software e da cosa deve cambiare nella sua giornata. Mettiamo in fila cosa serve davvero, cosa può aspettare e cosa lasciamo fuori.",
+        "name": "Analisi",
+        "title": "Obiettivi, requisiti e priorità, messi per iscritto.",
+        "body": "Raccolgo esigenze e vincoli con chi decide e con chi userà il software. Ne esce un documento che fissa cosa si fa, cosa no e come si misura il risultato, approvato prima di partire.",
         "practices": [
-          "Priorità decise insieme",
-          "Obiettivi chiari e misurabili",
-          "Tempi e costi con margini onesti"
+          "Requisiti e perimetro concordati",
+          "Obiettivi misurabili",
+          "Rischi e vincoli individuati subito"
         ],
-        "out": "Un piano condiviso"
+        "out": "Documento di progetto"
       },
       {
-        "name": "Progettare",
-        "title": "Scelte semplici, spiegate per iscritto.",
-        "body": "Scelgo la soluzione più semplice che regge quello che serve, non quella di moda. Le decisioni importanti restano scritte, così chiunque arrivi dopo sa perché le cose sono fatte così.",
+        "name": "Pianificazione",
+        "title": "Tempi, costi e responsabilità definiti prima di iniziare.",
+        "body": "Divido il lavoro in milestone con date e consegne precise. Preventivo, calendario e criteri di accettazione sono chiari fin dal primo giorno, così ogni decisione ha un costo e una scadenza visibili.",
         "practices": [
-          "La soluzione più semplice che funziona",
-          "Decisioni messe per iscritto",
-          "Sicurezza e dati pensati dall’inizio"
+          "Milestone con date e consegne",
+          "Preventivo e criteri di accettazione",
+          "Un solo referente responsabile"
         ],
-        "out": "Un progetto chiaro"
+        "out": "Piano con tempi e costi"
       },
       {
-        "name": "Costruire",
-        "title": "Un pezzo alla volta, sempre controllato.",
-        "body": "Lavoro a piccoli passi e ogni passo si può vedere e provare. Ogni modifica viene ricontrollata prima di entrare nella versione vera, e nulla si perde.",
+        "name": "Sviluppo",
+        "title": "Cicli brevi, avanzamento sempre misurabile.",
+        "body": "Lavoro in cicli di due settimane, ognuno chiuso da una demo e da un resoconto. Segui l’avanzamento dall’area clienti e ogni richiesta di modifica viene valutata per impatto su tempi e costi prima di entrare nel piano.",
         "practices": [
-          "Passi piccoli e visibili",
-          "Ogni modifica ricontrollata",
-          "Storia completa di ogni cambiamento"
+          "Demo a ogni ciclo",
+          "Resoconto di avanzamento",
+          "Modifiche valutate prima di approvarle"
         ],
-        "out": "Versioni da provare"
+        "out": "Avanzamento verificabile"
       },
       {
-        "name": "Rilasciare",
-        "title": "Mettere online senza sorprese.",
-        "body": "Prima di arrivare agli utenti, il software passa da una serie di controlli automatici. Le novità arrivano a poche persone alla volta: se qualcosa non va, si torna indietro da soli.",
+        "name": "Collaudo e rilascio",
+        "title": "Approvazione formale, poi messa online controllata.",
+        "body": "Prima del rilascio verifichiamo insieme i criteri di accettazione su una versione di prova. La messa online segue una procedura scritta, con piano di ritorno indietro e formazione per chi userà il software.",
         "practices": [
-          "Controlli automatici a ogni rilascio",
-          "Novità date a pochi utenti per volta",
-          "Ritorno indietro immediato"
+          "Collaudo sui criteri concordati",
+          "Procedura di rilascio scritta",
+          "Formazione e passaggio di consegne"
         ],
-        "out": "Il software online"
+        "out": "Rilascio approvato"
       },
       {
-        "name": "Mantenere",
-        "title": "Il lavoro continua dopo il lancio.",
-        "body": "Tengo d’occhio velocità ed errori e ricevo un avviso prima che il problema arrivi a te o ai tuoi clienti. Ti lascio tutto documentato: il software resta tuo.",
+        "name": "Assistenza",
+        "title": "Continuità di servizio, con tempi di risposta garantiti.",
+        "body": "Dopo il lancio il progetto resta seguito: monitoraggio, aggiornamenti di sicurezza ed evoluzioni pianificate. Tempi di intervento definiti nel contratto e documentazione sempre aggiornata.",
         "practices": [
-          "Controllo continuo di velocità ed errori",
-          "Avvisi prima che sia un problema",
-          "Documentazione e consegna completa"
+          "Tempi di intervento garantiti",
+          "Monitoraggio e aggiornamenti",
+          "Evoluzioni pianificate"
         ],
-        "out": "Un servizio che regge"
+        "out": "Continuità garantita"
       }
     ],
     "output": "Alla fine hai",
@@ -576,6 +576,16 @@
       "opsBackupSub": "ogni notte, in due posti",
       "opsSsl": "Connessione",
       "opsSslSub": "certificato rinnovato da solo",
+      "opsNet": "Internet",
+      "opsShield": "Protezione DDoS",
+      "opsBlockedN": "bloccate",
+      "opsLb": "Bilanciatore",
+      "opsSrv": "Server",
+      "opsMaint": "Manutenzione",
+      "opsL1": "Ondata di richieste false fermata",
+      "opsL2": "Traffico reale diviso su tre server",
+      "opsL3": "Server 2 in manutenzione, sito sempre online",
+      "opsL4": "Aggiornamento installato, server di nuovo in linea",
       "opsSiteName": "Studio Bianchi",
       "opsSiteTitle": "Il tuo sorriso, in buone mani",
       "opsSiteCta": "Prenota una visita",
@@ -596,93 +606,137 @@
     "all": "Tutti i servizi"
   },
   "brief": {
-    "kicker": "Chiamata conoscitiva · 30 min",
-    "next": "Avanti",
+    "title": "Prenota una chiamata",
+    "meta": "30 minuti · Videochiamata",
+    "with": "con Filippo Corsini",
+    "close": "Chiudi",
     "back": "Indietro",
-    "send": "Prenota la chiamata",
-    "enter": "oppure premi",
+    "next": "Continua",
     "optional": "facoltativo",
-    "step": "Passo",
-    "steps": [
+    "edit": "Modifica",
+    "s1": "Di cosa hai bisogno?",
+    "paths": [
       {
-        "key": "need",
-        "q": "Di cosa vuoi parlare?",
-        "hint": "Puoi sceglierne più di uno.",
+        "id": "web",
+        "label": "Sito web",
+        "sub": "Nuovo o da rifare",
+        "q": "Partiamo da zero?",
+        "opts": [
+          "Sito nuovo",
+          "Rifare quello attuale",
+          "Migliorare quello attuale"
+        ]
+      },
+      {
+        "id": "webapp",
+        "label": "Gestionale o web app",
+        "sub": "Su misura per i tuoi processi",
+        "q": "Cosa vuoi gestire?",
+        "opts": [
+          "Clienti e ordini",
+          "Prenotazioni e calendario",
+          "Magazzino e documenti",
+          "Un altro processo"
+        ]
+      },
+      {
+        "id": "apps",
+        "label": "App",
+        "sub": "Telefono e computer",
+        "q": "Su quali dispositivi?",
         "multi": true,
-        "options": [
-          "Sito web",
-          "Web app o gestionale",
-          "App multipiattaforma",
-          "E-commerce",
-          "SEO e GEO",
-          "AI e automazioni",
-          "Integrazioni",
-          "Design UI/UX",
-          "Hosting e manutenzione",
-          "Soluzioni hardware",
-          "Altro"
+        "opts": [
+          "iPhone",
+          "Android",
+          "Mac",
+          "Windows",
+          "Linux"
         ]
       },
       {
-        "key": "goal",
-        "q": "Qual è l’obiettivo?",
-        "options": [
-          "Trovare nuovi clienti",
-          "Risparmiare tempo",
-          "Vendere online",
-          "Rinnovare uno strumento",
-          "Lanciare un prodotto"
-        ],
-        "note": "Raccontami in breve il progetto"
-      },
-      {
-        "key": "budget",
-        "q": "Che budget hai in mente?",
-        "options": [
-          "Fino a 2.000 €",
-          "2.000 – 5.000 €",
-          "5.000 – 15.000 €",
-          "Oltre 15.000 €",
-          "Da definire insieme"
+        "id": "shop",
+        "label": "E-commerce",
+        "sub": "Vendere online",
+        "q": "Cosa vendi?",
+        "opts": [
+          "Prodotti fisici",
+          "Prodotti digitali",
+          "Servizi o prenotazioni"
         ]
       },
       {
-        "key": "slot",
-        "q": "Quando ci sentiamo?",
-        "hint": "Una videochiamata di 30 minuti con me.",
-        "slot": true
+        "id": "ai",
+        "label": "AI e automazioni",
+        "sub": "Meno lavoro manuale",
+        "q": "Cosa vuoi automatizzare?",
+        "opts": [
+          "Email e richieste",
+          "Documenti e dati",
+          "Un assistente per i clienti",
+          "Non lo so ancora"
+        ]
       },
       {
-        "key": "who",
-        "q": "A chi mando l’invito?",
-        "fields": [
-          {
-            "id": "name",
-            "ph": "Nome e cognome",
-            "req": true
-          },
-          {
-            "id": "email",
-            "ph": "Email",
-            "req": true,
-            "type": "email"
-          },
-          {
-            "id": "company",
-            "ph": "Azienda o attività"
-          }
+        "id": "seo",
+        "label": "Visibilità online",
+        "sub": "Google e assistenti AI",
+        "q": "Dove vuoi farti trovare?",
+        "opts": [
+          "Su Google",
+          "Su ChatGPT e simili",
+          "In entrambi"
         ]
+      },
+      {
+        "id": "api",
+        "label": "Integrazioni",
+        "sub": "Collegare i tuoi strumenti",
+        "q": "Cosa vuoi collegare?",
+        "multi": true,
+        "opts": [
+          "Pagamenti",
+          "CRM",
+          "Calendari",
+          "Gestionale esistente",
+          "WhatsApp"
+        ]
+      },
+      {
+        "id": "ops",
+        "label": "Hosting e manutenzione",
+        "sub": "Sempre online e protetto",
+        "q": "Cosa ti serve?",
+        "opts": [
+          "Un hosting nuovo",
+          "Spostare un sito esistente",
+          "Manutenzione continua",
+          "Più sicurezza"
+        ]
+      },
+      {
+        "id": "other",
+        "label": "Altro",
+        "sub": "Raccontami tu",
+        "q": "Di cosa si tratta?"
       }
     ],
-    "doneTitle": "Chiamata prenotata",
-    "doneBody": "Grazie {name}. Ci sentiamo {when}: ti mando il link della videochiamata all’email che mi hai lasciato.",
-    "again": "Prenota un’altra chiamata",
-    "key": "Invio",
-    "close": "Chiudi",
+    "note": "Qualcosa da aggiungere?",
+    "notePh": "Due righe sul progetto",
+    "s3": "Scegli giorno e ora",
+    "s4": "I tuoi dati",
+    "name": "Nome e cognome",
+    "email": "Email",
+    "company": "Azienda",
+    "confirm": "Conferma la prenotazione",
+    "sumPath": "Argomento",
+    "sumWhen": "Quando",
     "loading": "Cerco gli orari liberi…",
     "noSlots": "In questi giorni non ho orari liberi. Scrivimi e troviamo un momento.",
-    "tz": "ora italiana",
+    "tz": "Ora italiana",
+    "doneTitle": "Chiamata prenotata",
+    "doneBody": "Ti arriva un’email con il link della videochiamata.",
     "addCal": "Aggiungi al calendario",
+    "done": "Fatto",
     "calTitle": "Chiamata con Filippo Corsini",
     "errTaken": "Quell’orario è appena stato preso: scegline un altro.",
     "errGeneric": "Qualcosa non è andato. Controlla i dati e riprova."
@@ -787,5 +841,21 @@
     "support": "Assistenza",
     "call": "Prenota una chiamata",
     "write": "Scrivi un’email"
+  },
+  "assistant": {
+    "title": "Chiedi pure",
+    "lead": "Prezzi, tempi, metodo, lavori: risposte immediate, e se serve la chiamata è a un tocco.",
+    "name": "Assistente di Filippo",
+    "placeholder": "Scrivi una domanda",
+    "send": "Invia",
+    "hello": "Ciao! Dimmi cosa ti serve o cosa vuoi sapere: ti porto alla pagina giusta.",
+    "fallback": "Su questo preferisco risponderti di persona. Prenota 30 minuti e ne parliamo.",
+    "book": "Prenota una chiamata di 30 minuti",
+    "nextFree": "Primo orario libero: {when}",
+    "open": "Apri",
+    "area": "Accedi all’area clienti",
+    "cv": "Il mio curriculum",
+    "service": "Per {name}:",
+    "project": "Ecco {name}: la pagina racconta il problema, cosa ho costruito e le scelte tecniche."
   }
 }

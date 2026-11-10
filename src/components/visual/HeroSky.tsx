@@ -11,9 +11,11 @@ import { useTheme } from "@/lib/theme";
 export function HeroSky() {
   const [ready, setReady] = useState(false);
   const [reduce, setReduce] = useState(false);
+  const [small, setSmall] = useState(false);
   const theme = useTheme();
   useEffect(() => {
     setReduce(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    setSmall(window.innerWidth < 1024);
     setReady(true);
   }, []);
   return (
@@ -21,7 +23,8 @@ export function HeroSky() {
       {ready && (
         <Dither
           key={theme}
-          className="absolute inset-0"
+          className="absolute inset-0 [&_canvas]:[image-rendering:pixelated]"
+          dpr={small ? 1 : undefined}
           palette={theme === "light" ? ["#f6f6f3", "#dcefff", "#9ed6f7", "#4fb4ea", "#1f7fb8"] : ["#000000", "#06263A", "#0F5C88", "#3BA9E6", "#9EDCFF"]}
           ditherMode="bayer4"
           pixelSize={5}

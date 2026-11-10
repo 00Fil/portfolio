@@ -15,7 +15,7 @@ export type Client = {
   name: string;
   hash: string;
   project?: string;
-  /** Fase attuale, da 0 a 4 (Capire, Progettare, Costruire, Rilasciare, Mantenere). */
+  /** Fase attuale, da 0 a 4 (Analisi, Pianificazione, Sviluppo, Collaudo e rilascio, Assistenza). */
   phase?: number;
   /** Avanzamento complessivo, da 0 a 100. */
   progress?: number;

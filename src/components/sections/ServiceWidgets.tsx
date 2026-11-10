@@ -91,14 +91,17 @@ function Canvas({ w, h, max = 1, build, children, framed = true }: { w: number; 
     () => {
       const tl = build(gsap.utils.selector(stage.current)).pause();
       if (prefersReducedMotion()) return void tl.progress(1);
+      // parte la prima volta che si vede e si ferma ogni volta che esce dallo schermo:
+      // le animazioni infinite di sette schede non girano più in sottofondo mentre scorri altrove
+      let started = false;
       const io = new IntersectionObserver(
         ([e]) => {
-          if (e.isIntersecting) {
+          if (e.isIntersecting && (started || e.intersectionRatio >= 0.35)) {
+            started = true;
             tl.play();
-            io.disconnect();
-          }
+          } else if (!e.isIntersecting && started) tl.pause();
         },
-        { threshold: 0.35 },
+        { threshold: [0, 0.35] },
       );
       io.observe(box.current!);
       return () => io.disconnect();
@@ -982,152 +985,156 @@ function ShopV({ t, max }: { t: WidgetText; max?: number }) {
   );
 }
 
-/* ───────────── Gestione: il pannello di controllo del sito, come quelli degli hosting seri ───────────── */
+/* ───────────── Gestione: lo schema dell'infrastruttura. Le ondate di richieste false si fermano sullo scudo,
+   quelle vere passano, il bilanciatore le divide tra i server e uno va in manutenzione senza che nessuno se ne accorga ───────────── */
 
-/** Tempi di risposta delle ultime 24 ore: bassi e regolari, un solo picco assorbito. */
-const RESP = [148, 142, 151, 139, 137, 144, 140, 136, 141, 152, 147, 139, 133, 138, 196, 162, 141, 137, 134, 139, 143, 138, 135, 142, 140, 136, 139, 141];
+const CORAL = "#ff7a7a";
+const NODE_Y = 150;
+const SRV_Y = [62, 150, 238];
+const NET = { x: 62, y: NODE_Y };
+const SHIELD = { x: 206, y: NODE_Y };
+const LB = { x: 352, y: NODE_Y };
+const SRV_X = 512;
+const FAKE = 16;
+const LEGIT = 12;
 function OpsV({ t, max }: { t: WidgetText; max?: number }) {
-  const W = 356;
-  const H = 92;
-  const lo = 110;
-  const hi = 210;
-  const pts = RESP.map((v, i) => [(i / (RESP.length - 1)) * W, H - ((v - lo) / (hi - lo)) * H] as const);
-  // curva morbida tra i punti
-  const line = pts.reduce((d, [x, y], i) => {
-    if (!i) return `M${x},${y}`;
-    const [px, py] = pts[i - 1];
-    const cx = (px + x) / 2;
-    return `${d} C${cx},${py} ${cx},${y} ${x},${y}`;
-  }, "");
-  const area = `${line} L${W},${H} L0,${H} Z`;
-  const kpis = [
-    { k: t.opsUptime, v: "99,98%", s: t.opsUptimeSub, icon: <path d="M3 12h4l3-7 4 14 3-7h4" /> },
-    { k: t.opsBackup, v: "03:00", s: t.opsBackupSub, icon: <><ellipse cx="12" cy="6" rx="7" ry="3" /><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" /></> },
-    { k: t.opsSsl, v: "TLS 1.3", s: t.opsSslSub, icon: <><rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></> },
+  const lines = [
+    `M${NET.x + 28} ${NODE_Y} L${SHIELD.x - 32} ${NODE_Y}`,
+    `M${SHIELD.x + 32} ${NODE_Y} L${LB.x - 28} ${NODE_Y}`,
+    ...SRV_Y.map((y) => `M${LB.x + 28} ${NODE_Y} C${LB.x + 80} ${NODE_Y} ${SRV_X - 110} ${y} ${SRV_X - 62} ${y}`),
   ];
-  const log = [
-    { time: "03:00", text: t.opsR1 },
-    { time: "09:12", text: t.opsE1t },
-    { time: "14:47", text: `${t.opsE3t} · ${t.opsBlocked.toLowerCase()}` },
-  ];
+  const icon = (d: ReactNode, cls = "h-5 w-5") => (
+    <svg viewBox="0 0 24 24" className={cls} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      {d}
+    </svg>
+  );
   return (
     <Canvas
+      framed={false}
       w={600}
-      h={400}
+      h={360}
       max={max}
       build={(q) => {
-        const ms = q("[data-ms]")[0];
-        const scan = q("[data-scan]")[0];
-        const path = q("[data-line]")[0] as SVGPathElement;
-        const len = path.getTotalLength();
-        const o = { v: 120, at: 0 };
+        const fakes = q("[data-fake]");
+        const legit = q("[data-legit]");
+        const count = q("[data-count]")[0];
+        const shield = q("[data-shield]")[0];
+        const maint = q("[data-maint]")[0];
+        const srv = q("[data-srvb]");
+        const lights = q("[data-light]");
+        const o = { n: 12380 };
+        gsap.set([...fakes, ...legit], { x: NET.x, y: NODE_Y, autoAlpha: 0 });
         const tl = gsap
           .timeline()
-          .from(q("[data-top] > *"), { y: -8, autoAlpha: 0, duration: 0.6, stagger: 0.05, ease: "expo.out" })
-          .fromTo(path, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 1.6, ease: "power2.inOut" }, 0.15)
-          .from(q("[data-area]"), { autoAlpha: 0, duration: 1, ease: "power2.out" }, 0.9)
-          .to(o, { v: 141, duration: 1.6, ease: "power2.out", onUpdate: () => void (ms.textContent = String(Math.round(o.v))) }, 0.15)
-          .from(q("[data-kpi]"), { x: 14, autoAlpha: 0, duration: 0.7, stagger: 0.08, ease: "expo.out" }, 0.4)
-          .from(q("[data-log]"), { y: 8, autoAlpha: 0, duration: 0.6, stagger: 0.08, ease: "expo.out" }, 0.8);
-        // il punto di lettura scorre sulla curva e il valore lo segue
-        const run = gsap.timeline({ repeat: -1, repeatDelay: 0.6 });
-        run.fromTo(
-          o,
-          { at: 0 },
-          {
-            at: 1,
-            duration: 7,
-            ease: "none",
-            onUpdate: () => {
-              const p = path.getPointAtLength(o.at * len);
-              gsap.set(scan, { x: p.x, y: p.y });
-              ms.textContent = String(Math.round(lo + ((H - p.y) / H) * (hi - lo)));
-            },
-          },
-        );
-        // le righe dell'attività si accendono una dopo l'altra
-        q("[data-log]").forEach((r, i) => run.fromTo(r, { backgroundColor: "rgba(255,255,255,0)" }, { backgroundColor: "rgba(255,255,255,.06)", duration: 0.4, yoyo: true, repeat: 1, ease: "sine.inOut" }, 1 + i * 2));
-        return tl.add(run, 1.8);
+          .from(q("[data-node]"), { ...pop, stagger: 0.07 })
+          .to(q("[data-base]"), { strokeDashoffset: 0, duration: 0.9, stagger: 0.06, ease: "power2.inOut" }, 0.3)
+          .from(q("[data-log]"), pop, 0.8);
+
+        const run = gsap.timeline({ repeat: -1 });
+        const caps = q("[data-cap]");
+        // un'ondata di richieste false: arrivano a ventaglio e si spengono contro lo scudo
+        const wave = (at: number) => {
+          fakes.forEach((f, i) => {
+            const y0 = NODE_Y + (((i * 37) % 9) - 4) * 11;
+            const s = at + i * 0.07;
+            run
+              .set(f, { x: NET.x, y: y0, scale: 1, autoAlpha: 0 }, s)
+              .to(f, { autoAlpha: 1, duration: 0.1 }, s)
+              .to(f, { x: SHIELD.x - 34, y: NODE_Y + (y0 - NODE_Y) * 0.45, duration: 0.55, ease: "power1.in" }, s)
+              .to(f, { scale: 2.6, autoAlpha: 0, duration: 0.28, ease: "power2.out" }, s + 0.55)
+              .call(() => void (count.textContent = (o.n += 37).toLocaleString("it-IT")), undefined, s + 0.55);
+          });
+          run.to(shield, { ["--drop-tint" as string]: "rgba(255,122,122,.32)", scale: 1.06, duration: 0.18, yoyo: true, repeat: 5, ease: "sine.inOut" }, at + 0.5);
+        };
+        // le richieste vere passano lo scudo e il bilanciatore le manda al server più libero
+        const pass = (at: number, targets: number[]) => {
+          legit.forEach((p, i) => {
+            const k = targets[i % targets.length];
+            const s = at + i * 0.16;
+            run
+              .set(p, { x: NET.x, y: NODE_Y, autoAlpha: 0 }, s)
+              .to(p, { autoAlpha: 1, duration: 0.1 }, s)
+              .to(p, { x: LB.x, duration: 0.9, ease: "none" }, s)
+              .to(p, { x: SRV_X - 64, y: SRV_Y[k], duration: 0.5, ease: "power1.out" }, s + 0.9)
+              .to(p, { autoAlpha: 0, duration: 0.12 }, s + 1.38)
+              .to(srv[k], { ["--drop-tint" as string]: "rgba(94,196,255,.3)", duration: 0.12, yoyo: true, repeat: 1 }, s + 1.36);
+          });
+        };
+        step(run, caps, 0, 0);
+        wave(0.2);
+        pass(0.4, [0, 1, 2]);
+        step(run, caps, 1, 2.6);
+        // manutenzione: il server 2 esce dal giro, il traffico va sugli altri due
+        run
+          .to(maint, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 4.2)
+          .to(lights[1], { backgroundColor: "#f5a524", duration: 0.3 }, 4.2)
+          .to(srv[1], { opacity: 0.55, duration: 0.4 }, 4.2);
+        step(run, caps, 2, 4.4);
+        wave(4.6);
+        pass(4.9, [0, 2]);
+        run
+          .to(maint, { autoAlpha: 0, scale: 0.6, duration: 0.3 }, 8.2)
+          .to(lights[1], { backgroundColor: "#34d399", duration: 0.3 }, 8.2)
+          .to(srv[1], { opacity: 1, duration: 0.4 }, 8.2);
+        step(run, caps, 3, 8.3);
+        run.to({}, { duration: 1.6 }, 8.6);
+        return tl.add(run, 1.1);
       }}
     >
-      {/* barra in alto: dominio e ambiente */}
-      <div data-top className="absolute inset-x-0 top-0 flex h-12 items-center gap-3 border-b border-white/[0.07] px-5 text-[12px]">
-        <span className="flex h-6 w-6 items-center justify-center rounded-[7px] bg-white/[0.08]">
-          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-white/80" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-            <circle cx="12" cy="12" r="9" />
-            <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z" />
-          </svg>
-        </span>
-        <span className="font-medium text-white">{t.url}</span>
-        <span className="text-white/35">/</span>
-        <span className="text-white/60">{t.opsEnv}</span>
-        <span className="ml-auto font-mono text-[11px] uppercase tracking-[0.12em] text-white/45">{t.opsRegion}</span>
-      </div>
+      <Links paths={lines} w={600} h={360} />
 
-      {/* tempo di risposta nelle ultime 24 ore */}
-      <div className="absolute left-5 top-[68px] w-[356px]">
-        <span className="text-[11.5px] text-white/55">{t.opsResp}</span>
-        <span className="mt-1 flex items-baseline gap-1.5 text-white">
-          <span data-ms className="text-[30px] font-medium leading-none tracking-[-0.03em] tabular-nums">
-            141
+      {/* nodi */}
+      <span data-node className="absolute flex w-[96px] -translate-x-1/2 -translate-y-[26px] flex-col items-center gap-2" style={{ left: NET.x, top: NET.y }}>
+        <Bead tint={DARK} radius={26} className="flex h-[52px] w-[52px] items-center justify-center text-white/85 backdrop-blur-md">
+          {icon(<><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z" /></>)}
+        </Bead>
+        <span className="text-[12px] text-white [text-shadow:0_1px_6px_rgba(0,0,0,.7)]">{t.opsNet}</span>
+      </span>
+      <span data-node className="absolute flex w-[120px] -translate-x-1/2 -translate-y-[46px] flex-col items-center gap-2" style={{ left: SHIELD.x, top: SHIELD.y }}>
+        <Bead data-shield tint={DARK} radius={22} className="flex h-[92px] w-[64px] flex-col items-center justify-center gap-1.5 text-white backdrop-blur-md">
+          {icon(<><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z" /><path d="M9 12l2 2 4-4" /></>, "h-6 w-6")}
+        </Bead>
+        <span className="text-center text-[12px] leading-tight text-white [text-shadow:0_1px_6px_rgba(0,0,0,.7)]">
+          {t.opsShield}
+          <span className="mt-0.5 block font-mono text-[11px] text-[#ffb3b3]">
+            <span data-count>12.380</span> {t.opsBlockedN}
           </span>
-          <span className="text-[13px] text-white/55">ms</span>
         </span>
-        <svg viewBox={`0 0 ${W} ${H}`} className="mt-3 block overflow-visible" width={W} height={H} aria-hidden>
-          <defs>
-            <linearGradient id="ops-area" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor={SKY} stopOpacity=".28" />
-              <stop offset="1" stopColor={SKY} stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          {[0, 1, 2, 3].map((i) => (
-            <line key={i} x1="0" x2={W} y1={(i * H) / 3} y2={(i * H) / 3} stroke="rgba(255,255,255,.06)" strokeDasharray="2 4" />
-          ))}
-          <path data-area d={area} fill="url(#ops-area)" />
-          <path data-line d={line} fill="none" stroke={SKY} strokeWidth="1.8" strokeLinecap="round" />
-          <g data-scan>
-            <line y1={0} y2={H} stroke="rgba(255,255,255,.16)" />
-            <circle r="7" fill={SKY} opacity=".2" />
-            <circle r="3.5" fill="#fff" stroke={SKY} strokeWidth="2" />
-          </g>
-        </svg>
-        <span className="mt-2 flex justify-between font-mono text-[10.5px] text-white/35">
-          <span>00:00</span>
-          <span>06:00</span>
-          <span>12:00</span>
-          <span>18:00</span>
-          <span>{t.opsToday}</span>
-        </span>
-      </div>
-
-      {/* indicatori */}
-      <div className="absolute bottom-3 right-5 top-[64px] grid w-[184px] grid-rows-3 gap-2">
-        {kpis.map((k) => (
-          <div key={k.k} data-kpi className="flex flex-col justify-center rounded-[12px] bg-white/[0.04] px-3.5 py-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)]">
-            <span className="flex items-center gap-1.5 text-[11px] text-white/55">
-              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                {k.icon}
-              </svg>
-              {k.k}
+      </span>
+      <span data-node className="absolute flex w-[110px] -translate-x-1/2 -translate-y-[28px] flex-col items-center gap-2" style={{ left: LB.x, top: LB.y }}>
+        <Bead tint={DARK} radius={18} className="flex h-14 w-14 items-center justify-center text-white/85 backdrop-blur-md">
+          {icon(<><circle cx="5" cy="12" r="2" /><circle cx="19" cy="5" r="2" /><circle cx="19" cy="12" r="2" /><circle cx="19" cy="19" r="2" /><path d="M7 12h10M7 12c5 0 5-7 10-7M7 12c5 0 5 7 10 7" /></>)}
+        </Bead>
+        <span className="text-[12px] text-white [text-shadow:0_1px_6px_rgba(0,0,0,.7)]">{t.opsLb}</span>
+      </span>
+      {SRV_Y.map((y, i) => (
+        <span key={y} data-node className="absolute -translate-y-1/2" style={{ left: SRV_X - 60, top: y }}>
+          <Bead data-srvb tint={DARK} radius={14} className="flex h-12 w-[132px] items-center gap-2.5 px-3 text-white backdrop-blur-md">
+            {icon(<><rect x="4" y="4" width="16" height="7" rx="2" /><rect x="4" y="13" width="16" height="7" rx="2" /><path d="M8 7.5h.01M8 16.5h.01" /></>, "h-[18px] w-[18px] text-white/80")}
+            <span className="text-[12.5px]">
+              {t.opsSrv} {i + 1}
             </span>
-            <span className="mt-1 block text-[17px] font-medium leading-none tracking-[-0.02em] text-white tabular-nums">{k.v}</span>
-            <span className="mt-1 block text-[10.5px] text-white/40">{k.s}</span>
-          </div>
-        ))}
-      </div>
+            <span data-light className="ml-auto h-2 w-2 rounded-full bg-[#34d399] shadow-[0_0_8px_currentColor]" />
+          </Bead>
+          {i === 1 && (
+            <span data-maint className="absolute -right-2 -top-3 rounded-full bg-[#f5a524] px-2 py-0.5 text-[10.5px] font-semibold text-[#1a1204] opacity-0" style={{ transform: "scale(.6)" }}>
+              {t.opsMaint}
+            </span>
+          )}
+        </span>
+      ))}
 
-      {/* attività recente */}
-      <div className="absolute bottom-3 left-5 w-[356px] border-t border-white/[0.07] pt-2">
-        {log.map((l) => (
-          <div key={l.time} data-log className="-mx-2 flex items-center gap-3 rounded-[8px] px-2 py-[5px] text-[11.5px]">
-            <span className="font-mono text-white/40">{l.time}</span>
-            <svg viewBox="0 0 24 24" className="h-3 w-3 text-[var(--sky,#5ec4ff)]" fill="none" stroke="#5ec4ff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M5 12.5l4.5 4.5L19 7.5" />
-            </svg>
-            <span className="truncate text-white/75">{l.text}</span>
-          </div>
-        ))}
-      </div>
+      {/* pacchetti */}
+      {Array.from({ length: FAKE }).map((_, i) => (
+        <span key={`f${i}`} data-fake className="absolute left-0 top-0 -ml-[4px] -mt-[4px] h-2 w-2 rounded-full opacity-0" style={{ background: CORAL, boxShadow: `0 0 10px ${CORAL}` }} />
+      ))}
+      {Array.from({ length: LEGIT }).map((_, i) => (
+        <span key={`l${i}`} data-legit className="absolute left-0 top-0 -ml-[4px] -mt-[4px] h-2 w-2 rounded-full bg-white opacity-0 shadow-[0_0_10px_#bfe8ff]" />
+      ))}
+
+      <Bead data-log tint={DARK} radius={22} className="absolute left-[300px] top-[300px] -ml-[180px] flex h-11 w-[360px] items-center justify-center px-4 text-[13px] text-white backdrop-blur-md">
+        <Steps items={[t.opsL1, t.opsL2, t.opsL3, t.opsL4].map((l) => <><Tick className="h-3.5 w-3.5 text-[#bfe8ff]" /> {l}</>)} className="justify-center" />
+      </Bead>
     </Canvas>
   );
 }

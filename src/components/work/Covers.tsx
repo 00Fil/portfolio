@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import { useLocale } from "next-intl";
 
 const Grainient = dynamic(() => import("@/components/reactbits/Grainient"), { ssr: false });
 
@@ -11,7 +12,6 @@ const RAMP: Record<string, string[]> = {
   relay: ["#02040a", "#05070F", "#18348f", "#2F5FFF", "#a9c4ff"],
   unispace: ["#050b0b", "#0B1414", "#2E8F8A", "#EE8A6C", "#BFE7E2"],
 };
-import { ArrowLeftRight, ArrowRight, CalendarDays, FileText, MessageCircle, Monitor, Smartphone, Video } from "lucide-react";
 
 /**
  * Identità dei progetti, tutte con l'impianto di Relay: sfondo a fibre nei colori del progetto,
@@ -27,9 +27,6 @@ type Brand = {
   name: string;
   /** carattere del nome: lo stesso nella copertina e nel titolo della pagina */
   font: string;
-  pills: [ReactNode, string][];
-  link: ReactNode;
-  tint: string;
 };
 
 export const BRANDS: Record<string, Brand> = {
@@ -41,12 +38,6 @@ export const BRANDS: Record<string, Brand> = {
     glow: "#7C89C4",
     name: "CreaCloud",
     font: "t-serif tracking-[-0.03em] leading-[0.9]",
-    pills: [
-      [<MessageCircle key="i" className="h-[1.2em] w-[1.2em]" strokeWidth={1.6} />, "WhatsApp"],
-      [<CalendarDays key="i" className="h-[1.2em] w-[1.2em]" strokeWidth={1.6} />, "Calendario"],
-    ],
-    link: <ArrowRight className="h-[1.4em] w-[1.4em] text-[#F4C9B6]" strokeWidth={1.6} />,
-    tint: "rgba(30,32,70,.55)",
   },
   relay: {
     bg: "#05070F",
@@ -56,12 +47,6 @@ export const BRANDS: Record<string, Brand> = {
     glow: "#2F5FFF",
     name: "Relay",
     font: "font-medium tracking-[-0.06em] leading-[0.9]",
-    pills: [
-      [<Monitor key="i" className="h-[1.2em] w-[1.2em]" strokeWidth={1.6} />, "Windows"],
-      [<Smartphone key="i" className="h-[1.2em] w-[1.2em]" strokeWidth={1.6} />, "Android"],
-    ],
-    link: <ArrowLeftRight className="h-[1.4em] w-[1.4em] text-[#5C9DFF]" strokeWidth={1.6} />,
-    tint: "rgba(20,26,48,.55)",
   },
   unispace: {
     bg: "#0B1414",
@@ -71,13 +56,14 @@ export const BRANDS: Record<string, Brand> = {
     glow: "#3F9C97",
     name: "uniSpace",
     font: "font-[family-name:var(--font-anton)] uppercase tracking-[-0.005em] leading-[0.95]",
-    pills: [
-      [<Video key="i" className="h-[1.2em] w-[1.2em]" strokeWidth={1.6} />, "Lezione"],
-      [<FileText key="i" className="h-[1.2em] w-[1.2em]" strokeWidth={1.6} />, "Trascrizione"],
-    ],
-    link: <ArrowRight className="h-[1.4em] w-[1.4em] text-[#EE8A6C]" strokeWidth={1.6} />,
-    tint: "rgba(14,30,30,.55)",
   },
+};
+
+/** Il sottotitolo sotto il nome, breve come quelli dei prodotti Apple. */
+export const TAGLINE: Record<string, { it: string; en: string }> = {
+  relay: { it: "Un solo flusso. Su tutti i tuoi dispositivi.", en: "One flow. Across every device you own." },
+  creacloud: { it: "Il calendario che si organizza da solo.", en: "The schedule that organises itself." },
+  unispace: { it: "Ogni lezione. Senza un secondo sprecato.", en: "Every lecture. Not a second wasted." },
 };
 
 /** Sfondo: fibre ferme, e su richiesta l'animazione vera sopra. */
@@ -123,21 +109,6 @@ export function BrandIcon({ slug, className = "", style }: { slug: string; class
   );
 }
 
-export function BrandPills({ slug, className = "" }: { slug: string; className?: string }) {
-  const b = BRANDS[slug];
-  return (
-    <span className={`flex items-center gap-[0.7em] text-[#F2F2F0] ${className}`}>
-      <span className="drop flex h-[2.4em] items-center gap-[0.5em] px-[1em]" style={{ ["--drop-tint" as string]: b.tint }}>
-        {b.pills[0][0]} {b.pills[0][1]}
-      </span>
-      {b.link}
-      <span className="drop flex h-[2.4em] items-center gap-[0.5em] px-[1em]" style={{ ["--drop-tint" as string]: b.tint }}>
-        {b.pills[1][0]} {b.pills[1][1]}
-      </span>
-    </span>
-  );
-}
-
 /**
  * Copertina della scheda: icona e nome centrati, pillole sotto il nome.
  * Tutte le misure sono in cqw, frazioni della larghezza della copertina: la composizione resta identica a ogni misura.
@@ -145,6 +116,7 @@ export function BrandPills({ slug, className = "" }: { slug: string; className?:
  */
 export function Cover({ slug, mini, hot }: { slug: string; mini?: boolean; hot?: boolean }) {
   const b = BRANDS[slug];
+  const locale = useLocale() as "it" | "en";
   return (
     <div className="absolute inset-0 [container-type:size]">
       <BrandBackdrop slug={slug} hot={hot} />
@@ -158,7 +130,7 @@ export function Cover({ slug, mini, hot }: { slug: string; mini?: boolean; hot?:
               <span data-flip="name" className={`block whitespace-nowrap text-[11.5cqw] text-[#F2F2F0] ${b.font}`}>
                 {b.name}
               </span>
-              <BrandPills slug={slug} className="text-[1.6cqw]" />
+              <span className="block max-w-[26ch] text-[3.3cqw] font-semibold leading-[1.15] tracking-[-0.025em] text-white/90">{TAGLINE[slug]?.[locale]}</span>
             </div>
           </div>
         )}

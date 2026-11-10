@@ -200,7 +200,7 @@
     "under": "Under the hood",
     "system": "Relay’s visual language",
     "systemTitle": "A design system built for it",
-    "systemBody": "Colours, radii, type and motion are defined once and shared by both apps, Android and Windows.",
+    "systemBody": "Colours, radii, type and motion are defined once and used by every app, on every system.",
     "systemNav": "This site’s navigation bar, with its glass and spring physics, comes from Relay."
   },
   "footer": {
@@ -260,7 +260,7 @@
       {
         "tag": "Personal project",
         "title": "Relay",
-        "body": "Two native apps and a server connecting phone and computer, with a design system drawn from scratch.",
+        "body": "Native apps for Windows, macOS, Linux, iOS and Android and a server tying them together, with a design system built from scratch.",
         "value": 45,
         "unit": "hours of development, release coming soon",
         "suffix": "+",
@@ -272,62 +272,62 @@
   "method": {
     "label": "Method",
     "title": "How I work",
-    "lead": "Five stages, from idea to working software.",
+    "lead": "Five phases run as a managed project: goals, plan, progress and release always under control.",
     "phases": [
       {
-        "name": "Understand",
-        "title": "Before writing code, I listen.",
-        "body": "I start from the people who will use the software and what has to change in their day. Together we sort out what is really needed, what can wait and what stays out.",
+        "name": "Discovery",
+        "title": "Goals, requirements and priorities, in writing.",
+        "body": "I gather needs and constraints with the people who decide and the people who will use the software. The result is a document that sets what is in, what is out and how success is measured, signed off before work starts.",
         "practices": [
-          "Priorities agreed together",
-          "Clear, measurable goals",
-          "Time and cost with honest margins"
+          "Agreed scope and requirements",
+          "Measurable goals",
+          "Risks and constraints identified early"
         ],
-        "out": "A shared plan"
+        "out": "Project brief"
       },
       {
-        "name": "Design",
-        "title": "Simple choices, explained in writing.",
-        "body": "I pick the simplest solution that does the job, not the fashionable one. Important decisions are written down, so whoever comes next knows why things are the way they are.",
+        "name": "Planning",
+        "title": "Time, cost and ownership set before we start.",
+        "body": "I break the work into milestones with dates and deliverables. Quote, schedule and acceptance criteria are clear from day one, so every decision has a visible cost and deadline.",
         "practices": [
-          "The simplest solution that works",
-          "Decisions written down",
-          "Security and data planned from day one"
+          "Milestones with dates and deliverables",
+          "Quote and acceptance criteria",
+          "One accountable point of contact"
         ],
-        "out": "A clear blueprint"
+        "out": "Plan with time and cost"
       },
       {
-        "name": "Build",
-        "title": "One piece at a time, always checked.",
-        "body": "I work in small steps, and every step can be seen and tried. Each change is reviewed before it reaches the real version, and nothing gets lost.",
+        "name": "Delivery",
+        "title": "Short cycles, progress you can measure.",
+        "body": "I work in two-week cycles, each closed by a demo and a status report. You follow progress in the client area, and every change request is assessed for impact on time and cost before it enters the plan.",
         "practices": [
-          "Small, visible steps",
-          "Every change reviewed",
-          "A full history of every change"
+          "Demo every cycle",
+          "Status reports",
+          "Changes assessed before approval"
         ],
-        "out": "Versions to try"
+        "out": "Verifiable progress"
       },
       {
-        "name": "Release",
-        "title": "Going live without surprises.",
-        "body": "Before reaching users, the software goes through a series of automatic checks. New features reach a few people at a time: if something is wrong, it rolls back on its own.",
+        "name": "Acceptance and release",
+        "title": "Formal sign-off, then a controlled go-live.",
+        "body": "Before release we check the acceptance criteria together on a preview build. Go-live follows a written procedure with a rollback plan and training for the people who will use the software.",
         "practices": [
-          "Automatic checks on every release",
-          "New features to a few users at a time",
-          "Instant roll-back"
+          "Testing against agreed criteria",
+          "Written release procedure",
+          "Training and handover"
         ],
-        "out": "The software live"
+        "out": "Approved release"
       },
       {
-        "name": "Maintain",
-        "title": "The work goes on after launch.",
-        "body": "I keep an eye on speed and errors and get an alert before a problem reaches you or your customers. Everything is documented for you: the software stays yours.",
+        "name": "Support",
+        "title": "Service continuity, with guaranteed response times.",
+        "body": "After launch the project stays looked after: monitoring, security updates and planned improvements. Response times are set in the contract and documentation stays up to date.",
         "practices": [
-          "Speed and errors watched continuously",
-          "Alerts before it becomes a problem",
-          "Full documentation and handover"
+          "Guaranteed response times",
+          "Monitoring and updates",
+          "Planned improvements"
         ],
-        "out": "A service that holds up"
+        "out": "Guaranteed continuity"
       }
     ],
     "output": "You end up with",
@@ -576,6 +576,16 @@
       "opsBackupSub": "every night, in two places",
       "opsSsl": "Connection",
       "opsSslSub": "certificate renews itself",
+      "opsNet": "Internet",
+      "opsShield": "DDoS protection",
+      "opsBlockedN": "blocked",
+      "opsLb": "Load balancer",
+      "opsSrv": "Server",
+      "opsMaint": "Maintenance",
+      "opsL1": "Wave of fake requests stopped",
+      "opsL2": "Real traffic split across three servers",
+      "opsL3": "Server 2 in maintenance, site still online",
+      "opsL4": "Update installed, server back online",
       "opsSiteName": "Bianchi Clinic",
       "opsSiteTitle": "Your smile, in good hands",
       "opsSiteCta": "Book a visit",
@@ -596,95 +606,139 @@
     "all": "All services"
   },
   "brief": {
-    "kicker": "Intro call · 30 min",
-    "next": "Next",
+    "title": "Book a call",
+    "meta": "30 minutes · Video call",
+    "with": "with Filippo Corsini",
+    "close": "Close",
     "back": "Back",
-    "send": "Book the call",
-    "enter": "or press",
+    "next": "Continue",
     "optional": "optional",
-    "step": "Step",
-    "steps": [
+    "edit": "Edit",
+    "s1": "What do you need?",
+    "paths": [
       {
-        "key": "need",
-        "q": "What would you like to talk about?",
-        "hint": "You can pick more than one.",
+        "id": "web",
+        "label": "Website",
+        "sub": "New or redesigned",
+        "q": "Starting from scratch?",
+        "opts": [
+          "New website",
+          "Redo the current one",
+          "Improve the current one"
+        ]
+      },
+      {
+        "id": "webapp",
+        "label": "Web app or management tool",
+        "sub": "Built around your processes",
+        "q": "What do you want to manage?",
+        "opts": [
+          "Customers and orders",
+          "Bookings and calendar",
+          "Stock and documents",
+          "Another process"
+        ]
+      },
+      {
+        "id": "apps",
+        "label": "App",
+        "sub": "Phone and computer",
+        "q": "Which devices?",
         "multi": true,
-        "options": [
-          "Website",
-          "Web app or management tool",
-          "Cross-platform app",
-          "E-commerce",
-          "SEO and GEO",
-          "AI and automation",
-          "Integrations",
-          "UI/UX design",
-          "Hosting and maintenance",
-          "Hardware solutions",
-          "Other"
+        "opts": [
+          "iPhone",
+          "Android",
+          "Mac",
+          "Windows",
+          "Linux"
         ]
       },
       {
-        "key": "goal",
-        "q": "What’s the goal?",
-        "options": [
-          "Find new customers",
-          "Save time",
-          "Sell online",
-          "Renew a tool",
-          "Launch a product"
-        ],
-        "note": "Tell me briefly about the project"
-      },
-      {
-        "key": "budget",
-        "q": "What budget do you have in mind?",
-        "options": [
-          "Up to €2,000",
-          "€2,000 – 5,000",
-          "€5,000 – 15,000",
-          "Over €15,000",
-          "To be defined together"
+        "id": "shop",
+        "label": "E-commerce",
+        "sub": "Sell online",
+        "q": "What do you sell?",
+        "opts": [
+          "Physical products",
+          "Digital products",
+          "Services or bookings"
         ]
       },
       {
-        "key": "slot",
-        "q": "When shall we talk?",
-        "hint": "A 30-minute video call with me.",
-        "slot": true
+        "id": "ai",
+        "label": "AI and automation",
+        "sub": "Less manual work",
+        "q": "What do you want to automate?",
+        "opts": [
+          "Email and requests",
+          "Documents and data",
+          "An assistant for customers",
+          "Not sure yet"
+        ]
       },
       {
-        "key": "who",
-        "q": "Who should I send the invite to?",
-        "fields": [
-          {
-            "id": "name",
-            "ph": "Full name",
-            "req": true
-          },
-          {
-            "id": "email",
-            "ph": "Email",
-            "req": true,
-            "type": "email"
-          },
-          {
-            "id": "company",
-            "ph": "Company or business"
-          }
+        "id": "seo",
+        "label": "Online visibility",
+        "sub": "Google and AI assistants",
+        "q": "Where do you want to be found?",
+        "opts": [
+          "On Google",
+          "On ChatGPT and the like",
+          "Both"
         ]
+      },
+      {
+        "id": "api",
+        "label": "Integrations",
+        "sub": "Connect your tools",
+        "q": "What do you want to connect?",
+        "multi": true,
+        "opts": [
+          "Payments",
+          "CRM",
+          "Calendars",
+          "Existing software",
+          "WhatsApp"
+        ]
+      },
+      {
+        "id": "ops",
+        "label": "Hosting and maintenance",
+        "sub": "Always online and protected",
+        "q": "What do you need?",
+        "opts": [
+          "New hosting",
+          "Move an existing site",
+          "Ongoing maintenance",
+          "More security"
+        ]
+      },
+      {
+        "id": "other",
+        "label": "Something else",
+        "sub": "Tell me about it",
+        "q": "What is it about?"
       }
     ],
-    "doneTitle": "Call booked",
-    "doneBody": "Thanks {name}. We’ll talk {when}: I’ll send the video call link to the email you left.",
-    "again": "Book another call",
-    "key": "Enter",
-    "close": "Close",
-    "loading": "Finding free times…",
-    "noSlots": "No free times in the coming days. Write to me and we’ll find a moment.",
+    "note": "Anything to add?",
+    "notePh": "A couple of lines about the project",
+    "s3": "Pick a day and time",
+    "s4": "Your details",
+    "name": "Full name",
+    "email": "Email",
+    "company": "Company",
+    "confirm": "Confirm booking",
+    "sumPath": "Topic",
+    "sumWhen": "When",
+    "loading": "Looking for free slots…",
+    "noSlots": "No free slots in the coming days. Write to me and we will find a time.",
     "tz": "Italian time",
+    "doneTitle": "Call booked",
+    "doneBody": "You will get an email with the video call link.",
     "addCal": "Add to calendar",
+    "done": "Done",
     "calTitle": "Call with Filippo Corsini",
-    "errTaken": "That time was just taken: pick another one.",
+    "errTaken": "That slot was just taken: pick another one.",
     "errGeneric": "Something went wrong. Check your details and try again."
   },
   "why": {
@@ -787,5 +841,21 @@
     "support": "Support",
     "call": "Book a call",
     "write": "Send an email"
+  },
+  "assistant": {
+    "title": "Just ask",
+    "lead": "Prices, timing, method, work: instant answers, and the call is one tap away if you need it.",
+    "name": "Filippo’s assistant",
+    "placeholder": "Type a question",
+    "send": "Send",
+    "hello": "Hi! Tell me what you need or what you want to know: I’ll take you to the right page.",
+    "fallback": "I’d rather answer that in person. Book 30 minutes and we’ll talk it through.",
+    "book": "Book a 30-minute call",
+    "nextFree": "First free slot: {when}",
+    "open": "Open",
+    "area": "Sign in to the client area",
+    "cv": "My CV",
+    "service": "For {name}:",
+    "project": "Here is {name}: the page covers the problem, what I built and the technical choices."
   }
 }

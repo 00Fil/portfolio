@@ -1,99 +1,83 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { useGSAP } from "@gsap/react";
 import { settled } from "@/lib/intro";
 
-gsap.registerPlugin(useGSAP);
-
-/** Attesa massima, oltre l'ingresso del nome, per ciò che serve alla prima schermata. */
+/** Attesa massima per ciò che serve alla prima schermata, oltre l'ingresso del nome. */
 const MAX_WAIT_MS = 1000;
+/** Ritardo tra una lettera e la successiva, in secondi (lo stesso del CSS). */
+const STAGGER = 0.045;
 
 const wait = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
 const loaded = () => new Promise<void>((r) => (document.readyState === "complete" ? r() : window.addEventListener("load", () => r(), { once: true })));
 
 /**
  * Schermata d'apertura, solo alla prima pagina della visita: il nome a tutta larghezza, come in fondo al sito.
- * Le lettere salgono una dopo l'altra e sono finestre su un gradiente azzurro che scorre; poi escono verso
- * l'alto e il telo si alza. Il gradiente è solo CSS: nessun WebGL mentre la pagina si sta ancora caricando.
+ * Tutto è animato in CSS con sole trasformazioni: gira sul compositore e parte col primo disegno,
+ * quindi non scatta mentre il browser è occupato a caricare e avviare la pagina.
+ * La misura del nome è in vw, già giusta prima che arrivi il JavaScript.
  */
 export function Preloader({ label }: { label: string }) {
   const root = useRef<HTMLDivElement>(null);
-  const band = useRef<HTMLDivElement>(null);
-  const text = useRef<HTMLParagraphElement>(null);
   const [first, ...rest] = label.split(" ");
+  const last = rest.join(" ");
+  const total = first.length + last.length;
 
-  // il nome riempie sempre la larghezza
   useEffect(() => {
-    const el = text.current!;
-    const fit = () => {
-      el.style.fontSize = "100px";
-      el.style.fontSize = `${(100 * band.current!.clientWidth * 0.94) / el.scrollWidth}px`;
+    const html = document.documentElement;
+    const el = root.current!;
+    let alive = true;
+    const lift = () => {
+      html.dataset.lift = "1";
+      window.dispatchEvent(new Event("intro:lift"));
     };
-    fit();
-    document.fonts?.ready.then(fit);
-    window.addEventListener("resize", fit);
-    return () => window.removeEventListener("resize", fit);
-  }, []);
+    const finish = () => {
+      if (!alive) return;
+      html.dataset.intro = "done";
+      window.dispatchEvent(new Event("intro:done"));
+    };
 
-  useGSAP(
-    () => {
-      const html = document.documentElement;
-      const lift = () => {
-        html.dataset.lift = "1";
-        window.dispatchEvent(new Event("intro:lift"));
-      };
-      const finish = () => {
-        html.dataset.intro = "done";
-        window.dispatchEvent(new Event("intro:done"));
-      };
+    // visite successive: una copertura del colore della pagina, tolta appena l'avvio è finito (al massimo 1 s)
+    if (html.dataset.intro === "quick") {
+      Promise.race([settled(), wait(MAX_WAIT_MS)]).then(() => {
+        lift();
+        el.classList.add("pre-fade");
+        window.setTimeout(finish, 450);
+      });
+      return () => void (alive = false);
+    }
+    if (html.dataset.intro !== "run") return;
 
-      // visite successive: una copertura del colore della pagina, tolta appena l'avvio è finito (al massimo 1 s)
-      if (html.dataset.intro === "quick") {
-        Promise.race([settled(), wait(MAX_WAIT_MS)]).then(() => {
-          lift();
-          gsap.to(root.current, { autoAlpha: 0, duration: 0.45, ease: "power2.out", onComplete: finish });
-        });
-        return;
-      }
-      if (html.dataset.intro !== "run") return;
+    // l'ingresso del nome è già partito in CSS: qui si aspetta la fine e che la pagina sia pronta
+    const inMs = (0.12 + total * STAGGER + 1.1) * 1000 - performance.now();
+    const ready = Promise.all([wait(Math.max(0, inMs)), Promise.race([Promise.all([document.fonts?.ready, loaded()]).then(settled), wait(Math.max(0, inMs) + MAX_WAIT_MS)])]);
+    ready.then(() => {
+      if (!alive) return;
+      lift();
+      el.classList.add("pre-out");
+      window.setTimeout(finish, 1200);
+    });
+    return () => void (alive = false);
+  }, [total]);
 
-      const chars = gsap.utils.toArray<HTMLElement>("[data-ch]");
-      const IN_S = 1.1 + chars.length * 0.045;
-      const ready = Promise.race([Promise.all([document.fonts?.ready, loaded()]).then(settled), wait(IN_S * 1000 + MAX_WAIT_MS)]);
-
-      const exit = () =>
-        gsap
-          .timeline({ onStart: lift, onComplete: finish })
-          .to(chars, { yPercent: -105, rotate: -4, duration: 0.6, stagger: 0.022, ease: "power3.in" })
-          .to(root.current, { clipPath: "inset(0% 0% 100% 0%)", duration: 0.85, ease: "expo.inOut" }, 0.3);
-
-      gsap
-        .timeline({ delay: 0.12 })
-        .fromTo(chars, { yPercent: 100, rotate: 6 }, { yPercent: 0, rotate: 0, duration: 1.1, stagger: 0.045, ease: "expo.out" })
-        .add(() => void ready.then(() => wait(200)).then(exit));
-    },
-    { scope: root },
-  );
-
+  let k = 0;
   const chars = (s: string, light = false) =>
     Array.from(s).map((c, i) => (
-      <span key={i} data-ch className={`inline-block ${light ? "font-normal" : ""}`} style={{ transform: "translateY(100%)" }}>
+      <span key={i} className={`pre-ch inline-block ${light ? "font-normal" : ""}`} style={{ ["--i" as string]: k++ }}>
         {c === " " ? " " : c}
       </span>
     ));
 
   return (
-    <div ref={root} role="img" aria-label={label} className="preloader fixed inset-0 z-[200] items-center bg-[var(--bg-canvas)] [clip-path:inset(0_0_0_0)]">
-      <div ref={band} data-sig className="relative isolate w-full overflow-hidden">
+    <div ref={root} role="img" aria-label={label} className="preloader fixed inset-0 z-[200] items-center bg-[var(--bg-canvas)]">
+      <div data-sig className="relative isolate w-full overflow-hidden">
         <div aria-hidden className="absolute inset-0 bg-[#0b2f45]">
           <div className="pre-flow" />
         </div>
         <div aria-hidden className="giant-mask pointer-events-none relative flex justify-center">
-          <p ref={text} className="whitespace-nowrap py-[0.02em] text-[100px] font-medium leading-[0.86] tracking-[-0.06em]">
-            <span className="inline-block overflow-hidden pb-[0.08em] align-bottom">
-              {chars(first)} {chars(rest.join(" "), true)}
+          <p className="whitespace-nowrap text-[16.2vw] font-medium leading-[0.86] tracking-[-0.06em]">
+            <span className="inline-block overflow-hidden pb-[0.2em] pt-[0.04em] align-bottom">
+              {chars(first)} {chars(last, true)}
             </span>
           </p>
         </div>

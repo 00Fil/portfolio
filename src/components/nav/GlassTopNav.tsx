@@ -340,7 +340,7 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
                       }}
                       className="group flex items-center gap-3.5 rounded-[18px] px-2.5 py-2.5 transition-colors hover:bg-[var(--hover)]"
                     >
-                      <ServiceIcon k={s.key} size={42} className="transition-transform duration-500 ease-[var(--ease-out)] group-hover:-rotate-6 group-hover:scale-105" />
+                      <ServiceIcon k={s.key} size={42} className="transition-transform duration-500 ease-[var(--ease-out)] group-hover:-translate-y-0.5" />
                       <span className="min-w-0">
                         <span className="flex items-center gap-1 text-[15px] font-medium tracking-[-0.01em] text-ink">
                           {s.title[locale]}
