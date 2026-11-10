@@ -68,21 +68,25 @@ const Cursor = ({ className = "" }: { className?: string }) => (
 );
 
 /** Tela fissa W×H scalata nello spazio disponibile; la timeline parte la prima volta che è visibile. */
-function Canvas({ w, h, max = 1, build, children }: { w: number; h: number; max?: number; build: (q: (s: string) => Element[]) => gsap.core.Timeline; children: ReactNode }) {
+function Canvas({ w, h, max = 1, build, children, framed = true }: { w: number; h: number; max?: number; build: (q: (s: string) => Element[]) => gsap.core.Timeline; children: ReactNode; framed?: boolean }) {
   const box = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
+  const [win, setWin] = useState(false);
   useEffect(() => {
     const o = box.current!;
     const ro = new ResizeObserver(() => {
-      // se le proporzioni sono quasi uguali riempie tutto lo spazio (niente bordini), altrimenti sta dentro
+      // proporzioni quasi uguali: riempie tutto lo spazio, a filo dei bordi.
+      // Altrimenti diventa una finestra con angoli, ombra e margine, invece di un rettangolo tagliato a caso.
       const fit = Math.min(o.clientWidth / w, o.clientHeight / h);
       const fill = Math.max(o.clientWidth / w, o.clientHeight / h);
-      const s = fill / fit < 1.1 ? fill : Math.min(max, fit);
+      const full = fill / fit < 1.1;
+      const s = full ? fill : Math.min(max, fit * (framed ? 0.88 : 1));
+      setWin(!full && framed);
       stage.current!.style.transform = `translate(-50%, -50%) scale(${s})`;
     });
     ro.observe(o);
     return () => ro.disconnect();
-  }, [w, h, max]);
+  }, [w, h, max, framed]);
   useGSAP(
     () => {
       const tl = build(gsap.utils.selector(stage.current)).pause();
@@ -103,7 +107,11 @@ function Canvas({ w, h, max = 1, build, children }: { w: number; h: number; max?
   );
   return (
     <div ref={box} aria-hidden className="pointer-events-none relative h-full w-full min-w-0 select-none">
-      <div ref={stage} className="absolute left-1/2 top-1/2" style={{ width: w, height: h, transform: "translate(-50%, -50%) scale(0.5)" }}>
+      <div
+        ref={stage}
+        className={`absolute left-1/2 top-1/2 ${win ? "overflow-hidden rounded-[22px] bg-[rgba(9,12,16,.72)] shadow-[0_50px_100px_-40px_rgba(0,0,0,.75),0_0_0_1px_rgba(255,255,255,.1)] backdrop-blur-xl" : ""}`}
+        style={{ width: w, height: h, transform: "translate(-50%, -50%) scale(0.5)" }}
+      >
         {children}
       </div>
     </div>
@@ -140,7 +148,7 @@ function WebV({ t, max }: { t: WidgetText; max?: number }) {
   const OPEN = [0, 110, 220];
   const SHUT = [0, 26, 52];
   return (
-    <Canvas
+    <Canvas framed={false}
       w={600}
       h={740}
       max={max}
@@ -512,7 +520,7 @@ function ApiV({ t, max }: { t: WidgetText; max?: number }) {
   const xs = [90, 230, 370, 510];
   const paths = xs.map((x) => `M300 76 C300 118 ${x} 104 ${x} 146`);
   return (
-    <Canvas
+    <Canvas framed={false}
       w={600}
       h={360}
       max={max}
@@ -1030,13 +1038,18 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
         </span>
         <span className="absolute inset-x-5 top-[72px] h-[118px] overflow-hidden rounded-[14px]" style={{ background: "linear-gradient(135deg,#1b2a30,#0f1719)" }}>
           <span className="absolute -right-6 -top-8 h-28 w-28 rounded-full opacity-60 blur-2xl" style={{ background: SKY }} />
-          <span className="absolute left-4 top-5 h-3 w-36 rounded-full bg-white/85" />
-          <span className="absolute left-4 top-10 h-3 w-24 rounded-full bg-white/50" />
-          <span className="absolute bottom-5 left-4 h-7 w-24 rounded-full bg-white" />
+          <span className="absolute left-4 top-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">{t.opsSiteName}</span>
+          <span className="absolute left-4 right-10 top-[30px] text-[17px] font-medium leading-[1.15] tracking-[-0.02em] text-white">{t.opsSiteTitle}</span>
+          <span className="absolute bottom-4 left-4 flex h-7 items-center rounded-full bg-white px-3.5 text-[11.5px] font-semibold text-[#0d1315]">{t.opsSiteCta}</span>
         </span>
-        <span className="absolute inset-x-5 top-[204px] flex gap-2">
-          {[0, 1, 2].map((i) => (
-            <span key={i} className="h-14 flex-1 rounded-[10px] bg-white/[0.06]" />
+        <span className="absolute inset-x-5 top-[204px] grid grid-cols-3 gap-2">
+          {[t.opsTile1, t.opsTile2, t.opsTile3].map((x, i) => (
+            <span key={x} className="flex h-14 flex-col justify-between rounded-[10px] bg-white/[0.06] p-2 text-white">
+              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+                {i === 0 ? <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></> : i === 1 ? <path d="M4 7h16M4 12h16M4 17h10" /> : <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />}
+              </svg>
+              <span className="text-[10.5px] font-medium">{x}</span>
+            </span>
           ))}
         </span>
         <span className="absolute bottom-5 left-5 flex items-baseline gap-2 text-white">

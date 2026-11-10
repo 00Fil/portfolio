@@ -9,7 +9,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { ServiceKey } from "@/content/services";
 import { prefersReducedMotion } from "@/lib/env";
-import { introDelay } from "@/lib/intro";
+import { onIntroLift } from "@/lib/intro";
 import { Drop } from "@/components/glass/Drop";
 import { Bead } from "@/components/glass/Bead";
 import { ServiceBg } from "@/components/sections/ServiceBg";
@@ -49,8 +49,10 @@ function Hero({ k, need, label, title, short, w, t }: ServiceDetailProps) {
     () => {
       if (prefersReducedMotion()) return;
       const split = SplitText.create("[data-h1]", { type: "words", mask: "words" });
-      gsap
-        .timeline({ delay: introDelay(), defaults: { ease: "expo.out" } })
+      // parte quando il telo d'apertura inizia ad alzarsi (subito, se non c'è)
+      const intro = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+      onIntroLift(() => intro.play());
+      intro
         .from("[data-island]", { clipPath: "inset(6% 4% 6% 4% round 60px)", duration: 1.4, ease: "expo.inOut" })
         .from(split.words, { yPercent: 110, duration: 1.2, stagger: 0.06 }, 0.5)
         .from("[data-hrest]", { y: 18, autoAlpha: 0, duration: 1, stagger: 0.08 }, 0.8)

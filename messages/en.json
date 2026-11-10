@@ -24,7 +24,7 @@
     "toLight": "Light theme",
     "toDark": "Dark theme",
     "menuServices": "All services",
-    "quote": "Request a quote",
+    "quote": "Book a call",
     "stripLabel": "Client area",
     "stripLead": "Client area included with every project.",
     "strip": "Talk to the team, request changes and follow progress, from the app or the web.",
@@ -41,7 +41,7 @@
     "lead": "I’m {name}. I build custom software for companies and professionals: web platforms, apps for phone and desktop, AI systems that automate processes. I take each project from analysis to release and stay on as the point of contact afterwards.",
     "status": "Available for new projects",
     "work": "See the work",
-    "contact": "Request a quote",
+    "contact": "Book a call",
     "h1": "I design and build custom software, hardware, apps, websites and AI systems for restaurants, industry, retail, clinics and education.",
     "where": "Brescia, IT",
     "lines": [
@@ -69,7 +69,7 @@
     ],
     "proof": [
       [
-        "80+",
+        "150+",
         "families use my software every day"
       ],
       [
@@ -208,7 +208,7 @@
     "top": "Back to top",
     "q": "Got a project in mind?",
     "a": "Let’s talk.",
-    "cta": "Request a quote",
+    "cta": "Book a call",
     "available": "Available for new projects",
     "country": "Italy",
     "pages": "Pages",
@@ -243,10 +243,18 @@
         "tag": "Work",
         "title": "Freelance developer",
         "body": "Custom software for companies and professionals, from analysis to launch. Among the projects, a tutoring centre’s platform.",
-        "value": 80,
-        "unit": "families use my software every day",
-        "suffix": "+",
+        "value": 3,
+        "unit": "products live, from idea to release",
         "big": "Today"
+      },
+      {
+        "tag": "Client project",
+        "title": "CreaCloud",
+        "body": "The management platform of a private tutoring centre: it schedules lessons for more than 150 families, matching parents’ requests, students’ commitments and tutors’ availability.",
+        "value": 150,
+        "suffix": "+",
+        "unit": "families with lessons on the calendar",
+        "big": "CreaCloud"
       },
       {
         "tag": "Personal project",
@@ -556,7 +564,13 @@
       "aiSaved": "Order no. 214 created",
       "webL1": "Interface",
       "webL2": "Logic",
-      "webL3": "Data"
+      "webL3": "Data",
+      "opsSiteName": "Bianchi Clinic",
+      "opsSiteTitle": "Your smile, in good hands",
+      "opsSiteCta": "Book a visit",
+      "opsTile1": "Hours",
+      "opsTile2": "Services",
+      "opsTile3": "Contact"
     },
     "open": "Explore",
     "includes": "What’s included",
@@ -571,43 +585,17 @@
     "all": "All services"
   },
   "brief": {
-    "kicker": "New project",
+    "kicker": "Intro call · 30 min",
     "next": "Next",
     "back": "Back",
-    "send": "Send the request",
+    "send": "Book the call",
     "enter": "or press",
     "optional": "optional",
     "step": "Step",
     "steps": [
       {
-        "key": "who",
-        "q": "What’s your name?",
-        "fields": [
-          {
-            "id": "name",
-            "ph": "Full name",
-            "req": true
-          },
-          {
-            "id": "company",
-            "ph": "Company or business"
-          }
-        ]
-      },
-      {
-        "key": "role",
-        "q": "What do you do?",
-        "options": [
-          "Company",
-          "Professional",
-          "Startup",
-          "Organisation",
-          "Private individual"
-        ]
-      },
-      {
         "key": "need",
-        "q": "What do you need?",
+        "q": "What would you like to talk about?",
         "hint": "You can pick more than one.",
         "multi": true,
         "options": [
@@ -631,7 +619,7 @@
           "Find new customers",
           "Save time",
           "Sell online",
-          "Replace an old tool",
+          "Renew a tool",
           "Launch a product"
         ],
         "note": "Tell me briefly about the project"
@@ -648,19 +636,20 @@
         ]
       },
       {
-        "key": "when",
-        "q": "When do you need it?",
-        "options": [
-          "Within a month",
-          "1 to 3 months",
-          "3 to 6 months",
-          "No rush"
-        ]
+        "key": "slot",
+        "q": "When shall we talk?",
+        "hint": "A 30-minute video call with me.",
+        "slot": true
       },
       {
-        "key": "reach",
-        "q": "Where should I reply?",
+        "key": "who",
+        "q": "Who should I send the invite to?",
         "fields": [
+          {
+            "id": "name",
+            "ph": "Full name",
+            "req": true
+          },
           {
             "id": "email",
             "ph": "Email",
@@ -668,19 +657,24 @@
             "type": "email"
           },
           {
-            "id": "phone",
-            "ph": "Phone",
-            "type": "tel"
+            "id": "company",
+            "ph": "Company or business"
           }
         ]
       }
     ],
-    "doneTitle": "Request received",
-    "doneBody": "Thanks {name}. I’ll reply within one working day with a few questions and an estimate.",
-    "again": "New request",
-    "demo": "Preview: the form doesn’t send data yet.",
+    "doneTitle": "Call booked",
+    "doneBody": "Thanks {name}. We’ll talk {when}: I’ll send the video call link to the email you left.",
+    "again": "Book another call",
     "key": "Enter",
-    "close": "Close"
+    "close": "Close",
+    "loading": "Finding free times…",
+    "noSlots": "No free times in the coming days. Write to me and we’ll find a moment.",
+    "tz": "Italian time",
+    "addCal": "Add to calendar",
+    "calTitle": "Call with Filippo Corsini",
+    "errTaken": "That time was just taken: pick another one.",
+    "errGeneric": "Something went wrong. Check your details and try again."
   },
   "why": {
     "title": "Why work with me",
@@ -716,6 +710,54 @@
       }
     ],
     "cta": "Got a project in mind?",
-    "ctaBtn": "Request a quote"
+    "ctaBtn": "Book 30 minutes"
+  },
+  "auth": {
+    "metaTitle": "Sign in",
+    "kicker": "Client area",
+    "title": "Welcome back.",
+    "lead": "Sign in to follow your project.",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "show": "Show password",
+    "hide": "Hide password",
+    "noAccess": "Don’t have access yet?",
+    "noAccessCta": "Book a call",
+    "errors": {
+      "fields": "Check your email and password.",
+      "wrong": "Wrong email or password.",
+      "limit": "Too many attempts. Try again in a few minutes.",
+      "off": "Sign-in isn’t active yet. Write to me and I’ll set it up."
+    },
+    "features": [
+      {
+        "k": "Talk to the team",
+        "v": "Questions and decisions in one place, with quick answers."
+      },
+      {
+        "k": "Request changes",
+        "v": "Every request is tracked, from report to release."
+      },
+      {
+        "k": "Follow progress",
+        "v": "Current phase, next steps and the work-in-progress version to try."
+      }
+    ],
+    "areaTitle": "Client area",
+    "logout": "Sign out",
+    "hello": "Hi {name}.",
+    "noProject": "Your project will appear here as soon as we start.",
+    "progress": "Progress",
+    "preview": "Version to try",
+    "previewOn": "The work-in-progress version is online: try it and leave your comments.",
+    "previewOff": "The first version to try will appear here.",
+    "open": "Open the version",
+    "changes": "Change requests",
+    "changesBody": "Tell us what to change: every request is assessed, estimated and tracked until release.",
+    "changesCta": "New request",
+    "team": "Talk to the team",
+    "teamBody": "A question, a doubt or a decision to make: book 30 minutes and let’s talk.",
+    "teamCta": "Book a call"
   }
 }

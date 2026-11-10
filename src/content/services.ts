@@ -134,7 +134,7 @@ export const SERVICES: Service[] = [
     },
     includes: [
       { title: { it: "Processi complessi automatizzati", en: "Complex processes, automated" }, body: { it: "Procedure a più passaggi tra email, documenti, gestionale e clienti, eseguite da sole e tracciate passo per passo.", en: "Multi-step procedures across email, documents, back office and customers, run on their own and logged step by step." } },
-      { title: { it: "Assistenti su WhatsApp e chat", en: "WhatsApp and chat assistants" }, body: { it: "Rispondono, registrano richieste e prenotano: in CreaCloud li usano più di 80 famiglie ogni giorno.", en: "They answer, log requests and book: in CreaCloud more than 80 families use one every day." } },
+      { title: { it: "Assistenti su WhatsApp e chat", en: "WhatsApp and chat assistants" }, body: { it: "Rispondono, registrano richieste e prenotano: in CreaCloud li usano più di 150 famiglie ogni giorno.", en: "They answer, log requests and book: in CreaCloud more than 150 families use one every day." } },
       { title: { it: "Dati dai documenti", en: "Data from documents" }, body: { it: "Fatture, ordini e moduli letti dall’AI e trasformati in dati puliti nel gestionale.", en: "Invoices, orders and forms read by AI and turned into clean records." } },
       { title: { it: "Controllo e sicurezza", en: "Control and safety" }, body: { it: "Le azioni critiche aspettano un’approvazione; i dati restano sui tuoi server quando serve.", en: "Critical actions wait for approval; data stays on your servers when needed." } },
     ],

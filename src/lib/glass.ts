@@ -150,30 +150,36 @@ function setup(): boolean {
 /**
  * Bordo di vetro come immagine. La forza è cotta a 0,935: il CSS la riporta a 0,36 a riposo (opacità 0,385)
  * e la porta a 0,36 · 2,6 alla pressione piena, come `strength * (1 + 1.6 * press)` nello shader.
+ *
+ * Il bordo cambia solo negli angoli: lungo i lati è sempre uguale. Quindi si cuoce un quadrato piccolo
+ * (due angoli più quattro pixel di lato) e il CSS lo stira a nove fette con border-image. Prima si cuoceva
+ * l'immagine a misura piena per ogni elemento, e la lettura dalla GPU bloccava l'arrivo sul sito.
+ * Restituisce il valore completo per `border-image` (sorgente, fette, larghezza).
  */
 export function bevelImage(w: number, h: number, radius?: number): string | null {
   if (typeof window === "undefined" || w < 4 || h < 4) return null;
   const dpr = Math.min(2, window.devicePixelRatio || 1);
-  const W = Math.round(w * dpr);
-  const H = Math.round(h * dpr);
-  const r = (radius ?? Math.min(w, h) / 2) * dpr;
-  const key = `${W}x${H}r${Math.round(r)}`;
+  const r = Math.round(Math.min(radius ?? Math.min(w, h) / 2, w / 2, h / 2) * 2) / 2;
+  const bevel = Math.min(Math.min(w, h) * 0.3, 7);
+  const key = `${r}|${bevel.toFixed(1)}|${dpr}`;
   const hit = bevelCache.get(key);
   if (hit) return hit;
   if (!setup() || !gl || !prog || !glCanvas) return null;
-  glCanvas.width = W;
-  glCanvas.height = H;
-  gl.viewport(0, 0, W, H);
+  const S = Math.round((Math.ceil(r * 2) + 4) * dpr);
+  glCanvas.width = S;
+  glCanvas.height = S;
+  gl.viewport(0, 0, S, S);
   gl.useProgram(prog);
-  gl.uniform2f(gl.getUniformLocation(prog, "size"), W, H);
-  gl.uniform1f(gl.getUniformLocation(prog, "radius"), Math.min(r, W / 2, H / 2));
-  gl.uniform1f(gl.getUniformLocation(prog, "bevel"), Math.min(Math.min(W, H) * 0.3, 7 * dpr));
+  gl.uniform2f(gl.getUniformLocation(prog, "size"), S, S);
+  gl.uniform1f(gl.getUniformLocation(prog, "radius"), r * dpr);
+  gl.uniform1f(gl.getUniformLocation(prog, "bevel"), bevel * dpr);
   gl.uniform1f(gl.getUniformLocation(prog, "strength"), 0.935);
   gl.uniform2f(gl.getUniformLocation(prog, "light"), -0.55, -0.83);
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
-  const url = `url(${glCanvas.toDataURL("image/png")})`;
-  bevelCache.set(key, url);
-  return url;
+  const slice = Math.max(1, r * dpr);
+  const value = `url(${glCanvas.toDataURL("image/png")}) ${slice} / ${Math.max(0.5, r)}px stretch`;
+  bevelCache.set(key, value);
+  return value;
 }

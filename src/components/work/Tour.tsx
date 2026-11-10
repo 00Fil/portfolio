@@ -63,19 +63,19 @@ export function Tour({ src, w, h, stops, kicker, url, light }: { src: string; w:
   );
 
   return (
-    <section ref={root} className="relative flex min-h-[100svh] items-center overflow-hidden py-20">
-      <div className="mx-auto grid w-full max-w-[1280px] gap-8 px-5 sm:px-8 lg:grid-cols-12 lg:items-center lg:gap-12">
+    <section ref={root} className="relative flex min-h-[100svh] items-start overflow-hidden pb-16 pt-24 sm:items-center sm:py-20">
+      <div className="mx-auto grid w-full max-w-[1280px] gap-6 px-5 sm:gap-8 sm:px-8 lg:grid-cols-12 lg:items-center lg:gap-12">
         <div className="lg:col-span-4">
           <p className="t-label text-[var(--accent)]">{kicker}</p>
-          <div className="relative mt-5 grid min-h-[170px] lg:min-h-[220px]">
+          <div className="relative mt-4 grid min-h-[132px] sm:min-h-[150px] lg:mt-5 lg:min-h-[220px]">
             {stops.map((s) => (
               <div key={s.title} data-cap className="[grid-area:1/1]">
-                <h3 className="text-[clamp(28px,3vw,42px)] font-medium leading-[1.05] tracking-[-0.04em] text-ink">{s.title}</h3>
-                <p className="mt-4 max-w-[36ch] text-[17px] leading-[1.5] text-ink-2">{s.body}</p>
+                <h3 className="text-[clamp(24px,3vw,42px)] font-medium leading-[1.05] tracking-[-0.04em] text-ink">{s.title}</h3>
+                <p className="mt-3 max-w-[36ch] text-[15.5px] leading-[1.5] text-ink-2 sm:mt-4 sm:text-[17px]">{s.body}</p>
               </div>
             ))}
           </div>
-          <div className="mt-8 flex gap-2" aria-hidden>
+          <div className="mt-5 flex gap-2 sm:mt-8" aria-hidden>
             {stops.map((s) => (
               <span key={s.title} className="h-[3px] w-10 overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--label-primary)_14%,transparent)]">
                 <span data-dot className="block h-full origin-left scale-x-0 bg-[var(--accent)]" />

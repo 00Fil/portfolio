@@ -16,4 +16,19 @@ export const profile = {
   site: "https://example.com",
   /** Area clienti inclusa in ogni progetto: link agli store e alla versione web. Vuoti: i tasti puntano a "#". */
   clientArea: { ios: "", android: "", web: "" },
+  /**
+   * Chiamate conoscitive da 30 minuti: giorni (1 = lunedì), fasce orarie in ora italiana,
+   * preavviso minimo e quanti giorni avanti si può prenotare.
+   */
+  booking: {
+    tz: "Europe/Rome",
+    minutes: 30,
+    days: [1, 2, 3, 4, 5],
+    windows: [
+      ["09:30", "12:30"],
+      ["14:30", "18:30"],
+    ] as [string, string][],
+    noticeHours: 20,
+    horizonDays: 14,
+  },
 };

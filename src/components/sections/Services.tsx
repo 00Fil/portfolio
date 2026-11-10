@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { useEffect, useState, type CSSProperties, type MouseEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowUpRight } from "lucide-react";
 import MagicBento, { type MagicBentoItem } from "@/components/reactbits/MagicBento";
@@ -12,6 +12,7 @@ import { SectionHead } from "./SectionHead";
 import { GooDefs, ServiceVisual, type WidgetText } from "./ServiceWidgets";
 import { Bead } from "@/components/glass/Bead";
 import { ServiceBg } from "./ServiceBg";
+import { PinRail } from "@/components/motion/PinRail";
 
 /* Ingombro di ogni servizio nella griglia a 4 colonne. */
 const SPAN: Record<string, [number, number]> = {
@@ -70,38 +71,20 @@ function Body({ s, w, locale, open }: { s: Service; w: WidgetText; locale: Local
   );
 }
 
-/** Telefono: un servizio alla volta, si scorre di lato. */
+/** Telefono: la sezione si ferma e i servizi passano di lato uno alla volta, frenando al centro. */
 function Carousel({ w, locale, open }: { w: WidgetText; locale: Locale; open: string }) {
-  const track = useRef<HTMLDivElement>(null);
-  const [at, setAt] = useState(0);
-  useEffect(() => {
-    const el = track.current!;
-    const on = () => {
-      const card = el.firstElementChild as HTMLElement | null;
-      if (card) setAt(Math.round(el.scrollLeft / (card.offsetWidth + 12)));
-    };
-    el.addEventListener("scroll", on, { passive: true });
-    return () => el.removeEventListener("scroll", on);
-  }, []);
   return (
-    <>
-      <div ref={track} className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-5 px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {SHOWN.map((s) => (
-          <Link
-            key={s.slug}
-            href={`/servizi/${s.slug}`}
-            className="group relative h-[440px] w-[84vw] max-w-[380px] shrink-0 snap-start overflow-hidden rounded-[30px] bg-[#0d0e10] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,.07)] [--mb-pad:24px]"
-          >
-            <Body s={s} w={w} locale={locale} open={open} />
-          </Link>
-        ))}
-      </div>
-      <div className="mt-5 flex items-center justify-center gap-1.5" aria-hidden>
-        {SHOWN.map((s, i) => (
-          <span key={s.slug} className={`h-1.5 rounded-full transition-all duration-500 ${i === at ? "w-6 bg-[var(--sky)]" : "w-1.5 bg-white/20"}`} />
-        ))}
-      </div>
-    </>
+    <PinRail className="-mx-5 py-2">
+      {SHOWN.map((s, i) => (
+        <Link
+          key={s.slug}
+          href={`/servizi/${s.slug}`}
+          className={`group relative h-[min(460px,62svh)] w-[80vw] max-w-[380px] shrink-0 overflow-hidden rounded-[30px] bg-[#0d0e10] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,.07)] [--mb-pad:24px] ${i === 0 ? "ml-[10vw]" : ""} ${i === SHOWN.length - 1 ? "mr-[10vw]" : ""}`}
+        >
+          <Body s={s} w={w} locale={locale} open={open} />
+        </Link>
+      ))}
+    </PinRail>
   );
 }
 
@@ -135,11 +118,11 @@ export function Services() {
       <Reveal>
         <SectionHead index="01" title={t("title")} lead={t("lead")} />
       </Reveal>
+      {cols === 1 ? (
+        <Carousel w={w} locale={locale} open={t("open")} />
+      ) : (
       <Reveal>
         <div data-reveal>
-          {cols === 1 ? (
-            <Carousel w={w} locale={locale} open={t("open")} />
-          ) : (
             <MagicBento
               items={items}
               columns={cols}
@@ -164,9 +147,9 @@ export function Services() {
                 } as CSSProperties
               }
             />
-          )}
         </div>
       </Reveal>
+      )}
     </section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import * as si from "simple-icons";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { profile } from "@/content/profile";
 
 const Logo = ({ path }: { path: string }) => (
@@ -22,10 +22,11 @@ const Globe = () => (
  */
 export function ClientRow({ variant }: { variant: "top" | "bar" }) {
   const t = useTranslations("nav");
+  const locale = useLocale();
   const links = [
     { href: profile.clientArea.ios, label: "iOS", long: "App Store", icon: <Logo path={si.siApple.path} /> },
     { href: profile.clientArea.android, label: "Android", long: "Google Play", icon: <Logo path={si.siGoogleplay.path} /> },
-    { href: profile.clientArea.web, label: t("stripWeb"), long: t("stripWeb"), icon: <Globe /> },
+    { href: profile.clientArea.web || `/${locale}/accedi`, label: t("stripWeb"), long: t("stripWeb"), icon: <Globe /> },
   ];
   const top = variant === "top";
   return (

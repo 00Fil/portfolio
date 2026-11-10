@@ -158,7 +158,7 @@ export const projects: Project[] = [
       ],
     },
     figures: [
-      { value: "80+", label: { it: "famiglie la usano ogni giorno", en: "families use it every day" } },
+      { value: "150+", label: { it: "famiglie la usano ogni giorno", en: "families use it every day" } },
       { value: "1 mese", label: { it: "di lezioni pianificato in automatico", en: "of lessons scheduled automatically" } },
       { value: "0", label: { it: "app da installare: si usa da WhatsApp", en: "apps to install: it runs on WhatsApp" } },
     ],

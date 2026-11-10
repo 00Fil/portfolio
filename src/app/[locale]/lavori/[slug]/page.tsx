@@ -12,6 +12,7 @@ import { SiteNav } from "@/components/nav/SiteNav";
 import { Footer } from "@/components/sections/Footer";
 import { ProjectHero } from "@/components/work/ProjectHero";
 import { Tour } from "@/components/work/Tour";
+import { CreaScheduler } from "@/components/work/CreaScheduler";
 import { RelaySystem } from "@/components/work/RelaySystem";
 import { CoverCard } from "@/components/work/CoverCard";
 
@@ -69,13 +70,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
 
   const list = (title: string, items: string[], numbered = false) =>
     items.length > 0 && (
-      <div className="grid gap-6 border-t border-[var(--line-separator)] py-10 sm:grid-cols-12 sm:gap-8 sm:py-14">
+      <div className="grid gap-4 border-t border-[var(--line-separator)] py-8 sm:grid-cols-12 sm:gap-8 sm:py-14">
         <h3 className="t-label text-ink-3 sm:col-span-4" data-reveal>
           {title}
         </h3>
-        <ol className="grid gap-5 sm:col-span-8" data-stagger>
+        <ol className="grid gap-4 sm:col-span-8 sm:gap-5" data-stagger>
           {items.map((it, i) => (
-            <li key={i} className="grid grid-cols-[36px_1fr] gap-2 text-[17px] leading-[1.5]">
+            <li key={i} className="grid grid-cols-[28px_1fr] gap-2 text-[15.5px] leading-[1.5] sm:grid-cols-[36px_1fr] sm:text-[17px]">
               <span className="t-label t-fig pt-1 text-[var(--accent)]">{numbered ? String(i + 1).padStart(2, "0") : "·"}</span>
               <span className="text-ink">{it}</span>
             </li>
@@ -91,19 +92,19 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
           <ProjectHero slug={slug} text={{ def: c.def[locale], label: c.label[locale], scroll: t("scroll") }} />
 
           {/* in breve: il problema detto semplice, chi, quando, con cosa */}
-          <Reveal className="mx-auto w-full max-w-[1280px] px-5 py-24 sm:px-8 sm:py-36">
-            <div className="grid gap-12 lg:grid-cols-12">
-              <p className="text-[clamp(26px,3.2vw,44px)] font-medium leading-[1.15] tracking-[-0.035em] text-ink lg:col-span-8" data-reveal data-split>
+          <Reveal className="mx-auto w-full max-w-[1280px] px-5 py-14 sm:px-8 sm:py-36">
+            <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+              <p className="text-[clamp(22px,3.2vw,44px)] font-medium leading-[1.2] tracking-[-0.03em] text-ink lg:col-span-8" data-reveal data-split>
                 {p.problem[locale]}
               </p>
-              <dl className="grid content-start gap-6 lg:col-span-3 lg:col-start-10" data-stagger>
+              <dl className="grid grid-cols-2 content-start gap-x-6 gap-y-5 border-t border-[var(--line-separator)] pt-6 lg:col-span-3 lg:col-start-10 lg:grid-cols-1 lg:border-0 lg:pt-0" data-stagger>
                 {meta.map(([k, v]) => (
                   <div key={k}>
                     <dt className="t-label text-ink-3">{k}</dt>
                     <dd className="mt-1 text-ink">{v}</dd>
                   </div>
                 ))}
-                <div>
+                <div className="col-span-2 lg:col-span-1">
                   <dt className="t-label text-ink-3">{t("stack")}</dt>
                   <dd className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
                     {c.stack.map((id) => (
@@ -120,7 +121,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
             </div>
           </Reveal>
 
-          {c.tour ? (
+          {slug === "creacloud" ? (
+            <CreaScheduler locale={locale} />
+          ) : c.tour ? (
             <Tour
               src={c.tour.src}
               w={c.tour.w}
@@ -135,27 +138,27 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
           )}
 
           {/* sotto il cofano: qui il dettaglio tecnico */}
-          <Reveal className="mx-auto w-full max-w-[1280px] px-5 pb-10 pt-24 sm:px-8 sm:pt-36">
+          <Reveal className="mx-auto w-full max-w-[1280px] px-5 pb-6 pt-16 sm:px-8 sm:pb-10 sm:pt-36">
             <p className="t-label text-[var(--accent)]" data-reveal>
               {t("under")}
             </p>
-            <p className="mt-5 max-w-[30ch] text-[clamp(26px,3.2vw,44px)] font-medium leading-[1.15] tracking-[-0.035em] text-ink" data-reveal data-split>
+            <p className="mt-4 max-w-[30ch] text-[clamp(22px,3.2vw,44px)] font-medium leading-[1.2] sm:mt-5 tracking-[-0.035em] text-ink" data-reveal data-split>
               {p.summary[locale]}
             </p>
-            <ul className="mt-14 grid gap-8 sm:grid-cols-3" data-stagger>
+            <ul className="mt-10 grid grid-cols-3 gap-4 sm:mt-14 sm:gap-8" data-stagger>
               {p.figures.map((f) => (
-                <li key={f.value} className="border-t border-[var(--line-strong)] pt-5">
-                  <RollingText text={f.value} className="t-fig text-[clamp(36px,4vw,56px)] font-medium tracking-[-0.04em] text-ink" />
-                  <p className="mt-2 text-ink-2">{f.label[locale]}</p>
+                <li key={f.value} className="border-t border-[var(--line-strong)] pt-4 sm:pt-5">
+                  <RollingText text={f.value} className="t-fig text-[clamp(26px,4vw,56px)] font-medium tracking-[-0.04em] text-ink" />
+                  <p className="mt-1.5 text-[13px] leading-snug text-ink-2 sm:mt-2 sm:text-[16px]">{f.label[locale]}</p>
                 </li>
               ))}
             </ul>
-            <div className="mt-16">
+            <div className="mt-10 sm:mt-16">
               {list(t("built"), p.built[locale])}
               {list(t("decisions"), p.decisions[locale], true)}
               {list(t("limits"), p.limits[locale])}
               {p.repo && (
-                <div className="grid gap-6 border-t border-[var(--line-separator)] py-10 sm:grid-cols-12 sm:gap-8">
+                <div className="grid gap-4 border-t border-[var(--line-separator)] py-8 sm:grid-cols-12 sm:gap-8 sm:py-10">
                   <h3 className="t-label text-ink-3 sm:col-span-4">{t("source")}</h3>
                   <a href={p.repo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-ink underline decoration-[var(--line-strong)] underline-offset-4 hover:decoration-[var(--accent)] sm:col-span-8">
                     GitHub
@@ -167,7 +170,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
           </Reveal>
 
           {/* progetto successivo, poi il colore sfuma nel nero del sito */}
-          <section className="mx-auto w-full max-w-[1280px] px-5 pb-24 pt-16 sm:px-8 sm:pt-24">
+          <section className="mx-auto w-full max-w-[1280px] px-5 pb-14 pt-10 sm:px-8 sm:pb-24 sm:pt-24">
             <p className="t-label mb-6 text-ink-3">{t("next")}</p>
             <div className="max-w-[760px]">
               <CoverCard
@@ -183,7 +186,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ locale
               />
             </div>
           </section>
-          <div aria-hidden className="h-[60vh]" style={{ background: `linear-gradient(to bottom, ${c.theme.bg}, #000)` }} />
+          <div aria-hidden className="h-[24vh] sm:h-[60vh]" style={{ background: `linear-gradient(to bottom, ${c.theme.bg}, #000)` }} />
         </main>
       </div>
       <Footer withContact={false} />

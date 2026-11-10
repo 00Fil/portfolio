@@ -243,8 +243,8 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background-image: var(--bevel, none);
-  background-size: 100% 100%;
+  border: 0 solid transparent;
+  border-image: var(--bevel, none);
   opacity: calc(0.385 * (1 + 1.6 * var(--p, 0)));
   pointer-events: none;
 }
@@ -378,6 +378,8 @@ html[data-theme="light"] .light-invert { filter: invert(1) hue-rotate(180deg) sa
 html[data-intro="run"] .preloader { display: flex; animation: preloaderOut 0s 6s forwards; }
 html[data-intro="run"], html[data-intro="run"] body { overflow: hidden; }
 @keyframes preloaderOut { to { visibility: hidden; } }
+html[data-intro="quick"] .preloader { display: flex; background: var(--bg-canvas); animation: preloaderOut 0s 2.5s forwards; }
+html[data-intro="quick"] .preloader [data-sig] { display: none; }
 
 /* riga dell'area clienti dentro la capsula: acrilico azzurro, sfocato e opaco quanto basta per leggere */
 .client-row {

@@ -183,12 +183,12 @@ export function HeroArt({ slug, live, text }: { slug: string; live?: boolean; te
       <div className="absolute inset-x-0 bottom-0">
         <div className="mx-auto w-full max-w-[1280px] px-5 pb-10 sm:px-8 sm:pb-14">
           <BrandIcon slug={slug} className="h-[clamp(72px,8vw,120px)] w-[clamp(72px,8vw,120px)]" />
-          <h1 data-flip="name" className={`mt-6 whitespace-nowrap text-[clamp(60px,11vw,172px)] text-[#F2F2F0] ${b.font}`}>
+          <h1 data-flip="name" className={`mt-6 whitespace-nowrap text-[clamp(50px,11vw,172px)] text-[#F2F2F0] ${b.font}`}>
             {b.name}
           </h1>
           <div data-hero-rest className="mt-6 flex flex-wrap items-end justify-between gap-6">
             <div>
-              <p className="max-w-[48ch] text-[clamp(17px,1.5vw,21px)] leading-[1.45] text-white/85">{text.def}</p>
+              <p className="max-w-[48ch] text-[clamp(16px,1.5vw,21px)] leading-[1.45] text-white/85">{text.def}</p>
               <p className="t-label mt-4 text-white/60">{text.label}</p>
             </div>
             <span className="drop flex h-11 items-center gap-2 px-4 text-[14px] text-white" style={{ ["--drop-tint" as string]: "rgba(0,0,0,.35)" }}>

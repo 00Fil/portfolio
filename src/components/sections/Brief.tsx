@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useMessages } from "next-intl";
+import { useLocale, useMessages } from "next-intl";
 import { gsap } from "gsap";
-import { ArrowRight, Check, ChevronDown, ChevronUp, CornerDownLeft } from "lucide-react";
+import { ArrowRight, CalendarPlus, Check, ChevronDown, ChevronUp, CornerDownLeft } from "lucide-react";
+import { book, getSlots } from "@/lib/booking-actions";
+import { profile } from "@/content/profile";
 import { prefersReducedMotion } from "@/lib/env";
 import { Bead } from "@/components/glass/Bead";
 
@@ -13,7 +15,7 @@ const Glass = ({ on = false, radius = 14 }: { on?: boolean; radius?: number }) =
 );
 
 type Field = { id: string; ph: string; req?: boolean; type?: string };
-type Step = { key: string; q: string; hint?: string; multi?: boolean; options?: string[]; fields?: Field[]; note?: string };
+type Step = { key: string; q: string; hint?: string; multi?: boolean; options?: string[]; fields?: Field[]; note?: string; slot?: boolean };
 type T = {
   kicker: string;
   next: string;
@@ -27,8 +29,15 @@ type T = {
   doneTitle: string;
   doneBody: string;
   again: string;
-  demo: string;
+  loading: string;
+  noSlots: string;
+  tz: string;
+  addCal: string;
+  calTitle: string;
+  errTaken: string;
+  errGeneric: string;
 };
+type Day = { day: string; slots: string[] };
 
 const isVisible = (el: HTMLElement) => {
   const r = el.getBoundingClientRect();
@@ -38,13 +47,18 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
  * Richiesta di progetto a passi, come un Typeform: una domanda alla volta, avanzamento in alto,
- * scelta singola che va avanti da sola, Invio per proseguire. Per ora non invia nulla.
+ * scelta singola che va avanti da sola, Invio per proseguire. Al passo della chiamata si sceglie un orario libero
+ * tra quelli che arrivano dal server; l'invio prenota 30 minuti e avvisa via email (se configurata).
  */
 export function Brief({ preset, full = false }: { preset?: number; full?: boolean }) {
   const t = (useMessages() as unknown as { brief: T }).brief;
   const steps = t.steps;
   const [i, setI] = useState(0);
   const [done, setDone] = useState(false);
+  const [days, setDays] = useState<Day[] | null>(null);
+  const [dayAt, setDayAt] = useState(0);
+  const [sending, setSending] = useState(false);
+  const [err, setErr] = useState("");
   const initial = (): Record<string, string | string[]> => {
     const o = t.steps.find((x) => x.key === "need")?.options?.[preset ?? -1];
     return o ? { need: [o] } : {};
@@ -56,10 +70,56 @@ export function Brief({ preset, full = false }: { preset?: number; full?: boolea
   const last = i === steps.length - 1;
 
   const val = (k: string) => data[k];
+  const tz = profile.booking.tz;
+  const locale = useLocale();
+  const fmt = (iso: string, o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(locale === "it" ? "it-IT" : "en-GB", { timeZone: tz, ...o }).format(new Date(iso));
+
+  // gli orari liberi arrivano dal server quando si arriva al passo della chiamata
+  const loadSlots = () =>
+    getSlots()
+      .then((d) => {
+        setDays(d);
+        const cur = String(data.slot ?? "");
+        const k = d.findIndex((x) => x.slots.includes(cur));
+        setDayAt(k >= 0 ? k : 0);
+      })
+      .catch(() => setDays([]));
+  useEffect(() => {
+    if (step?.slot && !days) loadSlots();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [i]);
+
+  const submit = async () => {
+    setSending(true);
+    setErr("");
+    const r = await book(data).catch(() => ({ ok: false as const, error: "invalid" as const }));
+    setSending(false);
+    if (r.ok) {
+      dir.current = 1;
+      setDone(true);
+      return;
+    }
+    if (r.error === "taken") {
+      setErr(t.errTaken);
+      setDays(null);
+      set("slot", "");
+      go(steps.findIndex((x) => x.slot));
+    } else setErr(t.errGeneric);
+  };
+
+  // file .ics per aggiungere la chiamata al proprio calendario
+  const ics = () => {
+    const a = new Date(String(val("slot")));
+    const b = new Date(a.getTime() + profile.booking.minutes * 60e3);
+    const z = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    const body = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//portfolio//booking//IT", "BEGIN:VEVENT", `UID:${z(a)}-${Math.random().toString(36).slice(2)}`, `DTSTAMP:${z(new Date())}`, `DTSTART:${z(a)}`, `DTEND:${z(b)}`, `SUMMARY:${t.calTitle}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+    return `data:text/calendar;charset=utf-8,${encodeURIComponent(body)}`;
+  };
   const set = (k: string, v: string | string[]) => setData((d) => ({ ...d, [k]: v }));
 
   const valid = (() => {
     if (step.fields) return step.fields.every((f) => !f.req || (f.type === "email" ? EMAIL.test(String(val(f.id) ?? "")) : String(val(f.id) ?? "").trim().length > 1));
+    if (step.slot) return !!val("slot");
     const v = val(step.key);
     return Array.isArray(v) ? v.length > 0 : !!v;
   })();
@@ -71,8 +131,7 @@ export function Brief({ preset, full = false }: { preset?: number; full?: boolea
   const next = () => {
     if (!valid) return;
     if (last) {
-      dir.current = 1;
-      setDone(true);
+      if (!sending) void submit();
     } else go(i + 1);
   };
 
@@ -166,18 +225,26 @@ export function Brief({ preset, full = false }: { preset?: number; full?: boolea
       >
         <div ref={stage}>
           {done ? (
-            <div className="flex min-h-[360px] flex-col items-start justify-center">
+            <div className="flex min-h-[360px] flex-col items-start justify-center sm:pl-9">
               <span data-tick className="relative flex h-14 w-14 items-center justify-center text-ink">
                 <Glass on radius={28} />
                 <Check size={26} strokeWidth={2.6} className="relative" />
               </span>
               <h3 className="mt-8 text-[clamp(28px,3vw,40px)] font-medium tracking-[-0.035em] text-ink">{t.doneTitle}</h3>
-              <p className="mt-3 max-w-[44ch] text-[17px] leading-[1.55] text-ink-2">{t.doneBody.replace("{name}", String(val("name") ?? "").split(" ")[0])}</p>
-              <p className="mt-6 font-mono text-[12px] text-ink-3">{t.demo}</p>
-              <button type="button" onClick={restart} className="relative mt-8 h-11 rounded-full px-5 text-[15px] text-ink">
-                <Glass radius={22} />
-                <span className="relative">{t.again}</span>
-              </button>
+              <p className="mt-3 max-w-[46ch] text-[17px] leading-[1.55] text-ink-2">
+                {t.doneBody.replace("{name}", String(val("name") ?? "").split(" ")[0]).replace("{when}", val("slot") ? fmt(String(val("slot")), { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : "")}
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a href={ics()} download="chiamata.ics" className="relative isolate flex h-11 items-center gap-2 rounded-full px-5 text-[15px] font-medium text-ink">
+                  <Glass on radius={22} />
+                  <CalendarPlus size={17} strokeWidth={1.8} className="relative" />
+                  <span className="relative">{t.addCal}</span>
+                </a>
+                <button type="button" onClick={restart} className="relative h-11 rounded-full px-5 text-[15px] text-ink">
+                  <Glass radius={22} />
+                  <span className="relative">{t.again}</span>
+                </button>
+              </div>
             </div>
           ) : (
             <fieldset>
@@ -239,6 +306,54 @@ export function Brief({ preset, full = false }: { preset?: number; full?: boolea
                 </div>
               )}
 
+              {step.slot && (
+                <div data-opt className="ml-0 mt-8 sm:ml-9">
+                  {!days ? (
+                    <p className="flex h-[180px] items-center gap-3 text-[15px] text-ink-3">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden />
+                      {t.loading}
+                    </p>
+                  ) : !days.length ? (
+                    <p className="text-[16px] text-ink-2">{t.noSlots}</p>
+                  ) : (
+                    <>
+                      {/* i giorni: si scorre di lato */}
+                      <div role="radiogroup" className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                        {days.map((d, k) => (
+                          <button
+                            key={d.day}
+                            type="button"
+                            role="radio"
+                            aria-checked={k === dayAt}
+                            onClick={() => setDayAt(k)}
+                            className={`relative isolate flex h-[72px] w-[64px] shrink-0 flex-col items-center justify-center rounded-[16px] transition-colors ${k === dayAt ? "text-ink" : "text-ink-2"}`}
+                          >
+                            <Glass on={k === dayAt} radius={16} />
+                            <span className="relative text-[11.5px] uppercase tracking-[0.08em] opacity-70">{fmt(d.day, { weekday: "short" })}</span>
+                            <span className="relative mt-0.5 text-[22px] font-medium tabular-nums leading-none">{fmt(d.day, { day: "numeric" })}</span>
+                            <span className="relative mt-1 text-[10.5px] opacity-60">{fmt(d.day, { month: "short" })}</span>
+                          </button>
+                        ))}
+                      </div>
+                      {/* gli orari liberi di quel giorno */}
+                      <div role="radiogroup" aria-label={fmt(days[dayAt].day, { weekday: "long", day: "numeric", month: "long" })} className="mt-4 grid max-w-[520px] grid-cols-3 gap-2 sm:grid-cols-4">
+                        {days[dayAt].slots.map((iso) => {
+                          const on = val("slot") === iso;
+                          return (
+                            <button key={iso} type="button" role="radio" aria-checked={on} onClick={() => set("slot", iso)} className={`relative isolate h-11 rounded-[12px] text-[15px] tabular-nums transition-colors ${on ? "font-semibold text-ink" : "text-ink-2 hover:text-ink"}`}>
+                              <Glass on={on} radius={12} />
+                              <span className="relative">{fmt(iso, { hour: "2-digit", minute: "2-digit" })}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="mt-4 text-[13px] text-ink-3">{t.tz}</p>
+                    </>
+                  )}
+                  {err && <p className="mt-4 text-[14px] text-[#ff8a8a]">{err}</p>}
+                </div>
+              )}
+
               {step.note && (
                 <label data-opt className="ml-0 mt-6 block sm:ml-9">
                   <span className="sr-only">{step.note}</span>
@@ -260,12 +375,12 @@ export function Brief({ preset, full = false }: { preset?: number; full?: boolea
             <div className="flex items-center gap-3">
               <button
                 type="submit"
-                disabled={!valid}
+                disabled={!valid || sending}
                 className="relative isolate flex h-12 items-center gap-2 rounded-full px-6 text-[15px] font-semibold text-ink transition-[opacity,transform] duration-200 active:scale-[0.97] disabled:opacity-40"
               >
                 <Glass on radius={24} />
                 <span className="relative">{last ? t.send : "OK"}</span>
-                <Check size={16} strokeWidth={2.8} className="relative" />
+                {sending ? <span className="relative h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden /> : <Check size={16} strokeWidth={2.8} className="relative" />}
               </button>
               <span className="hidden items-center gap-1.5 text-[12.5px] text-ink-3 sm:flex">
                 {t.enter}

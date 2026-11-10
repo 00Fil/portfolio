@@ -104,12 +104,15 @@ export function FooterGiant({ first, last }: { first: string; last: string }) {
   useGSAP(
     () => {
       if (prefersReducedMotion()) return;
+      // si alza tutto una volta sola: legato allo scorrimento, su telefono la barra degli indirizzi
+      // impediva di arrivare alla fine e il nome restava a metà, nascosto
       gsap.from("[data-ch]", {
         yPercent: 100,
         rotate: 6,
-        ease: "power3.out",
-        stagger: 0.04,
-        scrollTrigger: { trigger: band.current, start: "top bottom", end: "bottom bottom", scrub: 0.8 },
+        duration: 1.1,
+        ease: "expo.out",
+        stagger: 0.035,
+        scrollTrigger: { trigger: band.current, start: "top 92%", once: true },
       });
     },
     { scope: band },

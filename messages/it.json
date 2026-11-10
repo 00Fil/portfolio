@@ -24,7 +24,7 @@
     "toLight": "Tema chiaro",
     "toDark": "Tema scuro",
     "menuServices": "Tutti i servizi",
-    "quote": "Richiedi un preventivo",
+    "quote": "Prenota una chiamata",
     "stripLabel": "Area clienti",
     "stripLead": "Area clienti inclusa in ogni progetto.",
     "strip": "Parli con il team, chiedi modifiche e segui l’avanzamento, dall’app o dal sito.",
@@ -41,7 +41,7 @@
     "lead": "Sono {name}. Realizzo software su misura per aziende e professionisti: piattaforme web, app per telefono e computer, sistemi con AI che automatizzano i processi. Seguo ogni progetto dall’analisi al rilascio e resto il riferimento anche dopo.",
     "status": "Disponibile per nuovi progetti",
     "work": "Vedi i lavori",
-    "contact": "Richiedi un preventivo",
+    "contact": "Prenota una chiamata",
     "h1": "Progetto e sviluppo software, hardware, app, siti web e sistemi AI su misura per ristorazione, industria, negozi, studi medici e formazione.",
     "where": "Brescia, IT",
     "lines": [
@@ -69,7 +69,7 @@
     ],
     "proof": [
       [
-        "80+",
+        "150+",
         "famiglie usano ogni giorno un mio software"
       ],
       [
@@ -208,7 +208,7 @@
     "top": "Torna su",
     "q": "Hai un progetto in mente?",
     "a": "Parliamone.",
-    "cta": "Richiedi un preventivo",
+    "cta": "Prenota una chiamata",
     "available": "Disponibile per nuovi progetti",
     "country": "Italia",
     "pages": "Pagine",
@@ -243,10 +243,18 @@
         "tag": "Lavoro",
         "title": "Sviluppatore freelance",
         "body": "Software su misura per aziende e professionisti, dall’analisi alla messa online. Tra i lavori, la piattaforma di un centro didattico.",
-        "value": 80,
-        "unit": "famiglie usano ogni giorno un mio software",
-        "suffix": "+",
+        "value": 3,
+        "unit": "prodotti online, dall’idea al rilascio",
         "big": "Oggi"
+      },
+      {
+        "tag": "Progetto per un cliente",
+        "title": "CreaCloud",
+        "body": "Il gestionale di un centro studio privato: calendarizza le lezioni di oltre 150 famiglie incrociando le richieste dei genitori, gli impegni dei ragazzi e le disponibilità dei tutor.",
+        "value": 150,
+        "suffix": "+",
+        "unit": "famiglie con le lezioni in calendario",
+        "big": "CreaCloud"
       },
       {
         "tag": "Progetto personale",
@@ -556,7 +564,13 @@
       "aiSaved": "Ordine n. 214 creato",
       "webL1": "Interfaccia",
       "webL2": "Logica",
-      "webL3": "Dati"
+      "webL3": "Dati",
+      "opsSiteName": "Studio Bianchi",
+      "opsSiteTitle": "Il tuo sorriso, in buone mani",
+      "opsSiteCta": "Prenota una visita",
+      "opsTile1": "Orari",
+      "opsTile2": "Servizi",
+      "opsTile3": "Contatti"
     },
     "open": "Scopri",
     "includes": "Cosa include",
@@ -571,43 +585,17 @@
     "all": "Tutti i servizi"
   },
   "brief": {
-    "kicker": "Nuovo progetto",
+    "kicker": "Chiamata conoscitiva · 30 min",
     "next": "Avanti",
     "back": "Indietro",
-    "send": "Invia la richiesta",
+    "send": "Prenota la chiamata",
     "enter": "oppure premi",
     "optional": "facoltativo",
     "step": "Passo",
     "steps": [
       {
-        "key": "who",
-        "q": "Come ti chiami?",
-        "fields": [
-          {
-            "id": "name",
-            "ph": "Nome e cognome",
-            "req": true
-          },
-          {
-            "id": "company",
-            "ph": "Azienda o attività"
-          }
-        ]
-      },
-      {
-        "key": "role",
-        "q": "Di cosa ti occupi?",
-        "options": [
-          "Azienda",
-          "Professionista",
-          "Startup",
-          "Ente o associazione",
-          "Privato"
-        ]
-      },
-      {
         "key": "need",
-        "q": "Cosa ti serve?",
+        "q": "Di cosa vuoi parlare?",
         "hint": "Puoi sceglierne più di uno.",
         "multi": true,
         "options": [
@@ -648,19 +636,20 @@
         ]
       },
       {
-        "key": "when",
-        "q": "Per quando ti serve?",
-        "options": [
-          "Entro un mese",
-          "Da 1 a 3 mesi",
-          "Da 3 a 6 mesi",
-          "Nessuna fretta"
-        ]
+        "key": "slot",
+        "q": "Quando ci sentiamo?",
+        "hint": "Una videochiamata di 30 minuti con me.",
+        "slot": true
       },
       {
-        "key": "reach",
-        "q": "Dove ti rispondo?",
+        "key": "who",
+        "q": "A chi mando l’invito?",
         "fields": [
+          {
+            "id": "name",
+            "ph": "Nome e cognome",
+            "req": true
+          },
           {
             "id": "email",
             "ph": "Email",
@@ -668,19 +657,24 @@
             "type": "email"
           },
           {
-            "id": "phone",
-            "ph": "Telefono",
-            "type": "tel"
+            "id": "company",
+            "ph": "Azienda o attività"
           }
         ]
       }
     ],
-    "doneTitle": "Richiesta ricevuta",
-    "doneBody": "Grazie {name}. Ti rispondo entro un giorno lavorativo con le prime domande e una stima.",
-    "again": "Nuova richiesta",
-    "demo": "Anteprima: il modulo non invia ancora i dati.",
+    "doneTitle": "Chiamata prenotata",
+    "doneBody": "Grazie {name}. Ci sentiamo {when}: ti mando il link della videochiamata all’email che mi hai lasciato.",
+    "again": "Prenota un’altra chiamata",
     "key": "Invio",
-    "close": "Chiudi"
+    "close": "Chiudi",
+    "loading": "Cerco gli orari liberi…",
+    "noSlots": "In questi giorni non ho orari liberi. Scrivimi e troviamo un momento.",
+    "tz": "ora italiana",
+    "addCal": "Aggiungi al calendario",
+    "calTitle": "Chiamata con Filippo Corsini",
+    "errTaken": "Quell’orario è appena stato preso: scegline un altro.",
+    "errGeneric": "Qualcosa non è andato. Controlla i dati e riprova."
   },
   "why": {
     "title": "Perché lavorare con me",
@@ -716,6 +710,54 @@
       }
     ],
     "cta": "Hai un progetto in mente?",
-    "ctaBtn": "Richiedi un preventivo"
+    "ctaBtn": "Prenota 30 minuti"
+  },
+  "auth": {
+    "metaTitle": "Accedi",
+    "kicker": "Area clienti",
+    "title": "Bentornato.",
+    "lead": "Accedi per seguire il tuo progetto.",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Accedi",
+    "show": "Mostra password",
+    "hide": "Nascondi password",
+    "noAccess": "Non hai ancora un accesso?",
+    "noAccessCta": "Prenota una chiamata",
+    "errors": {
+      "fields": "Controlla email e password.",
+      "wrong": "Email o password non corretti.",
+      "limit": "Troppi tentativi. Riprova tra qualche minuto.",
+      "off": "L’accesso non è ancora attivo. Scrivimi e te lo preparo."
+    },
+    "features": [
+      {
+        "k": "Parla con il team",
+        "v": "Domande e decisioni in un unico posto, con risposte rapide."
+      },
+      {
+        "k": "Chiedi modifiche",
+        "v": "Ogni richiesta resta tracciata, dalla segnalazione al rilascio."
+      },
+      {
+        "k": "Segui l’avanzamento",
+        "v": "Fase attuale, prossimi passi e versione in lavorazione da provare."
+      }
+    ],
+    "areaTitle": "Area clienti",
+    "logout": "Esci",
+    "hello": "Ciao {name}.",
+    "noProject": "Il tuo progetto comparirà qui appena iniziamo.",
+    "progress": "Avanzamento",
+    "preview": "Versione da provare",
+    "previewOn": "La versione in lavorazione è online: provala e lascia i tuoi commenti.",
+    "previewOff": "La prima versione da provare comparirà qui.",
+    "open": "Apri la versione",
+    "changes": "Richieste di modifica",
+    "changesBody": "Segnala cosa cambiare: ogni richiesta viene valutata, stimata e tracciata fino al rilascio.",
+    "changesCta": "Nuova richiesta",
+    "team": "Parla con il team",
+    "teamBody": "Una domanda, un dubbio o una decisione da prendere: prenota 30 minuti e ne parliamo.",
+    "teamCta": "Prenota una chiamata"
   }
 }
