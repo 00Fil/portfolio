@@ -28,6 +28,7 @@ type Props = {
   navLabel: string;
   /** Pagina di dettaglio: la barra si allunga verso l'alto con il titolo e il ritorno (come il brano in Relay). */
   detail?: { title: string; backLabel: string; activeIndex: number; section?: string };
+  plain?: boolean;
 };
 
 const ROW_H = 66;
@@ -36,7 +37,7 @@ const PAD_Y = 5;
 const EXTRA_H = 44;
 const CORNER = 33;
 /** Riga dell'area clienti, sempre dentro la capsula (36 + margini). */
-const STRIP_H = 42;
+const STRIP = 42;
 /** Voci che, toccate, aprono il cassetto invece di scorrere alla sezione. */
 const DRAWER: Record<string, "services" | "work" | "contact"> = { approach: "services", work: "work", contact: "contact" };
 type DrawerKind = "services" | "work" | "contact";
@@ -128,7 +129,8 @@ function DrawerBody({ kind, onPick, toSection }: { kind: DrawerKind; onPick: (hr
  * La bolla sta sull'indice continuo della sezione (come la posizione del pager in Relay). Toccata si gonfia,
  * segue il puntatore con un po' di ritardo allungandosi nel verso del moto, e al rilascio si assesta sulla voce.
  */
-export function GlassTabBar({ tabs, navLabel, detail }: Props) {
+export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
+  const STRIP_H = plain ? 0 : STRIP;
   const n = tabs.length;
   const locale = useLocale();
   const router = useRouter();
@@ -576,7 +578,7 @@ export function GlassTabBar({ tabs, navLabel, detail }: Props) {
           className={`absolute inset-x-[6px] transition-[opacity,transform] duration-300 ${slim ? "pointer-events-none translate-y-3 scale-95 opacity-0" : ""}`}
           style={{ bottom: ROW_H + extra, height: STRIP_H - 6 }}
         >
-          <ClientRow variant="bar" />
+          {!plain && <ClientRow variant="bar" />}
         </div>
 
         {detail && (

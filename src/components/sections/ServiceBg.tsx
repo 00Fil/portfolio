@@ -41,21 +41,29 @@ function Scene({ k, live, v = 0 }: { k: ServiceKey; live?: boolean; v?: number }
   return <Grainient colors={colors} angle={angle} speed={0.55} flow={0.55} silk={0.3} grainAmount={0.05} contrast={0.95} interactive={!!live} stir={1.6} clickSwirl={!!live} intro={false} dpr={1} />;
 }
 
+/** Lo stesso gradiente, fermo e senza WebGL: per il telefono, dove dieci contesti costano troppo. */
+function stillBg(k: ServiceKey, v: number) {
+  const c = T[v ? RAMPS[(RAMPS.indexOf(PICK[k]) + v) % RAMPS.length] : PICK[k]];
+  const a = (ANGLE[k] + v * 65) % 360;
+  return `radial-gradient(90% 70% at ${50 + 40 * Math.cos((a * Math.PI) / 180)}% ${30 - 20 * Math.sin((a * Math.PI) / 180)}%, ${c[3]}cc 0%, ${c[2]}aa 32%, transparent 72%), radial-gradient(90% 90% at 15% 105%, ${c[2]}88, transparent 60%), linear-gradient(${a}deg, ${c[0]}, ${c[1]})`;
+}
+
 /**
  * Sfondo React Bits della scheda. Il contesto WebGL esiste solo mentre la scheda è vicina allo schermo,
  * così dieci schede non tengono aperti dieci contesti insieme.
  */
-export function ServiceBg({ k, live = false, v = 0, active = true }: { k: ServiceKey; live?: boolean; v?: number; active?: boolean }) {
+export function ServiceBg({ k, live = false, v = 0, active = true, still: fixed = false }: { k: ServiceKey; live?: boolean; v?: number; active?: boolean; still?: boolean }) {
   const box = useRef<HTMLDivElement>(null);
   const [on, setOn] = useState(false);
   useEffect(() => {
+    if (fixed) return;
     const io = new IntersectionObserver(([e]) => setOn(e.isIntersecting), { rootMargin: "120px" });
     io.observe(box.current!);
     return () => io.disconnect();
-  }, []);
+  }, [fixed]);
   const still = typeof window !== "undefined" && prefersReducedMotion();
   return (
-    <div ref={box} aria-hidden className="pointer-events-none absolute inset-0" style={{ background: `radial-gradient(120% 90% at 70% 20%, color-mix(in srgb, ${HUE[k]} 30%, #050506), #050506)` }}>
+    <div ref={box} aria-hidden className="pointer-events-none absolute inset-0" style={{ background: fixed ? stillBg(k, v) : `radial-gradient(120% 90% at 70% 20%, color-mix(in srgb, ${HUE[k]} 30%, #050506), #050506)` }}>
       {on && active && !still && (
         <div className="absolute inset-0 animate-[fadeIn_1s_ease_both]">
           <Scene k={k} live={live} v={v} />

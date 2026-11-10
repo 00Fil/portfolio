@@ -19,8 +19,17 @@ export type Client = {
   phase?: number;
   /** Avanzamento complessivo, da 0 a 100. */
   progress?: number;
-  /** Indirizzo della versione in lavorazione da provare. */
+  /** Indirizzo della versione in lavorazione da provare, con il suo numero e la data. */
   preview?: string;
+  version?: string;
+  /** Data dell'ultimo aggiornamento (ISO, es. "2026-11-08"). */
+  updated?: string;
+  /** Prossimo traguardo. */
+  next?: { label: string; date?: string };
+  /** Diario del progetto, dal più recente. */
+  updates?: { date: string; text: string }[];
+  /** Preventivo, contratto, fatture, manuali. */
+  docs?: { label: string; url: string; meta?: string }[];
 };
 
 export type Session = { email: string; name: string };

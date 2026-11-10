@@ -10,7 +10,13 @@ import { SectionHead } from "./SectionHead";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-export type Milestone = { tag: string; big: string; title: string; body: string; value: number; suffix?: string; unit: string };
+export type Milestone = { tag: string; big: string; title: string; body: string; value: number; suffix?: string; unit: string; project?: string };
+
+/** I progetti nel percorso: il loro logo davanti al nome e il nome nei loro colori. */
+const PROJECT: Record<string, { icon: string; grad: string }> = {
+  creacloud: { icon: "/work/creacloud/icon.svg", grad: "linear-gradient(100deg, #5F6BA3 10%, #8C78A8 50%, #D98A6C 95%)" },
+  relay: { icon: "/work/relay/icon.webp", grad: "linear-gradient(100deg, #18348f 0%, #2F5FFF 45%, #6f9bff 100%)" },
+};
 
 /**
  * Percorso come viaggio orizzontale: su desktop la sezione si ferma e le tappe scorrono di lato,
@@ -66,14 +72,15 @@ export function Timeline({ title, lead, items }: { title: string; lead: string; 
   return (
     <section ref={root} id="path" className="relative pt-20 sm:pt-36">
       <div data-pin className="relative overflow-hidden lg:flex lg:h-[100svh] lg:flex-col lg:justify-center">
-        {/* fondo di fibre azzurre che scorre più lento delle tappe; sfuma nel nero su tutti i lati */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block [mask-image:radial-gradient(75%_42%_at_50%_55%,#000_25%,transparent_100%)]">
-          <img data-bg src="/visual/fibers-sky.webp" alt="" className="absolute inset-y-0 left-0 h-full w-[130%] max-w-none object-cover opacity-40 light-invert" />
+        {/* fondo: una griglia di punti che scorre più lenta delle tappe e un alone azzurro lungo la linea */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block [mask-image:radial-gradient(70%_46%_at_50%_55%,#000_20%,transparent_100%)]">
+          <div data-bg className="absolute inset-y-0 left-0 w-[130%] [background-image:radial-gradient(circle,var(--hair-strong)_1.1px,transparent_1.6px)] [background-size:26px_26px]" />
+          <div className="absolute inset-x-0 top-[calc(50%-40px)] h-[44%] bg-[radial-gradient(50%_50%_at_50%_30%,color-mix(in_srgb,var(--sky)_16%,transparent),transparent_70%)]" />
         </div>
 
         <div className="relative mx-auto w-full max-w-[1280px] px-5 sm:px-8">
           <Reveal>
-            <SectionHead index="04" title={title} lead={lead} />
+            <SectionHead index="03" title={title} lead={lead} />
           </Reveal>
         </div>
 
@@ -90,9 +97,19 @@ export function Timeline({ title, lead, items }: { title: string; lead: string; 
             </span>
 
             {items.map((m, i) => (
-              <li key={m.title} data-step className="tl-step relative lg:w-[min(560px,44vw)] lg:pr-16">
-                <p className="text-[clamp(56px,8vw,128px)] font-medium leading-[0.9] tracking-[-0.06em] text-ink lg:flex lg:h-[clamp(118px,13vw,190px)] lg:items-end lg:pb-8">
-                  {m.big}
+              <li key={m.title} data-step className="tl-step relative lg:w-max lg:min-w-[min(520px,40vw)] lg:pr-[clamp(64px,7vw,120px)]">
+                <p className="flex items-center gap-[0.18em] whitespace-nowrap text-[clamp(52px,7.4vw,118px)] font-medium leading-[0.9] tracking-[-0.06em] text-ink lg:h-[clamp(118px,13vw,190px)] lg:items-end lg:pb-8">
+                  {m.project && PROJECT[m.project] && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={PROJECT[m.project].icon} alt="" className="h-[0.78em] w-[0.78em] shrink-0 rounded-[22%] object-cover shadow-[0_10px_30px_-12px_rgba(0,0,0,.45)] lg:mb-[0.04em]" />
+                  )}
+                  {m.project && PROJECT[m.project] ? (
+                    <span className="bg-clip-text pb-[0.06em] text-transparent" style={{ backgroundImage: PROJECT[m.project].grad }}>
+                      {m.big}
+                    </span>
+                  ) : (
+                    m.big
+                  )}
                 </p>
                 {/* nodo sulla linea */}
                 <span aria-hidden className="tl-node absolute -left-[31px] top-[0.55em] block h-3.5 w-3.5 rounded-full sm:-left-[39px] lg:left-0 lg:top-[clamp(118px,13vw,190px)] lg:-translate-y-1/2" />

@@ -128,6 +128,7 @@ function Statement({ lead }: { lead: string }) {
 function Includes({ k, label, includes, t }: ServiceDetailProps) {
   const root = useRef<HTMLElement>(null);
   const [at, setAt] = useState(0);
+  const [small, setSmall] = useState(false);
   const n = includes.length;
   useGSAP(
     () => {
@@ -152,33 +153,32 @@ function Includes({ k, label, includes, t }: ServiceDetailProps) {
           gsap.from(c.querySelectorAll("[data-in]"), { y: 40, autoAlpha: 0, duration: 1, stagger: 0.08, ease: "expo.out", clearProps: "transform", scrollTrigger: { trigger: c, start: "top 70%", once: true } });
         });
       });
-      // telefono: le tele scorrono di lato, una alla volta
+      // telefono: le tele una sotto l'altra, ognuna entra quando arriva
       mm.add("(max-width: 1023px)", () => {
+        setSmall(true);
         if (prefersReducedMotion()) return;
-        gsap.from("[data-card]", { x: 60, autoAlpha: 0, duration: 1, stagger: 0.08, ease: "expo.out", clearProps: "all", scrollTrigger: { trigger: "[data-stack]", start: "top 85%", once: true } });
+        gsap.utils.toArray<HTMLElement>("[data-card]").forEach((c) =>
+          gsap.from(c, { y: 40, autoAlpha: 0, duration: 0.9, ease: "expo.out", clearProps: "all", scrollTrigger: { trigger: c, start: "top 90%", once: true } }),
+        );
+        return () => setSmall(false);
       });
       return () => mm.revert();
     },
     { scope: root },
   );
-  const onSwipe = (e: React.UIEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    const w = (el.firstElementChild as HTMLElement | null)?.offsetWidth ?? 1;
-    setAt(Math.max(0, Math.min(n - 1, Math.round(el.scrollLeft / (w + 12)))));
-  };
   return (
     <section ref={root} id="include" className="mx-auto w-full max-w-[1400px] scroll-mt-10 px-3 sm:px-5">
       <header className="mx-auto mb-8 flex max-w-[1280px] items-end justify-between gap-8 px-2 sm:mb-16 sm:px-3">
         <h2 className="text-[clamp(40px,5vw,72px)] font-medium leading-none tracking-[-0.05em] text-ink">{t.includes}</h2>
-        <p className="font-mono text-[13px] tabular-nums tracking-[0.1em] text-ink-3">
+        <p className="hidden font-mono text-[13px] tabular-nums tracking-[0.1em] text-ink-3 lg:block">
           {pad(at + 1)} / {pad(n)}
         </p>
       </header>
-      <div data-stack onScroll={onSwipe} className="-mx-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 [scrollbar-width:none] sm:-mx-5 sm:px-5 lg:mx-0 lg:block lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
+      <div data-stack className="grid gap-3 lg:block">
         {includes.map((it, i) => (
-          <article key={it.title} data-card className="w-[86%] shrink-0 snap-center sm:w-[70%] lg:sticky lg:w-auto lg:pb-[8vh] lg:last:pb-0" style={{ top: `calc(var(--bar-h) + 20px + ${i * 12}px)` }}>
-            <div data-inner className="theme-dark relative h-[440px] origin-top sm:h-[500px] lg:h-[min(640px,calc(100svh-var(--bar-h)-80px))] overflow-hidden rounded-[32px] bg-[#05070a] shadow-[0_-30px_60px_-40px_rgba(0,0,0,.6)] sm:rounded-[40px]">
-              <ServiceBg k={k} v={i} active={i === at || i === at + 1} />
+          <article key={it.title} data-card className="lg:sticky lg:pb-[8vh] lg:last:pb-0" style={{ top: `calc(var(--bar-h) + 20px + ${i * 12}px)` }}>
+            <div data-inner className="theme-dark relative h-[360px] origin-top sm:h-[440px] lg:h-[min(640px,calc(100svh-var(--bar-h)-80px))] overflow-hidden rounded-[32px] bg-[#05070a] shadow-[0_-30px_60px_-40px_rgba(0,0,0,.6)] sm:rounded-[40px]">
+              <ServiceBg k={k} v={i} still={small} active={small || i === at || i === at + 1} />
               <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(100deg,rgba(3,6,10,.7)_0%,rgba(3,6,10,.25)_55%,transparent_80%)]" />
               <span aria-hidden className="pointer-events-none absolute -bottom-[0.2em] right-[0.02em] select-none text-[clamp(150px,30vw,440px)] font-medium leading-none tracking-[-0.08em] text-white/[0.14]">
                 {pad(i + 1)}

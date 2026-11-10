@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { readSession } from "@/lib/session";
+import { profile } from "@/content/profile";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { SkyGradient } from "@/components/motion/SkyGradient";
 import { SiteNav } from "@/components/nav/SiteNav";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -22,30 +22,12 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
   setRequestLocale(locale);
   if (await readSession()) redirect(`/${locale}/area-clienti`);
   const t = await getTranslations("auth");
-  const feats = t.raw("features") as { k: string; v: string }[];
 
   return (
     <>
-      <main id="main" className="mx-auto grid min-h-[100svh] w-full max-w-[1400px] gap-4 px-3 pb-36 pt-[calc(var(--bar-h)+20px)] sm:px-5 lg:grid-cols-2 lg:pb-5">
-        {/* a sinistra: cosa trovi dentro, su un gradiente vivo */}
-        <section className="theme-dark relative min-h-[300px] overflow-hidden rounded-[32px] bg-[#05131d] sm:rounded-[40px] lg:min-h-0">
-          <SkyGradient angle={30} />
-          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(3,10,16,.1),rgba(3,10,16,.6))]" />
-          <div className="pointer-events-none relative flex h-full flex-col justify-end p-7 sm:p-12">
-            <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-white/70">{t("kicker")}</p>
-            <ul className="mt-6 grid gap-5 sm:grid-cols-3 lg:grid-cols-1 lg:gap-6">
-              {feats.map((f, i) => (
-                <li key={f.k} className="border-t border-white/20 pt-4">
-                  <p className="font-mono text-[11.5px] tabular-nums text-white/55">{String(i + 1).padStart(2, "0")}</p>
-                  <p className="mt-1.5 text-[20px] font-medium tracking-[-0.02em] text-white">{f.k}</p>
-                  <p className="mt-1 max-w-[34ch] text-[14.5px] leading-[1.5] text-white/75">{f.v}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-        {/* a destra: l'accesso */}
-        <section className="flex items-center justify-center rounded-[32px] px-4 py-12 sm:rounded-[40px] sm:py-16">
+      <main id="main" className="relative flex min-h-[100svh] items-center justify-center px-4 pb-36 pt-[calc(var(--bar-h)+32px)] lg:pb-16">
+        <div aria-hidden className="pointer-events-none absolute inset-0 [background-image:radial-gradient(circle,var(--hair)_1px,transparent_1.4px)] [background-size:24px_24px] [mask-image:radial-gradient(50%_50%_at_50%_50%,#000,transparent)]" />
+        <div className="relative w-full max-w-[400px] rounded-[24px] bg-[var(--card)] p-7 shadow-[inset_0_0_0_1px_var(--hair),0_40px_80px_-50px_var(--shadow-strong)] sm:p-9">
           <LoginForm
             locale={locale}
             t={{
@@ -56,14 +38,16 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
               submit: t("submit"),
               show: t("show"),
               hide: t("hide"),
+              forgot: t("forgot"),
+              forgotHref: profile.email ? `mailto:${profile.email}` : "#brief",
               noAccess: t("noAccess"),
               noAccessCta: t("noAccessCta"),
               errors: { fields: t("errors.fields"), wrong: t("errors.wrong"), limit: t("errors.limit"), off: t("errors.off") },
             }}
           />
-        </section>
+        </div>
       </main>
-      <SiteNav detail={{ title: t("metaTitle") }} />
+      <SiteNav detail={{ title: t("metaTitle"), section: "home" }} plain />
     </>
   );
 }

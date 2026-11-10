@@ -12,7 +12,6 @@ import { SectionHead } from "./SectionHead";
 import { GooDefs, ServiceVisual, type WidgetText } from "./ServiceWidgets";
 import { Bead } from "@/components/glass/Bead";
 import { ServiceBg } from "./ServiceBg";
-import { PinRail } from "@/components/motion/PinRail";
 
 /* Ingombro di ogni servizio nella griglia a 4 colonne. */
 const SPAN: Record<string, [number, number]> = {
@@ -43,12 +42,12 @@ function useColumns() {
  * Il corpo di una scheda. A riposo: il gradiente (che si mescola sotto il cursore) e il titolo al centro.
  * Al passaggio del mouse il titolo si dissolve e al suo posto compare, a tutta scheda, il servizio in azione.
  */
-function Body({ s, w, locale, open }: { s: Service; w: WidgetText; locale: Locale; open: string }) {
+function Body({ s, w, locale, open, still = false }: { s: Service; w: WidgetText; locale: Locale; open: string; still?: boolean }) {
   const bleed = { inset: "calc(var(--mb-pad, 20px) * -1)" };
   return (
     <div className="theme-dark relative h-full">
       <div aria-hidden className="pointer-events-none absolute overflow-hidden" style={bleed}>
-        <ServiceBg k={s.key} live />
+        <ServiceBg k={s.key} live={!still} still={still} />
       </div>
       <div className="svc-vis absolute overflow-hidden" style={bleed}>
         <ServiceVisual k={s.key} t={w} max={1.2} />
@@ -71,20 +70,22 @@ function Body({ s, w, locale, open }: { s: Service; w: WidgetText; locale: Local
   );
 }
 
-/** Telefono: la sezione si ferma e i servizi passano di lato uno alla volta, frenando al centro. */
-function Carousel({ w, locale, open }: { w: WidgetText; locale: Locale; open: string }) {
+/** Telefono: le schede una sotto l'altra, con lo sfondo fermo (niente WebGL mentre si scorre). */
+function List({ w, locale, open }: { w: WidgetText; locale: Locale; open: string }) {
   return (
-    <PinRail className="-mx-5 py-2">
-      {SHOWN.map((s, i) => (
-        <Link
-          key={s.slug}
-          href={`/servizi/${s.slug}`}
-          className={`group relative h-[min(460px,62svh)] w-[80vw] max-w-[380px] shrink-0 overflow-hidden rounded-[30px] bg-[#0d0e10] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,.07)] [--mb-pad:24px] ${i === 0 ? "ml-[10vw]" : ""} ${i === SHOWN.length - 1 ? "mr-[10vw]" : ""}`}
-        >
-          <Body s={s} w={w} locale={locale} open={open} />
-        </Link>
+    <div className="grid gap-4">
+      {SHOWN.map((s) => (
+        <Reveal key={s.slug}>
+          <Link
+            href={`/servizi/${s.slug}`}
+            data-reveal
+            className="group relative block h-[440px] overflow-hidden rounded-[28px] bg-[#0d0e10] p-6 shadow-[inset_0_0_0_1px_rgba(255,255,255,.07)] [--mb-pad:24px]"
+          >
+            <Body s={s} w={w} locale={locale} open={open} still />
+          </Link>
+        </Reveal>
       ))}
-    </PinRail>
+    </div>
   );
 }
 
@@ -119,7 +120,7 @@ export function Services() {
         <SectionHead index="01" title={t("title")} lead={t("lead")} />
       </Reveal>
       {cols === 1 ? (
-        <Carousel w={w} locale={locale} open={t("open")} />
+        <List w={w} locale={locale} open={t("open")} />
       ) : (
       <Reveal>
         <div data-reveal>

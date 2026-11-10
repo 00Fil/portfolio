@@ -254,7 +254,8 @@
         "value": 150,
         "suffix": "+",
         "unit": "families with lessons on the calendar",
-        "big": "CreaCloud"
+        "big": "CreaCloud",
+        "project": "creacloud"
       },
       {
         "tag": "Personal project",
@@ -263,7 +264,8 @@
         "value": 45,
         "unit": "hours of development, release coming soon",
         "suffix": "+",
-        "big": "Beta"
+        "big": "Relay",
+        "project": "relay"
       }
     ]
   },
@@ -565,6 +567,15 @@
       "webL1": "Interface",
       "webL2": "Logic",
       "webL3": "Data",
+      "opsEnv": "Production",
+      "opsRegion": "EU · Frankfurt",
+      "opsResp": "Response time, last 24 hours",
+      "opsUptime": "Uptime",
+      "opsUptimeSub": "last 90 days",
+      "opsBackup": "Backup",
+      "opsBackupSub": "every night, in two places",
+      "opsSsl": "Connection",
+      "opsSslSub": "certificate renews itself",
       "opsSiteName": "Bianchi Clinic",
       "opsSiteTitle": "Your smile, in good hands",
       "opsSiteCta": "Book a visit",
@@ -714,50 +725,67 @@
   },
   "auth": {
     "metaTitle": "Sign in",
-    "kicker": "Client area",
-    "title": "Welcome back.",
-    "lead": "Sign in to follow your project.",
+    "title": "Sign in",
+    "lead": "Client area",
     "email": "Email",
     "password": "Password",
     "submit": "Sign in",
     "show": "Show password",
     "hide": "Hide password",
-    "noAccess": "Don’t have access yet?",
+    "forgot": "Forgot password?",
+    "noAccess": "Not a client yet?",
     "noAccessCta": "Book a call",
     "errors": {
       "fields": "Check your email and password.",
       "wrong": "Wrong email or password.",
       "limit": "Too many attempts. Try again in a few minutes.",
-      "off": "Sign-in isn’t active yet. Write to me and I’ll set it up."
+      "off": "Access not active yet."
     },
-    "features": [
-      {
-        "k": "Talk to the team",
-        "v": "Questions and decisions in one place, with quick answers."
-      },
-      {
-        "k": "Request changes",
-        "v": "Every request is tracked, from report to release."
-      },
-      {
-        "k": "Follow progress",
-        "v": "Current phase, next steps and the work-in-progress version to try."
-      }
-    ],
     "areaTitle": "Client area",
     "logout": "Sign out",
-    "hello": "Hi {name}.",
-    "noProject": "Your project will appear here as soon as we start.",
-    "progress": "Progress",
-    "preview": "Version to try",
-    "previewOn": "The work-in-progress version is online: try it and leave your comments.",
-    "previewOff": "The first version to try will appear here.",
-    "open": "Open the version",
-    "changes": "Change requests",
-    "changesBody": "Tell us what to change: every request is assessed, estimated and tracked until release.",
-    "changesCta": "New request",
-    "team": "Talk to the team",
-    "teamBody": "A question, a doubt or a decision to make: book 30 minutes and let’s talk.",
-    "teamCta": "Book a call"
+    "noProject": "No active project",
+    "phase": "Phase {n} of {total}",
+    "updated": "Updated {date}",
+    "status": "Project status",
+    "next": "Next milestone",
+    "done": "complete",
+    "preview": "Preview build",
+    "previewOff": "No build available",
+    "open": "Open",
+    "apps": "Mobile apps",
+    "requests": "Change requests",
+    "newRequest": "New request",
+    "reqTitle": "Title",
+    "reqTitlePh": "E.g. Change the homepage copy",
+    "reqBody": "Description",
+    "reqBodyPh": "What to change and where",
+    "reqPriority": "Priority",
+    "prio": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "Urgent"
+    },
+    "st": {
+      "new": "Received",
+      "review": "Under review",
+      "doing": "In progress",
+      "done": "Done"
+    },
+    "send": "Send",
+    "cancel": "Cancel",
+    "sent": "Request sent",
+    "noRequests": "No requests",
+    "reqErr": {
+      "fields": "Add a title and a description.",
+      "limit": "Too many requests in a row. Try again in a few minutes.",
+      "auth": "Session expired. Sign in again."
+    },
+    "updates": "Updates",
+    "noUpdates": "No updates",
+    "docs": "Documents",
+    "noDocs": "No documents",
+    "support": "Support",
+    "call": "Book a call",
+    "write": "Send an email"
   }
 }

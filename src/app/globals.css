@@ -350,7 +350,8 @@ html.js [data-reveal] { visibility: hidden; }
 @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
 
 /* tema: cambio morbido dei colori di fondo */
-html.theme-anim, html.theme-anim * { transition: background-color .5s var(--ease-out), border-color .5s var(--ease-out), color .4s var(--ease-out) !important; }
+/* cambio tema: il nuovo si apre a cerchio sopra la foto del vecchio */
+html.theme-vt::view-transition-old(root), html.theme-vt::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 
 /* nome gigante del footer: le lettere lasciano vedere il gradiente sotto */
 .giant-mask { background: #000; color: #fff; mix-blend-mode: multiply; }
@@ -380,6 +381,19 @@ html[data-intro="run"], html[data-intro="run"] body { overflow: hidden; }
 @keyframes preloaderOut { to { visibility: hidden; } }
 html[data-intro="quick"] .preloader { display: flex; background: var(--bg-canvas); animation: preloaderOut 0s 2.5s forwards; }
 html[data-intro="quick"] .preloader [data-sig] { display: none; }
+/* gradiente della schermata d'apertura: tre macchie di azzurro che scorrono, solo trasformazioni */
+.pre-flow {
+  position: absolute;
+  inset: -60% -30%;
+  background:
+    radial-gradient(28% 42% at 30% 62%, #d9f2ff 0%, transparent 60%),
+    radial-gradient(36% 50% at 62% 40%, #5ec4ff 0%, transparent 68%),
+    radial-gradient(40% 60% at 85% 70%, #1f7fb8 0%, transparent 70%),
+    radial-gradient(70% 90% at 15% 30%, #0b3550 0%, #061722 80%);
+  animation: preFlow 3.2s cubic-bezier(.45,0,.55,1) infinite alternate;
+  will-change: transform;
+}
+@keyframes preFlow { from { transform: translate3d(-12%, 6%, 0) rotate(-4deg); } to { transform: translate3d(10%, -5%, 0) rotate(6deg); } }
 
 /* riga dell'area clienti dentro la capsula: acrilico azzurro, sfocato e opaco quanto basta per leggere */
 .client-row {

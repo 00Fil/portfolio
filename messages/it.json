@@ -254,7 +254,8 @@
         "value": 150,
         "suffix": "+",
         "unit": "famiglie con le lezioni in calendario",
-        "big": "CreaCloud"
+        "big": "CreaCloud",
+        "project": "creacloud"
       },
       {
         "tag": "Progetto personale",
@@ -263,7 +264,8 @@
         "value": 45,
         "unit": "ore di sviluppo, distribuzione in arrivo",
         "suffix": "+",
-        "big": "Beta"
+        "big": "Relay",
+        "project": "relay"
       }
     ]
   },
@@ -565,6 +567,15 @@
       "webL1": "Interfaccia",
       "webL2": "Logica",
       "webL3": "Dati",
+      "opsEnv": "Produzione",
+      "opsRegion": "EU · Francoforte",
+      "opsResp": "Tempo di risposta, ultime 24 ore",
+      "opsUptime": "Disponibilità",
+      "opsUptimeSub": "ultimi 90 giorni",
+      "opsBackup": "Backup",
+      "opsBackupSub": "ogni notte, in due posti",
+      "opsSsl": "Connessione",
+      "opsSslSub": "certificato rinnovato da solo",
       "opsSiteName": "Studio Bianchi",
       "opsSiteTitle": "Il tuo sorriso, in buone mani",
       "opsSiteCta": "Prenota una visita",
@@ -714,50 +725,67 @@
   },
   "auth": {
     "metaTitle": "Accedi",
-    "kicker": "Area clienti",
-    "title": "Bentornato.",
-    "lead": "Accedi per seguire il tuo progetto.",
+    "title": "Accedi",
+    "lead": "Area clienti",
     "email": "Email",
     "password": "Password",
     "submit": "Accedi",
     "show": "Mostra password",
     "hide": "Nascondi password",
-    "noAccess": "Non hai ancora un accesso?",
+    "forgot": "Password dimenticata?",
+    "noAccess": "Non sei ancora cliente?",
     "noAccessCta": "Prenota una chiamata",
     "errors": {
       "fields": "Controlla email e password.",
       "wrong": "Email o password non corretti.",
       "limit": "Troppi tentativi. Riprova tra qualche minuto.",
-      "off": "L’accesso non è ancora attivo. Scrivimi e te lo preparo."
+      "off": "Accesso non ancora attivo."
     },
-    "features": [
-      {
-        "k": "Parla con il team",
-        "v": "Domande e decisioni in un unico posto, con risposte rapide."
-      },
-      {
-        "k": "Chiedi modifiche",
-        "v": "Ogni richiesta resta tracciata, dalla segnalazione al rilascio."
-      },
-      {
-        "k": "Segui l’avanzamento",
-        "v": "Fase attuale, prossimi passi e versione in lavorazione da provare."
-      }
-    ],
     "areaTitle": "Area clienti",
     "logout": "Esci",
-    "hello": "Ciao {name}.",
-    "noProject": "Il tuo progetto comparirà qui appena iniziamo.",
-    "progress": "Avanzamento",
-    "preview": "Versione da provare",
-    "previewOn": "La versione in lavorazione è online: provala e lascia i tuoi commenti.",
-    "previewOff": "La prima versione da provare comparirà qui.",
-    "open": "Apri la versione",
-    "changes": "Richieste di modifica",
-    "changesBody": "Segnala cosa cambiare: ogni richiesta viene valutata, stimata e tracciata fino al rilascio.",
-    "changesCta": "Nuova richiesta",
-    "team": "Parla con il team",
-    "teamBody": "Una domanda, un dubbio o una decisione da prendere: prenota 30 minuti e ne parliamo.",
-    "teamCta": "Prenota una chiamata"
+    "noProject": "Nessun progetto attivo",
+    "phase": "Fase {n} di {total}",
+    "updated": "Aggiornato il {date}",
+    "status": "Stato del progetto",
+    "next": "Prossimo traguardo",
+    "done": "completato",
+    "preview": "Versione di prova",
+    "previewOff": "Nessuna versione disponibile",
+    "open": "Apri",
+    "apps": "App mobile",
+    "requests": "Richieste di modifica",
+    "newRequest": "Nuova richiesta",
+    "reqTitle": "Titolo",
+    "reqTitlePh": "Es. Cambiare il testo della home",
+    "reqBody": "Descrizione",
+    "reqBodyPh": "Cosa cambiare e dove",
+    "reqPriority": "Priorità",
+    "prio": {
+      "low": "Bassa",
+      "normal": "Normale",
+      "high": "Urgente"
+    },
+    "st": {
+      "new": "Ricevuta",
+      "review": "In valutazione",
+      "doing": "In lavorazione",
+      "done": "Completata"
+    },
+    "send": "Invia",
+    "cancel": "Annulla",
+    "sent": "Richiesta inviata",
+    "noRequests": "Nessuna richiesta",
+    "reqErr": {
+      "fields": "Inserisci titolo e descrizione.",
+      "limit": "Troppe richieste ravvicinate. Riprova tra qualche minuto.",
+      "auth": "Sessione scaduta. Accedi di nuovo."
+    },
+    "updates": "Aggiornamenti",
+    "noUpdates": "Nessun aggiornamento",
+    "docs": "Documenti",
+    "noDocs": "Nessun documento",
+    "support": "Assistenza",
+    "call": "Prenota una chiamata",
+    "write": "Scrivi un’email"
   }
 }

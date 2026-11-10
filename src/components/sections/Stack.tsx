@@ -9,7 +9,7 @@ export function Stack() {
   return (
     <section id="stack" className="relative pt-20 sm:pt-36">
       <Reveal className="mx-auto w-full max-w-[1280px] px-5 sm:px-8">
-        <SectionHead index="05" title={t("title")} lead={t("lead")} />
+        <SectionHead index="04" title={t("title")} lead={t("lead")} />
       </Reveal>
       <div className="mt-10 sm:mt-14">
         <StackLoop />

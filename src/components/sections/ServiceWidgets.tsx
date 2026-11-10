@@ -982,125 +982,151 @@ function ShopV({ t, max }: { t: WidgetText; max?: number }) {
   );
 }
 
-/* ───────────── Gestione: a sinistra il sito sempre acceso, a destra quello che succede, una cosa alla volta ───────────── */
+/* ───────────── Gestione: il pannello di controllo del sito, come quelli degli hosting seri ───────────── */
 
+/** Tempi di risposta delle ultime 24 ore: bassi e regolari, un solo picco assorbito. */
+const RESP = [148, 142, 151, 139, 137, 144, 140, 136, 141, 152, 147, 139, 133, 138, 196, 162, 141, 137, 134, 139, 143, 138, 135, 142, 140, 136, 139, 141];
 function OpsV({ t, max }: { t: WidgetText; max?: number }) {
-  const C = "#34d399";
-  const events = [
-    { time: "09:12", title: t.opsE1t, sub: t.opsE1s, kind: "bar" },
-    { time: "03:00", title: t.opsE2t, sub: t.opsE2s, kind: "ring" },
-    { time: "14:47", title: t.opsE3t, sub: t.opsE3s, kind: "block" },
+  const W = 356;
+  const H = 92;
+  const lo = 110;
+  const hi = 210;
+  const pts = RESP.map((v, i) => [(i / (RESP.length - 1)) * W, H - ((v - lo) / (hi - lo)) * H] as const);
+  // curva morbida tra i punti
+  const line = pts.reduce((d, [x, y], i) => {
+    if (!i) return `M${x},${y}`;
+    const [px, py] = pts[i - 1];
+    const cx = (px + x) / 2;
+    return `${d} C${cx},${py} ${cx},${y} ${x},${y}`;
+  }, "");
+  const area = `${line} L${W},${H} L0,${H} Z`;
+  const kpis = [
+    { k: t.opsUptime, v: "99,98%", s: t.opsUptimeSub, icon: <path d="M3 12h4l3-7 4 14 3-7h4" /> },
+    { k: t.opsBackup, v: "03:00", s: t.opsBackupSub, icon: <><ellipse cx="12" cy="6" rx="7" ry="3" /><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" /></> },
+    { k: t.opsSsl, v: "TLS 1.3", s: t.opsSslSub, icon: <><rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></> },
+  ];
+  const log = [
+    { time: "03:00", text: t.opsR1 },
+    { time: "09:12", text: t.opsE1t },
+    { time: "14:47", text: `${t.opsE3t} · ${t.opsBlocked.toLowerCase()}` },
   ];
   return (
     <Canvas
       w={600}
-      h={360}
+      h={400}
       max={max}
       build={(q) => {
-        const vis = q("[data-vis]")[0];
-        const o = { v: 34 };
+        const ms = q("[data-ms]")[0];
+        const scan = q("[data-scan]")[0];
+        const path = q("[data-line]")[0] as SVGPathElement;
+        const len = path.getTotalLength();
+        const o = { v: 120, at: 0 };
         const tl = gsap
           .timeline()
-          .from(q("[data-site] > *"), { y: 14, autoAlpha: 0, duration: 0.8, stagger: 0.06, ease: "expo.out" })
-          .from(q("[data-ub]"), { scaleY: 0, transformOrigin: "50% 100%", duration: 0.6, stagger: 0.01, ease: "back.out(2)" }, 0.2)
-          .to(q("[data-ping]"), { scale: 3, autoAlpha: 0, duration: 1.6, repeat: -1, ease: "power1.out" }, 0.4)
-          .to(o, { v: 41, duration: 1.4, repeat: -1, yoyo: true, ease: "steps(7)", onUpdate: () => void (vis.textContent = String(Math.round(o.v))) }, 0.5);
-        const ev = q("[data-ev]");
-        const run = gsap.timeline({ repeat: -1 });
-        ev.forEach((e, i) => {
-          const at = i * 2.9;
-          run
-            .fromTo(e, { y: 26, autoAlpha: 0, filter: "blur(6px)" }, { y: 0, autoAlpha: 1, filter: "blur(0px)", duration: 0.7, ease: "expo.out" }, at)
-            .to(e, { y: -26, autoAlpha: 0, filter: "blur(6px)", duration: 0.45, ease: "power2.in" }, at + 2.45);
-        });
-        run
-          .fromTo(q("[data-prog]"), { scaleX: 0 }, { scaleX: 1, transformOrigin: "0 50%", duration: 1.4, ease: "power2.inOut" }, 0.4)
-          .fromTo(q("[data-sbar]"), { scaleX: 0, autoAlpha: 1 }, { scaleX: 1, transformOrigin: "0 50%", duration: 1.4, ease: "power2.inOut" }, 0.4)
-          .to(q("[data-sbar]"), { autoAlpha: 0, duration: 0.3 }, 1.9)
-          .fromTo(q("[data-ring]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut" }, 3.3)
-          .fromTo(q("[data-ev]")[2], { boxShadow: "0 0 0 0 rgba(248,113,113,0)" }, { boxShadow: "0 0 0 1.5px rgba(248,113,113,.9)", duration: 0.25, yoyo: true, repeat: 3 }, 6.1)
-          .fromTo(q("[data-shield]"), { scale: 0 }, { scale: 1, duration: 0.7, ease: "elastic.out(1, 0.5)" }, 6.3);
-        return tl.add(run, 0.8);
+          .from(q("[data-top] > *"), { y: -8, autoAlpha: 0, duration: 0.6, stagger: 0.05, ease: "expo.out" })
+          .fromTo(path, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 1.6, ease: "power2.inOut" }, 0.15)
+          .from(q("[data-area]"), { autoAlpha: 0, duration: 1, ease: "power2.out" }, 0.9)
+          .to(o, { v: 141, duration: 1.6, ease: "power2.out", onUpdate: () => void (ms.textContent = String(Math.round(o.v))) }, 0.15)
+          .from(q("[data-kpi]"), { x: 14, autoAlpha: 0, duration: 0.7, stagger: 0.08, ease: "expo.out" }, 0.4)
+          .from(q("[data-log]"), { y: 8, autoAlpha: 0, duration: 0.6, stagger: 0.08, ease: "expo.out" }, 0.8);
+        // il punto di lettura scorre sulla curva e il valore lo segue
+        const run = gsap.timeline({ repeat: -1, repeatDelay: 0.6 });
+        run.fromTo(
+          o,
+          { at: 0 },
+          {
+            at: 1,
+            duration: 7,
+            ease: "none",
+            onUpdate: () => {
+              const p = path.getPointAtLength(o.at * len);
+              gsap.set(scan, { x: p.x, y: p.y });
+              ms.textContent = String(Math.round(lo + ((H - p.y) / H) * (hi - lo)));
+            },
+          },
+        );
+        // le righe dell'attività si accendono una dopo l'altra
+        q("[data-log]").forEach((r, i) => run.fromTo(r, { backgroundColor: "rgba(255,255,255,0)" }, { backgroundColor: "rgba(255,255,255,.06)", duration: 0.4, yoyo: true, repeat: 1, ease: "sine.inOut" }, 1 + i * 2));
+        return tl.add(run, 1.8);
       }}
     >
-      {/* il sito, sempre acceso, a tutta altezza */}
-      <div data-site className="absolute inset-y-0 left-0 w-[300px] overflow-hidden bg-[#0d1315] shadow-[1px_0_0_rgba(255,255,255,.08)]">
-        <span data-sbar className="absolute inset-x-0 top-0 h-[3px] opacity-0" style={{ background: C, transform: "scaleX(0)" }} />
-        <span className="absolute inset-x-5 top-5 flex h-8 items-center justify-between rounded-full bg-white/[0.06] px-3.5">
-          <span className="font-mono text-[11.5px] text-white/70">{t.url}</span>
-          <span className="flex items-center gap-1.5 text-[11.5px] text-white">
-            <span className="relative flex h-2 w-2">
-              <span data-ping className="absolute inset-0 rounded-full" style={{ background: C }} />
-              <span className="relative h-2 w-2 rounded-full" style={{ background: C }} />
-            </span>
-            {t.opsLive}
+      {/* barra in alto: dominio e ambiente */}
+      <div data-top className="absolute inset-x-0 top-0 flex h-12 items-center gap-3 border-b border-white/[0.07] px-5 text-[12px]">
+        <span className="flex h-6 w-6 items-center justify-center rounded-[7px] bg-white/[0.08]">
+          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-white/80" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z" />
+          </svg>
+        </span>
+        <span className="font-medium text-white">{t.url}</span>
+        <span className="text-white/35">/</span>
+        <span className="text-white/60">{t.opsEnv}</span>
+        <span className="ml-auto font-mono text-[11px] uppercase tracking-[0.12em] text-white/45">{t.opsRegion}</span>
+      </div>
+
+      {/* tempo di risposta nelle ultime 24 ore */}
+      <div className="absolute left-5 top-[68px] w-[356px]">
+        <span className="text-[11.5px] text-white/55">{t.opsResp}</span>
+        <span className="mt-1 flex items-baseline gap-1.5 text-white">
+          <span data-ms className="text-[30px] font-medium leading-none tracking-[-0.03em] tabular-nums">
+            141
           </span>
+          <span className="text-[13px] text-white/55">ms</span>
         </span>
-        <span className="absolute inset-x-5 top-[72px] h-[118px] overflow-hidden rounded-[14px]" style={{ background: "linear-gradient(135deg,#1b2a30,#0f1719)" }}>
-          <span className="absolute -right-6 -top-8 h-28 w-28 rounded-full opacity-60 blur-2xl" style={{ background: SKY }} />
-          <span className="absolute left-4 top-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">{t.opsSiteName}</span>
-          <span className="absolute left-4 right-10 top-[30px] text-[17px] font-medium leading-[1.15] tracking-[-0.02em] text-white">{t.opsSiteTitle}</span>
-          <span className="absolute bottom-4 left-4 flex h-7 items-center rounded-full bg-white px-3.5 text-[11.5px] font-semibold text-[#0d1315]">{t.opsSiteCta}</span>
-        </span>
-        <span className="absolute inset-x-5 top-[204px] grid grid-cols-3 gap-2">
-          {[t.opsTile1, t.opsTile2, t.opsTile3].map((x, i) => (
-            <span key={x} className="flex h-14 flex-col justify-between rounded-[10px] bg-white/[0.06] p-2 text-white">
-              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-                {i === 0 ? <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></> : i === 1 ? <path d="M4 7h16M4 12h16M4 17h10" /> : <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />}
-              </svg>
-              <span className="text-[10.5px] font-medium">{x}</span>
-            </span>
+        <svg viewBox={`0 0 ${W} ${H}`} className="mt-3 block overflow-visible" width={W} height={H} aria-hidden>
+          <defs>
+            <linearGradient id="ops-area" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor={SKY} stopOpacity=".28" />
+              <stop offset="1" stopColor={SKY} stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {[0, 1, 2, 3].map((i) => (
+            <line key={i} x1="0" x2={W} y1={(i * H) / 3} y2={(i * H) / 3} stroke="rgba(255,255,255,.06)" strokeDasharray="2 4" />
           ))}
-        </span>
-        <span className="absolute bottom-5 left-5 flex items-baseline gap-2 text-white">
-          <span data-vis className="text-[34px] font-medium leading-none tracking-[-0.03em] tabular-nums">
-            34
-          </span>
-          <span className="text-[12px] text-white/65">{t.opsVisitors}</span>
+          <path data-area d={area} fill="url(#ops-area)" />
+          <path data-line d={line} fill="none" stroke={SKY} strokeWidth="1.8" strokeLinecap="round" />
+          <g data-scan>
+            <line y1={0} y2={H} stroke="rgba(255,255,255,.16)" />
+            <circle r="7" fill={SKY} opacity=".2" />
+            <circle r="3.5" fill="#fff" stroke={SKY} strokeWidth="2" />
+          </g>
+        </svg>
+        <span className="mt-2 flex justify-between font-mono text-[10.5px] text-white/35">
+          <span>00:00</span>
+          <span>06:00</span>
+          <span>12:00</span>
+          <span>18:00</span>
+          <span>{t.opsToday}</span>
         </span>
       </div>
-      {/* quello che succede, un evento alla volta */}
-      <div className="absolute left-[324px] right-6 top-6 flex items-center justify-between text-[12px] text-white/70">
-        <span className="font-mono uppercase tracking-[0.12em]">24/7</span>
-        <span>{t.opsE4t}</span>
-      </div>
-      <div className="absolute left-[324px] right-6 top-[70px] h-[150px]">
-        {events.map((e) => (
-          <Bead key={e.title} data-ev tint={DARK} radius={18} className="absolute inset-0 block p-5 text-white opacity-0 backdrop-blur-md">
-            <span className="font-mono text-[11px] text-white/60">{e.time}</span>
-            <span className="mt-1.5 block text-[17px] font-medium tracking-[-0.02em]">{e.title}</span>
-            <span className="mt-1 block text-[12.5px] leading-snug text-white/70">{e.sub}</span>
-            <span className="absolute inset-x-5 bottom-5 block h-5">
-              {e.kind === "bar" && (
-                <span className="absolute inset-x-0 top-2 h-1 overflow-hidden rounded-full bg-white/15">
-                  <span data-prog className="block h-full rounded-full" style={{ background: C, transform: "scaleX(0)" }} />
-                </span>
-              )}
-              {e.kind === "ring" && (
-                <svg viewBox="0 0 20 20" className="h-5 w-5 -rotate-90">
-                  <circle cx="10" cy="10" r="8" fill="none" stroke="rgba(255,255,255,.15)" strokeWidth="2.6" />
-                  <circle data-ring cx="10" cy="10" r="8" fill="none" stroke={C} strokeWidth="2.6" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
-                </svg>
-              )}
-              {e.kind === "block" && (
-                <span data-shield className="inline-flex h-5 items-center rounded-full bg-[rgba(248,113,113,.18)] px-2.5 text-[11px] font-medium text-[#fecaca]" style={{ transform: "scale(0)" }}>
-                  {t.opsBlocked}
-                </span>
-              )}
+
+      {/* indicatori */}
+      <div className="absolute bottom-3 right-5 top-[64px] grid w-[184px] grid-rows-3 gap-2">
+        {kpis.map((k) => (
+          <div key={k.k} data-kpi className="flex flex-col justify-center rounded-[12px] bg-white/[0.04] px-3.5 py-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)]">
+            <span className="flex items-center gap-1.5 text-[11px] text-white/55">
+              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                {k.icon}
+              </svg>
+              {k.k}
             </span>
-          </Bead>
+            <span className="mt-1 block text-[17px] font-medium leading-none tracking-[-0.02em] text-white tabular-nums">{k.v}</span>
+            <span className="mt-1 block text-[10.5px] text-white/40">{k.s}</span>
+          </div>
         ))}
       </div>
-      {/* disponibilità degli ultimi giorni, sempre visibile */}
-      <div className="absolute bottom-6 left-[324px] right-6">
-        <span className="flex h-10 items-end gap-[3px]">
-          {Array.from({ length: 45 }).map((_, j) => (
-            <span key={j} data-ub className="h-full flex-1 rounded-full" style={{ background: C, opacity: j === 31 ? 0.3 : 0.85 }} />
-          ))}
-        </span>
-        <span className="mt-2.5 flex justify-between text-[11.5px] text-white/65">
-          <span>{t.opsE4s}</span>
-        </span>
+
+      {/* attività recente */}
+      <div className="absolute bottom-3 left-5 w-[356px] border-t border-white/[0.07] pt-2">
+        {log.map((l) => (
+          <div key={l.time} data-log className="-mx-2 flex items-center gap-3 rounded-[8px] px-2 py-[5px] text-[11.5px]">
+            <span className="font-mono text-white/40">{l.time}</span>
+            <svg viewBox="0 0 24 24" className="h-3 w-3 text-[var(--sky,#5ec4ff)]" fill="none" stroke="#5ec4ff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M5 12.5l4.5 4.5L19 7.5" />
+            </svg>
+            <span className="truncate text-white/75">{l.text}</span>
+          </div>
+        ))}
       </div>
     </Canvas>
   );

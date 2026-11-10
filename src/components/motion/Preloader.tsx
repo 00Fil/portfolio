@@ -1,33 +1,42 @@
 "use client";
 
-import { useId, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import { SIGNATURE } from "@/content/signature";
 import { settled } from "@/lib/intro";
 
 gsap.registerPlugin(useGSAP);
 
-/** Spessore del pennino nella maschera: copre tutta la larghezza del tratto della lettera. */
-const PEN = 16;
-/** A che punto del contorno la lettera è già tutta scritta (il contorno gira attorno al tratto). */
-const DONE_AT = 0.56;
-/** Durata della scrittura e attesa massima, oltre la scrittura, per ciò che serve alla prima schermata. */
-const WRITE_S = 2.1;
+/** Attesa massima, oltre l'ingresso del nome, per ciò che serve alla prima schermata. */
 const MAX_WAIT_MS = 1000;
-const [X, Y, W, H] = SIGNATURE.viewBox.split(" ").map(Number);
 
 const wait = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
 const loaded = () => new Promise<void>((r) => (document.readyState === "complete" ? r() : window.addEventListener("load", () => r(), { once: true })));
 
 /**
- * Schermata d'apertura, solo alla prima pagina della visita: il nome si scrive con una sola linea continua,
- * come l'"hello" di Apple. Intanto si scaricano font e componenti della prima schermata, così quando il telo
- * si alza la pagina è già pronta e l'arrivo resta fluido.
+ * Schermata d'apertura, solo alla prima pagina della visita: il nome a tutta larghezza, come in fondo al sito.
+ * Le lettere salgono una dopo l'altra e sono finestre su un gradiente azzurro che scorre; poi escono verso
+ * l'alto e il telo si alza. Il gradiente è solo CSS: nessun WebGL mentre la pagina si sta ancora caricando.
  */
 export function Preloader({ label }: { label: string }) {
   const root = useRef<HTMLDivElement>(null);
-  const id = useId().replace(/:/g, "");
+  const band = useRef<HTMLDivElement>(null);
+  const text = useRef<HTMLParagraphElement>(null);
+  const [first, ...rest] = label.split(" ");
+
+  // il nome riempie sempre la larghezza
+  useEffect(() => {
+    const el = text.current!;
+    const fit = () => {
+      el.style.fontSize = "100px";
+      el.style.fontSize = `${(100 * band.current!.clientWidth * 0.94) / el.scrollWidth}px`;
+    };
+    fit();
+    document.fonts?.ready.then(fit);
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, []);
+
   useGSAP(
     () => {
       const html = document.documentElement;
@@ -49,60 +58,46 @@ export function Preloader({ label }: { label: string }) {
         return;
       }
       if (html.dataset.intro !== "run") return;
-      const pens = gsap.utils.toArray<SVGPathElement>("[data-pen]");
 
-      // ciò che serve subito dopo: font, pagina caricata, componenti WebGL della prima vista
-      const ready = Promise.race([
-        Promise.all([document.fonts?.ready, loaded(), import("@/components/reactbits/Grainient")]).then(settled),
-        wait(WRITE_S * 1000 + MAX_WAIT_MS),
-      ]);
-
-      // un'unica linea: ogni lettera occupa un tratto della corsa in proporzione alla sua lunghezza
-      const lens = pens.map((p) => p.getTotalLength() * DONE_AT);
-      const total = lens.reduce((a, b) => a + b, 0);
-      const starts = lens.map((_, i) => lens.slice(0, i).reduce((a, b) => a + b, 0));
-      const o = { p: 0 };
-      const draw = () => {
-        const at = o.p * total;
-        pens.forEach((p, i) => {
-          const k = gsap.utils.clamp(0, 1, (at - starts[i]) / lens[i]);
-          p.style.strokeDashoffset = String(1 - k * DONE_AT);
-        });
-      };
+      const chars = gsap.utils.toArray<HTMLElement>("[data-ch]");
+      const IN_S = 1.1 + chars.length * 0.045;
+      const ready = Promise.race([Promise.all([document.fonts?.ready, loaded()]).then(settled), wait(IN_S * 1000 + MAX_WAIT_MS)]);
 
       const exit = () =>
         gsap
-          .timeline({
-            onStart: lift,
-            onComplete: finish,
-          })
-          .to("[data-sig]", { y: -18, autoAlpha: 0, duration: 0.5, ease: "power2.in" })
-          .to(root.current, { clipPath: "inset(0% 0% 100% 0%)", duration: 0.8, ease: "expo.inOut" }, 0.2);
+          .timeline({ onStart: lift, onComplete: finish })
+          .to(chars, { yPercent: -105, rotate: -4, duration: 0.6, stagger: 0.022, ease: "power3.in" })
+          .to(root.current, { clipPath: "inset(0% 0% 100% 0%)", duration: 0.85, ease: "expo.inOut" }, 0.3);
 
       gsap
-        .timeline({ delay: 0.15 })
-        .to(o, { p: 1, duration: WRITE_S, ease: "power1.inOut", onUpdate: draw })
-        .add(() => {
-          pens.forEach((p) => (p.style.strokeDashoffset = "0"));
-          ready.then(() => wait(250)).then(exit);
-        });
+        .timeline({ delay: 0.12 })
+        .fromTo(chars, { yPercent: 100, rotate: 6 }, { yPercent: 0, rotate: 0, duration: 1.1, stagger: 0.045, ease: "expo.out" })
+        .add(() => void ready.then(() => wait(200)).then(exit));
     },
     { scope: root },
   );
+
+  const chars = (s: string, light = false) =>
+    Array.from(s).map((c, i) => (
+      <span key={i} data-ch className={`inline-block ${light ? "font-normal" : ""}`} style={{ transform: "translateY(100%)" }}>
+        {c === " " ? " " : c}
+      </span>
+    ));
+
   return (
-    <div ref={root} role="img" aria-label={label} className="preloader fixed inset-0 z-[200] items-center justify-center bg-[#050506] [clip-path:inset(0_0_0_0)]">
-      <svg data-sig viewBox={SIGNATURE.viewBox} className="w-[min(86vw,980px)] overflow-visible" aria-hidden>
-        <defs>
-          {SIGNATURE.glyphs.map((d, i) => (
-            <mask key={i} id={`${id}m${i}`} maskUnits="userSpaceOnUse" x={X - 200} y={Y - 200} width={W + 400} height={H + 400}>
-              <path data-pen d={d} pathLength={1} strokeDasharray={1} strokeDashoffset={1} fill="none" stroke="#fff" strokeWidth={PEN} strokeLinecap="round" strokeLinejoin="round" />
-            </mask>
-          ))}
-        </defs>
-        {SIGNATURE.glyphs.map((d, i) => (
-          <path key={i} d={d} fill="#fff" stroke="#fff" strokeWidth={1.6} strokeLinejoin="round" mask={`url(#${id}m${i})`} />
-        ))}
-      </svg>
+    <div ref={root} role="img" aria-label={label} className="preloader fixed inset-0 z-[200] items-center bg-[var(--bg-canvas)] [clip-path:inset(0_0_0_0)]">
+      <div ref={band} data-sig className="relative isolate w-full overflow-hidden">
+        <div aria-hidden className="absolute inset-0 bg-[#0b2f45]">
+          <div className="pre-flow" />
+        </div>
+        <div aria-hidden className="giant-mask pointer-events-none relative flex justify-center">
+          <p ref={text} className="whitespace-nowrap py-[0.02em] text-[100px] font-medium leading-[0.86] tracking-[-0.06em]">
+            <span className="inline-block overflow-hidden pb-[0.08em] align-bottom">
+              {chars(first)} {chars(rest.join(" "), true)}
+            </span>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
