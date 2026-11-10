@@ -14,4 +14,6 @@ export const profile = {
   /** Percorsi dei CV in /public, per lingua. */
   cv: { it: "/cv/filippo-corsini-cv-it.pdf", en: "/cv/filippo-corsini-cv-en.pdf" },
   site: "https://example.com",
+  /** Area clienti inclusa in ogni progetto: link agli store e alla versione web. Vuoti: i tasti puntano a "#". */
+  clientArea: { ios: "", android: "", web: "" },
 };

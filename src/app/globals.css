@@ -30,7 +30,12 @@
   --drop-edge: rgba(255, 255, 255, 0.14);
   --drop-body: #0e3346;
 
-  --bar-h: 66px;
+  --strip-h: 40px;
+  --bar-h: calc(66px + var(--strip-h));
+  --strip-tint: rgba(64, 160, 220, 0.22);
+  --strip-btn: rgba(255, 255, 255, 0.1);
+  --strip-btn-hover: rgba(255, 255, 255, 0.18);
+  --strip-edge: rgba(255, 255, 255, 0.14);
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   color-scheme: dark;
@@ -78,6 +83,10 @@
   --shadow-strong: rgba(0, 0, 0, 0.9);
 }
 html[data-theme="light"] {
+  --strip-tint: rgba(94, 196, 255, 0.26);
+  --strip-btn: rgba(255, 255, 255, 0.55);
+  --strip-btn-hover: rgba(255, 255, 255, 0.85);
+  --strip-edge: rgba(15, 60, 90, 0.12);
   --bg-canvas: #f6f6f3;
   --bg-surface: #ffffff;
   --bg-sunken: #ececE8;
@@ -370,3 +379,11 @@ html[data-theme="light"] .light-invert { filter: invert(1) hue-rotate(180deg) sa
 html[data-intro="run"] .preloader { display: flex; animation: preloaderOut 0s 6s forwards; }
 html[data-intro="run"], html[data-intro="run"] body { overflow: hidden; }
 @keyframes preloaderOut { to { visibility: hidden; } }
+
+/* fascia dell'area clienti: acrilico azzurro, sfocato e opaco quanto basta per leggere sopra qualsiasi sezione */
+.client-strip {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--strip-tint) 70%, transparent), var(--strip-tint), color-mix(in srgb, var(--strip-tint) 70%, transparent)), color-mix(in srgb, var(--bg-canvas) 62%, transparent);
+  backdrop-filter: blur(22px) saturate(1.7);
+  -webkit-backdrop-filter: blur(22px) saturate(1.7);
+  box-shadow: inset 0 -1px 0 var(--strip-edge), 0 8px 24px -18px rgba(10, 60, 100, 0.5);
+}
