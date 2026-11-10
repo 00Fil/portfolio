@@ -12,6 +12,9 @@ import { useLocale } from "next-intl";
 import * as si from "simple-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
+  Alert02Icon,
+  ArrowUp01Icon,
+  Calendar03Icon,
   AiChat02Icon,
   CheckmarkCircle02Icon,
   CreditCardIcon,
@@ -31,10 +34,10 @@ import { Bead } from "@/components/glass/Bead";
 import { Canvas, addEnd, addSay } from "./ServiceWidgets";
 
 type Q = (s: string) => Element[];
-export type Shot = { node: ReactNode; play?: (run: gsap.core.Timeline, $: Q, at: number) => void; dur?: number };
+export type Shot = { node: ReactNode; play?: (run: gsap.core.Timeline, $: Q, at: number) => void; dur?: number; say?: boolean };
 
 const W = 620;
-const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too."};
+const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too.", "Livelli": "Layers", "Desktop": "Desktop", "Hero": "Hero", "Titolo": "Title", "Servizi": "Services", "Prenota una visita": "Book a visit", "Perfetto così!": "Love it!", "Riempimento": "Fill", "Angoli": "Corners", "Il tuo sorriso, in buone mani": "Your smile, in good hands", "Pubblicazione": "Deployment", "Pubblica": "Deploy", "Compilato in 9 s": "Built in 9 s", "24 pagine generate": "24 pages generated", "Immagini ottimizzate": "Images optimised", "Online su studiobianchi.it": "Live on studiobianchi.it", "Online": "Live", "Chi siamo": "About", "Contatti": "Contact", "Giovedì 14 novembre": "Thursday 14 November", "Conferma": "Confirm", "Nuova prenotazione": "New booking", "Giulia R. · giovedì alle 14:30": "Giulia R. · Thursday at 2:30 pm", "ora": "now", "Buonasera, Marco": "Good evening, Marco", "Come posso aiutarti oggi?": "How can I help you today?", "Mi consigli un buon dentista a Brescia?": "Can you recommend a good dentist in Brescia?", ", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive.": ", in central Brescia: online booking, long hours and excellent reviews.", "e": "and", "Sei la loro": "You’re their", "prima scelta,": "first choice,", "quando si parla del tuo settore.": "whenever your field comes up.", "Nuova attività": "New task", "Recenti": "Recent", "Report vendite": "Sales report", "Fatture ottobre": "October invoices", "Listino 2026": "2026 price list", "Cosa facciamo oggi?": "What shall we do today?", "Smista le email di oggi, inserisci gli ordini e prepara le risposte": "Sort today’s emails, enter the orders and draft the replies", "Al lavoro sulle email di oggi": "Working on today’s emails", "Lette 24 email": "Read 24 emails", "12 ordini inseriti nel gestionale": "12 orders entered in the ERP", "9 risposte preparate": "9 replies drafted", "3 da controllare a mano": "3 to check by hand", "File": "Files", "ordini.xlsx": "orders.xlsx", "risposte (9)": "replies (9)", "Fatto. 9 risposte pronte": "Done. 9 replies ready", "12 ordini già nel gestionale · 3 da guardare tu": "12 orders already in the ERP · 3 for you to check", "Approva e invia": "Approve and send", "Prenotazione — Prototipo": "Booking — Prototype", "Presenta": "Present", "Scegli l'orario": "Pick a time", "Confermato": "Confirmed", "Ci vediamo giovedì": "See you Thursday", "Test con 5 persone vere": "Tested with 5 real people", "prenotare una visita": "book a visit", "Tempo medio": "Average time", "Completano la prenotazione": "Complete the booking", "Prima": "Before", "Dopo": "After", "2,5 volte più prenotazioni": "2.5× more bookings", "Il tuo gestionale": "Your ERP", "Nuovo ordine #1042 · 89,00 €": "New order #1042 · €89.00", "Pagamento ricevuto": "Payment received", "Fattura FT-1042 creata e scorte aggiornate": "Invoice FT-1042 created, stock updated", "Conferma inviata al cliente": "Confirmation sent to the customer", "Richiesta del cliente chiusa": "Customer request closed", "Prenota e gestisci le visite": "Book and manage visits", "Ottieni": "Get", "Apri": "Open", "Salute": "Health", "Età": "Age"};
 /** Le scritte dentro le inquadrature: italiano, oppure inglese quando il sito è in inglese. */
 function Tx({ children }: { children: string }) {
   return <>{useLocale() === "en" ? (EN[children] ?? children) : children}</>;
@@ -73,12 +76,14 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
         const tl = gsap.timeline();
         const run = gsap.timeline({ repeat: -1 });
         let at = 0;
+        let n = 0;
         shots.forEach((s, i) => {
           const el = els[i];
           const $: Q = (sel) => Array.from(el.querySelectorAll(sel));
-          if (says[i]) addSay(run, says[i], scrim, zoom, at, 1.2);
-          const st = at + (says[i] ? 1.75 : 0);
-          const dur = s.dur ?? 4.2;
+          const say = s.say === false ? null : says[n++];
+          if (say) addSay(run, say, scrim, zoom, at, 1);
+          const st = at + (say ? 1.45 : 0);
+          const dur = s.dur ?? 3.6;
           const inner = el.firstElementChild as Element;
           run
             .fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6, ease: "power2.out", immediateRender: false }, st)
@@ -87,7 +92,7 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
             .to(inner, { y: -6, duration: dur - 0.8, ease: "sine.inOut" }, st + 0.8);
           s.play?.(run, $, st + 0.35);
           run.to(el, { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, st + dur).to(inner, { y: -26, scale: 0.98, duration: 0.45, ease: "power2.in" }, st + dur);
-          at = st + dur + 0.25;
+          at = st + dur + 0.2;
         });
         const end = addEnd(run, q, at);
         run.to({}, { duration: 0.01 }, end + 0.4);
@@ -205,120 +210,303 @@ const Phone = ({ w = 150, h = 300, children }: { w?: number; h?: number; childre
 );
 const Bar = ({ w, c = "bg-white/25", h = 7 }: { w: string | number; c?: string; h?: number }) => <span className={`block rounded-full ${c}`} style={{ width: w, height: h }} />;
 
-/* ───────────── Siti e web app ───────────── */
+/* ───────────── Strumenti per le scene col cursore ───────────── */
+
+/** Finestra d'app in vetro scuro, a tutto quadro: semafori e titolo. */
+const Win = ({ w = 580, h = 360, title, logo, tint = "rgba(20,24,30,.96)", children }: { w?: number; h?: number; title?: ReactNode; logo?: ReactNode; tint?: string; children: ReactNode }) => (
+  <Bead tint={tint} radius={18} className="relative flex flex-col overflow-hidden text-white" style={{ width: w, height: h }}>
+    <span className="flex h-10 shrink-0 items-center gap-2 border-b border-white/[.07] px-3.5">
+      <span className="flex gap-1.5">
+        {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
+          <span key={c} className="h-2.5 w-2.5 rounded-full" style={{ background: c, opacity: 0.85 }} />
+        ))}
+      </span>
+      <span className="ml-2 flex items-center gap-2 text-[12px] text-white/70">
+        {logo}
+        {title}
+      </span>
+    </span>
+    <span className="relative block flex-1">{children}</span>
+  </Bead>
+);
+const Img = ({ src, s = 18, c = "" }: { src: string; s?: number; c?: string }) => (
+  // eslint-disable-next-line @next/next/no-img-element
+  <img src={src} alt="" className={`block shrink-0 ${c}`} style={{ width: s, height: s }} draggable={false} />
+);
+/** Posizione di un elemento dentro l'inquadratura, nelle unità della tela (che è scalata). */
+const spot = (shot: HTMLElement, el: Element, fx = 0.5, fy = 0.5) => {
+  const a = shot.getBoundingClientRect();
+  const b = el.getBoundingClientRect();
+  const k = a.width / shot.offsetWidth || 1;
+  return { x: (b.left - a.left + b.width * fx) / k, y: (b.top - a.top + b.height * fy) / k };
+};
+/** Un movimento da mano vera: x e y con tempi diversi (traiettoria curva), arrivo un filo oltre e piccola correzione. */
+const human = (run: gsap.core.Timeline, cur: Element, get: () => { x: number; y: number }, at: number, dur = 0.55) => {
+  run
+    .to(cur, { x: () => get().x + 5, duration: dur, ease: "power3.inOut" }, at)
+    .to(cur, { y: () => get().y + 4, duration: dur * 0.92, ease: "sine.inOut" }, at + dur * 0.05)
+    .to(cur, { x: () => get().x, y: () => get().y, duration: 0.14, ease: "power2.out" }, at + dur);
+  return at + dur + 0.14;
+};
+const press = (run: gsap.core.Timeline, cur: Element, btn: Element, at: number) =>
+  run.to(cur, { scale: 0.8, duration: 0.07, yoyo: true, repeat: 1, ease: "power2.out" }, at).to(btn, { scale: 0.95, duration: 0.07, yoyo: true, repeat: 1, ease: "power2.out" }, at);
+/** Il cursore entra dal basso a destra rispetto a un elemento. */
+const cursorIn = (run: gsap.core.Timeline, $: Q, near: Element, at: number) => {
+  const cur = $("[data-cursor]")[0];
+  const shot = cur.parentElement as HTMLElement;
+  run.set(cur, { x: () => spot(shot, near).x + 160, y: () => spot(shot, near).y + 130, opacity: 0, scale: 1 }, at - 0.3).to(cur, { opacity: 1, duration: 0.2 }, at);
+  return { cur, shot };
+};
+/** Va su un elemento e lo preme. Restituisce l'istante del clic. */
+const click = (run: gsap.core.Timeline, c: { cur: Element; shot: HTMLElement }, el: Element, at: number, dur = 0.5, fx = 0.5, fy = 0.55) => {
+  const t = human(run, c.cur, () => spot(c.shot, el, fx, fy), at, dur);
+  press(run, c.cur, el, t);
+  return t;
+};
+/** Scrive in un campo con il ritmo irregolare di una persona. Restituisce quando ha finito. */
+const typeText = (run: gsap.core.Timeline, el: Element, text: string, at: number, fast = 1) => {
+  run.call(() => void (el.textContent = ""), undefined, Math.max(0, at - 0.3));
+  let t = at;
+  for (let i = 1; i <= text.length; i++) {
+    const sub = text.slice(0, i);
+    run.call(() => void (el.textContent = sub), undefined, t);
+    t += (text[i - 1] === " " ? 0.09 : 0.035 + ((i * 37) % 5) * 0.01) / fast;
+  }
+  return t;
+};
+/** Testo che arriva a parole, come una risposta generata. */
+const stream = (run: gsap.core.Timeline, els: Element[], at: number, gap = 0.035) => run.fromTo(els, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: 0.25, stagger: gap, ease: "power2.out" }, at);
+function Words({ s, attr = "data-wd" }: { s: string; attr?: string }) {
+  const t = useLocale() === "en" ? (EN[s] ?? s) : s;
+  return (
+    <>
+      {t.split(" ").map((w, i) => (
+        <span key={i} {...{ [attr]: "" }} className="inline-block">
+          {w}&nbsp;
+        </span>
+      ))}
+    </>
+  );
+}
+/** Traduzione per i testi usati dentro le animazioni (scritti a macchina). */
+const L = (s: string) => (typeof document !== "undefined" && document.documentElement.lang === "en" ? (EN[s] ?? s) : s);
+const claudeLogo = "/visual/brands/claude.svg";
+
+/** Il nostro gestionale: una tessera di vetro con il suo simbolo, pulita, sopra tutti gli altri. */
+const Ours = ({ size = 92 }: { size?: number }) => (
+  <Bead tint="linear-gradient(160deg, rgba(158,220,255,.55), rgba(31,127,184,.42) 55%, rgba(11,47,69,.7))" radius={Math.round(size * 0.28)} className="flex items-center justify-center text-white" style={{ width: size, height: size }}>
+    <svg viewBox="0 0 24 24" className="fill-none stroke-white" style={{ width: size * 0.46, height: size * 0.46 }} strokeWidth="1.6" strokeLinejoin="round" aria-hidden>
+      <path d="M12 2.8 20 7.4v9.2l-8 4.6-8-4.6V7.4Z" />
+      <path d="M12 12 20 7.4M12 12v9.2M12 12 4 7.4" opacity=".55" />
+      <circle cx="12" cy="12" r="2.2" fill="#fff" stroke="none" />
+    </svg>
+  </Bead>
+);
+
+/* ───────────── Siti e web app: si disegna in Figma con il cliente, si pubblica in un clic, porta prenotazioni ───────────── */
 
 export const WEB: Shot[] = [
   {
+    dur: 4.4,
     node: (
-      <>
-        <Browser>
-          <span className="absolute inset-0 flex flex-col gap-3 p-5">
-            <span data-b className="flex items-center justify-between">
-              <Bar w={70} c="bg-white/50" />
-              <span className="flex gap-2">
-                <Bar w={28} />
-                <Bar w={28} />
-                <Bar w={28} />
+      <Win title={<span>Studio Bianchi — Home</span>} logo={<Img src="/visual/brands/figma.svg" s={14} />}>
+        <span className="absolute inset-0 grid grid-cols-[118px_1fr_112px]">
+          {/* livelli */}
+          <span className="block border-r border-white/[.07] p-2.5 text-[11px] text-white/60">
+            <span className="mb-2 block text-[10px] uppercase tracking-[0.08em] text-white/35"><Tx>Livelli</Tx></span>
+            {["Desktop", "Hero", "Titolo", "Prenota", "Servizi"].map((l, i) => (
+              <span key={l} data-layer className={`flex items-center gap-1.5 rounded-[6px] px-1.5 py-1 ${i ? "pl-4" : ""}`}>
+                <span className="h-2 w-2 rounded-[2px] border border-white/40" />
+                <Tx>{l}</Tx>
+              </span>
+            ))}
+          </span>
+          {/* tela */}
+          <span className="relative block bg-[#1b1d21]">
+            <span className="absolute left-[18px] top-[14px] text-[9.5px] text-white/40">Desktop</span>
+            <span data-frame className="absolute inset-x-[18px] bottom-[18px] top-[28px] block overflow-hidden rounded-[4px] bg-[#f6f6f3]">
+              <span className="flex items-center justify-between px-3 pt-2.5">
+                <span className="h-1.5 w-10 rounded-full bg-[#1f2937]/70" />
+                <span className="flex gap-1.5">
+                  <span className="h-1.5 w-5 rounded-full bg-[#1f2937]/30" />
+                  <span className="h-1.5 w-5 rounded-full bg-[#1f2937]/30" />
+                </span>
+              </span>
+              <span data-hero className="absolute left-3 top-8 block rounded-[6px] bg-[linear-gradient(135deg,#9edcff,#3ea4dc_55%,#1f7fb8)]" style={{ width: 0, height: 0 }} />
+              <span data-sel className="pointer-events-none absolute left-3 top-8 block border border-[#0d99ff] opacity-0" style={{ width: 0, height: 0 }}>
+                {[0, 1, 2, 3].map((k) => (
+                  <span key={k} className="absolute h-1.5 w-1.5 border border-[#0d99ff] bg-white" style={{ left: k % 2 ? "auto" : -3, right: k % 2 ? -3 : "auto", top: k < 2 ? -3 : "auto", bottom: k < 2 ? "auto" : -3 }} />
+                ))}
+              </span>
+              <span data-h1 className="absolute left-3 top-[118px] block text-[13px] font-semibold leading-tight text-[#111827]" />
+              <span data-cta className="absolute left-3 top-[150px] flex h-6 items-center rounded-full bg-[#1f7fb8] px-3 text-[9.5px] font-medium text-white opacity-0">
+                <Tx>Prenota una visita</Tx>
               </span>
             </span>
-            <span data-b className="mt-3 space-y-2">
-              <Bar w="72%" h={14} c="bg-white/80" />
-              <Bar w="48%" h={14} c="bg-white/80" />
+            {/* commento del cliente */}
+            <span data-pin className="absolute right-3 top-[34px] flex items-center gap-1.5 rounded-full rounded-bl-[4px] bg-white py-1 pl-1 pr-2.5 text-[10.5px] text-[#111] opacity-0 shadow-[0_8px_20px_-6px_rgba(0,0,0,.5)]">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#a259ff] text-[9px] font-semibold text-white">M</span>
+              <Tx>Perfetto così!</Tx>
             </span>
-            <span data-b>
-              <span className="inline-flex h-7 items-center rounded-full bg-[#5ec4ff] px-4 text-[11px] font-medium text-[#04121c]"><Tx>Prenota</Tx></span>
+          </span>
+          {/* proprietà */}
+          <span className="block border-l border-white/[.07] p-2.5 text-[10.5px] text-white/55">
+            <span className="mb-2 block text-[10px] uppercase tracking-[0.08em] text-white/35"><Tx>Riempimento</Tx></span>
+            <span className="flex items-center gap-2">
+              <span className="h-4 w-4 rounded-[4px] bg-[linear-gradient(135deg,#9edcff,#1f7fb8)]" />
+              #3EA4DC
             </span>
-            <span data-b className="mt-auto grid grid-cols-3 gap-2.5">
-              {[0, 1, 2].map((k) => (
-                <span key={k} className="h-14 rounded-[10px] bg-white/[.08] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]" />
+            <span className="mb-2 mt-4 block text-[10px] uppercase tracking-[0.08em] text-white/35"><Tx>Angoli</Tx></span>
+            <span>12</span>
+          </span>
+        </span>
+      </Win>
+    ),
+    play: (run, $, at) => {
+      const c = cursorIn(run, $, $("[data-frame]")[0], at);
+      const hero = $("[data-hero]")[0];
+      const sel = $("[data-sel]")[0];
+      const frame = $("[data-frame]")[0];
+      // trascina un rettangolo: diventa l'immagine principale
+      let t = human(run, c.cur, () => spot(c.shot, frame, 0.04, 0.17), at + 0.05, 0.5);
+      run
+        .set([hero, sel], { width: 0, height: 0 }, t)
+        .to(sel, { opacity: 1, duration: 0.05 }, t)
+        .to([hero, sel], { width: 240, height: 76, duration: 0.55, ease: "power2.inOut" }, t + 0.05)
+        .to(c.cur, { x: `+=${240 * 0.83}`, y: "+=63", duration: 0.55, ease: "power2.inOut" }, t + 0.05)
+        .to($("[data-layer]")[1], { backgroundColor: "rgba(13,153,255,.25)", duration: 0.2 }, t + 0.1);
+      t += 0.75;
+      // titolo che si scrive, poi il pulsante
+      run.to(sel, { opacity: 0, duration: 0.15 }, t).to($("[data-layer]")[1], { backgroundColor: "rgba(13,153,255,0)", duration: 0.2 }, t + 0.3).to($("[data-layer]")[2], { backgroundColor: "rgba(13,153,255,.25)", duration: 0.2 }, t);
+      t = typeText(run, $("[data-h1]")[0], L("Il tuo sorriso, in buone mani"), t + 0.05, 1.6);
+      run
+        .to($("[data-layer]")[2], { backgroundColor: "rgba(13,153,255,0)", duration: 0.2 }, t)
+        .fromTo($("[data-cta]"), { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2.2)" }, t)
+        .to($("[data-layer]")[3], { backgroundColor: "rgba(13,153,255,.25)", duration: 0.2 }, t)
+        .fromTo($("[data-pin]"), { opacity: 0, scale: 0.5, y: 8 }, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: "back.out(2)" }, t + 0.45)
+        .to(c.cur, { opacity: 0, duration: 0.3 }, t + 0.6);
+    },
+  },
+  {
+    dur: 3.4,
+    node: (
+      <Win title={<span>studiobianchi.it</span>} logo={<Brand p={si.siVercel} c="h-3 w-3" />}>
+        <span className="absolute inset-0 grid grid-cols-[1fr_200px] gap-4 p-5">
+          <span className="flex flex-col">
+            <span className="flex items-center justify-between">
+              <span className="text-[17px] font-semibold tracking-[-0.02em]"><Tx>Pubblicazione</Tx></span>
+              <span data-deploy className="rounded-full bg-white px-3.5 py-1.5 text-[12px] font-semibold text-black">
+                <Tx>Pubblica</Tx>
+              </span>
+            </span>
+            <span className="mt-4 block h-1.5 overflow-hidden rounded-full bg-white/10">
+              <span data-prog className="block h-full w-full origin-left rounded-full bg-[linear-gradient(90deg,#5ec4ff,#9ee4ff)]" style={{ transform: "scaleX(0)" }} />
+            </span>
+            <span className="mt-4 block space-y-1.5 rounded-[12px] bg-black/40 p-3.5 font-mono text-[11px] leading-relaxed text-white/75">
+              {["Compilato in 9 s", "24 pagine generate", "Immagini ottimizzate", "Online su studiobianchi.it"].map((l) => (
+                <span key={l} data-log className="flex items-center gap-2 opacity-0">
+                  <Ico i={CheckmarkCircle02Icon} s={13} c="text-[#6ee7a8]" />
+                  <Tx>{l}</Tx>
+                </span>
               ))}
             </span>
           </span>
-        </Browser>
-      </>
-    ),
-    play: (run, $, at) => enter(run, $("[data-b]"), at, 0.28),
-  },
-  {
-    node: (
-      <>
-        <span className="flex items-end gap-5">
-          <Browser w={300} h={196}>
-            <span className="absolute inset-0 flex flex-col gap-2 p-4">
-              <Bar w="70%" h={10} c="bg-white/75" />
-              <Bar w="45%" h={10} c="bg-white/75" />
-              <span className="mt-auto grid grid-cols-3 gap-2">
-                {[0, 1, 2].map((k) => (
-                  <span key={k} className="h-10 rounded-[8px] bg-white/[.08]" />
-                ))}
-              </span>
+          <span className="flex flex-col gap-3">
+            <span data-shot-prev className="relative block h-[150px] overflow-hidden rounded-[12px] bg-[#f6f6f3] opacity-0">
+              <span className="absolute left-3 top-3 h-1.5 w-12 rounded-full bg-[#1f2937]/60" />
+              <span className="absolute inset-x-3 top-7 h-14 rounded-[6px] bg-[linear-gradient(135deg,#9edcff,#3ea4dc_55%,#1f7fb8)]" />
+              <span className="absolute left-3 top-[96px] h-2 w-24 rounded-full bg-[#111827]/80" />
+              <span className="absolute left-3 top-[112px] h-4 w-16 rounded-full bg-[#1f7fb8]" />
             </span>
-          </Browser>
-          <span data-dev>
-            <Phone w={104} h={196}>
-              <span className="flex flex-col gap-1.5">
-                <Bar w="90%" h={8} c="bg-white/75" />
-                <Bar w="60%" h={8} c="bg-white/75" />
-                <span className="mt-3 h-10 rounded-[8px] bg-white/[.08]" />
-                <span className="h-10 rounded-[8px] bg-white/[.08]" />
-              </span>
-            </Phone>
+            <span data-ready className="flex items-center gap-2 text-[13px] opacity-0">
+              <span className="h-2 w-2 rounded-full bg-[#30d158] shadow-[0_0_0_3px_rgba(48,209,88,.25)]" />
+              <Tx>Online</Tx>
+              <span className="ml-auto font-mono text-[11px] text-white/50">0,8 s</span>
+            </span>
           </span>
         </span>
-        <Note>
-          <Ico i={SparklesIcon} s={14} c="text-[#8fd8ff]" />
-          <span className="text-white/60"><Tx>Caricamento</Tx></span>
-          <span data-load className="font-mono tabular-nums">0,0 s</span>
-        </Note>
-      </>
+      </Win>
     ),
     play: (run, $, at) => {
-      enter(run, $("[data-dev]"), at + 0.2);
-      count(run, $("[data-load]")[0], 0, 0.8, at + 0.4, 1.4, (n) => `${it(n, 1)} s`);
+      const c = cursorIn(run, $, $("[data-deploy]")[0], at);
+      const t = click(run, c, $("[data-deploy]")[0], at + 0.05, 0.5);
+      run
+        .fromTo($("[data-prog]"), { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: "power2.inOut" }, t + 0.1)
+        .fromTo($("[data-log]"), { opacity: 0, x: -6 }, { opacity: 1, x: 0, duration: 0.25, stagger: 0.24, ease: "power2.out" }, t + 0.25)
+        .fromTo($("[data-shot-prev]"), { opacity: 0, scale: 0.9, y: 10 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "expo.out" }, t + 1.2)
+        .fromTo($("[data-ready]"), { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.35, ease: "expo.out" }, t + 1.35)
+        .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.5);
     },
   },
   {
+    dur: 4.4,
     node: (
-      <>
-        <Bead tint={GL} radius={24} className="block w-[400px] p-5 text-white">
-          <span className="flex items-center gap-3">
-            <Tile size={40}>
-              <Ico i={Edit02Icon} s={18} />
+      <span className="relative block">
+        <Browser w={560} h={340}>
+          <span className="absolute inset-0 block bg-[#f6f6f3] text-[#111827]">
+            <span className="flex items-center justify-between px-5 pt-4 text-[12px]">
+              <span className="font-semibold">Studio Bianchi</span>
+              <span className="flex gap-4 text-[#111827]/55">
+                <Tx>Servizi</Tx>
+                <Tx>Chi siamo</Tx>
+                <Tx>Contatti</Tx>
+              </span>
+            </span>
+            <span className="absolute inset-x-5 top-12 block h-[120px] rounded-[12px] bg-[linear-gradient(135deg,#9edcff,#3ea4dc_55%,#1f7fb8)]" />
+            <span className="absolute left-5 top-[182px] block text-[19px] font-semibold tracking-[-0.02em]">
+              <Tx>Il tuo sorriso, in buone mani</Tx>
+            </span>
+            <span data-book className="absolute left-5 top-[220px] flex h-9 items-center rounded-full bg-[#1f7fb8] px-4 text-[12.5px] font-medium text-white">
+              <Tx>Prenota una visita</Tx>
+            </span>
+            {/* foglio di prenotazione */}
+            <span data-sheet className="absolute inset-x-0 bottom-0 block rounded-t-[16px] bg-white px-5 pb-4 pt-3 shadow-[0_-12px_30px_-10px_rgba(0,0,0,.25)]" style={{ transform: "translateY(110%)" }}>
+              <span className="mx-auto mb-3 block h-1 w-8 rounded-full bg-black/15" />
+              <span className="block text-[13px] font-semibold"><Tx>Giovedì 14 novembre</Tx></span>
+              <span className="mt-2.5 flex gap-2 text-[12px]">
+                {["9:00", "11:30", "14:30", "17:00"].map((h) => (
+                  <span key={h} data-slot={h} className="rounded-full bg-black/[.05] px-3 py-1.5">
+                    {h}
+                  </span>
+                ))}
+                <span data-confirm className="ml-auto rounded-full bg-[#1f7fb8] px-4 py-1.5 font-medium text-white">
+                  <Tx>Conferma</Tx>
+                </span>
+              </span>
+            </span>
+          </span>
+        </Browser>
+        {/* notifica al titolare */}
+        <span data-notif className="absolute -top-5 left-1/2 block w-[330px] -translate-x-1/2 opacity-0">
+          <Bead tint="rgba(30,34,40,.92)" radius={18} className="flex items-center gap-3 p-3 pr-4 text-white">
+            <Tile size={34}>
+              <Ico i={Calendar03Icon} s={16} />
             </Tile>
-            <span className="leading-tight">
-              <span className="block text-[15px] font-semibold tracking-[-0.02em]"><Tx>Avviso in homepage</Tx></span>
-              <span className="block text-[12px] text-white/55"><Tx>Modifica · bozza</Tx></span>
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block text-[12.5px] font-semibold"><Tx>Nuova prenotazione</Tx></span>
+              <span className="block truncate text-[12px] text-white/65"><Tx>Giulia R. · giovedì alle 14:30</Tx></span>
             </span>
-          </span>
-          <span className="mt-4 flex h-11 items-center rounded-[12px] bg-black/30 px-3.5 text-[14px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.1)]">
-            <span data-type className="whitespace-nowrap">
-              <Tx>Chiusi il 25 e 26 dicembre</Tx>
-            </span>
-            <span data-caret className="ml-0.5 h-4 w-[2px] bg-[#8fd8ff]" />
-          </span>
-          <span className="mt-4 flex items-center justify-between text-[13px]">
-            <span className="text-white/65"><Tx>Pubblica sul sito</Tx></span>
-            <span data-sw className="relative h-6 w-10 rounded-full bg-white/15 transition-colors">
-              <span data-knob className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow" />
-            </span>
-          </span>
-        </Bead>
-        <Note attr="data-pub">
-          <Ok><Tx>Online in tutto il sito</Tx></Ok>
-        </Note>
-      </>
+            <span className="text-[10.5px] text-white/45"><Tx>ora</Tx></span>
+          </Bead>
+        </span>
+      </span>
     ),
     play: (run, $, at) => {
-      typeIn(run, $("[data-type]")[0], at + 0.2, 1.3);
+      const c = cursorIn(run, $, $("[data-book]")[0], at);
+      let t = click(run, c, $("[data-book]")[0], at + 0.05, 0.5);
+      run.fromTo($("[data-sheet]"), { yPercent: 110 }, { yPercent: 0, duration: 0.45, ease: "expo.out" }, t + 0.1);
+      const slot = $('[data-slot="14:30"]')[0];
+      t = click(run, c, slot, t + 0.5, 0.45);
+      run.to(slot, { backgroundColor: "#1f7fb8", color: "#fff", duration: 0.15 }, t);
+      t = click(run, c, $("[data-confirm]")[0], t + 0.25, 0.4);
       run
-        .to($("[data-caret]"), { opacity: 0, duration: 0.01, repeat: 5, yoyo: true, repeatDelay: 0.2 }, at)
-        .to($("[data-knob]"), { x: 16, duration: 0.35, ease: "power3.out" }, at + 2.1)
-        .to($("[data-sw]"), { backgroundColor: "#30d158", duration: 0.3 }, at + 2.1);
-      tap(run, $, "[data-sw]", at + 2);
-      grow(run, $("[data-pub]")[0], at + 2.5);
+        .to($("[data-sheet]"), { yPercent: 110, duration: 0.35, ease: "power3.in" }, t + 0.15)
+        .fromTo($("[data-notif]"), { opacity: 0, y: -24, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, t + 0.45)
+        .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.4);
     },
   },
 ];
+
 
 /* ───────────── SEO ───────────── */
 
@@ -338,23 +526,6 @@ const GoogleWord = ({ size }: { size: number }) => (
     ))}
   </span>
 );
-
-/** Posizione di un elemento dentro l'inquadratura, nelle unità della tela (che è scalata). */
-const spot = (shot: HTMLElement, el: Element, fx = 0.5, fy = 0.5) => {
-  const a = shot.getBoundingClientRect();
-  const b = el.getBoundingClientRect();
-  const k = a.width / shot.offsetWidth || 1;
-  return { x: (b.left - a.left + b.width * fx) / k, y: (b.top - a.top + b.height * fy) / k };
-};
-/** Un movimento da mano vera: x e y con tempi diversi (traiettoria curva), arrivo un filo oltre e piccola correzione. */
-const human = (run: gsap.core.Timeline, cur: Element, get: () => { x: number; y: number }, at: number, dur = 0.7) => {
-  run
-    .to(cur, { x: () => get().x + 5, duration: dur, ease: "power3.inOut" }, at)
-    .to(cur, { y: () => get().y + 4, duration: dur * 0.92, ease: "sine.inOut" }, at + dur * 0.05)
-    .to(cur, { x: () => get().x, y: () => get().y, duration: 0.18, ease: "power2.out" }, at + dur);
-};
-const press = (run: gsap.core.Timeline, cur: Element, btn: Element, at: number) =>
-  run.to(cur, { scale: 0.8, duration: 0.08, yoyo: true, repeat: 1, ease: "power2.out" }, at).to(btn, { scale: 0.96, duration: 0.08, yoyo: true, repeat: 1, ease: "power2.out" }, at);
 
 export const SEO: Shot[] = [
   {
@@ -526,79 +697,157 @@ export const SEO: Shot[] = [
   },
 ];
 
-/* ───────────── Visibilità nelle risposte AI ───────────── */
+/* ───────────── Visibilità nelle risposte AI: si chiede a Claude, Claude risponde con il tuo nome ───────────── */
+
+const ClaudeUI = "rgba(38,38,36,.97)";
+const ASK = "Mi consigli un buon dentista a Brescia?";
 
 export const GEO: Shot[] = [
   {
+    dur: 5.2,
     node: (
-      <span className="flex w-[440px] flex-col items-end gap-3">
-        <Bead tint="rgba(94,196,255,.32)" radius={22} className="block max-w-[320px] px-4 py-3 text-[15px] text-white">
-          <span data-type className="block whitespace-nowrap">
-            <Tx>Un buon dentista a Brescia?</Tx>
+      <Win tint={ClaudeUI} title={<span>Claude</span>} logo={<Img src={claudeLogo} s={14} />}>
+        {/* schermata iniziale */}
+        <span data-home className="absolute inset-0 flex flex-col items-center justify-center px-10">
+          <span className="flex items-center gap-3">
+            <Img src={claudeLogo} s={30} />
+            <span className="font-[family-name:var(--font-serif)] text-[34px] leading-none text-[#ece9e1]">
+              <Tx>Buonasera, Marco</Tx>
+            </span>
           </span>
-        </Bead>
-        <span data-think className="flex items-center gap-2 self-start text-[13px] text-white/55">
-          <Ico i={SparklesIcon} s={15} c="text-[#8fd8ff]" />
-          <Tx>Sto cercando le fonti migliori…</Tx>
+          <span data-box className="mt-7 block w-full max-w-[470px] rounded-[18px] bg-[#30302e] p-3.5 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
+            <span className="flex min-h-[38px] items-start text-[14.5px] text-[#ece9e1]">
+              <span data-q className="whitespace-pre-wrap" />
+              <span data-caret className="ml-0.5 mt-0.5 h-[18px] w-[1.5px] bg-[#d97757] opacity-0" />
+              <span data-ph className="text-white/35">
+                <Tx>Come posso aiutarti oggi?</Tx>
+              </span>
+            </span>
+            <span className="mt-2 flex items-center justify-between">
+              <span className="flex h-7 w-7 items-center justify-center rounded-[8px] text-white/45 shadow-[inset_0_0_0_1px_rgba(255,255,255,.1)]">+</span>
+              <span data-send className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-[#d97757] text-white">
+                <Ico i={ArrowUp01Icon} s={16} />
+              </span>
+            </span>
+          </span>
+        </span>
+        {/* conversazione */}
+        <span data-chat className="absolute inset-0 block px-7 pt-6 opacity-0">
+          <span className="flex justify-end">
+            <span className="rounded-[14px] bg-[#30302e] px-3.5 py-2 text-[13.5px] text-[#ece9e1]">
+              <Tx>{ASK}</Tx>
+            </span>
+          </span>
+          <span className="mt-5 grid grid-cols-[22px_minmax(0,1fr)] items-start gap-3">
+            <span data-think className="mt-1 block">
+              <Img src={claudeLogo} s={22} />
+            </span>
+            <span className="block text-[15px] leading-[1.6] text-[#ece9e1]">
+              <Words s="Ti consiglio" />
+              <span data-wd className="relative inline-block font-semibold text-white">
+                Studio Bianchi
+                <span data-mark className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left rounded-full bg-[#5ec4ff]" style={{ transform: "scaleX(0)" }} />
+              </span>
+              <Words s=", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive." />
+              <span data-wd className="mt-3 flex w-fit items-center gap-1.5 rounded-full bg-white/[.07] px-2.5 py-1 text-[11.5px] text-white/70">
+                <Ico i={LockKeyIcon} s={11} />
+                studiobianchi.it
+              </span>
+            </span>
+          </span>
+        </span>
+      </Win>
+    ),
+    play: (run, $, at) => {
+      const c = cursorIn(run, $, $("[data-box]")[0], at);
+      run
+        .set($("[data-home]"), { autoAlpha: 1, y: 0 }, at - 0.3)
+        .set($("[data-chat]"), { autoAlpha: 0 }, at - 0.3)
+        .set($("[data-ph]"), { autoAlpha: 1 }, at - 0.3)
+        .set($("[data-wd]"), { opacity: 0 }, at - 0.3)
+        .set($("[data-mark]"), { scaleX: 0 }, at - 0.3);
+      let t = click(run, c, $("[data-box]")[0], at + 0.05, 0.5, 0.35, 0.35);
+      run.to($("[data-ph]"), { autoAlpha: 0, duration: 0.05 }, t).to($("[data-caret]"), { opacity: 1, duration: 0.01 }, t);
+      t = typeText(run, $("[data-q]")[0], L(ASK), t + 0.1, 1.8);
+      t = click(run, c, $("[data-send]")[0], t + 0.05, 0.4);
+      run
+        .to($("[data-caret]"), { opacity: 0, duration: 0.01 }, t)
+        .to($("[data-home]"), { autoAlpha: 0, y: -20, duration: 0.3, ease: "power2.in" }, t + 0.1)
+        .fromTo($("[data-chat]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, t + 0.3)
+        .fromTo($("[data-think]"), { rotate: 0 }, { rotate: 180, duration: 0.6, ease: "power2.inOut" }, t + 0.35)
+        .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.2);
+      stream(run, $("[data-wd]"), t + 0.85, 0.035);
+      run.to($("[data-mark]"), { scaleX: 1, duration: 0.45, ease: "expo.out" }, t + 1.15);
+    },
+  },
+  {
+    say: false,
+    dur: 3.4,
+    node: (
+      <span className="block px-6 text-center text-[42px] font-semibold leading-[1.25] tracking-[-0.045em] text-white">
+        <span data-n className="inline-flex items-center gap-2 whitespace-nowrap">
+          ChatGPT
+          <span data-lg className="inline-flex">
+            <Tile size={40} light>
+              <svg viewBox="0 0 24 24" className="h-[22px] w-[22px] fill-black" aria-hidden>
+                <path d={OPENAI} />
+              </svg>
+            </Tile>
+          </span>
+          ,
+        </span>{" "}
+        <span data-n className="inline-flex items-center gap-2 whitespace-nowrap">
+          Gemini
+          <span data-lg className="inline-flex">
+            <Logo src="/visual/brands/gemini.svg" size={40} />
+          </span>
+          ,
+        </span>
+        <br />
+        <span data-n className="inline-flex items-center gap-2 whitespace-nowrap">
+          Claude
+          <span data-lg className="inline-flex">
+            <Logo src={claudeLogo} size={40} />
+          </span>
+        </span>{" "}
+        <span data-n className="inline-flex items-center gap-2 whitespace-nowrap">
+          <Tx>e</Tx> Perplexity
+          <span data-lg className="inline-flex">
+            <Logo src="/visual/brands/perplexity.svg" size={40} />
+          </span>
+          .
         </span>
       </span>
     ),
-    play: (run, $, at) => {
-      typeIn(run, $("[data-type]")[0], at, 1.1);
-      enter(run, $("[data-think]"), at + 1.5);
-    },
+    play: (run, $, at) =>
+      run
+        .fromTo($("[data-n]"), { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.5, stagger: 0.16, ease: "expo.out" }, at - 0.3)
+        .fromTo($("[data-lg]"), { scale: 0, rotate: -20 }, { scale: 1, rotate: 0, duration: 0.5, stagger: 0.16, ease: "back.out(2.4)" }, at - 0.1),
   },
   {
+    say: false,
+    dur: 3.2,
     node: (
-      <Bead tint={GL} radius={26} className="block w-[460px] p-5 text-white">
-        <span className="flex items-center gap-2 text-[12.5px] text-white/55">
-          <Ico i={AiChat02Icon} s={16} c="text-[#8fd8ff]" />
-          <Tx>Risposta</Tx>
-        </span>
-        <span className="mt-3 block space-y-2 text-[14.5px] leading-[1.55]">
-          <span data-l className="block">
-            <Tx>Ti consiglio</Tx> <span className="rounded-[6px] bg-[rgba(94,196,255,.22)] px-1.5 py-0.5 font-semibold text-[#cdeeff]">Studio Bianchi</span><Tx>, in centro a Brescia:</Tx>
+      <span className="block px-8 text-center">
+        <span className="block text-[46px] font-semibold leading-[1.08] tracking-[-0.05em] text-white">
+          <Words s="Sei la loro" attr="data-big" />
+          <span data-big className="relative inline-block text-[#8fd8ff]">
+            <Tx>prima scelta,</Tx>
+            <span data-ul className="absolute -bottom-1 left-0 h-[3px] w-[96%] origin-left rounded-full bg-[#5ec4ff]" style={{ transform: "scaleX(0)" }} />
           </span>
-          <span data-l className="block text-white/75"><Tx>orari estesi, prenotazione online e recensioni molto positive.</Tx></span>
         </span>
-        <span data-l className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/[.07] px-2.5 py-1 text-[11.5px] text-white/65">
-          <Ico i={LockKeyIcon} s={11} />
-          studiobianchi.it
+        <span className="mt-3 block text-[24px] font-medium tracking-[-0.03em] text-white/70">
+          <Words s="quando si parla del tuo settore." attr="data-big" />
         </span>
-      </Bead>
+      </span>
     ),
-    play: (run, $, at) => enter(run, $("[data-l]"), at, 0.4),
-  },
-  {
-    node: (
-      <>
-        <span className="flex gap-3">
-          {[
-            ["ChatGPT", <Tile key="o" size={46} light><svg viewBox="0 0 24 24" className="h-6 w-6 fill-black" aria-hidden><path d={OPENAI} /></svg></Tile>],
-            ["Gemini", <Logo key="g" src="/visual/brands/gemini.svg" size={46} />],
-            ["Claude", <Logo key="c" src="/visual/brands/claude.svg" size={46} />],
-            ["Perplexity", <Logo key="p" src="/visual/brands/perplexity.svg" size={46} />],
-          ].map(([n, logo]) => (
-            <span key={n as string} data-ai>
-              <Bead tint={GL} radius={22} className="flex w-[118px] flex-col items-center gap-3 py-5 text-white">
-                {logo}
-                <span className="text-[13.5px] font-medium">{n as string}</span>
-                <span data-cite className="flex items-center gap-1 text-[11.5px] text-[#8ff0ad] opacity-0">
-                  <Ico i={CheckmarkCircle02Icon} s={12} />
-                  <Tx>Ti cita</Tx>
-                </span>
-              </Bead>
-            </span>
-          ))}
-        </span>
-      </>
-    ),
-    play: (run, $, at) => {
-      enter(run, $("[data-ai]"), at, 0.12);
-      run.to($("[data-cite]"), { opacity: 1, duration: 0.4, stagger: 0.3 }, at + 0.9);
-    },
+    play: (run, $, at) =>
+      run
+        .fromTo($("[data-big]"), { yPercent: 70, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.55, stagger: 0.06, ease: "expo.out" }, at - 0.3)
+        .fromTo($("[data-ul]"), { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "expo.out" }, at + 0.5),
   },
 ];
+
 
 /* ───────────── App multipiattaforma ───────────── */
 
@@ -616,28 +865,71 @@ const AppUI = () => (
 );
 export const APPS: Shot[] = [
   {
+    dur: 4.2,
     node: (
-      <span className="flex items-end gap-6">
-        <span data-d>
-          <Phone>
-            <AppUI />
-          </Phone>
-        </span>
-        <span data-d>
-          <Browser w={330} h={220} url="app.studiobianchi.it">
-            <span className="absolute inset-0 grid grid-cols-[90px_1fr] gap-3 p-3.5">
-              <span className="space-y-2 rounded-[10px] bg-white/[.05] p-2.5">
-                {[0, 1, 2, 3].map((k) => (
-                  <Bar key={k} w="80%" h={6} />
-                ))}
+      <Phone w={210} h={380}>
+        <span data-store className="absolute inset-0 block px-3.5 pt-9">
+          <span className="flex gap-3">
+            <Ours size={64} />
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block text-[14px] font-semibold">Studio Bianchi</span>
+              <span className="block text-[10.5px] text-white/55"><Tx>Prenota e gestisci le visite</Tx></span>
+              <span data-get className="relative mt-2 flex h-7 w-[64px] items-center justify-center rounded-full bg-[#0a84ff] text-[11.5px] font-semibold text-white">
+                <span data-get-l><Tx>Ottieni</Tx></span>
+                <svg data-ring viewBox="0 0 28 28" className="absolute h-7 w-7 -rotate-90 opacity-0" aria-hidden>
+                  <circle cx="14" cy="14" r="11" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="2.5" />
+                  <circle data-ring-fill cx="14" cy="14" r="11" fill="none" stroke="#fff" strokeWidth="2.5" pathLength={100} strokeDasharray="100" strokeDashoffset="100" strokeLinecap="round" />
+                </svg>
+                <span data-open className="absolute inset-0 flex items-center justify-center opacity-0"><Tx>Apri</Tx></span>
               </span>
-              <AppUI />
             </span>
-          </Browser>
+          </span>
+          <span className="mt-3 flex justify-between border-y border-white/10 py-2 text-center text-[9.5px] text-white/55">
+            <span>
+              <span className="block text-[12px] font-semibold text-white/85">4,9</span>★★★★★
+            </span>
+            <span>
+              <span className="block text-[12px] font-semibold text-white/85">N. 3</span>
+              <Tx>Salute</Tx>
+            </span>
+            <span>
+              <span className="block text-[12px] font-semibold text-white/85">4+</span>
+              <Tx>Età</Tx>
+            </span>
+          </span>
+          <span className="mt-3 grid grid-cols-2 gap-2">
+            <span className="h-[150px] rounded-[12px] bg-[linear-gradient(160deg,#9edcff,#3ea4dc_55%,#1f7fb8)]" />
+            <span className="h-[150px] rounded-[12px] bg-[linear-gradient(160deg,#1f7fb8,#0b2f45)]" />
+          </span>
         </span>
-      </span>
+        {/* l'app che si apre */}
+        <span data-app className="absolute inset-0 block rounded-[23px] bg-[#0f1a24] px-3.5 pt-9 opacity-0">
+          <AppUI />
+        </span>
+      </Phone>
     ),
-    play: (run, $, at) => enter(run, $("[data-d]"), at, 0.35),
+    play: (run, $, at) => {
+      const get = $("[data-get]")[0];
+      const c = cursorIn(run, $, get, at);
+      run
+        .set($("[data-get-l]"), { opacity: 1 }, at - 0.3)
+        .set([$("[data-ring]")[0], $("[data-open]")[0], $("[data-app]")[0]], { opacity: 0 }, at - 0.3)
+        .set($("[data-ring-fill]"), { strokeDashoffset: 100 }, at - 0.3)
+        .set(get, { width: 64 }, at - 0.3);
+      let t = click(run, c, get, at + 0.05, 0.5);
+      run
+        .to($("[data-get-l]"), { opacity: 0, duration: 0.1 }, t)
+        .to(get, { width: 28, backgroundColor: "rgba(10,132,255,0)", duration: 0.25, ease: "power2.inOut" }, t)
+        .to($("[data-ring]"), { opacity: 1, duration: 0.1 }, t + 0.2)
+        .to($("[data-ring-fill]"), { strokeDashoffset: 0, duration: 0.9, ease: "power1.inOut" }, t + 0.25)
+        .to($("[data-ring]"), { opacity: 0, duration: 0.1 }, t + 1.15)
+        .to(get, { width: 64, backgroundColor: "rgba(255,255,255,.14)", duration: 0.25, ease: "power2.inOut" }, t + 1.15)
+        .to($("[data-open]"), { opacity: 1, duration: 0.15 }, t + 1.3);
+      t = click(run, c, get, t + 1.45, 0.25);
+      run
+        .fromTo($("[data-app]"), { opacity: 0, scale: 0.3, transformOrigin: "20% 15%" }, { opacity: 1, scale: 1, duration: 0.5, ease: "expo.out" }, t + 0.1)
+        .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.2);
+    },
   },
   {
     node: (
@@ -699,192 +991,334 @@ export const APPS: Shot[] = [
   },
 ];
 
-/* ───────────── UI/UX ───────────── */
+/* ───────────── UI/UX: si progetta il percorso, lo si prova, e più persone arrivano in fondo ───────────── */
+
+const Screen = ({ i }: { i: number }) => (
+  <span className="flex h-full flex-col gap-1.5 bg-[#f6f6f3] p-2 text-[#111827]">
+    <span className="text-[8.5px] font-semibold">{i === 0 ? <Tx>Prenota</Tx> : i === 1 ? <Tx>Scegli l'orario</Tx> : <Tx>Confermato</Tx>}</span>
+    {i === 0 && (
+      <>
+        <span className="h-10 rounded-[5px] bg-[linear-gradient(135deg,#9edcff,#1f7fb8)]" />
+        <span className="h-1.5 w-4/5 rounded-full bg-black/15" />
+        <span data-p0 className="mt-auto flex h-5 items-center justify-center rounded-full bg-[#1f7fb8] text-[7.5px] font-medium text-white">
+          <Tx>Continua</Tx>
+        </span>
+      </>
+    )}
+    {i === 1 && (
+      <span className="grid grid-cols-2 gap-1">
+        {["9:00", "11:30", "14:30", "17:00"].map((h) => (
+          <span key={h} data-p1={h} className="rounded-[4px] bg-black/[.06] py-1 text-center text-[7.5px]">
+            {h}
+          </span>
+        ))}
+      </span>
+    )}
+    {i === 2 && (
+      <span className="mt-3 flex flex-col items-center gap-1.5 text-[8px]">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#30d158] text-white">
+          <Ico i={CheckmarkCircle02Icon} s={16} />
+        </span>
+        <Tx>Ci vediamo giovedì</Tx>
+      </span>
+    )}
+  </span>
+);
 
 export const DESIGN: Shot[] = [
   {
+    dur: 4.6,
     node: (
-      <span className="relative h-[300px] w-[160px]">
-        <span data-wire className="absolute inset-0">
-          <Phone w={160} h={300}>
-            <span className="flex flex-col gap-2.5">
-              <span className="h-3 w-3/5 rounded bg-white/25" />
-              <span className="h-20 rounded-[10px] border border-dashed border-white/30" />
-              <span className="h-3 w-4/5 rounded bg-white/15" />
-              <span className="h-3 w-2/3 rounded bg-white/15" />
-              <span className="mt-2 h-8 rounded-full border border-dashed border-white/30" />
-            </span>
-          </Phone>
-        </span>
-        <span data-ui className="absolute inset-0 opacity-0">
-          <Phone w={160} h={300}>
-            <span className="flex flex-col gap-2.5">
-              <span className="text-[13px] font-semibold"><Tx>Prenota la visita</Tx></span>
-              <span className="h-20 rounded-[12px] bg-[linear-gradient(135deg,#9edcff,#3ea4dc_55%,#1f7fb8)]" />
-              <span className="text-[10.5px] leading-snug text-white/70"><Tx>Scegli giorno e ora, ti confermiamo subito.</Tx></span>
-              <span className="mt-2 flex h-8 items-center justify-center rounded-full bg-[#5ec4ff] text-[11px] font-medium text-[#04121c]"><Tx>Continua</Tx></span>
-            </span>
-          </Phone>
-        </span>
-      </span>
-    ),
-    play: (run, $, at) => run.to($("[data-ui]"), { opacity: 1, duration: 0.9, ease: "power2.inOut" }, at + 1.4).to($("[data-wire]"), { opacity: 0, duration: 0.9 }, at + 1.4),
-  },
-  {
-    node: (
-      <Bead tint={GL} radius={26} className="block w-[420px] p-5 text-white">
-        <span className="flex items-center gap-3">
-          <Tile size={40}>
-            <Ico i={UserCheck01Icon} s={18} />
-          </Tile>
-          <span className="leading-tight">
-            <span className="block text-[15px] font-semibold tracking-[-0.02em]"><Tx>Test con 5 persone</Tx></span>
-            <span className="block text-[12px] text-white/55"><Tx>Riescono a prenotare da sole?</Tx></span>
+      <Win title={<span>Prenotazione — Prototipo</span>} logo={<Img src="/visual/brands/figma.svg" s={14} />}>
+        <span className="absolute inset-0 bg-[#1b1d21]">
+          <span data-play className="absolute right-3 top-3 z-10 flex h-7 items-center gap-1.5 rounded-[7px] bg-[#0d99ff] px-2.5 text-[11px] font-medium text-white">
+            ▶ <Tx>Presenta</Tx>
           </span>
-        </span>
-        <span className="mt-4 block space-y-2">
-          {["Trova il servizio", "Sceglie giorno e ora", "Conferma la visita"].map((t) => (
-            <span key={t} className="flex items-center justify-between rounded-[12px] bg-white/[.06] px-3.5 py-2.5 text-[13.5px]">
-              <Tx>{t}</Tx>
-              <span data-ok className="flex items-center gap-1 font-mono text-[12px] text-[#8ff0ad] opacity-0">
-                5/5 <Ico i={CheckmarkCircle02Icon} s={14} />
+          <svg viewBox="0 0 580 320" className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" aria-hidden>
+            {[
+              "M188 180 C220 180 230 150 262 150",
+              "M372 150 C404 150 414 180 446 180",
+            ].map((d) => (
+              <path key={d} data-noodle d={d} fill="none" stroke="#0d99ff" strokeWidth="1.6" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+            ))}
+          </svg>
+          <span data-frames className="absolute inset-0 block">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className="absolute block overflow-hidden rounded-[14px] shadow-[0_0_0_1px_rgba(255,255,255,.12),0_10px_30px_-10px_rgba(0,0,0,.6)]" style={{ left: 78 + i * 184, top: 60 + (i % 2 ? -30 : 0), width: 110, height: 220 }}>
+                <Screen i={i} />
               </span>
-            </span>
-          ))}
-        </span>
-      </Bead>
-    ),
-    play: (run, $, at) => run.to($("[data-ok]"), { opacity: 1, duration: 0.35, stagger: 0.55 }, at + 0.5),
-  },
-  {
-    node: (
-      <span className="grid w-[460px] grid-cols-[1fr_1fr] gap-3">
-        <span data-sys>
-          <Bead tint={GL} radius={22} className="flex h-full flex-col gap-3 p-4 text-white">
-            <span className="text-[11px] uppercase tracking-[0.1em] text-white/45"><Tx>Colori</Tx></span>
-            <span className="flex gap-2">
-              {["#e6f6ff", "#9edcff", "#5ec4ff", "#1f7fb8", "#0b2f45"].map((c) => (
-                <span key={c} className="h-9 flex-1 rounded-[10px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.15)]" style={{ background: c }} />
+            ))}
+          </span>
+          {/* modalità presentazione: il prototipo si usa come un'app vera */}
+          <span data-player className="absolute left-1/2 top-1/2 block h-[280px] w-[140px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[20px] opacity-0 shadow-[0_0_0_1px_rgba(255,255,255,.18),0_20px_50px_-12px_rgba(0,0,0,.7)]">
+            <span data-track className="flex h-full w-[420px]">
+              {[0, 1, 2].map((i) => (
+                <span key={i} className="block h-full w-[140px]">
+                  <Screen i={i} />
+                </span>
               ))}
             </span>
-          </Bead>
-        </span>
-        <span data-sys>
-          <Bead tint={GL} radius={22} className="flex h-full flex-col gap-1 p-4 text-white">
-            <span className="text-[11px] uppercase tracking-[0.1em] text-white/45"><Tx>Testo</Tx></span>
-            <span className="text-[30px] font-semibold leading-none tracking-[-0.04em]">Aa</span>
-            <span className="text-[11px] text-white/55"><Tx>Titolo · Corpo · Nota</Tx></span>
-          </Bead>
-        </span>
-        <span data-sys className="col-span-2">
-          <Bead tint={GL} radius={22} className="flex items-center gap-3 p-4 text-white">
-            <span className="text-[11px] uppercase tracking-[0.1em] text-white/45"><Tx>Componenti</Tx></span>
-            <span className="ml-auto flex items-center gap-2">
-              <span className="flex h-8 items-center rounded-full bg-[#5ec4ff] px-4 text-[12px] font-medium text-[#04121c]"><Tx>Continua</Tx></span>
-              <span className="flex h-8 items-center rounded-full bg-white/10 px-4 text-[12px]"><Tx>Annulla</Tx></span>
-              <span className="relative h-6 w-10 rounded-full bg-[#30d158]">
-                <span className="absolute right-0.5 top-0.5 h-5 w-5 rounded-full bg-white" />
-              </span>
-            </span>
-          </Bead>
-        </span>
-      </span>
-    ),
-    play: (run, $, at) => enter(run, $("[data-sys]"), at, 0.18),
-  },
-];
-
-/* ───────────── AI e sistemi integrati ───────────── */
-
-const MAILS = [
-  ["Ordine 40 pz. articolo 118", "Ordini"],
-  ["Fattura di ottobre", "Fatture"],
-  ["Non riesco ad accedere", "Assistenza"],
-  ["Disponibilità per martedì?", "Ordini"],
-];
-export const AI: Shot[] = [
-  {
-    node: (
-      <Bead tint={GL} radius={26} className="block w-[440px] p-4 text-white">
-        <span className="flex items-center justify-between px-1 pb-3 text-[13px] text-white/60">
-          <span className="flex items-center gap-2">
-            <Ico i={Mail01Icon} s={16} />
-            <Tx>Posta in arrivo</Tx>
-          </span>
-          <span data-n className="font-mono tabular-nums">
-            0
           </span>
         </span>
-        <span className="block space-y-2">
-          {MAILS.map(([m]) => (
-            <span key={m} data-m className="flex items-center gap-3 rounded-[14px] bg-white/[.06] px-3.5 py-2.5 text-[13.5px]">
-              <span className="h-2 w-2 shrink-0 rounded-full bg-[#5ec4ff]" />
-              <Tx>{m}</Tx>
-            </span>
-          ))}
-        </span>
-      </Bead>
+      </Win>
     ),
     play: (run, $, at) => {
-      enter(run, $("[data-m]"), at, 0.35);
-      count(run, $("[data-n]")[0], 0, 4, at, 1.4, (n) => String(Math.round(n)));
+      const c = cursorIn(run, $, $("[data-play]")[0], at);
+      run.fromTo($("[data-noodle]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.5, stagger: 0.2, ease: "power2.inOut" }, at - 0.2);
+      let t = click(run, c, $("[data-play]")[0], at + 0.15, 0.45);
+      // modalità presentazione: le tavole spariscono, il prototipo si apre al centro e si usa davvero
+      const player = $("[data-player]")[0];
+      const track = $("[data-track]")[0];
+      run
+        .set(track, { x: 0 }, at - 0.3)
+        .set(player, { autoAlpha: 0, scale: 0.8 }, at - 0.3)
+        .set($("[data-frames]"), { autoAlpha: 1, scale: 1 }, at - 0.3)
+        .to($("[data-frames]"), { autoAlpha: 0, scale: 0.92, duration: 0.35, ease: "power2.in" }, t + 0.1)
+        .to($("[data-noodle]"), { opacity: 0, duration: 0.2 }, t + 0.1)
+        .to(player, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "expo.out" }, t + 0.3);
+      t = click(run, c, $("[data-player] [data-p0]")[0], t + 0.85, 0.4);
+      run.to(track, { x: -140, duration: 0.4, ease: "expo.out" }, t + 0.05);
+      const slot = $('[data-player] [data-p1="14:30"]')[0];
+      t = click(run, c, slot, t + 0.5, 0.4);
+      run
+        .to(slot, { backgroundColor: "#1f7fb8", color: "#fff", duration: 0.12 }, t)
+        .to(track, { x: -280, duration: 0.4, ease: "expo.out" }, t + 0.25)
+        .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.45);
     },
   },
   {
+    dur: 3.4,
     node: (
-      <Bead tint={GL} radius={26} className="block w-[460px] p-4 text-white">
-        <span className="flex items-center gap-2 px-1 pb-3 text-[13px] text-white/60">
-          <Ico i={SparklesIcon} s={16} c="text-[#8fd8ff]" />
-          <Tx>Letto e smistato</Tx>
+      <Bead tint={GL} radius={26} className="block w-[480px] p-6 text-white">
+        <span className="flex items-center justify-between">
+          <span className="text-[15px] font-semibold"><Tx>Test con 5 persone vere</Tx></span>
+          <span className="font-mono text-[12px] text-white/50"><Tx>prenotare una visita</Tx></span>
         </span>
-        <span className="block space-y-2">
-          {MAILS.map(([m, tag]) => (
-            <span key={m} className="flex items-center gap-3 rounded-[14px] bg-white/[.06] px-3.5 py-2.5 text-[13.5px]">
-              <span className="min-w-0 flex-1 truncate">{m}</span>
-              <span data-tag className="shrink-0 rounded-full bg-[rgba(94,196,255,.2)] px-2.5 py-0.5 text-[11.5px] text-[#cdeeff] opacity-0">
-                <Tx>{tag}</Tx>
+        <span className="mt-5 flex justify-between">
+          {["G", "M", "L", "S", "A"].map((n, i) => (
+            <span key={n} data-who className="flex flex-col items-center gap-2">
+              <span className="relative flex h-12 w-12 items-center justify-center rounded-full text-[15px] font-semibold" style={{ background: ["#5ec4ff", "#a259ff", "#30d158", "#f5a524", "#ff6b6b"][i] + "33", color: ["#9edcff", "#cfa8ff", "#8ff0ad", "#ffd48a", "#ffb4ae"][i] }}>
+                {n}
+                <span data-tick className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#30d158] text-white opacity-0">
+                  <Ico i={CheckmarkCircle02Icon} s={12} />
+                </span>
               </span>
-              <span data-draft className="shrink-0 text-[11.5px] text-[#8ff0ad] opacity-0">
-                <Tx>bozza pronta</Tx>
-              </span>
+              <span data-sec className="font-mono text-[11px] text-white/55">{[34, 41, 29, 38, 45][i]} s</span>
             </span>
           ))}
         </span>
+        <span className="mt-5 flex items-baseline justify-between border-t border-white/10 pt-4 text-[13px]">
+          <span className="text-white/60"><Tx>Tempo medio</Tx></span>
+          <span className="flex items-baseline gap-3">
+            <span className="font-mono text-white/40 line-through">2:40</span>
+            <span data-avg className="font-mono text-[22px] text-[#8ff0ad]">0:37</span>
+          </span>
+        </span>
       </Bead>
     ),
-    play: (run, $, at) => run.to($("[data-tag]"), { opacity: 1, duration: 0.3, stagger: 0.3 }, at + 0.3).to($("[data-draft]"), { opacity: 1, duration: 0.3, stagger: 0.25 }, at + 1.8),
+    play: (run, $, at) =>
+      run
+        .fromTo($("[data-who]"), { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, stagger: 0.08, ease: "expo.out" }, at - 0.3)
+        .fromTo($("[data-tick]"), { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, stagger: 0.18, ease: "back.out(2.6)" }, at + 0.3)
+        .fromTo($("[data-avg]"), { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(2)" }, at + 1.4),
   },
   {
+    dur: 3.2,
     node: (
-      <>
-        <Bead tint={GL} radius={26} className="block w-[380px] p-5 text-white">
-          <span className="flex items-center gap-3">
-            <Tile size={40}>
-              <Ico i={AiChat02Icon} s={18} />
-            </Tile>
-            <span className="leading-tight">
-              <span className="block text-[15px] font-semibold tracking-[-0.02em]"><Tx>4 risposte pronte</Tx></span>
-              <span className="block text-[12px] text-white/55"><Tx>Le invio?</Tx></span>
+      <span className="flex w-[520px] flex-col text-white">
+        <span className="text-[13px] uppercase tracking-[0.12em] text-white/50"><Tx>Completano la prenotazione</Tx></span>
+        <span className="mt-4 grid grid-cols-[70px_1fr_64px] items-center gap-4 text-[13px]">
+          <span className="text-white/55"><Tx>Prima</Tx></span>
+          <span className="block h-3 overflow-hidden rounded-full bg-white/10">
+            <span data-b0 className="block h-full rounded-full bg-white/35" style={{ width: "31%" }} />
+          </span>
+          <span className="font-mono text-white/60">31%</span>
+          <span className="font-medium"><Tx>Dopo</Tx></span>
+          <span className="block h-3 overflow-hidden rounded-full bg-white/10">
+            <span data-b1 className="block h-full rounded-full bg-[linear-gradient(90deg,#5ec4ff,#9ee4ff)]" style={{ width: "78%" }} />
+          </span>
+          <span data-pct className="font-mono text-[20px] text-[#8fd8ff]">78%</span>
+        </span>
+        <span data-x className="mt-6 self-start rounded-full bg-[rgba(94,196,255,.18)] px-4 py-2 text-[15px] font-medium text-[#cdeeff]">
+          <Tx>2,5 volte più prenotazioni</Tx>
+        </span>
+      </span>
+    ),
+    play: (run, $, at) => {
+      run
+        .fromTo($("[data-b0]"), { width: "0%" }, { width: "31%", duration: 0.5, ease: "expo.out" }, at - 0.2)
+        .fromTo($("[data-b1]"), { width: "0%" }, { width: "78%", duration: 0.9, ease: "expo.out" }, at + 0.15)
+        .fromTo($("[data-x]"), { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(2.2)" }, at + 0.9);
+      count(run, $("[data-pct]")[0], 0, 78, at + 0.15, 0.9, (n) => `${Math.round(n)}%`);
+    },
+  },
+];
+
+
+/* ───────────── AI e sistemi integrati: un compito dato all'agente, che lavora da solo con i tuoi strumenti ───────────── */
+
+const TASK = "Smista le email di oggi, inserisci gli ordini e prepara le risposte";
+const Side = () => (
+  <span className="block border-r border-white/[.07] p-3 text-[11.5px] text-white/55">
+    <span className="mb-3 flex items-center gap-2 text-[12.5px] font-medium text-white/85">
+      <Img src={claudeLogo} s={15} />
+      Cowork
+    </span>
+    <span className="block rounded-[8px] bg-white/[.07] px-2 py-1.5 text-white/85">
+      <Tx>Nuova attività</Tx>
+    </span>
+    <span className="mt-3 block px-2 text-[10px] uppercase tracking-[0.08em] text-white/30"><Tx>Recenti</Tx></span>
+    {["Report vendite", "Fatture ottobre", "Listino 2026"].map((r) => (
+      <span key={r} className="mt-1 block truncate px-2 py-1">
+        <Tx>{r}</Tx>
+      </span>
+    ))}
+  </span>
+);
+const STEPS: [string, string][] = [
+  ["/gmail", "Lette 24 email"],
+  ["/sheets", "12 ordini inseriti nel gestionale"],
+  ["/gmail", "9 risposte preparate"],
+  ["!", "3 da controllare a mano"],
+];
+
+export const AI: Shot[] = [
+  {
+    dur: 3.4,
+    node: (
+      <Win tint={ClaudeUI} title={<span>Cowork</span>} logo={<Img src={claudeLogo} s={14} />}>
+        <span className="absolute inset-0 grid grid-cols-[150px_1fr]">
+          <Side />
+          <span className="flex flex-col items-center justify-center px-8">
+            <span className="font-[family-name:var(--font-serif)] text-[28px] text-[#ece9e1]">
+              <Tx>Cosa facciamo oggi?</Tx>
+            </span>
+            <span data-box className="mt-5 block w-full rounded-[16px] bg-[#30302e] p-3.5 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
+              <span className="flex min-h-[44px] items-start text-[13.5px] leading-snug text-[#ece9e1]">
+                <span data-q className="whitespace-pre-wrap" />
+                <span data-caret className="ml-0.5 mt-0.5 h-[16px] w-[1.5px] bg-[#d97757] opacity-0" />
+              </span>
+              <span className="mt-2 flex items-center gap-2 text-[11px] text-white/45">
+                <span className="flex items-center gap-1 rounded-full bg-white/[.06] px-2 py-1">
+                  <Brand p={si.siGmail} c="h-3 w-3 text-[#ea4335]" />
+                  Gmail
+                </span>
+                <span className="flex items-center gap-1 rounded-full bg-white/[.06] px-2 py-1">
+                  <Brand p={si.siGooglesheets} c="h-3 w-3 text-[#34a853]" />
+                  <Tx>Gestionale</Tx>
+                </span>
+                <span data-send className="ml-auto flex h-8 w-8 items-center justify-center rounded-[9px] bg-[#d97757] text-white">
+                  <Ico i={ArrowUp01Icon} s={16} />
+                </span>
+              </span>
             </span>
           </span>
-          <span className="mt-5 grid grid-cols-2 gap-2">
-            <span className="flex h-10 items-center justify-center rounded-full bg-white/10 text-[13.5px]"><Tx>Rivedi</Tx></span>
-            <span data-go className="flex h-10 items-center justify-center rounded-full bg-[#5ec4ff] text-[13.5px] font-medium text-[#04121c]">
-              <Tx>Approva</Tx>
+        </span>
+      </Win>
+    ),
+    play: (run, $, at) => {
+      const c = cursorIn(run, $, $("[data-box]")[0], at);
+      let t = click(run, c, $("[data-box]")[0], at + 0.05, 0.45, 0.3, 0.3);
+      run.to($("[data-caret]"), { opacity: 1, duration: 0.01 }, t);
+      t = typeText(run, $("[data-q]")[0], L(TASK), t + 0.08, 2.4);
+      t = click(run, c, $("[data-send]")[0], t + 0.05, 0.35);
+      run.to($("[data-caret]"), { opacity: 0, duration: 0.01 }, t).to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.3);
+    },
+  },
+  {
+    dur: 3.6,
+    node: (
+      <Win tint={ClaudeUI} title={<span>Cowork</span>} logo={<Img src={claudeLogo} s={14} />}>
+        <span className="absolute inset-0 grid grid-cols-[150px_1fr_150px]">
+          <Side />
+          <span className="block px-6 pt-5">
+            <span className="flex items-center gap-2.5">
+              <span data-spin className="block">
+                <Img src={claudeLogo} s={20} />
+              </span>
+              <span className="text-[14px] font-medium text-[#ece9e1]">
+                <Tx>Al lavoro sulle email di oggi</Tx>
+              </span>
+            </span>
+            <span className="mt-3 block h-1 overflow-hidden rounded-full bg-white/10">
+              <span data-bar className="block h-full w-full origin-left rounded-full bg-[#d97757]" style={{ transform: "scaleX(0)" }} />
+            </span>
+            <span className="mt-4 block space-y-2">
+              {STEPS.map(([k, l]) => (
+                <span key={l} data-step className="flex items-center gap-3 rounded-[12px] bg-white/[.05] px-3 py-2.5 text-[13px] text-[#ece9e1] opacity-0">
+                  {k === "/gmail" ? <Brand p={si.siGmail} c="h-4 w-4 text-[#ea4335]" /> : k === "/sheets" ? <Brand p={si.siGooglesheets} c="h-4 w-4 text-[#34a853]" /> : <Ico i={Alert02Icon} s={16} c="text-[#f5c46b]" />}
+                  <span className="flex-1">
+                    <Tx>{l}</Tx>
+                  </span>
+                  <span data-ok className="opacity-0">
+                    <Ico i={CheckmarkCircle02Icon} s={16} c="text-[#6ee7a8]" />
+                  </span>
+                </span>
+              ))}
+            </span>
+          </span>
+          {/* i file prodotti */}
+          <span className="block border-l border-white/[.07] p-3 text-[11.5px] text-white/60">
+            <span className="mb-2 block text-[10px] uppercase tracking-[0.08em] text-white/30"><Tx>File</Tx></span>
+            {[
+              [si.siGooglesheets, "#34a853", "ordini.xlsx"],
+              [si.siGmail, "#ea4335", "risposte (9)"],
+            ].map(([p, col, n]) => (
+              <span key={n as string} data-file className="mb-2 flex items-center gap-2 rounded-[10px] bg-white/[.06] p-2 opacity-0">
+                <span style={{ color: col as string }}>
+                  <Brand p={p as { path: string }} c="h-4 w-4" />
+                </span>
+                <Tx>{n as string}</Tx>
+              </span>
+            ))}
+          </span>
+        </span>
+      </Win>
+    ),
+    play: (run, $, at) => {
+      run
+        .fromTo($("[data-spin]"), { rotate: 0 }, { rotate: 360, duration: 2.6, ease: "none" }, at - 0.3)
+        .fromTo($("[data-bar]"), { scaleX: 0 }, { scaleX: 1, duration: 2.4, ease: "power1.inOut" }, at - 0.2)
+        .fromTo($("[data-step]"), { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.3, stagger: 0.5, ease: "expo.out" }, at - 0.1)
+        .fromTo($("[data-ok]"), { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.3, stagger: 0.5, ease: "back.out(2.4)" }, at + 0.3)
+        .fromTo($("[data-file]"), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.35, stagger: 0.6, ease: "expo.out" }, at + 0.8);
+    },
+  },
+  {
+    dur: 3.4,
+    node: (
+      <>
+        <Bead tint={ClaudeUI} radius={24} className="block w-[420px] p-5 text-[#ece9e1]">
+          <span className="flex items-center gap-3">
+            <Img src={claudeLogo} s={26} />
+            <span className="leading-tight">
+              <span className="block text-[15px] font-semibold"><Tx>Fatto. 9 risposte pronte</Tx></span>
+              <span className="block text-[12px] text-white/55"><Tx>12 ordini già nel gestionale · 3 da guardare tu</Tx></span>
+            </span>
+          </span>
+          <span className="mt-5 grid grid-cols-2 gap-2 text-[13.5px]">
+            <span className="flex h-10 items-center justify-center rounded-[10px] bg-white/[.08]"><Tx>Rivedi</Tx></span>
+            <span data-go className="flex h-10 items-center justify-center rounded-[10px] bg-[#d97757] font-medium text-white">
+              <Tx>Approva e invia</Tx>
             </span>
           </span>
         </Bead>
         <Note attr="data-done">
-          <Ok><Tx>Inviate · 2 ore risparmiate oggi</Tx></Ok>
+          <Ok>
+            <Tx>Inviate · 2 ore risparmiate oggi</Tx>
+          </Ok>
         </Note>
       </>
     ),
     play: (run, $, at) => {
-      tap(run, $, "[data-go]", at + 1.4);
-      grow(run, $("[data-done]")[0], at + 1.8);
+      const c = cursorIn(run, $, $("[data-go]")[0], at);
+      const t = click(run, c, $("[data-go]")[0], at + 0.05, 0.5);
+      grow(run, $("[data-done]")[0], t + 0.2);
+      run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.5);
     },
   },
 ];
+
 
 /* ───────────── Soluzioni hardware ───────────── */
 
@@ -966,81 +1400,153 @@ export const HW: Shot[] = [
   },
 ];
 
-/* ───────────── Integrazioni e API ───────────── */
+/* ───────────── Integrazioni: il nostro software al centro, collegato a tutti gli strumenti che usi già ───────────── */
 
-const NodeApp = ({ icon, name, attr }: { icon: typeof Mail01Icon; name: string; attr?: string }) => (
-  <span {...(attr ? { [attr]: "" } : {})}>
-    <Bead tint={GL} radius={22} className="flex w-[124px] flex-col items-center gap-3 py-5 text-white">
-      <Tile size={44}>
-        <Ico i={icon} s={20} />
-      </Tile>
-      <span className="text-[13px] font-medium">{name}</span>
-    </Bead>
-  </span>
-);
+const TOOLS: { n: string; p?: { path: string; hex: string }; src?: string }[] = [
+  { n: "Shopify", p: si.siShopify },
+  { n: "Stripe", p: si.siStripe },
+  { n: "Gmail", p: si.siGmail },
+  { n: "WhatsApp", p: si.siWhatsapp },
+  { n: "Zendesk", p: si.siZendesk },
+  { n: "Sheets", p: si.siGooglesheets },
+  { n: "HubSpot", p: si.siHubspot },
+  { n: "Slack", src: "/visual/brands/slack.svg" },
+];
+const HUB = { x: 310, y: 92 };
+const toolPos = (i: number) => ({ x: 52 + i * 73, y: 300 });
+const ToolTile = ({ t, size = 52 }: { t: (typeof TOOLS)[number]; size?: number }) =>
+  t.src ? (
+    <Logo src={t.src} size={size} pad={0.24} />
+  ) : (
+    <Tile size={size} light>
+      <span style={{ color: `#${t.p!.hex}` }}>
+        <Brand p={t.p!} c="h-6 w-6" />
+      </span>
+    </Tile>
+  );
+
+const EVENTS: [number, string, string][] = [
+  [0, "Shopify", "Nuovo ordine #1042 · 89,00 €"],
+  [1, "Stripe", "Pagamento ricevuto"],
+  [5, "Gestionale", "Fattura FT-1042 creata e scorte aggiornate"],
+  [3, "WhatsApp", "Conferma inviata al cliente"],
+  [4, "Zendesk", "Richiesta del cliente chiusa"],
+];
+
 export const API: Shot[] = [
   {
+    dur: 3.8,
     node: (
-      <span className="relative flex items-center gap-[86px]">
-        <svg viewBox="0 0 560 120" className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 overflow-visible" aria-hidden>
-          <path data-wire d="M124 60 H218" stroke={AQUA} strokeWidth="2" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
-          <path data-wire d="M342 60 H436" stroke={AQUA} strokeWidth="2" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+      <span className="relative block h-[380px] w-[620px]">
+        <svg viewBox="0 0 620 380" className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" aria-hidden>
+          {TOOLS.map((_, i) => {
+            const p = toolPos(i);
+            const d = `M${HUB.x} ${HUB.y + 46} C${HUB.x} ${HUB.y + 130} ${p.x} ${p.y - 110} ${p.x} ${p.y - 30}`;
+            return (
+              <g key={i}>
+                <path data-wire d={d} fill="none" stroke="rgba(255,255,255,.22)" strokeWidth="1.4" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+                <path data-pulse d={d} fill="none" stroke="#9ee4ff" strokeWidth="2.6" strokeLinecap="round" pathLength={100} strokeDasharray="6 200" strokeDashoffset="6" opacity="0" />
+              </g>
+            );
+          })}
         </svg>
-        <span data-app>
-          <Bead tint={GL} radius={22} className="flex w-[124px] flex-col items-center gap-3 py-5 text-white">
-            <Tile size={44} light>
-              <Brand p={si.siShopify} c="h-6 w-6 text-[#95bf47]" />
-            </Tile>
-            <span className="text-[13px] font-medium">Shopify</span>
-          </Bead>
+        <span data-hub className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: HUB.x, top: HUB.y }}>
+          <Ours />
         </span>
-        <NodeApp icon={Package01Icon} name="Gestionale" attr="data-app" />
-        <NodeApp icon={Invoice01Icon} name="Fatture" attr="data-app" />
+        <span data-hubl className="absolute -translate-x-1/2 text-center text-[13px] font-medium text-white" style={{ left: HUB.x, top: HUB.y + 56 }}>
+          <Tx>Il tuo gestionale</Tx>
+        </span>
+        {TOOLS.map((t, i) => {
+          const p = toolPos(i);
+          return (
+            <span key={t.n} data-tool className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1.5" style={{ left: p.x, top: p.y }}>
+              <ToolTile t={t} />
+              <span className="text-[11px] text-white/70">{t.n}</span>
+            </span>
+          );
+        })}
       </span>
     ),
     play: (run, $, at) => {
-      enter(run, $("[data-app]"), at, 0.15);
-      run.to($("[data-wire]"), { strokeDashoffset: 0, duration: 0.7, stagger: 0.3, ease: "power2.inOut" }, at + 0.7);
+      run
+        .fromTo($("[data-hub]"), { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.8)" }, at - 0.3)
+        .fromTo($("[data-hubl]"), { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.4 }, at)
+        .fromTo($("[data-tool]"), { scale: 0.4, opacity: 0, y: 16 }, { scale: 1, opacity: 1, y: 0, duration: 0.45, stagger: 0.05, ease: "back.out(2)" }, at - 0.1)
+        .fromTo($("[data-wire]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.5, stagger: 0.04, ease: "power2.out" }, at + 0.2);
+      // dati che vanno e vengono, di continuo
+      const pulses = $("[data-pulse]");
+      for (let k = 0; k < 14; k++) {
+        const el = pulses[(k * 3) % pulses.length];
+        const s = at + 0.8 + k * 0.17;
+        const up = k % 2 === 0;
+        run
+          .set(el, { opacity: 1 }, s)
+          .fromTo(el, { strokeDashoffset: up ? -100 : 6 }, { strokeDashoffset: up ? 6 : -100, duration: 0.55, ease: "power1.inOut", immediateRender: false }, s)
+          .set(el, { opacity: 0 }, s + 0.56);
+      }
     },
   },
   {
+    dur: 3.8,
     node: (
-      <span className="flex items-center gap-4">
-        {[
-          [ShoppingCart01Icon, "Ordine #1042", "Pagato · 3 articoli"],
-          [Invoice01Icon, "Fattura FT-1042", "Emessa e inviata"],
-          [Package01Icon, "Magazzino", "Scorte aggiornate"],
-        ].map(([ic, t, s], i) => (
-          <span key={t as string} data-step className="flex items-center gap-4">
-            {i > 0 && <span className="h-px w-6 bg-white/40" />}
-            <Bead tint={GL} radius={20} className="block w-[150px] p-3.5 text-white">
-              <Tile size={34}>
-                <Ico i={ic as typeof Mail01Icon} s={16} />
-              </Tile>
-              <span className="mt-3 block text-[13px] font-semibold"><Tx>{t as string}</Tx></span>
-              <span className="block text-[11.5px] text-white/55"><Tx>{s as string}</Tx></span>
-            </Bead>
+      <span className="grid w-[600px] grid-cols-[150px_1fr] items-center gap-6">
+        <span className="flex flex-col items-center gap-3">
+          <span data-hub2>
+            <Ours size={104} />
           </span>
-        ))}
+          <span className="text-[13px] font-medium text-white"><Tx>Il tuo gestionale</Tx></span>
+        </span>
+        <span className="block space-y-2">
+          {EVENTS.map(([ti, n, e]) => (
+            <span key={e} data-ev className="block">
+              <Bead tint={GL} radius={16} className="flex items-center gap-3 p-2.5 pr-3.5 text-white">
+                {n === "Gestionale" ? (
+                  <Tile size={34}>
+                    <Ico i={Invoice01Icon} s={16} />
+                  </Tile>
+                ) : (
+                  <ToolTile t={TOOLS[ti]} size={34} />
+                )}
+                <span className="min-w-0 flex-1 leading-tight">
+                  <span className="block text-[11px] text-white/50">{n === "Gestionale" ? <Tx>Gestionale</Tx> : n}</span>
+                  <span className="block truncate text-[13px]">
+                    <Tx>{e}</Tx>
+                  </span>
+                </span>
+                <Ico i={CheckmarkCircle02Icon} s={15} c="text-[#6ee7a8]" />
+              </Bead>
+            </span>
+          ))}
+        </span>
       </span>
     ),
-    play: (run, $, at) => enter(run, $("[data-step]"), at, 0.6),
+    play: (run, $, at) => {
+      run.fromTo($("[data-ev]"), { opacity: 0, x: 24, scale: 0.96 }, { opacity: 1, x: 0, scale: 1, duration: 0.4, stagger: 0.42, ease: "expo.out" }, at - 0.2);
+      $("[data-ev]").forEach((_, i) => run.to($("[data-hub2]"), { scale: 1.06, duration: 0.1, yoyo: true, repeat: 1, ease: "power2.out" }, at - 0.15 + i * 0.42));
+    },
   },
   {
+    dur: 3,
     node: (
       <span className="flex flex-col items-center text-white">
         <span className="text-[13px] uppercase tracking-[0.12em] text-white/50"><Tx>Ore risparmiate ogni mese</Tx></span>
-        <span data-h className="mt-2 font-mono text-[96px] leading-none tabular-nums tracking-[-0.04em]">
+        <span data-h className="mt-2 font-mono text-[110px] leading-none tabular-nums tracking-[-0.04em]">
           0
         </span>
-        <Note>
-          <Ok><Tx>Nessun dato ricopiato a mano</Tx></Ok>
+        <Note attr="data-n2">
+          <Ok>
+            <Tx>Nessun dato ricopiato a mano</Tx>
+          </Ok>
         </Note>
       </span>
     ),
-    play: (run, $, at) => count(run, $("[data-h]")[0], 0, 32, at, 1.8, (n) => String(Math.round(n))),
+    play: (run, $, at) => {
+      count(run, $("[data-h]")[0], 0, 32, at - 0.2, 1.1, (n) => String(Math.round(n)));
+      grow(run, $("[data-n2]")[0], at + 0.8);
+    },
   },
 ];
+
 
 /* ───────────── Negozi online ───────────── */
 
