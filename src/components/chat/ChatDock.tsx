@@ -7,6 +7,7 @@ import { ArrowUp, X } from "lucide-react";
 import { usePathname } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { bevelImage } from "@/lib/glass";
+import { Bead } from "@/components/glass/Bead";
 import { prefersReducedMotion } from "@/lib/env";
 import { play } from "@/lib/sound";
 import type { Line } from "@/lib/chat-actions";
@@ -40,14 +41,10 @@ function useBevel(ref: RefObject<HTMLElement | null>, radius: number, on = true)
 /** Icona dell'"app": il monogramma, come un'icona su macOS e iOS. */
 function AppIcon({ size = 38 }: { size?: number }) {
   return (
-    <span
-      aria-hidden
-      className="relative flex shrink-0 items-center justify-center overflow-hidden bg-[#0d0e10] font-medium tracking-[-0.04em] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.12),0_2px_6px_rgba(0,0,0,.18)]"
-      style={{ width: size, height: size, borderRadius: size * 0.235, fontSize: size * 0.38 }}
-    >
-      <span className="absolute inset-0 bg-[radial-gradient(120%_90%_at_30%_0%,rgba(94,196,255,.45),transparent_60%)]" />
+    <Bead aria-hidden tint="dark" radius={size * 0.3} className="relative flex shrink-0 items-center justify-center overflow-hidden font-medium tracking-[-0.04em] text-white" style={{ width: size, height: size, fontSize: size * 0.38 }}>
+      <span className="absolute inset-0 -z-10 bg-[radial-gradient(120%_90%_at_30%_0%,rgba(94,196,255,.5),transparent_62%)]" />
       <span className="relative">FC</span>
-    </span>
+    </Bead>
   );
 }
 
@@ -128,7 +125,7 @@ export function ChatDock() {
     const el = noteRef.current;
     window.clearTimeout(hideT.current);
     if (!el || prefersReducedMotion()) return setNote(false);
-    gsap.to(el, { ...(desk ? { x: "115%" } : { y: "-130%" }), opacity: desk ? 0 : 1, duration: 0.42, ease: "power3.in", onComplete: () => setNote(false) });
+    gsap.to(el, { ...(desk ? { y: "140%" } : { y: "-130%" }), opacity: desk ? 0 : 1, duration: 0.42, ease: "power3.in", onComplete: () => setNote(false) });
   }, [desk]);
 
   // ingresso della notifica e uscita da sola dopo un po'
@@ -137,7 +134,7 @@ export function ChatDock() {
     if (!note || !el) return;
     play("tick");
     if (!prefersReducedMotion()) {
-      if (desk) gsap.fromTo(el, { x: "115%", opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: "expo.out" });
+      if (desk) gsap.fromTo(el, { y: "140%", opacity: 0, scale: 0.97 }, { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: "expo.out" });
       else gsap.fromTo(el, { y: "-130%", scale: 0.96 }, { y: 0, scale: 1, duration: 0.75, ease: "back.out(1.25)" });
     }
     const arm = () => {
@@ -236,7 +233,7 @@ export function ChatDock() {
       {/* notifica */}
       {note && (
         <div
-          className={`pointer-events-none fixed z-[96] ${desk ? "right-5 top-[calc(var(--bar-h)+28px)] w-[356px]" : "inset-x-2 top-[max(env(safe-area-inset-top),8px)]"}`}
+          className={`pointer-events-none fixed z-[96] ${desk ? "bottom-7 left-1/2 w-[392px] -translate-x-1/2" : "left-1/2 top-[max(env(safe-area-inset-top),8px)] w-[min(calc(100vw-16px),420px)] -translate-x-1/2"}`}
           role="status"
         >
           <div
@@ -337,11 +334,11 @@ export function ChatDock() {
               {msgs.map((m) =>
                 m.from === "me" ? (
                   <div key={m.id} data-msg className="flex justify-end">
-                    <p className="max-w-[82%] rounded-[20px] rounded-br-[6px] bg-[var(--sky)] px-3.5 py-2 text-[15px] leading-[1.38] text-[#04121c]">{m.text}</p>
+                    <Bead as="p" tint="sky" radius={20} className="drop-soft max-w-[82%] px-3.5 py-2 text-[15px] leading-[1.38] text-ink">{m.text}</Bead>
                   </div>
                 ) : (
                   <div key={m.id} data-msg className="max-w-[90%]">
-                    <p className="w-fit rounded-[20px] rounded-bl-[6px] bg-[var(--bubble)] px-3.5 py-2 text-[15px] leading-[1.42] text-ink">{m.text}</p>
+                    <Bead as="p" radius={20} className="drop-soft block w-fit px-3.5 py-2 text-[15px] leading-[1.42] text-ink">{m.text}</Bead>
                     {m.w && m.w.length > 0 && (
                       <div className="mt-2 grid gap-1.5">
                         {m.w.map((w, k) => (
@@ -353,11 +350,11 @@ export function ChatDock() {
                 ),
               )}
               {typing && (
-                <div data-msg className="flex w-fit gap-1 rounded-[20px] rounded-bl-[6px] bg-[var(--bubble)] px-3.5 py-3" aria-hidden>
+                <Bead as="div" data-msg radius={18} className="drop-soft flex w-fit gap-1 px-3.5 py-3" aria-hidden>
                   {[0, 1, 2].map((k) => (
                     <span key={k} className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--label-tertiary,#999)]" style={{ animationDelay: `${k * 0.13}s` }} />
                   ))}
-                </div>
+                </Bead>
               )}
             </div>
 
@@ -365,25 +362,27 @@ export function ChatDock() {
               {!asked && msgs.length > 0 && (
                 <div className="mb-2.5 flex flex-wrap gap-1.5">
                   {t.starts.map((c) => (
-                    <button key={c} type="button" onClick={() => ask(c)} className="h-8 rounded-full bg-[var(--bubble)] px-3 text-[13px] text-ink transition-colors hover:bg-[var(--hover)]">
+                    <Bead as="button" key={c} type="button" onClick={() => ask(c)} radius={16} className="drop-soft h-8 px-3.5 text-[13px] text-ink transition-transform active:scale-[.97]">
                       {c}
-                    </button>
+                    </Bead>
                   ))}
                 </div>
               )}
               <form onSubmit={onSubmit} className="flex items-center gap-2">
-                <input
-                  ref={inputRef}
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder={t.placeholder}
-                  aria-label={t.placeholder}
-                  maxLength={400}
-                  className="h-10 min-w-0 flex-1 rounded-full bg-[color-mix(in_srgb,var(--bg-canvas)_75%,transparent)] px-4 text-[15px] text-ink shadow-[inset_0_0_0_1px_var(--hair-strong)] outline-none placeholder:text-ink-3 focus:shadow-[inset_0_0_0_1.5px_var(--sky)]"
-                />
-                <button type="submit" aria-label={t.send} disabled={!q.trim() || typing} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--sky)] text-[#04121c] transition-[opacity,transform] active:scale-95 disabled:opacity-30">
-                  <ArrowUp size={18} strokeWidth={2.4} />
-                </button>
+                <Bead radius={22} className="drop-soft flex h-11 min-w-0 flex-1 items-center">
+                  <input
+                    ref={inputRef}
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder={t.placeholder}
+                    aria-label={t.placeholder}
+                    maxLength={400}
+                    className="h-full min-w-0 flex-1 bg-transparent px-4 text-[15px] text-ink outline-none placeholder:text-ink-3"
+                  />
+                </Bead>
+                <Bead as="button" type="submit" tint="sky" radius={22} aria-label={t.send} disabled={!q.trim() || typing} className="drop-soft flex h-11 w-11 shrink-0 items-center justify-center text-ink transition-[opacity,transform] active:scale-95 disabled:opacity-35">
+                  <ArrowUp size={18} strokeWidth={2.2} />
+                </Bead>
               </form>
             </div>
           </div>

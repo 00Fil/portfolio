@@ -1,4 +1,5 @@
 import type { ServiceKey } from "@/content/services";
+import { Bead } from "@/components/glass/Bead";
 
 /*
  * Pittogrammi a tratto unico, nello spirito di SF Symbols: griglia di 24, tratto 1,5 arrotondato,
@@ -79,14 +80,14 @@ const P: Record<ServiceKey, React.ReactNode> = {
   ),
 };
 
-/** Il pittogramma del servizio, a tratto, nel colore del testo. `size` è lo spazio che occupa. */
+/** Il pittogramma del servizio: tratto sottile dentro una tessera di vetro, come i tasti del sito. `size` è lo spazio che occupa. */
 export function ServiceIcon({ k, size = 40, className = "" }: { k: ServiceKey; size?: number; className?: string }) {
-  const s = Math.round(size * 0.62);
+  const s = Math.round(size * 0.5);
   return (
-    <span aria-hidden className={`inline-flex shrink-0 items-center justify-center text-ink ${className}`} style={{ width: size, height: size }}>
+    <Bead aria-hidden radius={Math.round(size * 0.32)} className={`inline-flex shrink-0 items-center justify-center text-ink ${className}`} style={{ width: size, height: size }}>
       <svg viewBox="0 0 24 24" width={s} height={s} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         {P[k]}
       </svg>
-    </span>
+    </Bead>
   );
 }

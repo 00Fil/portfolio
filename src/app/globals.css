@@ -277,6 +277,8 @@ body {
   );
   z-index: -1;
 }
+/* vetro più quieto per le superfici grandi (bolle della chat, righe): smusso appena accennato */
+.drop.drop-soft::after { opacity: 0.2; }
 .drop-accent { --drop-tint: color-mix(in srgb, var(--accent) 38%, transparent); }
 
 /* Superficie piatta (Modifier.glass): piano pieno, nessun riflesso */

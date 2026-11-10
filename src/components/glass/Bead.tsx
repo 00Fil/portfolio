@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type HTMLAttributes } from "react";
+import { useEffect, useRef, type ElementType, type HTMLAttributes } from "react";
 import { bevelImage } from "@/lib/glass";
 
 /**
@@ -8,14 +8,15 @@ import { bevelImage } from "@/lib/glass";
  * per pillole, tessere ed etichette dentro i disegni. Non reagisce al tocco.
  */
 export function Bead({
+  as: As = "span",
   className = "",
   tint,
   radius,
   style,
   children,
   ...rest
-}: HTMLAttributes<HTMLSpanElement> & { tint?: "sky" | "dark" | string; radius?: number }) {
-  const ref = useRef<HTMLSpanElement>(null);
+}: Omit<HTMLAttributes<HTMLElement>, "onClick"> & { as?: ElementType; tint?: "sky" | "dark" | string; radius?: number; [k: string]: unknown }) {
+  const ref = useRef<HTMLElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -33,13 +34,13 @@ export function Bead({
   }, [radius]);
   const t = tint === "sky" ? "color-mix(in srgb, #5ec4ff 42%, transparent)" : tint === "dark" ? "rgba(10,12,16,.62)" : tint;
   return (
-    <span
+    <As
       ref={ref}
       className={`drop ${className}`}
       style={{ ...(t ? { ["--drop-tint" as string]: t } : {}), ...(radius != null ? { borderRadius: radius } : {}), ...style }}
       {...rest}
     >
       {children}
-    </span>
+    </As>
   );
 }

@@ -11,6 +11,7 @@ import { getProject } from "@/content/projects";
 import { profile } from "@/content/profile";
 import { getSlots } from "@/lib/booking-actions";
 import { handoff, type Line } from "@/lib/chat-actions";
+import { Bead } from "@/components/glass/Bead";
 import { ServiceIcon } from "@/components/services/ServiceIcon";
 import { Cover, TAGLINE } from "@/components/work/Covers";
 import type { ChatText } from "./engine";
@@ -33,25 +34,23 @@ export function useFirstSlot(locale: Locale) {
 function BookCard({ path, t, locale }: { path?: string; t: ChatText; locale: Locale }) {
   const first = useFirstSlot(locale);
   return (
-    <a href={`#brief${path ? `-${path}` : ""}`} className="group flex items-center gap-3 rounded-[14px] bg-ink p-2.5 pr-3.5 text-[var(--bg-canvas)] transition-transform active:scale-[.985]">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[color-mix(in_srgb,var(--bg-canvas)_14%,transparent)]">
-        <CalendarClock size={17} strokeWidth={1.8} aria-hidden />
-      </span>
+    <Bead as="a" tint="sky" radius={16} href={`#brief${path ? `-${path}` : ""}`} className="drop-soft group flex items-center gap-3 p-3 pr-3.5 text-ink transition-transform active:scale-[.985]">
+      <CalendarClock size={20} strokeWidth={1.5} className="shrink-0" aria-hidden />
       <span className="min-w-0 flex-1 leading-tight">
         <span className="block text-[14px] font-medium">{t.book}</span>
         {first && <span className="mt-0.5 block text-[12px] opacity-70">{t.nextFree.replace("{when}", first)}</span>}
       </span>
       <ArrowUpRight size={16} strokeWidth={1.8} className="opacity-70 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
-    </a>
+    </Bead>
   );
 }
 
-const row = "group flex items-center gap-3 rounded-[14px] bg-[color-mix(in_srgb,var(--bg-canvas)_70%,transparent)] p-2 pr-3 shadow-[inset_0_0_0_1px_var(--hair)] transition-shadow hover:shadow-[inset_0_0_0_1px_var(--hair-strong)]";
+const row = "drop-soft group flex items-center gap-3 p-2 pr-3 transition-transform active:scale-[.985]";
 const arrow = <ArrowUpRight size={15} strokeWidth={1.8} className="shrink-0 text-ink-3 transition-[transform,color] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-ink" aria-hidden />;
 
 function ProjectRow({ slug, locale }: { slug: string; locale: Locale }) {
   return (
-    <Link href={`/lavori/${slug}`} className={row}>
+    <Bead as={Link} radius={16} href={`/lavori/${slug}`} className={row}>
       <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-[10px]">
         <Cover slug={slug} mini />
       </span>
@@ -60,7 +59,7 @@ function ProjectRow({ slug, locale }: { slug: string; locale: Locale }) {
         <span className="mt-0.5 block truncate text-[12px] text-ink-3">{TAGLINE[slug]?.[locale]}</span>
       </span>
       {arrow}
-    </Link>
+    </Bead>
   );
 }
 
@@ -79,10 +78,12 @@ function Handoff({ t, lines }: { t: ChatText; lines: () => Line[] }) {
         {t.hDone.replace("{email}", email.trim())}
       </p>
     );
-  const field = "h-10 w-full rounded-[11px] bg-[var(--bg-canvas)] px-3 text-[14px] text-ink shadow-[inset_0_0_0_1px_var(--hair-strong)] outline-none placeholder:text-ink-3 focus:shadow-[inset_0_0_0_1.5px_var(--sky)]";
+  const field = "h-10 w-full rounded-[12px] bg-[color-mix(in_srgb,var(--bg-canvas)_55%,transparent)] px-3 text-[14px] text-ink shadow-[inset_0_0_0_1px_var(--hair)] outline-none placeholder:text-ink-3 focus:shadow-[inset_0_0_0_1.5px_var(--sky)]";
   return (
-    <form
-      className="grid gap-2 rounded-[14px] bg-[color-mix(in_srgb,var(--bg-canvas)_70%,transparent)] p-2.5 shadow-[inset_0_0_0_1px_var(--hair)]"
+    <Bead
+      as="form"
+      radius={18}
+      className="drop-soft grid gap-2 p-3"
       onSubmit={async (e) => {
         e.preventDefault();
         if (!ok) return;
@@ -94,10 +95,10 @@ function Handoff({ t, lines }: { t: ChatText; lines: () => Line[] }) {
       <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t.hName} autoComplete="name" className={field} />
       <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.hEmail} type="email" inputMode="email" autoComplete="email" autoCapitalize="none" className={field} />
       {state === "error" && <p className="px-1 text-[12.5px] text-[#e5484d]">{t.hErr}</p>}
-      <button type="submit" disabled={!ok || state === "sending"} className="flex h-10 items-center justify-center rounded-[11px] bg-ink text-[14px] font-medium text-[var(--bg-canvas)] transition-opacity disabled:opacity-40">
+      <button type="submit" disabled={!ok || state === "sending"} className="flex h-10 items-center justify-center rounded-[12px] bg-ink text-[14px] font-medium text-[var(--bg-canvas)] transition-opacity disabled:opacity-40">
         {state === "sending" ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden /> : t.hSend}
       </button>
-    </form>
+    </Bead>
   );
 }
 
@@ -110,14 +111,14 @@ export function WidgetView({ w, t, locale, lines }: { w: Widget; t: ChatText; lo
     case "service": {
       const s = SERVICES.find((x) => x.key === w.key)!;
       return (
-        <Link href={`/servizi/${s.slug}`} className={row}>
+        <Bead as={Link} radius={16} href={`/servizi/${s.slug}`} className={row}>
           <ServiceIcon k={s.key} size={40} />
           <span className="min-w-0 flex-1 leading-tight">
             <span className="block text-[14px] font-medium text-ink">{s.title[locale]}</span>
             <span className="mt-0.5 line-clamp-1 text-[12px] text-ink-3">{s.short[locale]}</span>
           </span>
           {arrow}
-        </Link>
+        </Bead>
       );
     }
     case "project":
@@ -132,30 +133,30 @@ export function WidgetView({ w, t, locale, lines }: { w: Widget; t: ChatText; lo
       );
     case "area":
       return (
-        <Link href="/accedi" className={row}>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[var(--hover)] text-ink">
+        <Bead as={Link} radius={16} href="/accedi" className={row}>
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center text-ink">
             <LayoutDashboard size={18} strokeWidth={1.7} aria-hidden />
           </span>
           <span className="flex-1 text-[14px] font-medium text-ink">{t.area}</span>
           {arrow}
-        </Link>
+        </Bead>
       );
     case "cv":
       return (
-        <a href={profile.cv[locale]} download className={row}>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[var(--hover)] text-ink">
+        <Bead as="a" radius={16} href={profile.cv[locale]} download className={row}>
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center text-ink">
             <FileText size={18} strokeWidth={1.7} aria-hidden />
           </span>
           <span className="flex-1 text-[14px] font-medium text-ink">{t.cv}</span>
           {arrow}
-        </a>
+        </Bead>
       );
     case "contact":
       return profile.email ? (
-        <a href={`mailto:${profile.email}`} className={row}>
+        <Bead as="a" radius={16} href={`mailto:${profile.email}`} className={row}>
           <span className="flex-1 px-1 text-[14px] text-ink">{profile.email}</span>
           {arrow}
-        </a>
+        </Bead>
       ) : null;
   }
 }
