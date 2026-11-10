@@ -40,7 +40,7 @@ export type Shot = { node: ReactNode; play?: (run: gsap.core.Timeline, $: Q, at:
 const snd = (run: gsap.core.Timeline, name: Sfx, at: number) => run.call(() => sfx(name), undefined, at);
 
 const W = 620;
-const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too.", "Livelli": "Layers", "Desktop": "Desktop", "Hero": "Hero", "Titolo": "Title", "Servizi": "Services", "Prenota una visita": "Book a visit", "Perfetto così!": "Love it!", "Riempimento": "Fill", "Angoli": "Corners", "Il tuo sorriso, in buone mani": "Your smile, in good hands", "Pubblicazione": "Deployment", "Pubblica": "Deploy", "Compilato in 9 s": "Built in 9 s", "24 pagine generate": "24 pages generated", "Immagini ottimizzate": "Images optimised", "Online su studiobianchi.it": "Live on studiobianchi.it", "Online": "Live", "Chi siamo": "About", "Contatti": "Contact", "Giovedì 14 novembre": "Thursday 14 November", "Conferma": "Confirm", "Nuova prenotazione": "New booking", "Giulia R. · giovedì alle 14:30": "Giulia R. · Thursday at 2:30 pm", "ora": "now", "Buonasera, Marco": "Good evening, Marco", "Come posso aiutarti oggi?": "How can I help you today?", "Mi consigli un buon dentista a Brescia?": "Can you recommend a good dentist in Brescia?", ", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive.": ", in central Brescia: online booking, long hours and excellent reviews.", "e": "and", "Sei la loro": "You’re their", "prima scelta,": "first choice,", "quando si parla del tuo settore.": "whenever your field comes up.", "Nuova attività": "New task", "Recenti": "Recent", "Report vendite": "Sales report", "Fatture ottobre": "October invoices", "Listino 2026": "2026 price list", "Cosa facciamo oggi?": "What shall we do today?", "Smista le email di oggi, inserisci gli ordini e prepara le risposte": "Sort today’s emails, enter the orders and draft the replies", "Al lavoro sulle email di oggi": "Working on today’s emails", "Lette 24 email": "Read 24 emails", "12 ordini inseriti nel gestionale": "12 orders entered in the ERP", "9 risposte preparate": "9 replies drafted", "3 da controllare a mano": "3 to check by hand", "File": "Files", "ordini.xlsx": "orders.xlsx", "risposte (9)": "replies (9)", "Fatto. 9 risposte pronte": "Done. 9 replies ready", "12 ordini già nel gestionale · 3 da guardare tu": "12 orders already in the ERP · 3 for you to check", "Approva e invia": "Approve and send", "Prenotazione — Prototipo": "Booking — Prototype", "Presenta": "Present", "Scegli l'orario": "Pick a time", "Confermato": "Confirmed", "Ci vediamo giovedì": "See you Thursday", "Test con 5 persone vere": "Tested with 5 real people", "prenotare una visita": "book a visit", "Tempo medio": "Average time", "Completano la prenotazione": "Complete the booking", "Prima": "Before", "Dopo": "After", "2,5 volte più prenotazioni": "2.5× more bookings", "Il tuo gestionale": "Your ERP", "Nuovo ordine #1042 · 89,00 €": "New order #1042 · €89.00", "Pagamento ricevuto": "Payment received", "Fattura FT-1042 creata e scorte aggiornate": "Invoice FT-1042 created, stock updated", "Conferma inviata al cliente": "Confirmation sent to the customer", "Richiesta del cliente chiusa": "Customer request closed", "Prenota e gestisci le visite": "Book and manage visits", "Ottieni": "Get", "Apri": "Open", "Salute": "Health", "Età": "Age", "In compilazione": "Building", "Codice scaricato": "Code fetched", "Dipendenze installate": "Dependencies installed", "Novembre 2026": "November 2026", "Giovedì 12 novembre": "Thursday 12 November"};
+const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too.", "Livelli": "Layers", "Desktop": "Desktop", "Hero": "Hero", "Titolo": "Title", "Servizi": "Services", "Prenota una visita": "Book a visit", "Perfetto così!": "Love it!", "Riempimento": "Fill", "Angoli": "Corners", "Il tuo sorriso, in buone mani": "Your smile, in good hands", "Pubblicazione": "Deployment", "Pubblica": "Deploy", "Compilato in 9 s": "Built in 9 s", "24 pagine generate": "24 pages generated", "Immagini ottimizzate": "Images optimised", "Online su studiobianchi.it": "Live on studiobianchi.it", "Online": "Live", "Chi siamo": "About", "Contatti": "Contact", "Giovedì 14 novembre": "Thursday 14 November", "Conferma": "Confirm", "Nuova prenotazione": "New booking", "Giulia R. · giovedì alle 14:30": "Giulia R. · Thursday at 2:30 pm", "ora": "now", "Buonasera, Marco": "Good evening, Marco", "Come posso aiutarti oggi?": "How can I help you today?", "Mi consigli un buon dentista a Brescia?": "Can you recommend a good dentist in Brescia?", ", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive.": ", in central Brescia: online booking, long hours and excellent reviews.", "e": "and", "Sei la loro": "You’re their", "prima scelta,": "first choice,", "quando si parla del tuo settore.": "whenever your field comes up.", "Nuova attività": "New task", "Recenti": "Recent", "Report vendite": "Sales report", "Fatture ottobre": "October invoices", "Listino 2026": "2026 price list", "Cosa facciamo oggi?": "What shall we do today?", "Smista le email di oggi, inserisci gli ordini e prepara le risposte": "Sort today’s emails, enter the orders and draft the replies", "Al lavoro sulle email di oggi": "Working on today’s emails", "Lette 24 email": "Read 24 emails", "12 ordini inseriti nel gestionale": "12 orders entered in the ERP", "9 risposte preparate": "9 replies drafted", "3 da controllare a mano": "3 to check by hand", "File": "Files", "ordini.xlsx": "orders.xlsx", "risposte (9)": "replies (9)", "Fatto. 9 risposte pronte": "Done. 9 replies ready", "12 ordini già nel gestionale · 3 da guardare tu": "12 orders already in the ERP · 3 for you to check", "Approva e invia": "Approve and send", "Prenotazione — Prototipo": "Booking — Prototype", "Presenta": "Present", "Scegli l'orario": "Pick a time", "Confermato": "Confirmed", "Ci vediamo giovedì": "See you Thursday", "Test con 5 persone vere": "Tested with 5 real people", "prenotare una visita": "book a visit", "Tempo medio": "Average time", "Completano la prenotazione": "Complete the booking", "Prima": "Before", "Dopo": "After", "2,5 volte più prenotazioni": "2.5× more bookings", "Il tuo gestionale": "Your ERP", "Nuovo ordine #1042 · 89,00 €": "New order #1042 · €89.00", "Pagamento ricevuto": "Payment received", "Fattura FT-1042 creata e scorte aggiornate": "Invoice FT-1042 created, stock updated", "Conferma inviata al cliente": "Confirmation sent to the customer", "Richiesta del cliente chiusa": "Customer request closed", "Prenota e gestisci le visite": "Book and manage visits", "Ottieni": "Get", "Apri": "Open", "Salute": "Health", "Età": "Age", "Avvisa": "Notify", "Avvisato": "Notified", "In compilazione": "Building", "Codice scaricato": "Code fetched", "Dipendenze installate": "Dependencies installed", "Novembre 2026": "November 2026", "Giovedì 12 novembre": "Thursday 12 November"};
 /** Le scritte dentro le inquadrature: italiano, oppure inglese quando il sito è in inglese. */
 function Tx({ children }: { children: string }) {
   return <>{useLocale() === "en" ? (EN[children] ?? children) : children}</>;
@@ -1558,33 +1558,37 @@ export const AI: Shot[] = [
   {
     dur: 3.4,
     node: (
-      <>
-        <Bead tint={ClaudeUI} radius={24} className="block w-[420px] p-5 text-[#ece9e1]">
-          <span className="flex items-center gap-3">
-            <Img src={claudeLogo} s={26} />
-            <span className="leading-tight">
-              <span className="block text-[15px] font-semibold"><Tx>Fatto. 9 risposte pronte</Tx></span>
-              <span className="block text-[12px] text-white/55"><Tx>12 ordini già nel gestionale · 3 da guardare tu</Tx></span>
+      <Win tint={ClaudeUI} title={<span>Cowork</span>} logo={<Img src={claudeLogo} s={14} />}>
+        <span className="absolute inset-0 grid grid-cols-[150px_1fr]">
+          <Side />
+          <span className="flex flex-col items-center justify-center px-8 text-[#ece9e1]">
+            <span className="flex items-center gap-3 self-stretch rounded-[16px] bg-[#30302e] p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
+              <Img src={claudeLogo} s={28} />
+              <span className="leading-tight">
+                <span className="block text-[15px] font-semibold"><Tx>Fatto. 9 risposte pronte</Tx></span>
+                <span className="block text-[12px] text-white/55"><Tx>12 ordini già nel gestionale · 3 da guardare tu</Tx></span>
+              </span>
+            </span>
+            <span className="mt-3 grid w-full grid-cols-2 gap-2 text-[13.5px]">
+              <span className="flex h-10 items-center justify-center rounded-[10px] bg-white/[.08]"><Tx>Rivedi</Tx></span>
+              <span data-go className="flex h-10 items-center justify-center rounded-[10px] bg-[#d97757] font-medium text-white">
+                <Tx>Approva e invia</Tx>
+              </span>
+            </span>
+            <span data-done className="mt-4 inline-flex items-center gap-2 overflow-hidden rounded-full bg-white/[.07] px-3.5 py-1.5 text-[12.5px] opacity-0">
+              <Ok>
+                <Tx>Inviate · 2 ore risparmiate oggi</Tx>
+              </Ok>
             </span>
           </span>
-          <span className="mt-5 grid grid-cols-2 gap-2 text-[13.5px]">
-            <span className="flex h-10 items-center justify-center rounded-[10px] bg-white/[.08]"><Tx>Rivedi</Tx></span>
-            <span data-go className="flex h-10 items-center justify-center rounded-[10px] bg-[#d97757] font-medium text-white">
-              <Tx>Approva e invia</Tx>
-            </span>
-          </span>
-        </Bead>
-        <Note attr="data-done">
-          <Ok>
-            <Tx>Inviate · 2 ore risparmiate oggi</Tx>
-          </Ok>
-        </Note>
-      </>
+        </span>
+      </Win>
     ),
     play: (run, $, at) => {
       const c = cursorIn(run, $, $("[data-go]")[0], at);
       const t = click(run, c, $("[data-go]")[0], at + 0.05, 0.5);
-      grow(run, $("[data-done]")[0], t + 0.2);
+      run.fromTo($("[data-done]"), { opacity: 0, y: 8, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.8)" }, t + 0.15);
+      snd(run, "success", t + 0.15);
       run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.5);
     },
   },
@@ -1617,33 +1621,76 @@ const Fridge = ({ hot = false }: { hot?: boolean }) => (
 );
 export const HW: Shot[] = [
   {
-    node: <Fridge />,
-    play: (run, $, at) => {
-      run.fromTo($("[data-spark]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 3, ease: "none" }, at);
-      count(run, $("[data-temp]")[0], 3.9, 4.1, at, 3, (n) => `${it(n, 1)}°`);
-    },
-  },
-  {
+    dur: 6,
     node: (
-      <>
-        <Fridge hot />
-        <span data-alert className="mt-4 inline-flex overflow-hidden p-1">
-          <Bead tint="rgba(30,34,40,.62)" radius={20} className="flex w-[360px] items-center gap-3 p-3 pr-4 text-white">
-            <Tile size={36} tone="amber">
-              <Ico i={Notification01Icon} s={16} />
-            </Tile>
-            <span className="leading-tight">
-              <span className="block text-[13px] font-semibold"><Tx>Temperatura in aumento</Tx></span>
-              <span className="block text-[12px] text-white/65"><Tx>Cella frigo 2 · porta aperta da 6 min</Tx></span>
+      <Win title={<span>Cucina · Monitoraggio</span>} logo={<Ours size={16} />}>
+        <span className="absolute inset-0 grid grid-cols-[190px_1fr]">
+          <span className="block border-r border-white/[.07] p-3">
+            <span className="mb-2 block text-[10px] uppercase tracking-[0.08em] text-white/35"><Tx>Impianti</Tx></span>
+            {[
+              ["Cella frigo 1", "3,8°", false],
+              ["Cella frigo 2", "3,9°", true],
+              ["Forno", "180°", false],
+              ["Compressore", "On", false],
+            ].map(([n, v, live]) => (
+              <span key={n as string} {...(live ? { "data-dev": "" } : {})} className="mb-1.5 flex items-center gap-2 rounded-[10px] bg-white/[.05] px-2.5 py-2 text-[12px]">
+                <span {...(live ? { "data-dot": "" } : {})} className="h-2 w-2 rounded-full bg-[#34d399]" />
+                <span className="flex-1"><Tx>{n as string}</Tx></span>
+                <span {...(live ? { "data-val": "" } : {})} className="font-mono text-white/70">{v}</span>
+              </span>
+            ))}
+          </span>
+          <span className="relative flex min-h-0 flex-col p-5">
+            <span className="flex items-center gap-3">
+              <Tile size={38}>
+                <Ico i={ThermometerWarmIcon} s={17} />
+              </Tile>
+              <span className="flex-1 leading-tight">
+                <span className="block text-[15px] font-semibold tracking-[-0.02em]"><Tx>Cella frigo 2</Tx></span>
+                <span className="block text-[11.5px] text-white/50"><Tx>Laboratorio · dal vivo</Tx></span>
+              </span>
+              <span data-temp className="font-mono text-[28px] tabular-nums">3,9°</span>
             </span>
-          </Bead>
+            <span className="relative mt-4 block min-h-[120px] flex-1 rounded-[14px] bg-black/30 p-3">
+              <svg viewBox="0 0 300 50" preserveAspectRatio="none" className="h-full w-full overflow-visible">
+                <line x1="0" x2="300" y1="16" y2="16" stroke={AMBER} strokeOpacity=".55" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
+                <path data-spark d={RISE} fill="none" stroke={AQUA} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" vectorEffect="non-scaling-stroke" />
+              </svg>
+            </span>
+            <span data-alert className="mt-4 block overflow-hidden opacity-0">
+              <Bead tint="rgba(30,34,40,.7)" radius={18} className="flex items-center gap-3 p-3 pr-3.5 text-white">
+                <Tile size={34} tone="amber">
+                  <Ico i={Notification01Icon} s={16} />
+                </Tile>
+                <span className="min-w-0 flex-1 leading-tight">
+                  <span className="block text-[13px] font-semibold"><Tx>Temperatura in aumento</Tx></span>
+                  <span className="block truncate text-[11.5px] text-white/65"><Tx>Cella frigo 2 · porta aperta da 6 min</Tx></span>
+                </span>
+                <span data-ack className="rounded-full bg-white px-3.5 py-1.5 text-[12px] font-semibold text-black"><Tx>Avvisa</Tx></span>
+              </Bead>
+            </span>
+          </span>
         </span>
-      </>
+      </Win>
     ),
     play: (run, $, at) => {
-      run.fromTo($("[data-spark]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 2.2, ease: "power1.in" }, at);
-      count(run, $("[data-temp]")[0], 4.1, 7.8, at, 2.2, (n) => `${it(n, 1)}°`);
-      grow(run, $("[data-alert]")[0], at + 1.6, 16);
+      const hot = "#ffd48a";
+      run.fromTo($("[data-spark]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 2.4, ease: "power1.in" }, at);
+      count(run, $("[data-temp]")[0], 3.9, 7.8, at, 2.4, (n) => `${it(n, 1)}°`);
+      run
+        .to($("[data-temp]"), { color: hot, duration: 0.4 }, at + 1.5)
+        .to($("[data-dot]"), { backgroundColor: AMBER, duration: 0.3 }, at + 1.6)
+        .to($("[data-spark]"), { stroke: AMBER, duration: 0.4 }, at + 1.5)
+        .call(() => void ($("[data-val]")[0].textContent = "7,8°"), undefined, at + 2.4)
+        .fromTo($("[data-alert]"), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.5)" }, at + 1.9);
+      snd(run, "notify", at + 1.9);
+      const c = cursorIn(run, $, $("[data-ack]")[0], at + 2.6);
+      const t = click(run, c, $("[data-ack]")[0], at + 2.65, 0.5);
+      run
+        .call(() => void ($("[data-ack]")[0].textContent = L("Avvisato")), undefined, t + 0.05)
+        .to($("[data-ack]"), { backgroundColor: "#6ee7a8", duration: 0.2 }, t + 0.05)
+        .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.4);
+      snd(run, "success", t + 0.1);
     },
   },
   {
@@ -1823,93 +1870,116 @@ export const API: Shot[] = [
 
 export const SHOP: Shot[] = [
   {
+    dur: 6,
     node: (
-      <span className="relative">
-        <Bead tint={GL} radius={26} className="block w-[300px] p-3.5 text-white">
-          <span className="block h-[150px] rounded-[16px] bg-[radial-gradient(circle_at_35%_30%,#d9f2ff,#5ec4ff_45%,#1f7fb8)]" />
-          <span className="mt-3 flex items-baseline justify-between px-1">
-            <span className="text-[15px] font-semibold"><Tx>Olio extravergine</Tx></span>
-            <span className="font-mono text-[14px]">18,00 €</span>
-          </span>
-          <span data-add className="mt-3 flex h-10 items-center justify-center gap-2 rounded-full bg-[#5ec4ff] text-[13.5px] font-medium text-[#04121c]">
-            <Ico i={ShoppingCart01Icon} s={15} />
-            <Tx>Aggiungi al carrello</Tx>
-          </span>
-        </Bead>
-        <span data-badge className="absolute -right-3 -top-3 flex h-8 min-w-8 items-center justify-center rounded-full bg-[#30d158] px-2 font-mono text-[13px] font-semibold text-white opacity-0 shadow-[0_6px_18px_-4px_rgba(48,209,88,.6)]">
-          1
-        </span>
-      </span>
-    ),
-    play: (run, $, at) =>
-{
-      tap(run, $, "[data-add]", at + 1.3);
-      run.fromTo($("[data-badge]"), { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2.4)" }, at + 1.45);
-    },
-  },
-  {
-    node: (
-      <>
-        <Bead tint={GL} radius={26} className="block w-[360px] p-5 text-white">
-          <span className="flex items-baseline justify-between">
-            <span className="text-[15px] font-semibold"><Tx>Totale</Tx></span>
-            <span className="font-mono text-[22px]">23,90 €</span>
-          </span>
-          <span className="mt-1 block text-[12px] text-white/50"><Tx>Spedizione inclusa · arriva giovedì</Tx></span>
-          <span data-pay className="mt-5 flex h-12 items-center justify-center rounded-full bg-white text-black">
-            <Brand p={si.siApplepay} c="h-11 w-11" />
-          </span>
-          <span className="mt-2 flex h-11 items-center justify-center gap-2 rounded-full bg-white/10 text-[13.5px]">
-            <Ico i={CreditCardIcon} s={16} />
-            <Tx>Carta</Tx>
-          </span>
-          <span className="mt-3 flex items-center justify-center gap-1.5 text-[11.5px] text-white/50">
-            <Ico i={LockKeyIcon} s={12} />
-            <Tx>Pagamento protetto</Tx>
-          </span>
-        </Bead>
-        <Note attr="data-paid">
-          <Ok><Tx>Pagamento riuscito</Tx></Ok>
-        </Note>
-      </>
-    ),
-    play: (run, $, at) =>
-{
-      tap(run, $, "[data-pay]", at + 1.3);
-      grow(run, $("[data-paid]")[0], at + 1.7);
-    },
-  },
-  {
-    node: (
-      <Bead tint={GL} radius={26} className="block w-[440px] p-4 text-white">
-        <span className="flex items-center justify-between px-1 pb-3 text-[13px] text-white/60">
-          <span><Tx>Ordini di oggi</Tx></span>
-          <span className="flex items-center gap-1.5">
-            <Tx>Olio extravergine ·</Tx><span data-stock className="font-mono tabular-nums text-white">11</span> <Tx>disponibili</Tx>
-          </span>
-        </span>
-        <span className="block space-y-2">
-          <span data-new className="flex items-center gap-3 rounded-[14px] bg-[rgba(94,196,255,.16)] px-3.5 py-2.5 text-[13.5px]">
-            <span className="font-mono text-white/60">#2048</span>
-            <span className="flex-1"><Tx>Giulia R. · 2 articoli</Tx></span>
-            <span className="rounded-full bg-[rgba(110,231,168,.18)] px-2.5 py-0.5 text-[11.5px] text-[#8ff0ad]"><Tx>Pagato</Tx></span>
-          </span>
-          {[
-            ["#2047", "Marco B. · 1 articolo", "Spedito"],
-            ["#2046", "Elena T. · 3 articoli", "Consegnato"],
-          ].map(([n, c, s]) => (
-            <span key={n} className="flex items-center gap-3 rounded-[14px] bg-white/[.06] px-3.5 py-2.5 text-[13.5px]">
-              <span className="font-mono text-white/60">{n}</span>
-              <span className="flex-1"><Tx>{c}</Tx></span>
-              <span className="text-[11.5px] text-white/55"><Tx>{s}</Tx></span>
+      <Browser url="oliobianchi.it">
+        <span className="absolute inset-0 block overflow-hidden bg-[#f7f7f4] text-[#111827]">
+          <span className="flex items-center justify-between px-6 pt-4 text-[12px]">
+            <span className="flex items-center gap-2 font-semibold">
+              <span className="h-5 w-5 rounded-full bg-[#1f7fb8]" />
+              Olio Bianchi
             </span>
-          ))}
+            <span data-cartbtn className="relative flex h-8 w-8 items-center justify-center rounded-full bg-black/[.06]">
+              <Ico i={ShoppingCart01Icon} s={16} />
+              <span data-badge className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#30d158] px-1 font-mono text-[9.5px] font-semibold text-white opacity-0">
+                1
+              </span>
+            </span>
+          </span>
+          <span className="absolute inset-x-6 bottom-6 top-[64px] grid grid-cols-[1fr_1fr] items-center gap-6">
+            <span className="block h-full max-h-[270px] rounded-[18px] bg-[radial-gradient(circle_at_35%_30%,#fff3c6,#e3b94f_45%,#9a7b1f)]" />
+            <span className="block">
+              <span className="block text-[20px] font-semibold tracking-[-0.02em]"><Tx>Olio extravergine</Tx></span>
+              <span className="mt-1 block font-mono text-[15px]">18,00 €</span>
+              <span className="mt-3 block space-y-1.5">
+                <span className="block h-1.5 w-[80%] rounded-full bg-[#111827]/20" />
+                <span className="block h-1.5 w-[58%] rounded-full bg-[#111827]/15" />
+              </span>
+              <span data-add className="mt-5 flex h-10 items-center justify-center gap-2 rounded-full bg-[#111827] text-[13px] font-medium text-white">
+                <Ico i={ShoppingCart01Icon} s={15} />
+                <Tx>Aggiungi al carrello</Tx>
+              </span>
+            </span>
+          </span>
+          <span data-veil className="absolute inset-0 block bg-black/30 opacity-0" />
+          {/* carrello */}
+          <span data-drawer className="absolute bottom-0 right-0 top-0 flex w-[260px] translate-x-[105%] flex-col bg-white p-4 shadow-[-20px_0_50px_-20px_rgba(0,0,0,.35)]">
+            <span className="flex items-baseline justify-between">
+              <span className="text-[13px] font-semibold"><Tx>Totale</Tx></span>
+              <span className="font-mono text-[18px]">23,90 €</span>
+            </span>
+            <span className="mt-1 block text-[11px] text-black/45"><Tx>Spedizione inclusa · arriva giovedì</Tx></span>
+            <span className="mt-4 flex items-center gap-2.5 rounded-[12px] bg-black/[.04] p-2">
+              <span className="h-10 w-10 rounded-[8px] bg-[radial-gradient(circle_at_35%_30%,#fff3c6,#e3b94f_60%,#9a7b1f)]" />
+              <span className="flex-1 text-[12px]"><Tx>Olio extravergine</Tx></span>
+              <span className="font-mono text-[11.5px] text-black/55">18,00 €</span>
+            </span>
+            <span data-pay className="mt-auto flex h-11 items-center justify-center rounded-full bg-black text-white">
+              <Brand p={si.siApplepay} c="h-10 w-10" />
+            </span>
+            <span className="mt-2 flex items-center justify-center gap-1.5 text-[10.5px] text-black/45">
+              <Ico i={LockKeyIcon} s={11} />
+              <Tx>Pagamento protetto</Tx>
+            </span>
+            <span data-paid className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white opacity-0">
+              <Ico i={CheckmarkCircle02Icon} s={36} c="text-[#30d158]" />
+              <span className="text-[13px] font-semibold"><Tx>Pagamento riuscito</Tx></span>
+            </span>
+          </span>
         </span>
-      </Bead>
+      </Browser>
     ),
     play: (run, $, at) => {
-      run.fromTo($("[data-new]"), { autoAlpha: 0, y: -14 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 0.4);
-      count(run, $("[data-stock]")[0], 11, 10, at + 0.9, 0.2, (n) => String(Math.round(n)));
+      const c = cursorIn(run, $, $("[data-add]")[0], at);
+      let t = click(run, c, $("[data-add]")[0], at + 0.05, 0.5);
+      run.fromTo($("[data-badge]"), { opacity: 0, scale: 0.3 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.6)" }, t + 0.05);
+      snd(run, "tick", t + 0.05);
+      t = click(run, c, $("[data-cartbtn]")[0], t + 0.35, 0.45);
+      run.to($("[data-veil]"), { opacity: 1, duration: 0.3 }, t + 0.05).fromTo($("[data-drawer]"), { xPercent: 105 }, { xPercent: 0, duration: 0.5, ease: "expo.out" }, t + 0.05);
+      snd(run, "whoosh", t + 0.05);
+      t = click(run, c, $("[data-pay]")[0], t + 0.5, 0.5);
+      run.to($("[data-paid]"), { opacity: 1, duration: 0.3 }, t + 0.1).fromTo($("[data-paid] svg"), { scale: 0.3 }, { scale: 1, duration: 0.5, ease: "back.out(2.5)" }, t + 0.1).to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.4);
+      snd(run, "success", t + 0.1);
+    },
+  },
+  {
+    dur: 4.2,
+    node: (
+      <Win title={<span>Ordini</span>} logo={<Ours size={16} />}>
+        <span className="absolute inset-0 flex flex-col p-5">
+          <span className="flex items-baseline justify-between pb-3 text-[13px] text-white/60">
+            <span className="text-[16px] font-semibold tracking-[-0.02em] text-white"><Tx>Ordini di oggi</Tx></span>
+            <span className="flex items-center gap-1.5">
+              <Tx>Olio extravergine ·</Tx>
+              <span data-stock className="font-mono tabular-nums text-white">11</span>
+              <Tx>disponibili</Tx>
+            </span>
+          </span>
+          <span className="block space-y-2">
+            <span data-new className="flex items-center gap-3 rounded-[14px] bg-[rgba(94,196,255,.16)] px-3.5 py-3 text-[13.5px] opacity-0">
+              <span className="font-mono text-white/60">#2048</span>
+              <span className="flex-1"><Tx>Giulia R. · 2 articoli</Tx></span>
+              <span className="rounded-full bg-[rgba(110,231,168,.18)] px-2.5 py-0.5 text-[11.5px] text-[#8ff0ad]"><Tx>Pagato</Tx></span>
+            </span>
+            {[
+              ["#2047", "Marco B. · 1 articolo", "Spedito"],
+              ["#2046", "Elena T. · 3 articoli", "Consegnato"],
+            ].map(([n, c, s]) => (
+              <span key={n} className="flex items-center gap-3 rounded-[14px] bg-white/[.06] px-3.5 py-3 text-[13.5px]">
+                <span className="font-mono text-white/60">{n}</span>
+                <span className="flex-1"><Tx>{c}</Tx></span>
+                <span className="text-[11.5px] text-white/55"><Tx>{s}</Tx></span>
+              </span>
+            ))}
+          </span>
+        </span>
+      </Win>
+    ),
+    play: (run, $, at) => {
+      run.fromTo($("[data-new]"), { autoAlpha: 0, y: -18, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: "back.out(1.5)" }, at + 0.2);
+      snd(run, "notify", at + 0.25);
+      count(run, $("[data-stock]")[0], 11, 10, at + 0.7, 0.2, (n) => String(Math.round(n)));
+      run.fromTo($("[data-stock]"), { color: "#fff" }, { color: AMBER, duration: 0.3, yoyo: true, repeat: 1 }, at + 0.7);
     },
   },
 ];
