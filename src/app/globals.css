@@ -373,6 +373,8 @@ html.js [data-reveal] { visibility: hidden; }
 /* tema: cambio morbido dei colori di fondo */
 /* cambio tema: il nuovo si apre a cerchio sopra la foto del vecchio */
 html.theme-vt::view-transition-old(root), html.theme-vt::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+/* durante il cambio nessuna transizione di colore: ripartirebbe dal valore vecchio dentro il cerchio */
+html.theme-vt *, html.theme-vt *::before, html.theme-vt *::after { transition: none !important; }
 
 /* nome gigante del footer: le lettere lasciano vedere il gradiente sotto */
 .giant-mask { background: #000; color: #fff; mix-blend-mode: multiply; }

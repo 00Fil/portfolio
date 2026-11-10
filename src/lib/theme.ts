@@ -22,7 +22,7 @@ export function setTheme(t: Theme, from?: { x: number; y: number }) {
       /* niente */
     }
   };
-  const doc = document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void> } };
+  const doc = document as Document & { startViewTransition?: (cb: () => void | Promise<void>) => { ready: Promise<void> } };
   if (!doc.startViewTransition || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     apply();
     return;
@@ -31,7 +31,12 @@ export function setTheme(t: Theme, from?: { x: number; y: number }) {
   const y = from?.y ?? 40;
   const r = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
   html.classList.add("theme-vt");
-  const vt = doc.startViewTransition(apply);
+  // la foto del nuovo tema si scatta solo dopo che React ha ridisegnato ciò che dipende dal tema (cielo, footer):
+  // altrimenti nel cerchio compaiono per un attimo i colori appena tolti
+  const vt = doc.startViewTransition(async () => {
+    apply();
+    await new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+  });
   vt.ready
     .then(() =>
       html

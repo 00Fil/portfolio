@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Dither from "@/components/reactbits/Dither";
 import { useTheme } from "@/lib/theme";
 
@@ -13,6 +13,10 @@ export function HeroSky() {
   const [reduce, setReduce] = useState(false);
   const [small, setSmall] = useState(false);
   const theme = useTheme();
+  // la comparsa graduale vale solo al primo ingresso: cambiando tema il cielo nuovo è già pieno
+  const first = useRef<string | null>(null);
+  if (ready) first.current ??= theme;
+  const swapped = first.current !== null && first.current !== theme;
   useEffect(() => {
     setReduce(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     setSmall(window.innerWidth < 1024);
@@ -38,7 +42,7 @@ export function HeroSky() {
           mouseRadius={0.28}
           trail={0.6}
           disableAnimation={reduce}
-          intro={!reduce}
+          intro={!reduce && !swapped}
         />
       )}
       {/* al centro un'isola di nero per il titolo; in basso il cielo sfuma nel nero della pagina */}
