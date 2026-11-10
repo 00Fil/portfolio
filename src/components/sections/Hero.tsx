@@ -99,10 +99,12 @@ export function Hero() {
         .from('[data-cycler="shape"]', { scale: 0, rotate: -160, duration: 1.3, ease: "back.out(1.6)" }, 0.45)
         .from("[data-hero-rest]", { y: 20, autoAlpha: 0, duration: 1, stagger: 0.08 }, 0.6);
 
-      // uscendo, il titolo arretra e si spegne
-      const out = { trigger: el, start: "top top", end: "bottom top", scrub: true };
-      gsap.to("[data-title]", { scale: 0.92, y: -40, autoAlpha: 0.15, ease: "none", scrollTrigger: out });
-      gsap.to("[data-hero-foot]", { y: -40, autoAlpha: 0, ease: "none", scrollTrigger: { ...out, end: "45% top" } });
+      // uscendo, il titolo arretra e si spegne. Su telefono no: la hero è più alta dello schermo e va letta tutta
+      if (window.matchMedia("(min-width: 1024px)").matches) {
+        const out = { trigger: el, start: "top top", end: "bottom top", scrub: true };
+        gsap.to("[data-title]", { scale: 0.92, y: -40, autoAlpha: 0.15, ease: "none", scrollTrigger: out });
+        gsap.to("[data-hero-foot]", { y: -40, autoAlpha: 0, ease: "none", scrollTrigger: { ...out, end: "45% top" } });
+      }
 
       // la forma segue un poco il cursore
       if (window.matchMedia("(pointer: fine)").matches) {
@@ -171,7 +173,7 @@ export function Hero() {
   };
 
   return (
-    <section ref={root} id="home" className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden pb-20 pt-32">
+    <section ref={root} id="home" className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden pb-16 pt-28 sm:pb-20 sm:pt-32">
       <HeroSky />
       <h1 className="sr-only">{t("h1")}</h1>
 

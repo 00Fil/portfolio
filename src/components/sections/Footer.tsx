@@ -25,10 +25,10 @@ export function Footer({ withContact = true }: { withContact?: boolean }) {
 
   return (
     <footer id={withContact ? "contact" : undefined} className="relative overflow-hidden">
-      <Reveal className="mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-32">
+      <Reveal className="mx-auto w-full max-w-[1280px] px-5 pt-20 sm:px-8 sm:pt-32">
         <FooterCta q={tf("q")} a={tf("a")} cta={tf("cta")} href="#brief" />
 
-        <div className="mt-20 grid grid-cols-2 gap-x-8 gap-y-12 border-t border-[var(--hair)] pt-10 sm:mt-28 lg:grid-cols-12">
+        <div className="mt-14 grid grid-cols-2 gap-x-8 gap-y-10 border-t border-[var(--hair)] pt-10 sm:mt-28 lg:grid-cols-12">
           <div className="col-span-2 lg:col-span-4">
             <p className="flex items-center gap-2.5 text-[15px] text-ink">
               <span className="relative flex h-2 w-2">
@@ -53,7 +53,7 @@ export function Footer({ withContact = true }: { withContact?: boolean }) {
               ))}
             </ul>
           </nav>
-          <nav aria-label={tf("services")} className="lg:col-span-4">
+          <nav aria-label={tf("services")} className="hidden sm:block lg:col-span-4">
             <p className={head}>{tf("services")}</p>
             <ul className="grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
               {SERVICES.map((s) => (
@@ -81,7 +81,7 @@ export function Footer({ withContact = true }: { withContact?: boolean }) {
         </div>
       </Reveal>
 
-      <div className="mt-20 sm:mt-28">
+      <div className="mt-14 sm:mt-28">
         <FooterGiant first={first} last={rest.join(" ")} />
       </div>
       <div className="mx-auto flex w-full max-w-[1280px] flex-wrap items-center justify-between gap-4 px-5 py-6 text-[13px] text-ink-3 sm:px-8">
@@ -89,7 +89,7 @@ export function Footer({ withContact = true }: { withContact?: boolean }) {
         <p className="hidden md:block">{tf("made")}</p>
         <ToTop label={tf("top")} />
       </div>
-      <div className="h-20 lg:h-0" />
+      <div className="h-28 lg:h-0" />
     </footer>
   );
 }

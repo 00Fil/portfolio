@@ -12,6 +12,7 @@ import { GlassSegmented } from "./GlassSegmented";
 import { loadSoundPref, onSound, play, setSound, soundOn } from "@/lib/sound";
 import { profile } from "@/content/profile";
 import { scrollToY } from "@/lib/scroll";
+import { useScrollingDown } from "@/lib/use-scroll-dir";
 
 const NAMES: Record<Locale, string> = { it: "Italiano", en: "English" };
 
@@ -21,6 +22,7 @@ export function TopBar() {
   const router = useRouter();
   const pathname = usePathname();
   const [sound, setS] = useState(false);
+  const away = useScrollingDown();
 
   useEffect(() => {
     setS(loadSoundPref());
@@ -44,7 +46,9 @@ export function TopBar() {
   );
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center lg:hidden justify-between px-4 pt-4 sm:px-6 sm:pt-5">
+    <header
+      className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-between px-4 pt-[max(12px,env(safe-area-inset-top))] transition-[transform,opacity] duration-500 ease-[var(--ease-out)] sm:px-6 sm:pt-5 lg:hidden ${away ? "-translate-y-[120%] opacity-0" : ""}`}
+    >
       <a
         href={`/${locale}`}
         onClick={(e) => {
@@ -62,6 +66,7 @@ export function TopBar() {
       <div className="pointer-events-auto flex items-center gap-2">
         <GlassSegmented id="lens-lang" options={options} selected={routing.locales.indexOf(locale)} onSelect={onSelect} label={t("language")} />
         <ThemeToggle />
+        <span className="hidden sm:contents">
         <Drop
           floating
           className="h-[42px] w-[42px]"
@@ -74,6 +79,7 @@ export function TopBar() {
         >
           {sound ? <Volume2 size={18} strokeWidth={1.6} aria-hidden /> : <VolumeX size={18} strokeWidth={1.6} aria-hidden className="text-ink-2" />}
         </Drop>
+        </span>
       </div>
     </header>
   );

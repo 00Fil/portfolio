@@ -64,7 +64,7 @@ export function Timeline({ title, lead, items }: { title: string; lead: string; 
   );
 
   return (
-    <section ref={root} id="path" className="relative pt-24 sm:pt-36">
+    <section ref={root} id="path" className="relative pt-20 sm:pt-36">
       <div data-pin className="relative overflow-hidden lg:flex lg:h-[100svh] lg:flex-col lg:justify-center">
         {/* fondo di fibre azzurre che scorre più lento delle tappe; sfuma nel nero su tutti i lati */}
         <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block [mask-image:radial-gradient(75%_42%_at_50%_55%,#000_25%,transparent_100%)]">

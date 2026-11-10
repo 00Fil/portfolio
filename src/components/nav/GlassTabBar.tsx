@@ -12,6 +12,7 @@ import { profile } from "@/content/profile";
 import { Cover } from "@/components/work/Covers";
 import { ServiceIcon } from "@/components/services/ServiceIcon";
 import { ClientRow } from "./ClientStrip";
+import { useScrollingDown } from "@/lib/use-scroll-dir";
 import { useRouter } from "@/i18n/navigation";
 import { LensFilter } from "@/components/glass/LensFilter";
 import { bevelImage } from "@/lib/glass";
@@ -148,7 +149,9 @@ export function GlassTabBar({ tabs, navLabel, detail }: Props) {
   // l'ultimo contenuto resta montato mentre il cassetto si richiude
   const lastKind = useRef<DrawerKind>("services");
   if (drawer) lastKind.current = drawer;
-  const tn = useTranslations("nav");
+  // scorrendo verso il basso restano solo le icone: area clienti e riga di dettaglio si ritirano
+  const down = useScrollingDown();
+  const slim = down && !drawer;
 
   const st = useRef({
     holding: false,
@@ -186,14 +189,14 @@ export function GlassTabBar({ tabs, navLabel, detail }: Props) {
     const bar = barDropRef.current;
     const bub = bubbleDropRef.current;
     if (bar) {
-      const u = bevelImage(bar.offsetWidth, ROW_H + STRIP_H + (detail ? EXTRA_H : 0) + drawerH, CORNER);
+      const u = bevelImage(bar.offsetWidth, ROW_H + (slim ? 0 : STRIP_H + (detail ? EXTRA_H : 0)) + drawerH, CORNER);
       if (u) { bar.style.setProperty("--bevel", u); bar.dataset.bevel = "1"; }
     }
     if (bub) {
       const u = bevelImage(size.itemW, ROW_H - PAD_Y * 2);
       if (u) { bub.style.setProperty("--bevel", u); bub.dataset.bevel = "1"; }
     }
-  }, [size.itemW, size.w, detail, drawerH]);
+  }, [size.itemW, size.w, detail, drawerH, slim]);
 
   // ------------------------------------------------------------ posizione dallo scroll
   const computeAnchors = useCallback(() => {
@@ -472,7 +475,7 @@ export function GlassTabBar({ tabs, navLabel, detail }: Props) {
   };
 
   const extra = detail ? EXTRA_H : 0;
-  const totalH = ROW_H + extra + STRIP_H + drawerH;
+  const totalH = ROW_H + (slim ? 0 : extra + STRIP_H) + drawerH;
   const pillW = size.itemW;
   const pillH = ROW_H - PAD_Y * 2;
   const href = (id: string) => (detail ? `/${locale}#${id}` : `#${id}`);
@@ -569,12 +572,18 @@ export function GlassTabBar({ tabs, navLabel, detail }: Props) {
         </div>
 
         {/* area clienti, sempre dentro la capsula */}
-        <div className="absolute inset-x-[6px]" style={{ bottom: ROW_H + extra, height: STRIP_H - 6 }}>
+        <div
+          className={`absolute inset-x-[6px] transition-[opacity,transform] duration-300 ${slim ? "pointer-events-none translate-y-3 scale-95 opacity-0" : ""}`}
+          style={{ bottom: ROW_H + extra, height: STRIP_H - 6 }}
+        >
           <ClientRow variant="bar" />
         </div>
 
         {detail && (
-          <div className="absolute inset-x-0 flex items-center gap-2 px-4" style={{ height: EXTRA_H, bottom: ROW_H }}>
+          <div
+            className={`absolute inset-x-0 flex items-center gap-2 px-4 transition-[opacity,transform] duration-300 ${slim ? "pointer-events-none translate-y-3 opacity-0" : ""}`}
+            style={{ height: EXTRA_H, bottom: ROW_H }}
+          >
             <a
               href={`/${locale}#${detail.section ?? "work"}`}
               onClick={(e) => {

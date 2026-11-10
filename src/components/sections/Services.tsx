@@ -130,7 +130,7 @@ export function Services() {
   });
 
   return (
-    <section id="approach" className="relative mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-36">
+    <section id="approach" className="relative mx-auto w-full max-w-[1280px] px-5 pt-20 sm:px-8 sm:pt-36">
       <GooDefs />
       <Reveal>
         <SectionHead index="01" title={t("title")} lead={t("lead")} />

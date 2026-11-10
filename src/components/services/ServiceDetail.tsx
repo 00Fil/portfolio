@@ -66,7 +66,7 @@ function Hero({ k, need, label, title, short, w, t }: ServiceDetailProps) {
         <ServiceBg k={k} live />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(3,6,10,.72)_0%,rgba(3,6,10,.35)_42%,transparent_70%)]" />
         <div className="relative grid lg:min-h-[min(880px,calc(100svh-var(--bar-h)-40px))] lg:grid-cols-12">
-          <div className="flex flex-col justify-between gap-10 px-6 pb-10 pt-2 sm:px-12 sm:pb-14 sm:pt-12 lg:col-span-6 lg:px-14">
+          <div className="flex flex-col justify-between gap-10 px-6 pb-2 pt-8 sm:px-12 sm:pb-14 sm:pt-12 lg:col-span-6 lg:px-14">
             <p className="flex items-center gap-3 font-mono text-[12px] uppercase tracking-[0.14em] text-white/70" data-hrest>
               <Link href="/#approach" className="transition-colors hover:text-white">
                 {t.services}
@@ -75,13 +75,13 @@ function Hero({ k, need, label, title, short, w, t }: ServiceDetailProps) {
               {label}
             </p>
             <div>
-              <h1 data-h1 className="max-w-[11ch] text-[clamp(52px,6.6vw,112px)] font-medium leading-[0.94] tracking-[-0.055em] text-white">
+              <h1 data-h1 className="max-w-[11ch] text-[clamp(44px,6.6vw,112px)] font-medium leading-[0.94] tracking-[-0.055em] text-white">
                 {title}
               </h1>
-              <p className="mt-7 max-w-[40ch] text-[18px] leading-[1.55] text-white/80" data-hrest>
+              <p className="mt-5 max-w-[40ch] text-[16px] leading-[1.55] text-white/80 sm:mt-7 sm:text-[18px]" data-hrest>
                 {short}
               </p>
-              <div className="mt-9" data-hrest>
+              <div className="mt-7 sm:mt-9" data-hrest>
                 <Drop href={`#brief-${need}`} accent className="h-[52px] px-6 text-[16px] font-medium text-ink">
                   {t.cta}
                   <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
@@ -89,7 +89,7 @@ function Hero({ k, need, label, title, short, w, t }: ServiceDetailProps) {
               </div>
             </div>
           </div>
-          <div data-hvis className="relative order-first h-[280px] sm:h-[440px] lg:order-none lg:col-span-6 lg:h-auto">
+          <div data-hvis className="relative h-[300px] sm:h-[440px] lg:col-span-6 lg:h-auto">
             <div className="absolute inset-0 lg:inset-y-10 lg:right-10">
               <ServiceVisual k={k} t={w} max={1.6} />
             </div>
@@ -113,8 +113,8 @@ function Statement({ lead }: { lead: string }) {
     { scope: root },
   );
   return (
-    <div ref={root} className="mx-auto w-full max-w-[1280px] px-5 py-28 sm:px-8 sm:py-40">
-      <p data-st className="max-w-[24ch] text-[clamp(32px,4.2vw,64px)] font-medium leading-[1.08] tracking-[-0.04em] text-ink">
+    <div ref={root} className="mx-auto w-full max-w-[1280px] px-5 py-20 sm:px-8 sm:py-40">
+      <p data-st className="max-w-[24ch] text-[clamp(28px,4.2vw,64px)] font-medium leading-[1.1] tracking-[-0.04em] text-ink">
         {lead}
       </p>
     </div>
@@ -129,55 +129,69 @@ function Includes({ k, label, includes, t }: ServiceDetailProps) {
   const n = includes.length;
   useGSAP(
     () => {
-      const cards = gsap.utils.toArray<HTMLElement>("[data-inner]");
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: "[data-stack]",
-          start: "top 20%",
-          end: "bottom bottom",
-          scrub: prefersReducedMotion() ? false : 0.6,
-          onUpdate: (s) => setAt(Math.min(n - 1, Math.floor(s.progress * n))),
-        },
+      const mm = gsap.matchMedia();
+      // computer: tele impilate mentre scorri
+      mm.add("(min-width: 1024px)", () => {
+        const cards = gsap.utils.toArray<HTMLElement>("[data-inner]");
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: "[data-stack]",
+            start: "top 20%",
+            end: "bottom bottom",
+            scrub: prefersReducedMotion() ? false : 0.6,
+            onUpdate: (s) => setAt(Math.min(n - 1, Math.floor(s.progress * n))),
+          },
+        });
+        if (prefersReducedMotion()) return;
+        cards.slice(0, -1).forEach((c, i) => {
+          tl.to(c, { scale: 0.92 - (n - 2 - i) * 0.015, yPercent: -2, ease: "none", duration: 1 }, i);
+        });
+        gsap.utils.toArray<HTMLElement>("[data-card]").forEach((c) => {
+          gsap.from(c.querySelectorAll("[data-in]"), { y: 40, autoAlpha: 0, duration: 1, stagger: 0.08, ease: "expo.out", clearProps: "transform", scrollTrigger: { trigger: c, start: "top 70%", once: true } });
+        });
       });
-      if (prefersReducedMotion()) return;
-      cards.slice(0, -1).forEach((c, i) => {
-        tl.to(c, { scale: 0.92 - (n - 2 - i) * 0.015, yPercent: -2, ease: "none", duration: 1 }, i);
+      // telefono: le tele scorrono di lato, una alla volta
+      mm.add("(max-width: 1023px)", () => {
+        if (prefersReducedMotion()) return;
+        gsap.from("[data-card]", { x: 60, autoAlpha: 0, duration: 1, stagger: 0.08, ease: "expo.out", clearProps: "all", scrollTrigger: { trigger: "[data-stack]", start: "top 85%", once: true } });
       });
-      // il testo di ogni tela entra quando la tela arriva in cima
-      gsap.utils.toArray<HTMLElement>("[data-card]").forEach((c) => {
-        gsap.from(c.querySelectorAll("[data-in]"), { y: 40, autoAlpha: 0, duration: 1, stagger: 0.08, ease: "expo.out", clearProps: "transform", scrollTrigger: { trigger: c, start: "top 70%", once: true } });
-      });
+      return () => mm.revert();
     },
     { scope: root },
   );
+  const onSwipe = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const w = (el.firstElementChild as HTMLElement | null)?.offsetWidth ?? 1;
+    setAt(Math.max(0, Math.min(n - 1, Math.round(el.scrollLeft / (w + 12)))));
+  };
   return (
     <section ref={root} id="include" className="mx-auto w-full max-w-[1400px] scroll-mt-10 px-3 sm:px-5">
-      <header className="mx-auto mb-12 flex max-w-[1280px] items-end justify-between gap-8 px-2 sm:mb-16 sm:px-3">
+      <header className="mx-auto mb-8 flex max-w-[1280px] items-end justify-between gap-8 px-2 sm:mb-16 sm:px-3">
         <h2 className="text-[clamp(40px,5vw,72px)] font-medium leading-none tracking-[-0.05em] text-ink">{t.includes}</h2>
         <p className="font-mono text-[13px] tabular-nums tracking-[0.1em] text-ink-3">
           {pad(at + 1)} / {pad(n)}
         </p>
       </header>
-      <div data-stack>
+      <div data-stack onScroll={onSwipe} className="-mx-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 [scrollbar-width:none] sm:-mx-5 sm:px-5 lg:mx-0 lg:block lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
         {includes.map((it, i) => (
-          <article key={it.title} data-card className="sticky pb-[8vh] last:pb-0" style={{ top: `calc(var(--bar-h) + 20px + ${i * 12}px)` }}>
-            <div data-inner className="theme-dark relative h-[min(560px,calc(100svh-var(--bar-h)-170px))] sm:h-[min(640px,calc(100svh-var(--bar-h)-80px))] origin-top overflow-hidden rounded-[32px] bg-[#05070a] shadow-[0_-30px_60px_-40px_rgba(0,0,0,.6)] sm:rounded-[40px]">
+          <article key={it.title} data-card className="w-[86%] shrink-0 snap-center sm:w-[70%] lg:sticky lg:w-auto lg:pb-[8vh] lg:last:pb-0" style={{ top: `calc(var(--bar-h) + 20px + ${i * 12}px)` }}>
+            <div data-inner className="theme-dark relative h-[440px] origin-top sm:h-[500px] lg:h-[min(640px,calc(100svh-var(--bar-h)-80px))] overflow-hidden rounded-[32px] bg-[#05070a] shadow-[0_-30px_60px_-40px_rgba(0,0,0,.6)] sm:rounded-[40px]">
               <ServiceBg k={k} v={i} active={i === at || i === at + 1} />
               <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(100deg,rgba(3,6,10,.7)_0%,rgba(3,6,10,.25)_55%,transparent_80%)]" />
-              <span aria-hidden className="pointer-events-none absolute -bottom-[0.2em] right-[0.02em] select-none text-[clamp(200px,30vw,440px)] font-medium leading-none tracking-[-0.08em] text-white/[0.14]">
+              <span aria-hidden className="pointer-events-none absolute -bottom-[0.2em] right-[0.02em] select-none text-[clamp(150px,30vw,440px)] font-medium leading-none tracking-[-0.08em] text-white/[0.14]">
                 {pad(i + 1)}
               </span>
-              <div className="relative flex h-full flex-col justify-between p-7 sm:p-12 lg:p-14">
+              <div className="relative flex h-full flex-col justify-between p-6 sm:p-12 lg:p-14">
                 <p className="flex items-center gap-3 font-mono text-[12px] uppercase tracking-[0.14em] text-white/65" data-in>
                   {pad(i + 1)} / {pad(n)}
                   <span className="h-px w-6 bg-white/30" />
                   {label}
                 </p>
                 <div>
-                  <h3 className="max-w-[16ch] text-[clamp(34px,4.6vw,76px)] font-medium leading-[0.98] tracking-[-0.05em] text-white" data-in>
+                  <h3 className="max-w-[16ch] text-[clamp(30px,4.6vw,76px)] font-medium leading-[0.98] tracking-[-0.05em] text-white" data-in>
                     {it.title}
                   </h3>
-                  <p className="mt-6 max-w-[44ch] text-[clamp(16px,1.3vw,19px)] leading-[1.6] text-white/78" data-in>
+                  <p className="mt-4 max-w-[44ch] text-[clamp(15px,1.3vw,19px)] sm:mt-6 leading-[1.6] text-white/78" data-in>
                     {it.body}
                   </p>
                 </div>
@@ -208,7 +222,7 @@ function Method({ phases, t }: ServiceDetailProps) {
     { scope: root },
   );
   return (
-    <section ref={root} className="mx-auto w-full max-w-[1280px] px-5 pt-32 sm:px-8 sm:pt-44">
+    <section ref={root} className="mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-44">
       <header className="mb-14 grid gap-4 sm:mb-20 sm:grid-cols-[1fr_auto] sm:items-end">
         <h2 className="text-[clamp(40px,5vw,72px)] font-medium leading-none tracking-[-0.05em] text-ink">{t.method}</h2>
         <p className="max-w-[40ch] text-[17px] text-ink-2 sm:text-right">{t.methodLead}</p>
@@ -253,7 +267,7 @@ function Tech({ stack, t }: ServiceDetailProps) {
     [stack],
   );
   return (
-    <section className="mx-auto mt-32 w-full max-w-[1280px] px-5 sm:mt-44 sm:px-8">
+    <section className="mx-auto mt-24 w-full max-w-[1280px] px-5 sm:mt-44 sm:px-8">
       <p className="mb-8 font-mono text-[12px] uppercase tracking-[0.14em] text-ink-3">{t.tech}</p>
       <div className="border-y border-[var(--hair)] py-8">
         <LogoLoop logos={logos} speed={32} direction="left" logoHeight={40} gap={64} pauseOnHover fadeOut scaleOnHover ariaLabel={t.tech} />
@@ -266,8 +280,8 @@ function Tech({ stack, t }: ServiceDetailProps) {
 
 function Next({ next, others, t }: ServiceDetailProps) {
   return (
-    <section className="mx-auto mt-32 w-full max-w-[1400px] px-3 sm:mt-44 sm:px-5">
-      <Link href={`/servizi/${next.slug}`} className="group theme-dark relative block h-[min(560px,72svh)] overflow-hidden rounded-[32px] bg-[#05070a] sm:rounded-[44px]">
+    <section className="mx-auto mt-24 w-full max-w-[1400px] px-3 sm:mt-44 sm:px-5">
+      <Link href={`/servizi/${next.slug}`} className="group theme-dark relative block h-[420px] overflow-hidden sm:h-[min(560px,72svh)] rounded-[32px] bg-[#05070a] sm:rounded-[44px]">
         <div className="absolute inset-0 transition-transform duration-[1.2s] ease-[var(--ease-out)] group-hover:scale-[1.04]">
           <ServiceBg k={next.k} live />
         </div>

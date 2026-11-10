@@ -25,7 +25,7 @@ export async function Work() {
   const t = await getTranslations("work");
   const cards = await workCards(locale);
   return (
-    <section id="work" className="relative mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-36">
+    <section id="work" className="relative mx-auto w-full max-w-[1280px] px-5 pt-20 sm:px-8 sm:pt-36">
       <Reveal>
         <SectionHead index="02" title={t("title")} lead={t("lead")} />
       </Reveal>
