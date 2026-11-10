@@ -492,7 +492,7 @@ const Grainient = ({
       const s = settingsRef.current;
       view.width = Math.max(1, container.clientWidth);
       view.height = Math.max(1, container.clientHeight);
-      view.ratio = Math.min(s.dpr || window.devicePixelRatio || 1, 2);
+      view.ratio = Math.min(s.dpr ?? window.devicePixelRatio ?? 1, 2);
       canvas.width = Math.max(1, Math.round(view.width * view.ratio));
       canvas.height = Math.max(1, Math.round(view.height * view.ratio));
       const width = Math.max(1, Math.round(canvas.width / 2));
@@ -571,6 +571,11 @@ const Grainient = ({
       raf = 0;
       if (!visible || document.hidden) return;
       const s = settingsRef.current;
+      // il fondale è morbido e lento: 30 fotogrammi al secondo bastano, e liberano metà del lavoro
+      if (last && now - last < 1000 / 30 - 2) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       const dt = last ? clamp((now - last) / 1000, 0.001, 0.05) : 1 / 60;
       last = now;
       if (!reduce) time += dt * s.speed * 0.16;

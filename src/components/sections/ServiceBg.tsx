@@ -38,7 +38,7 @@ const RAMPS = Object.keys(T) as (keyof typeof T)[];
 function Scene({ k, live, v = 0 }: { k: ServiceKey; live?: boolean; v?: number }) {
   const colors = T[v ? RAMPS[(RAMPS.indexOf(PICK[k]) + v) % RAMPS.length] : PICK[k]];
   const angle = (ANGLE[k] + v * 65) % 360;
-  return <Grainient colors={colors} angle={angle} speed={0.55} flow={0.55} silk={0.3} grainAmount={0.05} contrast={0.95} interactive={!!live} stir={1.6} clickSwirl={!!live} intro={false} dpr={1} />;
+  return <Grainient colors={colors} angle={angle} speed={0.55} flow={0.55} silk={0.3} grainAmount={0.05} contrast={0.95} interactive={!!live} stir={1.6} clickSwirl={!!live} intro={false} dpr={0.6} />;
 }
 
 /** Lo stesso gradiente, fermo e senza WebGL: per il telefono, dove dieci contesti costano troppo. */

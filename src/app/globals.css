@@ -381,8 +381,6 @@ html.js [data-reveal] { visibility: hidden; }
   background:
     radial-gradient(60% 55% at 50% 50%, rgba(8, 16, 24, 0.28), rgba(4, 10, 16, 0.55)),
     rgba(10, 20, 30, 0.18);
-  -webkit-backdrop-filter: blur(30px) saturate(1.9) brightness(0.86);
-  backdrop-filter: blur(30px) saturate(1.9) brightness(0.86);
 }
 .spot-scrim::after {
   content: "";

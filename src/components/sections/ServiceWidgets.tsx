@@ -78,18 +78,27 @@ const Cursor = ({ className = "" }: { className?: string }) => (
 export type SpotCfg = { says: { a: string; b: string; sub?: string }[]; sub: string; href: string; cta: string };
 const SpotCtx = createContext<SpotCfg | null>(null);
 const SCRIM_OFF = 0.001;
+const BLUR = "blur(26px) saturate(1.8) brightness(0.86)";
+/** La sfocatura si accende mezzo secondo prima del commento (così è pronta) e si spegne dopo: tenerla sempre accesa
+ *  costringe il browser a ricalcolarla a ogni fotogramma dell'animazione sotto. */
+const warm = (el: Element, on: boolean) => {
+  const st = (el as HTMLElement).style;
+  st.setProperty("backdrop-filter", on ? BLUR : "none");
+  st.setProperty("-webkit-backdrop-filter", on ? BLUR : "none");
+};
 
 /** Un commento: il vetro si accende, le parole salgono una per una, poi si torna alla scena. `keep` lascia il vetro acceso. */
 export function addSay(run: gsap.core.Timeline, el: Element, scrim: Element, zoom: Element, at: number, hold = 1.6, keep = false) {
   const w = el.querySelectorAll("[data-sw]");
+  run.call(() => warm(scrim, true), undefined, Math.max(0, at - 0.5));
   run
     .to(scrim, { opacity: 1, duration: 0.45, ease: "power2.out" }, at)
-    .to(zoom, { scale: 1.03, duration: 0.6, ease: "power2.out" }, at)
     .set(el, { autoAlpha: 1 }, at)
     .fromTo(w, { yPercent: 115 }, { yPercent: 0, duration: 0.75, stagger: 0.05, ease: "expo.out", immediateRender: false }, at + 0.1)
     .to(w, { yPercent: -115, duration: 0.42, stagger: 0.025, ease: "power3.in" }, at + hold)
     .set(el, { autoAlpha: 0 }, at + hold + 0.55);
-  if (!keep) run.to(scrim, { opacity: SCRIM_OFF, duration: 0.5, ease: "power2.inOut" }, at + hold + 0.35).to(zoom, { scale: 1, duration: 0.7, ease: "power2.inOut" }, at + hold + 0.35);
+  if (!keep) run.to(scrim, { opacity: SCRIM_OFF, duration: 0.5, ease: "power2.inOut" }, at + hold + 0.35).call(() => warm(scrim, false), undefined, at + hold + 0.9);
+  void zoom;
 }
 /** La chiusura: marchio, riga del servizio e tasto; poi il vetro si spegne. Restituisce la fine. */
 export function addEnd(run: gsap.core.Timeline, q: (s: string) => Element[], at: number, hold = 3.4) {
@@ -97,6 +106,7 @@ export function addEnd(run: gsap.core.Timeline, q: (s: string) => Element[], at:
   const bits = q("[data-end-in]");
   const scrim = q("[data-scrim]")[0];
   const zoom = q("[data-zoom]")[0];
+  run.call(() => warm(scrim, true), undefined, Math.max(0, at - 0.5));
   run
     .to(scrim, { opacity: 1, duration: 0.4 }, at)
     .set(end, { autoAlpha: 1 }, at)
@@ -104,7 +114,8 @@ export function addEnd(run: gsap.core.Timeline, q: (s: string) => Element[], at:
     .to(bits, { autoAlpha: 0, duration: 0.4, stagger: 0.04, ease: "power2.in" }, at + hold)
     .set(end, { autoAlpha: 0 }, at + hold + 0.5)
     .to(scrim, { opacity: SCRIM_OFF, duration: 0.5, ease: "power2.inOut" }, at + hold + 0.2)
-    .to(zoom, { scale: 1, duration: 0.6, ease: "power2.inOut" }, at + hold + 0.2);
+    .call(() => warm(scrim, false), undefined, at + hold + 0.8);
+  void zoom;
   return at + hold + 0.9;
 }
 /** Ritmo comune: prima la scena, poi un commento ogni scena, infine il marchio. */
@@ -1379,7 +1390,7 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
 
         {/* il tecnico reperibile: come una notifica, sotto i server */}
         <div data-card className="absolute -translate-x-1/2 opacity-0" style={{ left: rackX - 40, top: UNDER - 6, width: 292 }}>
-          <Bead tint="rgba(10,16,24,.62)" radius={20} className="flex items-center gap-3 p-2.5 pr-3.5 text-white backdrop-blur-xl">
+          <Bead tint="rgba(12,18,26,.8)" radius={20} className="flex items-center gap-3 p-2.5 pr-3.5 text-white">
             <span className="relative shrink-0">
               <span className="block h-10 w-10 overflow-hidden rounded-full bg-[linear-gradient(160deg,#bfe8ff,#5ec4ff_55%,#1f7fb8)]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

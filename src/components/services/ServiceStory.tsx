@@ -118,15 +118,11 @@ function Frame({ on, children }: { on: boolean; children: ReactNode }) {
     </div>
   );
 }
-const glass = "rgba(10,16,24,.58)";
+const glass = "rgba(12,18,26,.78)";
 const Tile = ({ icon, tone = "sky" }: { icon: Icon; tone?: "sky" | "green" | "amber" }) => (
-  <span
-    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.16)] ${
-      tone === "green" ? "bg-[linear-gradient(160deg,rgba(110,231,168,.35),rgba(48,164,108,.25))] text-[#bdf5d3]" : tone === "amber" ? "bg-[linear-gradient(160deg,rgba(255,207,122,.35),rgba(245,165,36,.22))] text-[#ffe2ad]" : "bg-[linear-gradient(160deg,rgba(158,220,255,.4),rgba(31,127,184,.25))] text-[#d6f1ff]"
-    }`}
-  >
+  <Bead tint={tone === "green" ? "rgba(48,209,88,.18)" : tone === "amber" ? "rgba(245,165,36,.2)" : "rgba(255,255,255,.1)"} radius={14} className="flex h-11 w-11 shrink-0 items-center justify-center text-white">
     <HugeiconsIcon icon={icon} size={22} strokeWidth={1.6} />
-  </span>
+  </Bead>
 );
 const Row = ({ label, value, tone }: { label: string; value: string; tone?: string }) => (
   <div className="flex items-center justify-between border-t border-white/10 py-3 text-[14px] first:border-t-0">
@@ -139,7 +135,7 @@ function OpsScene({ i, on, ui }: SceneProps) {
   if (i === 0)
     return (
       <Frame on={on}>
-        <Bead tint={glass} radius={28} className="w-full max-w-[400px] p-6 text-white backdrop-blur-xl">
+        <Bead tint={glass} radius={28} className="w-full max-w-[400px] p-6 text-white">
           <div className="flex items-center gap-3.5">
             <Tile icon={Shield01Icon} />
             <div className="leading-tight">
@@ -159,12 +155,12 @@ function OpsScene({ i, on, ui }: SceneProps) {
     return (
       <Frame on={on}>
         <div className="w-full max-w-[420px] space-y-3">
-          <Bead tint={glass} radius={20} className="flex h-12 items-center gap-2.5 px-4 text-[14px] text-white backdrop-blur-xl">
+          <Bead tint={glass} radius={20} className="flex h-12 items-center gap-2.5 px-4 text-[14px] text-white">
             <HugeiconsIcon icon={LockKeyIcon} size={16} strokeWidth={1.8} className="text-[#6ee7a8]" />
             <span className="text-white/45">https://</span>
             <span className="-ml-2.5">studiobianchi.it</span>
           </Bead>
-          <Bead tint={glass} radius={28} className="p-6 text-white backdrop-blur-xl">
+          <Bead tint={glass} radius={28} className="p-6 text-white">
             <div className="flex items-center gap-3.5">
               <Tile icon={SecurityCheckIcon} tone="green" />
               <div className="leading-tight">
@@ -183,7 +179,7 @@ function OpsScene({ i, on, ui }: SceneProps) {
   if (i === 2)
     return (
       <Frame on={on}>
-        <Bead tint={glass} radius={28} className="w-full max-w-[420px] p-6 text-white backdrop-blur-xl">
+        <Bead tint={glass} radius={28} className="w-full max-w-[420px] p-6 text-white">
           <div className="flex items-center gap-3.5">
             <Tile icon={Rocket01Icon} />
             <div className="leading-tight">
@@ -209,7 +205,7 @@ function OpsScene({ i, on, ui }: SceneProps) {
   return (
     <Frame on={on}>
       <div className="w-full max-w-[420px] space-y-3">
-        <Bead tint={glass} radius={28} className="p-6 text-white backdrop-blur-xl">
+        <Bead tint={glass} radius={28} className="p-6 text-white">
           <div className="flex items-center gap-3.5">
             <Tile icon={DatabaseRestoreIcon} />
             <div className="leading-tight">
@@ -225,7 +221,7 @@ function OpsScene({ i, on, ui }: SceneProps) {
             ))}
           </div>
         </Bead>
-        <Bead tint="rgba(30,34,40,.6)" radius={22} className="flex items-center gap-3 p-3 pr-4 text-white backdrop-blur-xl">
+        <Bead tint="rgba(30,34,40,.6)" radius={22} className="flex items-center gap-3 p-3 pr-4 text-white">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[#0d0e10] text-[12px] font-medium shadow-[inset_0_0_0_1px_rgba(255,255,255,.14)]">FC</span>
           <span className="min-w-0 flex-1 leading-tight">
             <span className="block text-[13px] font-semibold">{ui.s3n}</span>
@@ -302,9 +298,9 @@ export function Bento({ k, title, items }: { k: ServiceKey; title: string; items
         {items.map((it, i) => (
           <article key={it.title} data-bento className="rounded-[28px] bg-[var(--bg-surface)] p-7 shadow-[inset_0_0_0_1px_var(--hair)] sm:p-9">
             {icons[i] && (
-              <span className="mb-8 flex h-12 w-12 items-center justify-center rounded-[15px] bg-[linear-gradient(160deg,color-mix(in_srgb,var(--sky)_30%,transparent),color-mix(in_srgb,var(--sky)_10%,transparent))] text-[var(--sky)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--sky)_30%,transparent)]">
+              <Bead radius={15} className="mb-8 flex h-12 w-12 items-center justify-center text-ink">
                 <HugeiconsIcon icon={icons[i]} size={22} strokeWidth={1.6} />
-              </span>
+              </Bead>
             )}
             <h3 className="text-[24px] font-medium leading-[1.15] tracking-[-0.03em] text-ink">{it.title}</h3>
             <p className="mt-3 max-w-[44ch] text-[16px] leading-[1.6] text-ink-2">{it.body}</p>

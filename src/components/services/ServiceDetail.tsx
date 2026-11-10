@@ -94,7 +94,7 @@ function Hero({ k, need, label, title, short, w, t }: ServiceDetailProps) {
             </div>
           </div>
           <div data-hvis className="relative h-[300px] sm:h-[440px] lg:col-span-6 lg:h-auto">
-            <div className="absolute inset-0 lg:inset-y-10 lg:right-10">
+            <div className="absolute inset-0">
               <ServiceVisual k={k} t={w} max={1.6} />
             </div>
           </div>

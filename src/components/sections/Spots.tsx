@@ -24,7 +24,6 @@ import {
   Search01Icon,
   ShoppingCart01Icon,
   SparklesIcon,
-  Store01Icon,
   ThermometerWarmIcon,
   UserCheck01Icon,
 } from "@hugeicons/core-free-icons";
@@ -35,7 +34,7 @@ type Q = (s: string) => Element[];
 export type Shot = { node: ReactNode; play?: (run: gsap.core.Timeline, $: Q, at: number) => void; dur?: number };
 
 const W = 620;
-const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·"};
+const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment."};
 /** Le scritte dentro le inquadrature: italiano, oppure inglese quando il sito è in inglese. */
 function Tx({ children }: { children: string }) {
   return <>{useLocale() === "en" ? (EN[children] ?? children) : children}</>;
@@ -51,7 +50,7 @@ function Months() {
   );
 }
 const H = 400;
-const GL = "rgba(10,16,24,.56)";
+const GL = "rgba(12,18,26,.74)";
 const AQUA = "#8fd8ff";
 const GREEN = "#6ee7a8";
 const AMBER = "#f5c46b";
@@ -80,9 +79,9 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
           if (says[i]) addSay(run, says[i], scrim, zoom, at, 1.5);
           const st = at + (says[i] ? 2.3 : 0);
           const dur = s.dur ?? 4.6;
-          run.fromTo(el, { autoAlpha: 0, y: 18, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.9, ease: "expo.out", immediateRender: false }, st);
+          run.fromTo(el, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out", immediateRender: false }, st);
           s.play?.(run, $, st + 0.35);
-          run.to(el, { autoAlpha: 0, y: -12, duration: 0.45, ease: "power2.in" }, st + dur);
+          run.to(el, { autoAlpha: 0, y: -8, duration: 0.4, ease: "power2.in" }, st + dur);
           at = st + dur + 0.35;
         });
         const end = addEnd(run, q, at);
@@ -107,20 +106,29 @@ const Brand = ({ p, c = "h-5 w-5" }: { p: { path: string }; c?: string }) => (
     <path d={p.path} />
   </svg>
 );
-const Tile = ({ children, tone = "sky", size = 44 }: { children: ReactNode; tone?: "sky" | "green" | "amber"; size?: number }) => (
-  <span
-    className={`flex shrink-0 items-center justify-center shadow-[inset_0_0_0_1px_rgba(255,255,255,.16)] ${
-      tone === "green" ? "bg-[linear-gradient(160deg,rgba(110,231,168,.35),rgba(48,164,108,.22))] text-[#c9f7dc]" : tone === "amber" ? "bg-[linear-gradient(160deg,rgba(255,207,122,.38),rgba(245,165,36,.2))] text-[#ffe6b8]" : "bg-[linear-gradient(160deg,rgba(158,220,255,.42),rgba(31,127,184,.24))] text-[#dbf3ff]"
-    }`}
-    style={{ width: size, height: size, borderRadius: size * 0.32 }}
+const Tile = ({ children, tone = "sky", size = 44, light = false }: { children: ReactNode; tone?: "sky" | "green" | "amber"; size?: number; light?: boolean }) => (
+  <Bead
+    tint={light ? "rgba(255,255,255,.94)" : tone === "amber" ? "rgba(245,165,36,.2)" : tone === "green" ? "rgba(48,209,88,.18)" : "rgba(255,255,255,.1)"}
+    radius={Math.round(size * 0.3)}
+    className={`flex shrink-0 items-center justify-center ${light ? "text-black" : tone === "amber" ? "text-[#ffd48a]" : "text-white"}`}
+    style={{ width: size, height: size }}
   >
     {children}
-  </span>
+  </Bead>
 );
+/** Logo a colori dell'azienda citata, come un'icona d'app. */
+const Logo = ({ src, size = 44, pad = 0.22 }: { src: string; size?: number; pad?: number }) => (
+  <Tile size={size} light>
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img src={src} alt="" className="block" style={{ width: size * (1 - pad * 2), height: size * (1 - pad * 2) }} draggable={false} />
+  </Tile>
+);
+const OPENAI = "M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z";
+
 /** Etichetta sotto l'inquadratura: una riga che dice cosa sta succedendo. */
 const Note = ({ children, attr = "data-note" }: { children: ReactNode; attr?: string }) => (
   <span {...{ [attr]: "" }} className="mt-6 inline-flex">
-    <Bead tint={GL} radius={16} className="flex h-8 items-center gap-2 whitespace-nowrap px-3.5 text-[12.5px] text-white backdrop-blur-xl">
+    <Bead tint={GL} radius={16} className="flex h-8 items-center gap-2 whitespace-nowrap px-3.5 text-[12.5px] text-white">
       {children}
     </Bead>
   </span>
@@ -132,17 +140,17 @@ const Ok = ({ children }: { children: ReactNode }) => (
   </>
 );
 /** Testo che compare come battuto a macchina. */
-const typeIn = (run: gsap.core.Timeline, el: Element, at: number, dur = 1) => run.fromTo(el, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: dur, ease: `steps(${Math.max(8, (el.textContent ?? "").length)})`, immediateRender: false }, at);
+const typeIn = (run: gsap.core.Timeline, el: Element, at: number, dur = 1) => run.fromTo(el, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: dur, ease: `steps(${Math.max(8, (el.textContent ?? "").length)})` }, at);
 const count = (run: gsap.core.Timeline, el: Element, from: number, to: number, at: number, dur: number, fmt: (n: number) => string) => {
   const o = { v: from };
   run.set(o, { v: from }, at).to(o, { v: to, duration: dur, ease: "power2.out", onUpdate: () => void (el.textContent = fmt(o.v)) }, at);
 };
 const it = (n: number, d = 0) => n.toLocaleString("it-IT", { minimumFractionDigits: d, maximumFractionDigits: d });
-const enter = (run: gsap.core.Timeline, els: Element[], at: number, stagger = 0.12) => run.fromTo(els, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.6, stagger, ease: "expo.out", immediateRender: false }, at);
+const enter = (run: gsap.core.Timeline, els: Element[], at: number, stagger = 0.12) => run.fromTo(els, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.6, stagger, ease: "expo.out" }, at);
 
 /** Finestra del browser in vetro: barra con i tre pallini e l'indirizzo. */
 const Browser = ({ w = 440, h = 270, url = "studiobianchi.it", children }: { w?: number; h?: number; url?: string; children: ReactNode }) => (
-  <Bead tint={GL} radius={18} className="flex flex-col overflow-hidden text-white backdrop-blur-xl" style={{ width: w, height: h }}>
+  <Bead tint={GL} radius={18} className="flex flex-col overflow-hidden text-white" style={{ width: w, height: h }}>
     <span className="flex h-9 shrink-0 items-center gap-1.5 border-b border-white/10 px-3.5">
       {[0, 1, 2].map((k) => (
         <span key={k} className="h-2.5 w-2.5 rounded-full bg-white/20" />
@@ -156,7 +164,7 @@ const Browser = ({ w = 440, h = 270, url = "studiobianchi.it", children }: { w?:
   </Bead>
 );
 const Phone = ({ w = 150, h = 300, children }: { w?: number; h?: number; children: ReactNode }) => (
-  <Bead tint={GL} radius={30} className="block relative overflow-hidden p-2 text-white backdrop-blur-xl" style={{ width: w, height: h }}>
+  <Bead tint={GL} radius={30} className="block relative overflow-hidden p-2 text-white" style={{ width: w, height: h }}>
     <span className="absolute left-1/2 top-2.5 h-[14px] w-[46px] -translate-x-1/2 rounded-full bg-black/70" />
     <span className="relative block h-full overflow-hidden rounded-[23px] bg-white/[.04] px-3 pt-8">{children}</span>
   </Bead>
@@ -238,7 +246,7 @@ export const WEB: Shot[] = [
   {
     node: (
       <>
-        <Bead tint={GL} radius={24} className="block w-[400px] p-5 text-white backdrop-blur-xl">
+        <Bead tint={GL} radius={24} className="block w-[400px] p-5 text-white">
           <span className="flex items-center gap-3">
             <Tile size={40}>
               <Ico i={Edit02Icon} s={18} />
@@ -272,31 +280,41 @@ export const WEB: Shot[] = [
         .to($("[data-caret]"), { opacity: 0, duration: 0.01, repeat: 5, yoyo: true, repeatDelay: 0.2 }, at)
         .to($("[data-knob]"), { x: 16, duration: 0.35, ease: "power3.out" }, at + 2)
         .to($("[data-sw]"), { backgroundColor: "#30d158", duration: 0.3 }, at + 2)
-        .fromTo($("[data-pub]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, at + 2.4);
+        .fromTo($("[data-pub]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 2.4);
     },
   },
 ];
 
 /* ───────────── SEO ───────────── */
 
-const RESULTS = ["Clinica Dentale Rossi", "Studio Bianchi", "Dentisti Associati"];
+const RESULTS = [
+  ["clinicarossi.it", "Clinica Dentale Rossi", "Igiene, ortodonzia e implantologia in centro città."],
+  ["studiobianchi.it", "Studio Bianchi · Dentista a Brescia", "Prenota online, orari estesi, anche il sabato."],
+  ["dentistiassociati.it", "Dentisti Associati", "Visite e preventivi su appuntamento."],
+];
 export const SEO: Shot[] = [
   {
     node: (
-      <span className="w-[440px]">
-        <Bead tint={GL} radius={24} className="flex h-12 items-center gap-3 px-4 text-[15px] text-white backdrop-blur-xl">
-          <Ico i={Search01Icon} s={18} c="text-white/60" />
+      <span className="w-[460px]">
+        <Bead tint="rgba(255,255,255,.94)" radius={26} className="flex h-[52px] items-center gap-3 px-4 text-[16px] text-[#1f1f1f]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/visual/brands/google.svg" alt="" className="h-5 w-5" draggable={false} />
           <span data-type className="whitespace-nowrap">
             <Tx>dentista a brescia</Tx>
           </span>
+          <Ico i={Search01Icon} s={18} c="ml-auto text-[#4285f4]" />
         </Bead>
-        <span className="relative mt-3 block h-[204px]">
-          {RESULTS.map((r, i) => (
-            <span key={r} data-r={i} className="absolute inset-x-0" style={{ top: i * 68 }}>
-              <Bead tint={i === 1 ? "rgba(94,196,255,.22)" : GL} radius={18} className="flex h-[60px] flex-col justify-center px-4 text-white backdrop-blur-xl">
-                <span className="text-[11px] text-white/45">{r.toLowerCase().replace(/ /g, "")}.it</span>
-                <span className={`text-[14.5px] ${i === 1 ? "font-semibold text-[#cdeeff]" : "text-white/80"}`}>{r}</span>
-              </Bead>
+        <span className="relative mt-5 block h-[222px] px-2">
+          {RESULTS.map(([d, t, sn], i) => (
+            <span key={d} data-r={i} className="absolute inset-x-2 block" style={{ top: i * 74 }}>
+              <span className="flex items-center gap-2 text-[11.5px] text-white/55">
+                <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-semibold ${i === 1 ? "bg-[#5ec4ff] text-[#04121c]" : "bg-white/15 text-white/80"}`}>{t[0]}</span>
+                {d}
+              </span>
+              <span className={`mt-1 block text-[16px] leading-tight ${i === 1 ? "font-medium text-[#8fd8ff]" : "text-[#b9d4ff]"}`}>{t}</span>
+              <span className="mt-0.5 block truncate text-[12.5px] text-white/55">
+                <Tx>{sn}</Tx>
+              </span>
             </span>
           ))}
         </span>
@@ -304,8 +322,8 @@ export const SEO: Shot[] = [
     ),
     play: (run, $, at) => {
       typeIn(run, $("[data-type]")[0], at, 1);
-      enter(run, $("[data-r]"), at + 1.1, 0.1);
-      run.to($('[data-r="1"]'), { y: -68, duration: 0.8, ease: "power3.inOut" }, at + 2.3).to($('[data-r="0"]'), { y: 68, duration: 0.8, ease: "power3.inOut" }, at + 2.3);
+      enter(run, $("[data-r]"), at + 1.2, 0.12);
+      run.to($('[data-r="1"]'), { y: -74, duration: 0.9, ease: "power3.inOut" }, at + 2.5).to($('[data-r="0"]'), { y: 74, duration: 0.9, ease: "power3.inOut" }, at + 2.5);
     },
   },
   {
@@ -336,14 +354,14 @@ export const SEO: Shot[] = [
     play: (run, $, at) =>
       $("[data-ring]").forEach((r, i) => {
         const v = Number(r.getAttribute("data-ring"));
-        run.fromTo(r, { strokeDashoffset: 100 }, { strokeDashoffset: 100 - v, duration: 1.4, ease: "power2.out", immediateRender: false }, at + i * 0.15);
+        run.fromTo(r, { strokeDashoffset: 100 }, { strokeDashoffset: 100 - v, duration: 1.4, ease: "power2.out" }, at + i * 0.15);
         count(run, $("[data-score]")[i], 0, v, at + i * 0.15, 1.4, (n) => String(Math.round(n)));
       }),
   },
   {
     node: (
       <>
-        <Bead tint={GL} radius={26} className="block w-[460px] p-5 text-white backdrop-blur-xl">
+        <Bead tint={GL} radius={26} className="block w-[460px] p-5 text-white">
           <span className="flex items-baseline justify-between">
             <span className="text-[14px] text-white/60"><Tx>Visite dalla ricerca</Tx></span>
             <span data-pct className="font-mono text-[22px] tabular-nums text-[#8ff0ad]">
@@ -370,7 +388,7 @@ export const SEO: Shot[] = [
       </>
     ),
     play: (run, $, at) => {
-      run.fromTo($("[data-line]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 2, ease: "power2.inOut", immediateRender: false }, at).fromTo($("[data-area]"), { opacity: 0 }, { opacity: 1, duration: 1, immediateRender: false }, at + 1.2);
+      run.fromTo($("[data-line]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 2, ease: "power2.inOut" }, at).fromTo($("[data-area]"), { opacity: 0 }, { opacity: 1, duration: 1 }, at + 1.2);
       count(run, $("[data-pct]")[0], 0, 142, at, 2, (n) => `+${Math.round(n)}%`);
     },
   },
@@ -382,7 +400,7 @@ export const GEO: Shot[] = [
   {
     node: (
       <span className="flex w-[440px] flex-col items-end gap-3">
-        <Bead tint="rgba(94,196,255,.32)" radius={22} className="block max-w-[320px] px-4 py-3 text-[15px] text-white backdrop-blur-xl">
+        <Bead tint="rgba(94,196,255,.32)" radius={22} className="block max-w-[320px] px-4 py-3 text-[15px] text-white">
           <span data-type className="block whitespace-nowrap">
             <Tx>Un buon dentista a Brescia?</Tx>
           </span>
@@ -400,7 +418,7 @@ export const GEO: Shot[] = [
   },
   {
     node: (
-      <Bead tint={GL} radius={26} className="block w-[460px] p-5 text-white backdrop-blur-xl">
+      <Bead tint={GL} radius={26} className="block w-[460px] p-5 text-white">
         <span className="flex items-center gap-2 text-[12.5px] text-white/55">
           <Ico i={AiChat02Icon} s={16} c="text-[#8fd8ff]" />
           <Tx>Risposta</Tx>
@@ -424,14 +442,14 @@ export const GEO: Shot[] = [
       <>
         <span className="flex gap-3">
           {[
-            ["ChatGPT", null],
-            ["Gemini", si.siGooglegemini],
-            ["Claude", si.siClaude],
-            ["Perplexity", si.siPerplexity],
-          ].map(([n, p]) => (
+            ["ChatGPT", <Tile key="o" size={46} light><svg viewBox="0 0 24 24" className="h-6 w-6 fill-black" aria-hidden><path d={OPENAI} /></svg></Tile>],
+            ["Gemini", <Logo key="g" src="/visual/brands/gemini.svg" size={46} />],
+            ["Claude", <Logo key="c" src="/visual/brands/claude.svg" size={46} />],
+            ["Perplexity", <Logo key="p" src="/visual/brands/perplexity.svg" size={46} />],
+          ].map(([n, logo]) => (
             <span key={n as string} data-ai>
-              <Bead tint={GL} radius={22} className="flex w-[118px] flex-col items-center gap-3 py-5 text-white backdrop-blur-xl">
-                <Tile size={44}>{p ? <Brand p={p as { path: string }} /> : <Ico i={AiChat02Icon} s={20} />}</Tile>
+              <Bead tint={GL} radius={22} className="flex w-[118px] flex-col items-center gap-3 py-5 text-white">
+                {logo}
                 <span className="text-[13.5px] font-medium">{n as string}</span>
                 <span data-cite className="flex items-center gap-1 text-[11.5px] text-[#8ff0ad] opacity-0">
                   <Ico i={CheckmarkCircle02Icon} s={12} />
@@ -452,11 +470,6 @@ export const GEO: Shot[] = [
 
 /* ───────────── App multipiattaforma ───────────── */
 
-const Win = () => (
-  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden>
-    <path d="M3 5.2 10.4 4v7.3H3zM11.6 3.9 21 2.5v8.8h-9.4zM3 12.6h7.4V20L3 18.8zM11.6 12.6H21v8.9l-9.4-1.4z" />
-  </svg>
-);
 const AppUI = () => (
   <span className="flex flex-col gap-2">
     <Bar w="55%" h={9} c="bg-white/80" />
@@ -498,15 +511,15 @@ export const APPS: Shot[] = [
     node: (
       <span className="flex gap-3">
         {[
-          ["iOS", <Brand key="i" p={si.siApple} />],
-          ["Android", <Brand key="a" p={si.siAndroid} />],
-          ["macOS", <Brand key="m" p={si.siMacos} c="h-5 w-8" />],
-          ["Windows", <Win key="w" />],
-          ["Linux", <Brand key="l" p={si.siLinux} />],
+          ["iPhone", <Tile key="i" size={48} light><Brand p={si.siApple} c="h-6 w-6" /></Tile>],
+          ["Android", <Logo key="a" src="/visual/brands/android.svg" size={48} />],
+          ["Mac", <Tile key="m" size={48} light><Brand p={si.siApple} c="h-6 w-6" /></Tile>],
+          ["Windows", <Logo key="w" src="/visual/brands/windows.svg" size={48} pad={0.25} />],
+          ["Linux", <Logo key="l" src="/visual/brands/linux.svg" size={48} pad={0.18} />],
         ].map(([n, ic]) => (
           <span key={n as string} data-p>
-            <Bead tint={GL} radius={22} className="flex w-[100px] flex-col items-center gap-3 py-5 text-white backdrop-blur-xl">
-              <Tile size={46}>{ic}</Tile>
+            <Bead tint={GL} radius={22} className="flex w-[100px] flex-col items-center gap-3 py-5 text-white">
+              {ic}
               <span className="text-[13px] font-medium">{n as string}</span>
             </Bead>
           </span>
@@ -544,11 +557,11 @@ export const APPS: Shot[] = [
     ),
     play: (run, $, at) => {
       run
-        .fromTo($("[data-fly]"), { opacity: 0, x: 0, y: 0 }, { opacity: 1, duration: 0.2, immediateRender: false }, at + 0.4)
+        .fromTo($("[data-fly]"), { opacity: 0, x: 0, y: 0 }, { opacity: 1, duration: 0.2 }, at + 0.4)
         .to($("[data-fly]"), { x: 270, y: -10, duration: 1.1, ease: "power3.inOut" }, at + 0.5)
         .to($("[data-fly]"), { opacity: 0, duration: 0.2 }, at + 1.6)
-        .fromTo($("[data-note-dst]"), { opacity: 0 }, { opacity: 1, duration: 0.3, immediateRender: false }, at + 1.55)
-        .fromTo($("[data-sync]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, at + 1.9);
+        .fromTo($("[data-note-dst]"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, at + 1.55)
+        .fromTo($("[data-sync]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 1.9);
     },
   },
 ];
@@ -586,7 +599,7 @@ export const DESIGN: Shot[] = [
   },
   {
     node: (
-      <Bead tint={GL} radius={26} className="block w-[420px] p-5 text-white backdrop-blur-xl">
+      <Bead tint={GL} radius={26} className="block w-[420px] p-5 text-white">
         <span className="flex items-center gap-3">
           <Tile size={40}>
             <Ico i={UserCheck01Icon} s={18} />
@@ -614,7 +627,7 @@ export const DESIGN: Shot[] = [
     node: (
       <span className="grid w-[460px] grid-cols-[1fr_1fr] gap-3">
         <span data-sys>
-          <Bead tint={GL} radius={22} className="flex h-full flex-col gap-3 p-4 text-white backdrop-blur-xl">
+          <Bead tint={GL} radius={22} className="flex h-full flex-col gap-3 p-4 text-white">
             <span className="text-[11px] uppercase tracking-[0.1em] text-white/45"><Tx>Colori</Tx></span>
             <span className="flex gap-2">
               {["#e6f6ff", "#9edcff", "#5ec4ff", "#1f7fb8", "#0b2f45"].map((c) => (
@@ -624,14 +637,14 @@ export const DESIGN: Shot[] = [
           </Bead>
         </span>
         <span data-sys>
-          <Bead tint={GL} radius={22} className="flex h-full flex-col gap-1 p-4 text-white backdrop-blur-xl">
+          <Bead tint={GL} radius={22} className="flex h-full flex-col gap-1 p-4 text-white">
             <span className="text-[11px] uppercase tracking-[0.1em] text-white/45"><Tx>Testo</Tx></span>
             <span className="text-[30px] font-semibold leading-none tracking-[-0.04em]">Aa</span>
             <span className="text-[11px] text-white/55"><Tx>Titolo · Corpo · Nota</Tx></span>
           </Bead>
         </span>
         <span data-sys className="col-span-2">
-          <Bead tint={GL} radius={22} className="flex items-center gap-3 p-4 text-white backdrop-blur-xl">
+          <Bead tint={GL} radius={22} className="flex items-center gap-3 p-4 text-white">
             <span className="text-[11px] uppercase tracking-[0.1em] text-white/45"><Tx>Componenti</Tx></span>
             <span className="ml-auto flex items-center gap-2">
               <span className="flex h-8 items-center rounded-full bg-[#5ec4ff] px-4 text-[12px] font-medium text-[#04121c]"><Tx>Continua</Tx></span>
@@ -659,7 +672,7 @@ const MAILS = [
 export const AI: Shot[] = [
   {
     node: (
-      <Bead tint={GL} radius={26} className="block w-[440px] p-4 text-white backdrop-blur-xl">
+      <Bead tint={GL} radius={26} className="block w-[440px] p-4 text-white">
         <span className="flex items-center justify-between px-1 pb-3 text-[13px] text-white/60">
           <span className="flex items-center gap-2">
             <Ico i={Mail01Icon} s={16} />
@@ -686,7 +699,7 @@ export const AI: Shot[] = [
   },
   {
     node: (
-      <Bead tint={GL} radius={26} className="block w-[460px] p-4 text-white backdrop-blur-xl">
+      <Bead tint={GL} radius={26} className="block w-[460px] p-4 text-white">
         <span className="flex items-center gap-2 px-1 pb-3 text-[13px] text-white/60">
           <Ico i={SparklesIcon} s={16} c="text-[#8fd8ff]" />
           <Tx>Letto e smistato</Tx>
@@ -711,7 +724,7 @@ export const AI: Shot[] = [
   {
     node: (
       <>
-        <Bead tint={GL} radius={26} className="block w-[380px] p-5 text-white backdrop-blur-xl">
+        <Bead tint={GL} radius={26} className="block w-[380px] p-5 text-white">
           <span className="flex items-center gap-3">
             <Tile size={40}>
               <Ico i={AiChat02Icon} s={18} />
@@ -736,7 +749,7 @@ export const AI: Shot[] = [
     play: (run, $, at) =>
       run
         .to($("[data-go]"), { scale: 0.94, duration: 0.12, yoyo: true, repeat: 1 }, at + 1.2)
-        .fromTo($("[data-done]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, at + 1.6),
+        .fromTo($("[data-done]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 1.6),
   },
 ];
 
@@ -745,7 +758,7 @@ export const AI: Shot[] = [
 const SPARK = "M0 40 L30 38 L60 41 L90 37 L120 39 L150 36 L180 38 L210 35 L240 37 L270 36 L300 38";
 const RISE = "M0 40 L30 38 L60 39 L90 35 L120 31 L150 26 L180 20 L210 15 L240 11 L270 8 L300 5";
 const Fridge = ({ hot = false }: { hot?: boolean }) => (
-  <Bead tint={GL} radius={26} className="block w-[420px] p-5 text-white backdrop-blur-xl">
+  <Bead tint={GL} radius={26} className="block w-[420px] p-5 text-white">
     <span className="flex items-center gap-3">
       <Tile size={40} tone={hot ? "amber" : "sky"}>
         <Ico i={ThermometerWarmIcon} s={18} />
@@ -768,7 +781,7 @@ export const HW: Shot[] = [
   {
     node: <Fridge />,
     play: (run, $, at) => {
-      run.fromTo($("[data-spark]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 3, ease: "none", immediateRender: false }, at);
+      run.fromTo($("[data-spark]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 3, ease: "none" }, at);
       count(run, $("[data-temp]")[0], 3.9, 4.1, at, 3, (n) => `${it(n, 1)}°`);
     },
   },
@@ -777,7 +790,7 @@ export const HW: Shot[] = [
       <>
         <Fridge hot />
         <span data-alert className="mt-4 inline-flex">
-          <Bead tint="rgba(30,34,40,.62)" radius={20} className="flex w-[360px] items-center gap-3 p-3 pr-4 text-white backdrop-blur-xl">
+          <Bead tint="rgba(30,34,40,.62)" radius={20} className="flex w-[360px] items-center gap-3 p-3 pr-4 text-white">
             <Tile size={36} tone="amber">
               <Ico i={Notification01Icon} s={16} />
             </Tile>
@@ -790,9 +803,9 @@ export const HW: Shot[] = [
       </>
     ),
     play: (run, $, at) => {
-      run.fromTo($("[data-spark]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 2.2, ease: "power1.in", immediateRender: false }, at);
+      run.fromTo($("[data-spark]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 2.2, ease: "power1.in" }, at);
       count(run, $("[data-temp]")[0], 4.1, 7.8, at, 2.2, (n) => `${it(n, 1)}°`);
-      run.fromTo($("[data-alert]"), { autoAlpha: 0, y: -10 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, at + 1.6);
+      run.fromTo($("[data-alert]"), { autoAlpha: 0, y: -10 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 1.6);
     },
   },
   {
@@ -824,7 +837,7 @@ export const HW: Shot[] = [
 
 const NodeApp = ({ icon, name, attr }: { icon: typeof Mail01Icon; name: string; attr?: string }) => (
   <span {...(attr ? { [attr]: "" } : {})}>
-    <Bead tint={GL} radius={22} className="flex w-[124px] flex-col items-center gap-3 py-5 text-white backdrop-blur-xl">
+    <Bead tint={GL} radius={22} className="flex w-[124px] flex-col items-center gap-3 py-5 text-white">
       <Tile size={44}>
         <Ico i={icon} s={20} />
       </Tile>
@@ -840,7 +853,14 @@ export const API: Shot[] = [
           <path data-wire d="M124 60 H218" stroke={AQUA} strokeWidth="2" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
           <path data-wire d="M342 60 H436" stroke={AQUA} strokeWidth="2" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
         </svg>
-        <NodeApp icon={Store01Icon} name="Negozio" attr="data-app" />
+        <span data-app>
+          <Bead tint={GL} radius={22} className="flex w-[124px] flex-col items-center gap-3 py-5 text-white">
+            <Tile size={44} light>
+              <Brand p={si.siShopify} c="h-6 w-6 text-[#95bf47]" />
+            </Tile>
+            <span className="text-[13px] font-medium">Shopify</span>
+          </Bead>
+        </span>
         <NodeApp icon={Package01Icon} name="Gestionale" attr="data-app" />
         <NodeApp icon={Invoice01Icon} name="Fatture" attr="data-app" />
       </span>
@@ -860,7 +880,7 @@ export const API: Shot[] = [
         ].map(([ic, t, s], i) => (
           <span key={t as string} data-step className="flex items-center gap-4">
             {i > 0 && <span className="h-px w-6 bg-white/40" />}
-            <Bead tint={GL} radius={20} className="block w-[150px] p-3.5 text-white backdrop-blur-xl">
+            <Bead tint={GL} radius={20} className="block w-[150px] p-3.5 text-white">
               <Tile size={34}>
                 <Ico i={ic as typeof Mail01Icon} s={16} />
               </Tile>
@@ -895,7 +915,7 @@ export const SHOP: Shot[] = [
   {
     node: (
       <span className="relative">
-        <Bead tint={GL} radius={26} className="block w-[300px] p-3.5 text-white backdrop-blur-xl">
+        <Bead tint={GL} radius={26} className="block w-[300px] p-3.5 text-white">
           <span className="block h-[150px] rounded-[16px] bg-[radial-gradient(circle_at_35%_30%,#d9f2ff,#5ec4ff_45%,#1f7fb8)]" />
           <span className="mt-3 flex items-baseline justify-between px-1">
             <span className="text-[15px] font-semibold"><Tx>Olio extravergine</Tx></span>
@@ -912,20 +932,23 @@ export const SHOP: Shot[] = [
       </span>
     ),
     play: (run, $, at) =>
-      run.to($("[data-add]"), { scale: 0.95, duration: 0.12, yoyo: true, repeat: 1 }, at + 1).fromTo($("[data-badge]"), { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2.4)", immediateRender: false }, at + 1.2),
+      run.to($("[data-add]"), { scale: 0.95, duration: 0.12, yoyo: true, repeat: 1 }, at + 1).fromTo($("[data-badge]"), { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2.4)" }, at + 1.2),
   },
   {
     node: (
       <>
-        <Bead tint={GL} radius={26} className="block w-[360px] p-5 text-white backdrop-blur-xl">
+        <Bead tint={GL} radius={26} className="block w-[360px] p-5 text-white">
           <span className="flex items-baseline justify-between">
             <span className="text-[15px] font-semibold"><Tx>Totale</Tx></span>
             <span className="font-mono text-[22px]">23,90 €</span>
           </span>
           <span className="mt-1 block text-[12px] text-white/50"><Tx>Spedizione inclusa · arriva giovedì</Tx></span>
-          <span data-pay className="mt-5 flex h-12 items-center justify-center gap-2 rounded-full bg-white text-[15px] font-semibold text-black">
-            <Ico i={CreditCardIcon} s={17} />
-            <Tx>Paga</Tx>
+          <span data-pay className="mt-5 flex h-12 items-center justify-center rounded-full bg-white text-black">
+            <Brand p={si.siApplepay} c="h-11 w-11" />
+          </span>
+          <span className="mt-2 flex h-11 items-center justify-center gap-2 rounded-full bg-white/10 text-[13.5px]">
+            <Ico i={CreditCardIcon} s={16} />
+            <Tx>Carta</Tx>
           </span>
           <span className="mt-3 flex items-center justify-center gap-1.5 text-[11.5px] text-white/50">
             <Ico i={LockKeyIcon} s={12} />
@@ -938,11 +961,11 @@ export const SHOP: Shot[] = [
       </>
     ),
     play: (run, $, at) =>
-      run.to($("[data-pay]"), { scale: 0.95, duration: 0.12, yoyo: true, repeat: 1 }, at + 1).fromTo($("[data-paid]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, at + 1.4),
+      run.to($("[data-pay]"), { scale: 0.95, duration: 0.12, yoyo: true, repeat: 1 }, at + 1).fromTo($("[data-paid]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 1.4),
   },
   {
     node: (
-      <Bead tint={GL} radius={26} className="block w-[440px] p-4 text-white backdrop-blur-xl">
+      <Bead tint={GL} radius={26} className="block w-[440px] p-4 text-white">
         <span className="flex items-center justify-between px-1 pb-3 text-[13px] text-white/60">
           <span><Tx>Ordini di oggi</Tx></span>
           <span className="flex items-center gap-1.5">
@@ -969,7 +992,7 @@ export const SHOP: Shot[] = [
       </Bead>
     ),
     play: (run, $, at) => {
-      run.fromTo($("[data-new]"), { autoAlpha: 0, y: -14 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, at + 0.4);
+      run.fromTo($("[data-new]"), { autoAlpha: 0, y: -14 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 0.4);
       count(run, $("[data-stock]")[0], 11, 10, at + 0.9, 0.2, (n) => String(Math.round(n)));
     },
   },
