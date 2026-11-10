@@ -1305,20 +1305,21 @@ export const DESIGN: Shot[] = [
           <span data-play className="absolute right-3 top-3 z-10 flex h-7 items-center gap-1.5 rounded-[7px] bg-[#0d99ff] px-2.5 text-[11px] font-medium text-white">
             ▶ <Tx>Presenta</Tx>
           </span>
-          <svg viewBox="0 0 580 320" className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" aria-hidden>
-            {[
-              "M188 180 C220 180 230 150 262 150",
-              "M372 150 C404 150 414 180 446 180",
-            ].map((d) => (
-              <path key={d} data-noodle d={d} fill="none" stroke="#0d99ff" strokeWidth="1.6" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
-            ))}
-          </svg>
-          <span data-frames className="absolute inset-0 block">
+          <span data-frames className="absolute inset-0 flex items-center justify-center gap-[72px]">
             {[0, 1, 2].map((i) => (
-              <span key={i} className="absolute block overflow-hidden rounded-[14px] shadow-[0_0_0_1px_rgba(255,255,255,.12),0_10px_30px_-10px_rgba(0,0,0,.6)]" style={{ left: 78 + i * 184, top: 60 + (i % 2 ? -30 : 0), width: 110, height: 220 }}>
+              <span key={i} data-fr className="relative block h-[236px] w-[118px] shrink-0 overflow-hidden rounded-[14px] shadow-[0_0_0_1px_rgba(255,255,255,.12),0_10px_30px_-10px_rgba(0,0,0,.6)]" style={{ transform: `translateY(${i === 1 ? -22 : 0}px)` }}>
                 <Screen i={i} />
               </span>
             ))}
+            {/* i collegamenti partono dal bordo di una schermata e arrivano al bordo della successiva */}
+            <svg className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" aria-hidden>
+              {[0, 1].map((k) => (
+                <g key={k}>
+                  <path data-noodle d="" fill="none" stroke="#0d99ff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+                  <circle data-wdot r="4" fill="#fff" stroke="#0d99ff" strokeWidth="1.8" opacity="0" />
+                </g>
+              ))}
+            </svg>
           </span>
           {/* modalità presentazione: il prototipo si usa come un'app vera */}
           <span data-player className="absolute left-1/2 top-1/2 block h-[280px] w-[140px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[20px] opacity-0 shadow-[0_0_0_1px_rgba(255,255,255,.18),0_20px_50px_-12px_rgba(0,0,0,.7)]">
@@ -1335,8 +1336,24 @@ export const DESIGN: Shot[] = [
     ),
     play: (run, $, at) => {
       const c = cursorIn(run, $, $("[data-play]")[0], at);
-      run.fromTo($("[data-noodle]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.5, stagger: 0.2, ease: "power2.inOut" }, at - 0.2);
-      let t = click(run, c, $("[data-play]")[0], at + 0.15, 0.45);
+      const frs = $("[data-fr]") as HTMLElement[];
+      const wires = () => {
+        // il layout è già pronto: i punti si leggono dalle schermate vere
+        const g = (el: HTMLElement, k: number) => ({ l: el.offsetLeft, r: el.offsetLeft + el.offsetWidth, y: el.offsetTop + el.offsetHeight / 2 + (k === 1 ? -22 : 0) });
+        [0, 1].forEach((k) => {
+          const a = g(frs[k], k);
+          const b = g(frs[k + 1], k + 1);
+          const dx = (b.l - a.r) * 0.5;
+          $("[data-noodle]")[k].setAttribute("d", `M${a.r} ${a.y} C${a.r + dx} ${a.y} ${b.l - dx} ${b.y} ${b.l} ${b.y} M${b.l - 8} ${b.y - 5} L${b.l} ${b.y} L${b.l - 8} ${b.y + 5}`);
+          $("[data-wdot]")[k].setAttribute("cx", String(a.r));
+          $("[data-wdot]")[k].setAttribute("cy", String(a.y));
+        });
+      };
+      run.call(wires, undefined, at - 0.35);
+      run
+        .fromTo($("[data-noodle]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.55, stagger: 0.3, ease: "power2.inOut" }, at)
+        .fromTo($("[data-wdot]"), { opacity: 0 }, { opacity: 1, duration: 0.2, stagger: 0.3 }, at - 0.05);
+      let t = click(run, c, $("[data-play]")[0], at + 0.95, 0.45);
       // modalità presentazione: le tavole spariscono, il prototipo si apre al centro e si usa davvero
       const player = $("[data-player]")[0];
       const track = $("[data-track]")[0];
@@ -1345,7 +1362,7 @@ export const DESIGN: Shot[] = [
         .set(player, { autoAlpha: 0, scale: 0.8 }, at - 0.3)
         .set($("[data-frames]"), { autoAlpha: 1, scale: 1 }, at - 0.3)
         .to($("[data-frames]"), { autoAlpha: 0, scale: 0.92, duration: 0.35, ease: "power2.in" }, t + 0.1)
-        .to($("[data-noodle]"), { opacity: 0, duration: 0.2 }, t + 0.1)
+        .to([...$("[data-noodle]"), ...$("[data-wdot]")], { opacity: 0, duration: 0.2 }, t + 0.1)
         .to(player, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "expo.out" }, t + 0.3);
       t = click(run, c, $("[data-player] [data-p0]")[0], t + 0.85, 0.4);
       run.to(track, { x: -140, duration: 0.4, ease: "expo.out" }, t + 0.05);
@@ -1366,15 +1383,17 @@ export const DESIGN: Shot[] = [
           <span className="font-mono text-[12px] text-white/50"><Tx>prenotare una visita</Tx></span>
         </span>
         <span className="mt-5 flex justify-between">
-          {["G", "M", "L", "S", "A"].map((n, i) => (
-            <span key={n} data-who className="flex flex-col items-center gap-2">
-              <span className="relative flex h-12 w-12 items-center justify-center rounded-full text-[15px] font-semibold" style={{ background: ["#5ec4ff", "#a259ff", "#30d158", "#f5a524", "#ff6b6b"][i] + "33", color: ["#9edcff", "#cfa8ff", "#8ff0ad", "#ffd48a", "#ffb4ae"][i] }}>
-                {n}
-                <span data-tick className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#30d158] text-white opacity-0">
+          {["Giulia", "Marco", "Laura", "Sergio", "Anna"].map((n, i) => (
+            <span key={n} data-who className="flex flex-col items-center gap-1.5">
+              <span className="relative block h-14 w-14">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/visual/people/p${i + 1}.jpg`} alt="" draggable={false} className="h-full w-full rounded-full object-cover shadow-[0_0_0_2px_rgba(255,255,255,.18)]" />
+                <span data-tick className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#30d158] text-white opacity-0 shadow-[0_0_0_2px_rgba(12,18,26,.9)]">
                   <Ico i={CheckmarkCircle02Icon} s={12} />
                 </span>
               </span>
-              <span data-sec className="font-mono text-[11px] text-white/55">{[34, 41, 29, 38, 45][i]} s</span>
+              <span className="text-[11px] text-white/70">{n}</span>
+              <span data-sec className="font-mono text-[11px] text-white/45">{[34, 41, 29, 38, 45][i]} s</span>
             </span>
           ))}
         </span>
