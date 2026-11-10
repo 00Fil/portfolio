@@ -601,20 +601,10 @@
       "opsAgent": "Tecnico reperibile",
       "opsAgentAlert": "SRV-03 non risponde",
       "opsAgentOk": "Risolto, nessun dato perso",
-      "opsS1a": "Ogni giorno,",
-      "opsS1b": "migliaia di attacchi.",
-      "opsS3a": "Aggiornamenti,",
-      "opsS3b": "senza spegnere niente.",
-      "opsS4a": "Ore 03:12.",
-      "opsS4b": "Un server cade.",
-      "opsS6a": "Online.",
-      "opsS6b": "Sempre.",
-      "opsS6s": "99,98% di disponibilità · ultimi 90 giorni",
-      "opsEndSub": "Hosting, sicurezza e assistenza",
-      "opsEndCta": "Scopri il servizio",
-      "opsEndBook": "Prenota una chiamata",
       "opsMaintLine": "SRV-02 in aggiornamento",
-      "opsAgentWork": "Al lavoro su SRV-03"
+      "opsAgentWork": "Al lavoro su SRV-03",
+      "spotCta": "Scopri il servizio",
+      "spotBook": "Prenota una chiamata"
     },
     "open": "Scopri",
     "includes": "Cosa include",
@@ -626,7 +616,184 @@
     "before": "Prima",
     "after": "Dopo",
     "next": "Prossimo servizio",
-    "all": "Tutti i servizi"
+    "all": "Tutti i servizi",
+    "spots": {
+      "web": {
+        "s": [
+          [
+            "Un sito veloce",
+            "che lavora per te."
+          ],
+          [
+            "Si apre in un attimo,",
+            "su ogni schermo."
+          ],
+          [
+            "Lo aggiorni tu,",
+            "senza chiamare nessuno."
+          ]
+        ],
+        "sub": "Siti e web app su misura"
+      },
+      "seo": {
+        "s": [
+          [
+            "Ti cercano.",
+            "Ti trovano."
+          ],
+          [
+            "Veloce, ordinato,",
+            "chiaro per Google."
+          ],
+          [
+            "Più visite,",
+            "ogni mese."
+          ]
+        ],
+        "sub": "SEO tecnica e prestazioni"
+      },
+      "geo": {
+        "s": [
+          [
+            "Le persone chiedono",
+            "all'AI."
+          ],
+          [
+            "L'AI risponde",
+            "con il tuo nome."
+          ],
+          [
+            "ChatGPT, Gemini,",
+            "Perplexity."
+          ]
+        ],
+        "sub": "Visibilità nelle risposte AI"
+      },
+      "apps": {
+        "s": [
+          [
+            "Un'app sola.",
+            "Ogni dispositivo."
+          ],
+          [
+            "iPhone, Android,",
+            "Mac, Windows, Linux."
+          ],
+          [
+            "Sempre",
+            "sincronizzata."
+          ]
+        ],
+        "sub": "App multipiattaforma"
+      },
+      "design": {
+        "s": [
+          [
+            "Prima si progetta,",
+            "poi si costruisce."
+          ],
+          [
+            "Schermate chiare,",
+            "provate con chi le usa."
+          ],
+          [
+            "Un sistema",
+            "che resta coerente."
+          ]
+        ],
+        "sub": "UI/UX e prototipi"
+      },
+      "ai": {
+        "s": [
+          [
+            "Il lavoro ripetitivo",
+            "lo fa l'AI."
+          ],
+          [
+            "Legge, smista,",
+            "risponde."
+          ],
+          [
+            "Tu decidi.",
+            "Lei esegue."
+          ]
+        ],
+        "sub": "AI e sistemi integrati"
+      },
+      "hw": {
+        "s": [
+          [
+            "Sensori e macchine,",
+            "dati dal vivo."
+          ],
+          [
+            "Un avviso",
+            "prima del problema."
+          ],
+          [
+            "Tutto sotto controllo,",
+            "dal telefono."
+          ]
+        ],
+        "sub": "Soluzioni hardware"
+      },
+      "api": {
+        "s": [
+          [
+            "I tuoi programmi",
+            "si parlano."
+          ],
+          [
+            "Ordini, fatture,",
+            "magazzino."
+          ],
+          [
+            "Niente più",
+            "copia e incolla."
+          ]
+        ],
+        "sub": "Integrazioni e API"
+      },
+      "shop": {
+        "s": [
+          [
+            "Il tuo negozio,",
+            "sempre aperto."
+          ],
+          [
+            "Pagamenti sicuri,",
+            "in un tocco."
+          ],
+          [
+            "Ordini e magazzino",
+            "allineati."
+          ]
+        ],
+        "sub": "Negozi online"
+      },
+      "ops": {
+        "s": [
+          [
+            "Ogni giorno,",
+            "migliaia di attacchi."
+          ],
+          [
+            "Aggiornamenti,",
+            "senza spegnere niente."
+          ],
+          [
+            "Ore 03:12.",
+            "Un server cade."
+          ],
+          [
+            "Online.",
+            "Sempre.",
+            "99,98% di disponibilità · ultimi 90 giorni"
+          ]
+        ],
+        "sub": "Hosting, sicurezza e assistenza"
+      }
+    }
   },
   "brief": {
     "title": "Prenota una chiamata",

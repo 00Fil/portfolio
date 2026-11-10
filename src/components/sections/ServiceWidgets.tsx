@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import * as si from "simple-icons";
@@ -11,7 +11,8 @@ import { prefersReducedMotion } from "@/lib/env";
 import { usePathname } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon, CheckmarkCircle02Icon, Shield01Icon, Wrench01Icon } from "@hugeicons/core-free-icons";
-import type { ServiceKey } from "@/content/services";
+import { SERVICES, type ServiceKey } from "@/content/services";
+import { useLocale, useMessages } from "next-intl";
 
 gsap.registerPlugin(useGSAP);
 
@@ -71,7 +72,127 @@ const Cursor = ({ className = "" }: { className?: string }) => (
 );
 
 /** Tela fissa W×H scalata nello spazio disponibile; la timeline parte la prima volta che è visibile. */
-function Canvas({ w, h, max = 1, build, children, framed = true }: { w: number; h: number; max?: number; build: (q: (s: string) => Element[]) => gsap.core.Timeline; children: ReactNode; framed?: boolean }) {
+/* ───────────── Spot: sopra ogni scheda, commenti a tutto quadro su vetro acrilico e la chiusura col marchio ───────────── */
+
+export type SpotCfg = { says: { a: string; b: string; sub?: string }[]; sub: string; href: string; cta: string };
+const SpotCtx = createContext<SpotCfg | null>(null);
+const SCRIM_OFF = 0.001;
+
+/** Un commento: il vetro si accende, le parole salgono una per una, poi si torna alla scena. `keep` lascia il vetro acceso. */
+function addSay(run: gsap.core.Timeline, el: Element, scrim: Element, zoom: Element, at: number, hold = 1.6, keep = false) {
+  const w = el.querySelectorAll("[data-sw]");
+  run
+    .to(scrim, { opacity: 1, duration: 0.45, ease: "power2.out" }, at)
+    .to(zoom, { scale: 1.03, duration: 0.6, ease: "power2.out" }, at)
+    .set(el, { autoAlpha: 1 }, at)
+    .fromTo(w, { yPercent: 115 }, { yPercent: 0, duration: 0.75, stagger: 0.05, ease: "expo.out", immediateRender: false }, at + 0.1)
+    .to(w, { yPercent: -115, duration: 0.42, stagger: 0.025, ease: "power3.in" }, at + hold)
+    .set(el, { autoAlpha: 0 }, at + hold + 0.55);
+  if (!keep) run.to(scrim, { opacity: SCRIM_OFF, duration: 0.5, ease: "power2.inOut" }, at + hold + 0.35).to(zoom, { scale: 1, duration: 0.7, ease: "power2.inOut" }, at + hold + 0.35);
+}
+/** La chiusura: marchio, riga del servizio e tasto; poi il vetro si spegne. Restituisce la fine. */
+function addEnd(run: gsap.core.Timeline, q: (s: string) => Element[], at: number, hold = 3.4) {
+  const end = q("[data-end]")[0];
+  const bits = q("[data-end-in]");
+  const scrim = q("[data-scrim]")[0];
+  const zoom = q("[data-zoom]")[0];
+  run
+    .to(scrim, { opacity: 1, duration: 0.4 }, at)
+    .set(end, { autoAlpha: 1 }, at)
+    .fromTo(bits, { yPercent: 110, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.85, stagger: 0.09, ease: "expo.out", immediateRender: false }, at)
+    .to(bits, { autoAlpha: 0, duration: 0.4, stagger: 0.04, ease: "power2.in" }, at + hold)
+    .set(end, { autoAlpha: 0 }, at + hold + 0.5)
+    .to(scrim, { opacity: SCRIM_OFF, duration: 0.5, ease: "power2.inOut" }, at + hold + 0.2)
+    .to(zoom, { scale: 1, duration: 0.6, ease: "power2.inOut" }, at + hold + 0.2);
+  return at + hold + 0.9;
+}
+/** Ritmo comune: prima la scena, poi un commento ogni scena, infine il marchio. */
+function spotTimeline(q: (s: string) => Element[]) {
+  const scrim = q("[data-scrim]")[0];
+  const zoom = q("[data-zoom]")[0];
+  const says = q("[data-say]");
+  const run = gsap.timeline({ repeat: -1 });
+  let at = 3.4;
+  says.forEach((el) => {
+    addSay(run, el, scrim, zoom, at, 1.6);
+    at += 2.5 + 4.4;
+  });
+  const done = addEnd(run, q, at);
+  run.to({}, { duration: 0.01 }, done + 0.6);
+  return run;
+}
+
+function Words({ s, cls = "" }: { s: string; cls?: string }) {
+  return (
+    <>
+      {s.split(" ").map((w, i) => (
+        <span key={i} className="inline-block overflow-hidden pb-[0.08em] align-bottom">
+          <span data-sw className={`inline-block ${cls}`}>
+            {w}&nbsp;
+          </span>
+        </span>
+      ))}
+    </>
+  );
+}
+
+/** Livello sopra la tela, grande quanto la scheda: vetro, commenti, marchio. Il vetro è sempre lì (quasi trasparente)
+ *  così la sfocatura è già pronta e non arriva in ritardo. */
+function SpotLayer({ spot }: { spot: SpotCfg }) {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]" style={{ containerType: "size" }}>
+      <div data-scrim className="spot-scrim absolute inset-0" style={{ opacity: SCRIM_OFF }} />
+      {spot.says.map((x, i) => (
+        <div key={i} data-say className="invisible absolute inset-0 flex flex-col items-center justify-center px-[6cqw] text-center">
+          <p className="text-[clamp(24px,7cqw,60px)] font-semibold leading-[1.04] tracking-[-0.045em] text-white">
+            <Words s={x.a} />
+            <br />
+            <Words s={x.b} cls="text-[#8fd8ff]" />
+          </p>
+          {x.sub && (
+            <span className="mt-[2.4cqw] inline-block overflow-hidden">
+              <span data-sw className="inline-block text-[clamp(12px,2.1cqw,16px)] text-white/60">
+                {x.sub}
+              </span>
+            </span>
+          )}
+        </div>
+      ))}
+      <div data-end className="invisible absolute inset-0 flex flex-col items-center justify-center text-center">
+        <span className="inline-block overflow-hidden pb-[0.1em]">
+          <span data-end-in className="inline-block text-[clamp(30px,8.6cqw,68px)] leading-none tracking-[-0.055em] text-white">
+            <span className="font-medium">Filippo</span> <span className="font-normal text-white/60">Corsini</span>
+          </span>
+        </span>
+        <span className="mt-[1.6cqw] inline-block overflow-hidden">
+          <span data-end-in className="inline-block text-[clamp(12px,2.2cqw,16px)] text-white/60">
+            {spot.sub}
+          </span>
+        </span>
+        <span className="mt-[4cqw] inline-block overflow-hidden p-2">
+          <span data-end-in className="inline-block">
+            <Bead
+              as="a"
+              href={spot.href}
+              onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()}
+              tint="color-mix(in srgb, #5ec4ff 46%, transparent)"
+              radius={24}
+              className="pointer-events-auto flex h-11 items-center gap-2 px-5 text-[14px] font-medium text-white backdrop-blur-md"
+            >
+              {spot.cta}
+              <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
+            </Bead>
+          </span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** Tela fissa W×H scalata nello spazio disponibile; la timeline parte la prima volta che è visibile.
+ *  `ownSpot`: la scheda decide da sé quando mostrare i commenti (li sincronizza con le sue scene). */
+function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot = false }: { w: number; h: number; max?: number; build: (q: (s: string) => Element[]) => gsap.core.Timeline; children: ReactNode; framed?: boolean; ownSpot?: boolean }) {
+  const spot = useContext(SpotCtx);
   const box = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const [win, setWin] = useState(false);
@@ -92,7 +213,9 @@ function Canvas({ w, h, max = 1, build, children, framed = true }: { w: number; 
   }, [w, h, max, framed]);
   useGSAP(
     () => {
-      const tl = build(gsap.utils.selector(stage.current)).pause();
+      const q = gsap.utils.selector(box.current);
+      const tl = build(q).pause();
+      const cap = spot && !ownSpot ? spotTimeline(q).pause() : null;
       if (prefersReducedMotion()) return void tl.progress(1);
       // parte la prima volta che si vede e si ferma ogni volta che esce dallo schermo:
       // le animazioni infinite di sette schede non girano più in sottofondo mentre scorri altrove
@@ -102,7 +225,11 @@ function Canvas({ w, h, max = 1, build, children, framed = true }: { w: number; 
           if (e.isIntersecting && (started || e.intersectionRatio >= 0.35)) {
             started = true;
             tl.play();
-          } else if (!e.isIntersecting && started) tl.pause();
+            cap?.play();
+          } else if (!e.isIntersecting && started) {
+            tl.pause();
+            cap?.pause();
+          }
         },
         { threshold: [0, 0.35] },
       );
@@ -118,8 +245,11 @@ function Canvas({ w, h, max = 1, build, children, framed = true }: { w: number; 
         className={`absolute left-1/2 top-1/2 ${win ? "overflow-hidden rounded-[22px] bg-[rgba(9,12,16,.72)] shadow-[0_50px_100px_-40px_rgba(0,0,0,.75),0_0_0_1px_rgba(255,255,255,.1)] backdrop-blur-xl" : ""}`}
         style={{ width: w, height: h, transform: "translate(-50%, -50%) scale(0.5)" }}
       >
-        {children}
+        <div data-zoom className="absolute inset-0 origin-center">
+          {children}
+        </div>
       </div>
+      {spot && <SpotLayer spot={spot} />}
     </div>
   );
 }
@@ -1045,34 +1175,6 @@ function Unit({ i, y }: { i: number; y: number }) {
   );
 }
 
-/** Un commento a tutto quadro: parole che salgono una per una, la seconda parte in azzurro. */
-function Say({ a, b, sub }: { a: string; b: string; sub?: string }) {
-  const words = (s: string, cls = "") =>
-    s.split(" ").map((w, i) => (
-      <span key={i} className="inline-block overflow-hidden pb-[0.08em] align-bottom">
-        <span data-w className={`inline-block ${cls}`}>
-          {w}&nbsp;
-        </span>
-      </span>
-    ));
-  return (
-    <div data-say className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center opacity-0">
-      <p className="whitespace-nowrap text-[50px] font-semibold leading-[1.04] tracking-[-0.045em] text-white">
-        {words(a)}
-        <br />
-        {words(b, "text-[#8fd8ff]")}
-      </p>
-      {sub && (
-        <span className="mt-5 inline-block overflow-hidden">
-          <span data-w className="inline-block text-[15px] text-white/60">
-            {sub}
-          </span>
-        </span>
-      )}
-    </div>
-  );
-}
-
 /** Etichetta sotto l'oggetto in scena: una riga, un numero o uno stato. */
 function Pill({ attr, x, children }: { attr: string; x: number; children: ReactNode }) {
   return (
@@ -1085,21 +1187,19 @@ function Pill({ attr, x, children }: { attr: string; x: number; children: ReactN
 }
 
 function OpsV({ t, max }: { t: WidgetText; max?: number }) {
-  const pathname = usePathname();
-  const onPage = pathname.includes("/servizi/");
-  const locale = pathname.split("/")[1] || "it";
   const links = [`M${GLOBE.x + GLOBE.r + 6} ${NODE_Y} L${SHIELD.x - 40} ${NODE_Y}`, ...SRV_Y.map((y) => `M${SHIELD.x + 40} ${NODE_Y} L${SHIELD.x + 60} ${NODE_Y} C${SHIELD.x + 100} ${NODE_Y} ${RACK.x - 50} ${y} ${RACK.x + 4} ${y}`)];
   const rackX = RACK.x + RACK.w / 2;
   return (
     <Canvas
       framed={false}
+      ownSpot
       w={OW}
       h={OH}
       max={max}
       build={(q) => {
         const scrim = q("[data-scrim]")[0];
         const says = q("[data-say]");
-        const stage = q("[data-stage]")[0];
+        const stage = q("[data-zoom]")[0];
         const units = q("[data-unit]");
         const leds = q("[data-led]");
         const tints = q("[data-unit-tint]");
@@ -1113,8 +1213,6 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
         const timer = q("[data-timer]")[0];
         const [stAlert, stWork, stOk] = q("[data-st]");
         const merid = q("[data-merid]");
-        const end = q("[data-end]")[0];
-        const endBits = q("[data-end-in]");
         const fmt = (n: number) => Math.round(n).toLocaleString("it-IT");
         const mmss = (v: number) => `${String(Math.floor(v / 60)).padStart(2, "0")}:${String(Math.floor(v % 60)).padStart(2, "0")}`;
         const m = { blk: 12380, clock: 0, spin: 0 };
@@ -1129,18 +1227,7 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
         // il globo gira piano per tutto lo spot
         run.to(m, { spin: Math.PI * 2, duration: LOOP, ease: "none", onUpdate: () => merid.forEach((el, k) => el.setAttribute("rx", String(Math.abs(Math.cos(m.spin + (k * Math.PI) / 3)) * GLOBE.r))) }, 0);
 
-        const say = (i: number, at: number, hold = 1.6, keep = false) => {
-          const el = says[i];
-          const w = el.querySelectorAll("[data-w]");
-          run
-            .to(scrim, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, at)
-            .to(stage, { scale: 1.03, duration: 0.6, ease: "power2.out" }, at)
-            .set(el, { autoAlpha: 1 }, at)
-            .fromTo(w, { yPercent: 115 }, { yPercent: 0, duration: 0.75, stagger: 0.05, ease: "expo.out" }, at + 0.12)
-            .to(w, { yPercent: -115, duration: 0.42, stagger: 0.025, ease: "power3.in" }, at + hold)
-            .set(el, { autoAlpha: 0 }, at + hold + 0.55);
-          if (!keep) run.to(scrim, { autoAlpha: 0, duration: 0.5, ease: "power2.inOut" }, at + hold + 0.35).to(stage, { scale: 1, duration: 0.7, ease: "power2.inOut" }, at + hold + 0.35);
-        };
+        const say = (i: number, at: number, hold = 1.6, keep = false) => says[i] && addSay(run, says[i], scrim, stage, at, hold, keep);
         const show = (el: Element, at: number) => run.fromTo(el, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, at);
         const hide = (el: Element, at: number) => run.to(el, { autoAlpha: 0, y: -6, duration: 0.35, ease: "power2.in" }, at);
 
@@ -1212,14 +1299,8 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
 
         // 4 · chiusura
         say(3, 19.0, 1.6, true);
-        run
-          .set(end, { autoAlpha: 1 }, 21.1)
-          .fromTo(endBits, { yPercent: 110, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.85, stagger: 0.09, ease: "expo.out", immediateRender: false }, 21.1)
-          .to(endBits, { autoAlpha: 0, duration: 0.4, stagger: 0.04, ease: "power2.in" }, 24.3)
-          .set(end, { autoAlpha: 0 }, 24.8)
-          .to(scrim, { autoAlpha: 0, duration: 0.5, ease: "power2.inOut" }, 24.5)
-          .to(stage, { scale: 1, duration: 0.6, ease: "power2.inOut" }, 24.5)
-          .to({}, { duration: 0.01 }, LOOP - 0.01);
+        addEnd(run, q, 21.1, 3.2);
+        run.to({}, { duration: 0.01 }, LOOP - 0.01);
         return tl.add(run, 1.0);
       }}
     >
@@ -1323,41 +1404,6 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
         </div>
       </div>
 
-      {/* commenti a tutto quadro su vetro acrilico, e il marchio in chiusura */}
-      <div data-scrim className="spot-scrim pointer-events-none absolute -inset-[900px] opacity-0" />
-      <div className="pointer-events-none absolute inset-0">
-        <Say a={t.opsS1a} b={t.opsS1b} />
-        <Say a={t.opsS3a} b={t.opsS3b} />
-        <Say a={t.opsS4a} b={t.opsS4b} />
-        <Say a={t.opsS6a} b={t.opsS6b} sub={t.opsS6s} />
-        <div data-end className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-0">
-          <span className="inline-block overflow-hidden pb-[0.1em]">
-            <span data-end-in className="inline-block text-[60px] leading-none tracking-[-0.055em] text-white">
-              <span className="font-medium">Filippo</span> <span className="font-normal text-white/60">Corsini</span>
-            </span>
-          </span>
-          <span className="mt-3 inline-block overflow-hidden">
-            <span data-end-in className="inline-block text-[16px] text-white/60">
-              {t.opsEndSub}
-            </span>
-          </span>
-          <span className="mt-8 inline-block overflow-hidden p-2">
-            <span data-end-in className="inline-block">
-              <Bead
-                as="a"
-                href={onPage ? "#brief-ops" : `/${locale}/servizi/devops-manutenzione`}
-                onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()}
-                tint="color-mix(in srgb, #5ec4ff 46%, transparent)"
-                radius={24}
-                className="pointer-events-auto flex h-12 items-center gap-2 px-6 text-[15px] font-medium text-white backdrop-blur-md"
-              >
-                {onPage ? t.opsEndBook : t.opsEndCta}
-                <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
-              </Bead>
-            </span>
-          </span>
-        </div>
-      </div>
     </Canvas>
   );
 }
@@ -1457,6 +1503,24 @@ function HwV({ t, max }: { t: WidgetText; max?: number }) {
 }
 
 export function ServiceVisual({ k, t, max }: { k: ServiceKey; t: WidgetText; max?: number }) {
+  const pathname = usePathname();
+  const locale = useLocale();
+  const spots = (useMessages() as unknown as { services: { spots: Record<string, { s: [string, string, string?][]; sub: string }> } }).services.spots;
+  const cfg = spots?.[k];
+  const slug = SERVICES.find((x) => x.key === k)?.slug ?? "";
+  const onPage = pathname.includes(`/servizi/${slug}`);
+  const spot: SpotCfg | null = cfg
+    ? {
+        says: cfg.s.map(([a, b, sub]) => ({ a, b, sub })),
+        sub: cfg.sub,
+        href: onPage ? `#brief-${k}` : `/${locale}/servizi/${slug}`,
+        cta: onPage ? t.spotBook : t.spotCta,
+      }
+    : null;
+  return <SpotCtx.Provider value={spot}>{visual(k, t, max)}</SpotCtx.Provider>;
+}
+
+function visual(k: ServiceKey, t: WidgetText, max?: number) {
   switch (k) {
     case "web":
       return <WebV t={t} max={max} />;

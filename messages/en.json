@@ -601,20 +601,10 @@
       "opsAgent": "On-call engineer",
       "opsAgentAlert": "SRV-03 not responding",
       "opsAgentOk": "Fixed, no data lost",
-      "opsS1a": "Every day,",
-      "opsS1b": "thousands of attacks.",
-      "opsS3a": "Updates,",
-      "opsS3b": "without switching anything off.",
-      "opsS4a": "3:12 a.m.",
-      "opsS4b": "A server goes down.",
-      "opsS6a": "Online.",
-      "opsS6b": "Always.",
-      "opsS6s": "99.98% uptime · last 90 days",
-      "opsEndSub": "Hosting, security and support",
-      "opsEndCta": "Explore the service",
-      "opsEndBook": "Book a call",
       "opsMaintLine": "SRV-02 updating",
-      "opsAgentWork": "Working on SRV-03"
+      "opsAgentWork": "Working on SRV-03",
+      "spotCta": "Explore the service",
+      "spotBook": "Book a call"
     },
     "open": "Explore",
     "includes": "What’s included",
@@ -626,7 +616,184 @@
     "before": "Before",
     "after": "After",
     "next": "Next service",
-    "all": "All services"
+    "all": "All services",
+    "spots": {
+      "web": {
+        "s": [
+          [
+            "A fast website",
+            "that works for you."
+          ],
+          [
+            "Opens in a blink,",
+            "on every screen."
+          ],
+          [
+            "You update it,",
+            "no calls needed."
+          ]
+        ],
+        "sub": "Custom websites and web apps"
+      },
+      "seo": {
+        "s": [
+          [
+            "They search.",
+            "They find you."
+          ],
+          [
+            "Fast, tidy,",
+            "clear to Google."
+          ],
+          [
+            "More visits,",
+            "every month."
+          ]
+        ],
+        "sub": "Technical SEO and performance"
+      },
+      "geo": {
+        "s": [
+          [
+            "People ask",
+            "AI."
+          ],
+          [
+            "AI answers",
+            "with your name."
+          ],
+          [
+            "ChatGPT, Gemini,",
+            "Perplexity."
+          ]
+        ],
+        "sub": "Visibility in AI answers"
+      },
+      "apps": {
+        "s": [
+          [
+            "One app.",
+            "Every device."
+          ],
+          [
+            "iPhone, Android,",
+            "Mac, Windows, Linux."
+          ],
+          [
+            "Always",
+            "in sync."
+          ]
+        ],
+        "sub": "Cross-platform apps"
+      },
+      "design": {
+        "s": [
+          [
+            "Design first,",
+            "then build."
+          ],
+          [
+            "Clear screens,",
+            "tested with real users."
+          ],
+          [
+            "A system",
+            "that stays consistent."
+          ]
+        ],
+        "sub": "UI/UX and prototypes"
+      },
+      "ai": {
+        "s": [
+          [
+            "Repetitive work,",
+            "done by AI."
+          ],
+          [
+            "It reads, sorts,",
+            "replies."
+          ],
+          [
+            "You decide.",
+            "It executes."
+          ]
+        ],
+        "sub": "AI and integrated systems"
+      },
+      "hw": {
+        "s": [
+          [
+            "Sensors and machines,",
+            "live data."
+          ],
+          [
+            "An alert",
+            "before the problem."
+          ],
+          [
+            "Everything in check,",
+            "from your phone."
+          ]
+        ],
+        "sub": "Hardware solutions"
+      },
+      "api": {
+        "s": [
+          [
+            "Your software",
+            "talks to itself."
+          ],
+          [
+            "Orders, invoices,",
+            "stock."
+          ],
+          [
+            "No more",
+            "copy and paste."
+          ]
+        ],
+        "sub": "Integrations and APIs"
+      },
+      "shop": {
+        "s": [
+          [
+            "Your shop,",
+            "always open."
+          ],
+          [
+            "Secure payments,",
+            "in one tap."
+          ],
+          [
+            "Orders and stock,",
+            "in sync."
+          ]
+        ],
+        "sub": "Online stores"
+      },
+      "ops": {
+        "s": [
+          [
+            "Every day,",
+            "thousands of attacks."
+          ],
+          [
+            "Updates,",
+            "without switching anything off."
+          ],
+          [
+            "3:12 a.m.",
+            "A server goes down."
+          ],
+          [
+            "Online.",
+            "Always.",
+            "99.98% uptime · last 90 days"
+          ]
+        ],
+        "sub": "Hosting, security and support"
+      }
+    }
   },
   "brief": {
     "title": "Book a call",
