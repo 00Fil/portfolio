@@ -95,13 +95,14 @@ export function addSay(run: gsap.core.Timeline, el: Element, scrim: Element, zoo
   run.call(() => warm(scrim, true), undefined, Math.max(0, at - 0.5));
   run
     .to(scrim, { opacity: 1, duration: 0.45, ease: "power2.out" }, at)
+    // prima le parole vanno giù e spente, poi il blocco si mostra: così non si vedono mai ferme prima di partire
+    .set(w, { yPercent: 105, opacity: 0 }, at)
     .set(el, { autoAlpha: 1 }, at)
-    // le parole salgono e si accendono con calma; il blocco intanto continua a salire piano
-    .fromTo(w, { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 1, stagger: 0.07, ease: "power3.out", immediateRender: false }, at + 0.15)
+    .to(w, { yPercent: 0, opacity: 1, duration: 0.7, stagger: 0.05, ease: "expo.out" }, at + 0.08)
     .fromTo(el, { y: 14 }, { y: -8, duration: hold + 0.6, ease: "sine.inOut", immediateRender: false }, at)
-    .to(w, { yPercent: -70, opacity: 0, duration: 0.5, stagger: 0.03, ease: "power2.in" }, at + hold)
-    .set(el, { autoAlpha: 0 }, at + hold + 0.6);
-  if (!keep) run.to(scrim, { opacity: SCRIM_OFF, duration: 0.5, ease: "power2.inOut" }, at + hold + 0.35).call(() => warm(scrim, false), undefined, at + hold + 0.9);
+    .to(w, { yPercent: -80, opacity: 0, duration: 0.35, stagger: 0.02, ease: "power3.in" }, at + hold)
+    .set(el, { autoAlpha: 0 }, at + hold + 0.45);
+  if (!keep) run.to(scrim, { opacity: SCRIM_OFF, duration: 0.4, ease: "power2.inOut" }, at + hold + 0.2).call(() => warm(scrim, false), undefined, at + hold + 0.7);
   void zoom;
 }
 /** La chiusura: marchio, riga del servizio e tasto; poi il vetro si spegne. Restituisce la fine. */
@@ -113,8 +114,9 @@ export function addEnd(run: gsap.core.Timeline, q: (s: string) => Element[], at:
   run.call(() => warm(scrim, true), undefined, Math.max(0, at - 0.5));
   run
     .to(scrim, { opacity: 1, duration: 0.4 }, at)
+    .set(bits, { yPercent: 110, autoAlpha: 0 }, at)
     .set(end, { autoAlpha: 1 }, at)
-    .fromTo(bits, { yPercent: 110, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.85, stagger: 0.09, ease: "expo.out", immediateRender: false }, at)
+    .to(bits, { yPercent: 0, autoAlpha: 1, duration: 0.7, stagger: 0.07, ease: "expo.out" }, at + 0.05)
     .to(bits, { autoAlpha: 0, duration: 0.4, stagger: 0.04, ease: "power2.in" }, at + hold)
     .set(end, { autoAlpha: 0 }, at + hold + 0.5)
     .to(scrim, { opacity: SCRIM_OFF, duration: 0.5, ease: "power2.inOut" }, at + hold + 0.2)

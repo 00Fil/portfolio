@@ -34,7 +34,7 @@ type Q = (s: string) => Element[];
 export type Shot = { node: ReactNode; play?: (run: gsap.core.Timeline, $: Q, at: number) => void; dur?: number };
 
 const W = 620;
-const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment."};
+const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too."};
 /** Le scritte dentro le inquadrature: italiano, oppure inglese quando il sito è in inglese. */
 function Tx({ children }: { children: string }) {
   return <>{useLocale() === "en" ? (EN[children] ?? children) : children}</>;
@@ -76,18 +76,18 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
         shots.forEach((s, i) => {
           const el = els[i];
           const $: Q = (sel) => Array.from(el.querySelectorAll(sel));
-          if (says[i]) addSay(run, says[i], scrim, zoom, at, 1.5);
-          const st = at + (says[i] ? 2.3 : 0);
-          const dur = s.dur ?? 4.6;
+          if (says[i]) addSay(run, says[i], scrim, zoom, at, 1.2);
+          const st = at + (says[i] ? 1.75 : 0);
+          const dur = s.dur ?? 4.2;
           const inner = el.firstElementChild as Element;
           run
             .fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6, ease: "power2.out", immediateRender: false }, st)
             // entra dal basso, leggermente più piccola, e poi continua a muoversi piano finché resta in scena
-            .fromTo(inner, { y: 34, scale: 0.94 }, { y: 0, scale: 1, duration: 1.1, ease: "power3.out", immediateRender: false }, st)
-            .to(inner, { y: -8, duration: dur - 1.1, ease: "sine.inOut" }, st + 1.1);
+            .fromTo(inner, { y: 40, scale: 0.92 }, { y: 0, scale: 1, duration: 0.8, ease: "expo.out", immediateRender: false }, st)
+            .to(inner, { y: -6, duration: dur - 0.8, ease: "sine.inOut" }, st + 0.8);
           s.play?.(run, $, st + 0.35);
           run.to(el, { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, st + dur).to(inner, { y: -26, scale: 0.98, duration: 0.45, ease: "power2.in" }, st + dur);
-          at = st + dur + 0.35;
+          at = st + dur + 0.25;
         });
         const end = addEnd(run, q, at);
         run.to({}, { duration: 0.01 }, end + 0.4);
@@ -323,42 +323,139 @@ export const WEB: Shot[] = [
 /* ───────────── SEO ───────────── */
 
 const RESULTS = [
+  ["studiobianchi.it", "Studio Bianchi · Dentista a Brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato."],
   ["clinicarossi.it", "Clinica Dentale Rossi", "Igiene, ortodonzia e implantologia in centro città."],
-  ["studiobianchi.it", "Studio Bianchi · Dentista a Brescia", "Prenota online, orari estesi, anche il sabato."],
   ["dentistiassociati.it", "Dentisti Associati", "Visite e preventivi su appuntamento."],
 ];
+const QUERY = "dentista brescia";
+/** Il logo di Google in lettere, coi suoi colori. */
+const GoogleWord = ({ size }: { size: number }) => (
+  <span className="font-medium tracking-[-0.04em]" style={{ fontSize: size, lineHeight: 1 }}>
+    {["#4285f4", "#ea4335", "#fbbc05", "#4285f4", "#34a853", "#ea4335"].map((c, i) => (
+      <span key={i} style={{ color: c }}>
+        {"Google"[i]}
+      </span>
+    ))}
+  </span>
+);
+
+/** Posizione di un elemento dentro l'inquadratura, nelle unità della tela (che è scalata). */
+const spot = (shot: HTMLElement, el: Element, fx = 0.5, fy = 0.5) => {
+  const a = shot.getBoundingClientRect();
+  const b = el.getBoundingClientRect();
+  const k = a.width / shot.offsetWidth || 1;
+  return { x: (b.left - a.left + b.width * fx) / k, y: (b.top - a.top + b.height * fy) / k };
+};
+/** Un movimento da mano vera: x e y con tempi diversi (traiettoria curva), arrivo un filo oltre e piccola correzione. */
+const human = (run: gsap.core.Timeline, cur: Element, get: () => { x: number; y: number }, at: number, dur = 0.7) => {
+  run
+    .to(cur, { x: () => get().x + 5, duration: dur, ease: "power3.inOut" }, at)
+    .to(cur, { y: () => get().y + 4, duration: dur * 0.92, ease: "sine.inOut" }, at + dur * 0.05)
+    .to(cur, { x: () => get().x, y: () => get().y, duration: 0.18, ease: "power2.out" }, at + dur);
+};
+const press = (run: gsap.core.Timeline, cur: Element, btn: Element, at: number) =>
+  run.to(cur, { scale: 0.8, duration: 0.08, yoyo: true, repeat: 1, ease: "power2.out" }, at).to(btn, { scale: 0.96, duration: 0.08, yoyo: true, repeat: 1, ease: "power2.out" }, at);
+
 export const SEO: Shot[] = [
   {
+    dur: 5.6,
     node: (
-      <span className="w-[460px]">
-        <Bead tint="rgba(255,255,255,.94)" radius={26} className="flex h-[52px] items-center gap-3 px-4 text-[16px] text-[#1f1f1f]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/visual/brands/google.svg" alt="" className="h-5 w-5" draggable={false} />
-          <span data-type className="whitespace-nowrap">
-            <Tx>dentista a brescia</Tx>
+      <Bead tint="rgba(32,33,36,.96)" radius={20} className="relative block h-[352px] w-[560px] overflow-hidden text-[#e8eaed]">
+        {/* home di Google */}
+        <span data-home className="absolute inset-0 flex flex-col items-center justify-center">
+          <span data-word className="block origin-center">
+            <GoogleWord size={58} />
           </span>
-          <Ico i={Search01Icon} s={18} c="ml-auto text-[#4285f4]" />
-        </Bead>
-        <span className="relative mt-5 block h-[222px] px-2">
-          {RESULTS.map(([d, t, sn], i) => (
-            <span key={d} data-r={i} className="absolute inset-x-2 block" style={{ top: i * 74 }}>
-              <span className="flex items-center gap-2 text-[11.5px] text-white/55">
-                <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-semibold ${i === 1 ? "bg-[#5ec4ff] text-[#04121c]" : "bg-white/15 text-white/80"}`}>{t[0]}</span>
-                {d}
-              </span>
-              <span className={`mt-1 block text-[16px] leading-tight ${i === 1 ? "font-medium text-[#8fd8ff]" : "text-[#b9d4ff]"}`}>{t}</span>
-              <span className="mt-0.5 block truncate text-[12.5px] text-white/55">
-                <Tx>{sn}</Tx>
-              </span>
+          <span data-bar className="mt-7 flex h-[46px] w-[440px] items-center gap-3 rounded-full bg-[#303134] px-4 text-[15px] shadow-[inset_0_0_0_1px_#5f6368]">
+            <Ico i={Search01Icon} s={17} c="text-[#9aa0a6]" />
+            <span data-q className="whitespace-pre" />
+            <span data-caret className="-ml-2 h-[18px] w-[1.5px] bg-[#8ab4f8] opacity-0" />
+          </span>
+          <span data-btns className="mt-6 flex gap-3 text-[13px]">
+            <span data-go className="rounded-[6px] bg-[#303134] px-4 py-2">
+              <Tx>Cerca con Google</Tx>
             </span>
-          ))}
+            <span className="rounded-[6px] bg-[#303134] px-4 py-2">
+              <Tx>Mi sento fortunato</Tx>
+            </span>
+          </span>
         </span>
-      </span>
+        {/* risultati */}
+        <span data-serp className="absolute inset-0 block px-6 pt-5 opacity-0">
+          <span className="flex items-center gap-4 border-b border-white/10 pb-4">
+            <GoogleWord size={22} />
+            <span className="flex h-9 flex-1 items-center gap-2 rounded-full bg-[#303134] px-4 text-[13.5px]">
+              <Tx>{QUERY}</Tx>
+              <Ico i={Search01Icon} s={15} c="ml-auto text-[#8ab4f8]" />
+            </span>
+          </span>
+          <span className="mt-4 block space-y-4">
+            {RESULTS.map(([d, t, sn], i) => (
+              <span key={d} data-r className={`block rounded-[14px] px-3 py-2 ${i === 0 ? "bg-[rgba(138,180,248,.1)] shadow-[inset_0_0_0_1px_rgba(138,180,248,.3)]" : ""}`}>
+                <span className="flex items-center gap-2 text-[11.5px] text-[#bdc1c6]">
+                  <span className={`flex h-[18px] w-[18px] items-center justify-center rounded-full text-[9px] font-semibold ${i === 0 ? "bg-[#5ec4ff] text-[#04121c]" : "bg-white/15"}`}>{t[0]}</span>
+                  {d}
+                </span>
+                <span data-t={i} className="mt-0.5 block text-[16.5px] leading-tight text-[#8ab4f8]">
+                  {t}
+                </span>
+                <span className="mt-0.5 block truncate text-[12.5px] text-[#bdc1c6]">
+                  <Tx>{sn}</Tx>
+                </span>
+              </span>
+            ))}
+          </span>
+        </span>
+      </Bead>
     ),
     play: (run, $, at) => {
-      typeIn(run, $("[data-type]")[0], at, 1);
-      enter(run, $("[data-r]"), at + 1.2, 0.12);
-      run.to($('[data-r="1"]'), { y: -74, duration: 0.9, ease: "power3.inOut" }, at + 2.5).to($('[data-r="0"]'), { y: 74, duration: 0.9, ease: "power3.inOut" }, at + 2.5);
+      const cur = $("[data-cursor]")[0];
+      const shot = cur.parentElement as HTMLElement;
+      const bar = $("[data-bar]")[0];
+      const go = $("[data-go]")[0];
+      const q = $("[data-q]")[0] as HTMLElement;
+      const caret = $("[data-caret]")[0];
+      const first = $('[data-t="0"]')[0];
+      const word = (document.documentElement.lang === "en" ? EN[QUERY] : undefined) ?? QUERY;
+      // stato iniziale, a ogni giro
+      run
+        .call(() => void (q.textContent = ""), undefined, at - 0.35)
+        .set($("[data-home]"), { autoAlpha: 1, y: 0 }, at - 0.35)
+        .set($("[data-word]"), { scale: 1, x: 0, y: 0 }, at - 0.35)
+        .set($("[data-serp]"), { autoAlpha: 0 }, at - 0.35)
+        .set(bar, { boxShadow: "inset 0 0 0 1px #5f6368" }, at - 0.35)
+        .set(first, { color: "#8ab4f8", textDecoration: "none" }, at - 0.35)
+        .set(cur, { x: () => spot(shot, bar).x + 170, y: () => spot(shot, bar).y + 150, opacity: 0, scale: 1 }, at - 0.35)
+        .to(cur, { opacity: 1, duration: 0.2 }, at);
+      // 1 · sulla barra, clic
+      human(run, cur, () => spot(shot, bar, 0.3, 0.55), at + 0.05, 0.65);
+      press(run, cur, bar, at + 0.9);
+      run.to(bar, { boxShadow: "inset 0 0 0 1px #8ab4f8, 0 0 0 4px rgba(138,180,248,.18)", duration: 0.2 }, at + 0.9).to(caret, { opacity: 1, duration: 0.01 }, at + 0.95);
+      // 2 · scrive, con il ritmo irregolare di una persona
+      let t = at + 1.05;
+      for (let i = 1; i <= word.length; i++) {
+        const sub = word.slice(0, i);
+        run.call(() => void (q.textContent = sub), undefined, t);
+        t += word[i - 1] === " " ? 0.12 : 0.045 + ((i * 37) % 5) * 0.012;
+      }
+      // 3 · al pulsante, clic
+      human(run, cur, () => spot(shot, go, 0.55, 0.6), t + 0.1, 0.5);
+      press(run, cur, go, t + 0.65);
+      run.to(caret, { opacity: 0, duration: 0.01 }, t + 0.65);
+      // 4 · la pagina dei risultati: il logo vola in alto a sinistra, i risultati arrivano a raffica
+      const sw = t + 0.75;
+      run
+        .to($("[data-btns]"), { autoAlpha: 0, y: 6, duration: 0.2 }, sw)
+        .to(bar, { autoAlpha: 0, y: -40, duration: 0.35, ease: "power3.in" }, sw)
+        .to($("[data-word]"), { x: () => -spot(shot, $("[data-word]")[0]).x + spot(shot, shot.querySelector("[data-serp] .font-medium") as Element).x, y: () => -spot(shot, $("[data-word]")[0]).y + spot(shot, shot.querySelector("[data-serp] .font-medium") as Element).y, scale: 0.38, duration: 0.5, ease: "expo.inOut" }, sw)
+        .set($("[data-home]"), { autoAlpha: 0 }, sw + 0.5)
+        .to($("[data-serp]"), { autoAlpha: 1, duration: 0.2 }, sw + 0.42)
+        .fromTo($("[data-r]"), { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.45, stagger: 0.06, ease: "expo.out" }, sw + 0.48);
+      // 5 · il primo risultato è il nostro: il cursore ci va e clicca
+      human(run, cur, () => spot(shot, first, 0.35, 0.6), sw + 0.75, 0.55);
+      run.to(first, { textDecoration: "underline", duration: 0.01 }, sw + 1.3);
+      press(run, cur, first, sw + 1.45);
+      run.to(first, { color: "#c58af9", duration: 0.2 }, sw + 1.5).to(cur, { opacity: 0, duration: 0.3 }, sw + 2.1);
     },
   },
   {
