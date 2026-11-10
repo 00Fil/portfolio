@@ -237,7 +237,6 @@ body {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   user-select: none;
-  will-change: transform;
 }
 /* lucido: fascia nitida sul bordo alto, rientrata di 2 px */
 .drop::before {
@@ -374,9 +373,26 @@ html.js [data-reveal] { visibility: hidden; }
 
 /* tema: cambio morbido dei colori di fondo */
 /* cambio tema: il nuovo si apre a cerchio sopra la foto del vecchio */
-html.theme-vt::view-transition-old(root), html.theme-vt::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-/* durante il cambio nessuna transizione di colore: ripartirebbe dal valore vecchio dentro il cerchio */
-html.theme-vt *, html.theme-vt *::before, html.theme-vt *::after { transition: none !important; }
+.sky-drift { animation: skyDrift 22s ease-in-out infinite alternate; will-change: transform; }
+@keyframes skyDrift { from { transform: scale(1.08) translate3d(-2.5%, -1.5%, 0); } to { transform: scale(1.08) translate3d(2.5%, 1.5%, 0); } }
+
+/* velo dei cambi di tema e lingua: copre il ridisegno e si toglie quando la pagina è pronta */
+.shift-veil { background: var(--bg-canvas); color: var(--label-primary); transition: background-color .45s ease, color .45s ease; }
+.shift-veil[data-phase="in"] { animation: shiftIn .24s cubic-bezier(.2,.8,.2,1) both; }
+.shift-veil[data-phase="out"] { animation: shiftOut .42s cubic-bezier(.4,0,.2,1) both; pointer-events: none; }
+@keyframes shiftIn { from { opacity: 0; } }
+@keyframes shiftOut { to { opacity: 0; } }
+.shift-veil[data-phase="out"] > div { transition: transform .42s cubic-bezier(.4,0,.2,1), opacity .3s; transform: translateY(-6px) scale(.98); opacity: 0; }
+.shift-ring { width: 26px; height: 26px; border-radius: 999px; border: 1.75px solid color-mix(in srgb, var(--label-primary) 12%, transparent); border-top-color: var(--sky); animation: shiftSpin .8s linear infinite; }
+@keyframes shiftSpin { to { transform: rotate(360deg); } }
+.shift-label {
+  background: linear-gradient(90deg, var(--label-tertiary) 0%, var(--label-primary) 45%, var(--label-tertiary) 90%) 0 0 / 220% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: shiftShine 1.6s linear infinite;
+}
+@keyframes shiftShine { from { background-position: 110% 0; } to { background-position: -110% 0; } }
+/* durante il cambio di tema nessuna transizione di colore: il ridisegno sotto il velo deve essere immediato */
+html.shifting *:not(.shift-veil):not(.shift-veil *) { transition: none !important; }
 
 /* nome gigante del footer: le lettere lasciano vedere il gradiente sotto */
 .giant-mask { background: #000; color: #fff; mix-blend-mode: multiply; }
@@ -428,11 +444,13 @@ html[data-intro] .preloader.pre-out .pre-ch { animation: preChOut .6s cubic-bezi
 .preloader.pre-fade { opacity: 0; transition: opacity .45s ease; }
 @keyframes preFlow { from { transform: translate3d(-12%, 6%, 0) rotate(-4deg); } to { transform: translate3d(10%, -5%, 0) rotate(6deg); } }
 
-/* riga dell'area clienti dentro la capsula: acrilico azzurro, sfocato e opaco quanto basta per leggere */
+/* riga dell'area clienti dentro la capsula: lo stesso vetro della barra, appena tinto d'azzurro.
+   Niente sfocatura propria: la capsula sotto è già sfocata, una seconda costa e non si vede. */
 .client-row {
-  background: linear-gradient(90deg, var(--strip-tint), color-mix(in srgb, var(--strip-tint) 60%, transparent));
-  backdrop-filter: blur(18px) saturate(1.6);
-  -webkit-backdrop-filter: blur(18px) saturate(1.6);
-  box-shadow: inset 0 0 0 1px var(--strip-edge), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 55%),
+    color-mix(in srgb, var(--strip-tint) 72%, transparent);
+  box-shadow: inset 0 0 0 1px var(--strip-edge), inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 @media (min-width: 1024px) { :root { --bar-h: 112px; } }

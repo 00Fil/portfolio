@@ -27,6 +27,8 @@ export interface DitherProps {
   trail?: number;
   clickRipple?: boolean;
   intro?: boolean;
+  /** Fotogrammi al secondo massimi (0 = quelli dello schermo). */
+  fps?: number;
   dpr?: number;
   className?: string;
   style?: CSSProperties;
@@ -53,6 +55,7 @@ type Settings = {
   trail: number;
   clickRipple: boolean;
   intro: boolean;
+  fps: number;
   dpr?: number;
 };
 
@@ -368,6 +371,7 @@ const Dither = ({
   trail = 0.5,
   clickRipple = true,
   intro = true,
+  fps = 0,
   dpr,
   className = '',
   style
@@ -396,6 +400,7 @@ const Dither = ({
     trail: clamp(trail, 0, 1),
     clickRipple,
     intro,
+    fps,
     dpr
   };
   const settingsRef = useRef(settings);
@@ -560,6 +565,10 @@ const Dither = ({
       raf = 0;
       if (!visible || document.hidden) return;
       const s = settingsRef.current;
+      if (s.fps > 0 && last && now - last < 1000 / s.fps - 2) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       const dt = last ? clamp((now - last) / 1000, 0.0005, 0.05) : 1 / 60;
       last = now;
       if (!s.disableAnimation && !reduce) state.time += dt;

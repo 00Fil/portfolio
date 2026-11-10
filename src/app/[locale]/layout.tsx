@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { THEME_SCRIPT } from "@/lib/theme-script";
 import { Preloader } from "@/components/motion/Preloader";
+import { ShiftVeil } from "@/components/motion/ShiftVeil";
 import { BriefOverlay } from "@/components/sections/BriefOverlay";
 import { ChatDock } from "@/components/chat/ChatDock";
 import { notFound } from "next/navigation";
@@ -55,6 +56,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body>
+        <ShiftVeil locale={locale} />
         <Preloader label={profile.name} />
         <NextIntlClientProvider>
           <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-surface focus:px-4 focus:py-2">

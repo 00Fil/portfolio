@@ -78,7 +78,7 @@ function Handoff({ t, lines }: { t: ChatText; lines: () => Line[] }) {
         {t.hDone.replace("{email}", email.trim())}
       </p>
     );
-  const field = "h-10 w-full rounded-[12px] bg-[color-mix(in_srgb,var(--bg-canvas)_55%,transparent)] px-3 text-[14px] text-ink shadow-[inset_0_0_0_1px_var(--hair)] outline-none placeholder:text-ink-3 focus:shadow-[inset_0_0_0_1.5px_var(--sky)]";
+  const field = "h-10 w-full rounded-[12px] bg-[color-mix(in_srgb,var(--bg-canvas)_55%,transparent)] px-3 text-[16px] text-ink shadow-[inset_0_0_0_1px_var(--hair)] lg:text-[14px] outline-none placeholder:text-ink-3 focus:shadow-[inset_0_0_0_1.5px_var(--sky)]";
   return (
     <Bead
       as="form"

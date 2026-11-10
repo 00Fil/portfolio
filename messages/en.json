@@ -32,7 +32,15 @@
     "stripWeb": "Web",
     "stripMobile": "Client area with every project",
     "toSection": "Go to section",
-    "contactCta": "Contact me"
+    "contactCta": "Contact me",
+    "tabShort": {
+      "home": "Home",
+      "approach": "Services",
+      "work": "Work",
+      "path": "Path",
+      "stack": "Stack",
+      "contact": "Contact"
+    }
   },
   "hero": {
     "a": "I build",

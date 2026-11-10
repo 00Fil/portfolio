@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight, ArrowUpRight, ChevronDown } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { shiftLocale } from "@/lib/shift";
 import { routing, type Locale } from "@/i18n/routing";
 import { projects } from "@/content/projects";
 import { COVERS } from "@/content/covers";
@@ -229,7 +230,8 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
     } catch {
       /* niente */
     }
-    router.replace(`${pathname}${window.location.hash}`, { locale: routing.locales[i], scroll: false });
+    const next = routing.locales[i];
+    void shiftLocale(next, () => router.replace(`${pathname}${window.location.hash}`, { locale: next, scroll: false }));
   };
 
   return (

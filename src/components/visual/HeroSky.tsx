@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { shifting } from "@/lib/shift";
 import Dither from "@/components/reactbits/Dither";
 import { useTheme } from "@/lib/theme";
 
@@ -8,15 +9,15 @@ import { useTheme } from "@/lib/theme";
  * Cielo a pixel dell'hero (Dither di React Bits): onde azzurro cielo su nero, retinate in Bayer.
  * Al centro il nero resta pieno per il titolo, come lo spazio bianco tra le nuvole di andreas.vision.
  */
+/* Su telefono il cielo si disegna una volta sola e si muove con una deriva lenta sul compositore:
+   lo shader a tutto schermo ridisegnato a ogni fotogramma era la prima causa di scatti. */
 export function HeroSky() {
   const [ready, setReady] = useState(false);
   const [reduce, setReduce] = useState(false);
   const [small, setSmall] = useState(false);
   const theme = useTheme();
-  // la comparsa graduale vale solo al primo ingresso: cambiando tema il cielo nuovo è già pieno
-  const first = useRef<string | null>(null);
-  if (ready) first.current ??= theme;
-  const swapped = first.current !== null && first.current !== theme;
+  // la comparsa graduale solo al primo ingresso, non quando la pagina si rimonta sotto il velo di un cambio
+  const [intro] = useState(() => typeof window === "undefined" || !shifting());
   useEffect(() => {
     setReduce(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     setSmall(window.innerWidth < 1024);
@@ -26,8 +27,7 @@ export function HeroSky() {
     <div aria-hidden className="absolute inset-0">
       {ready && (
         <Dither
-          key={theme}
-          className="absolute inset-0 [&_canvas]:[image-rendering:pixelated]"
+          className={`absolute inset-0 [&_canvas]:[image-rendering:pixelated] ${small && !reduce ? "sky-drift" : ""}`}
           dpr={small ? 1 : undefined}
           palette={theme === "light" ? ["#f6f6f3", "#dcefff", "#9ed6f7", "#4fb4ea", "#1f7fb8"] : ["#000000", "#06263A", "#0F5C88", "#3BA9E6", "#9EDCFF"]}
           ditherMode="bayer4"
@@ -37,12 +37,12 @@ export function HeroSky() {
           waveAmplitude={0.32}
           contrast={1.25}
           brightness={-0.02}
-          enableMouseInteraction
+          enableMouseInteraction={!small}
           mouseEffect="erase"
           mouseRadius={0.28}
           trail={0.6}
-          disableAnimation={reduce}
-          intro={!reduce && !swapped}
+          disableAnimation={reduce || small}
+          intro={!reduce && !small && intro}
         />
       )}
       {/* al centro un'isola di nero per il titolo; in basso il cielo sfuma nel nero della pagina */}

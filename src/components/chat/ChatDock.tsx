@@ -185,6 +185,26 @@ export function ChatDock() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  // su telefono la finestra segue l'area visibile: quando sale la tastiera si accorcia e resta tutta sopra
+  const [kb, setKb] = useState<{ top: number; h: number } | null>(null);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!open || desk || !vv) return;
+    const fit = () => {
+      const covered = window.innerHeight - vv.height > 120;
+      setKb(covered ? { top: vv.offsetTop + 8, h: vv.height - 16 } : null);
+      if (covered) listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
+    };
+    fit();
+    vv.addEventListener("resize", fit);
+    vv.addEventListener("scroll", fit);
+    return () => {
+      vv.removeEventListener("resize", fit);
+      vv.removeEventListener("scroll", fit);
+      setKb(null);
+    };
+  }, [open, desk]);
+
   // su telefono la pagina sotto resta ferma mentre la chat è aperta
   useEffect(() => {
     if (!open || desk) return;
@@ -314,7 +334,7 @@ export function ChatDock() {
             role="dialog"
             aria-label={t.name}
             className={`drop acrylic fixed z-[95] flex select-text flex-col overflow-hidden ${desk ? "bottom-6 right-6 h-[min(640px,calc(100svh-var(--bar-h)-80px))] w-[400px]" : "inset-x-2 bottom-2 top-[max(calc(env(safe-area-inset-top)+12px),40px)]"}`}
-            style={{ borderRadius: desk ? 26 : 28, ["--drop-tint" as string]: "var(--acrylic)" }}
+            style={{ borderRadius: desk ? 26 : 28, ["--drop-tint" as string]: "var(--acrylic)", ...(kb ? { top: kb.top, height: kb.h, bottom: "auto" } : {}) }}
           >
             <header className="flex items-center gap-3 border-b border-[var(--hair)] px-4 py-3.5">
               <span className="relative">
@@ -377,7 +397,7 @@ export function ChatDock() {
                     placeholder={t.placeholder}
                     aria-label={t.placeholder}
                     maxLength={400}
-                    className="h-full min-w-0 flex-1 bg-transparent px-4 text-[15px] text-ink outline-none placeholder:text-ink-3"
+                    className="h-full min-w-0 flex-1 bg-transparent px-4 text-[16px] text-ink lg:text-[15px] outline-none placeholder:text-ink-3"
                   />
                 </Bead>
                 <Bead as="button" type="submit" tint="sky" radius={22} aria-label={t.send} disabled={!q.trim() || typing} className="drop-soft flex h-11 w-11 shrink-0 items-center justify-center text-ink transition-[opacity,transform] active:scale-95 disabled:opacity-35">

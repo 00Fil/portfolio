@@ -14,12 +14,10 @@ export function ThemeToggle({ className = "h-[42px] w-[42px]" }: { className?: s
   const svg = useRef<SVGSVGElement>(null);
   const mid = `moon-${useId().replace(/:/g, "")}`;
   const light = theme === "light";
-  const flip = (e?: { currentTarget?: EventTarget | null }) => {
+  const flip = () => {
     const next = light ? "dark" : "light";
-    const el = e?.currentTarget instanceof HTMLElement ? e.currentTarget : svg.current;
-    const r = el?.getBoundingClientRect();
     if (svg.current) gsap.fromTo(svg.current, { rotate: -90, scale: 0.6 }, { rotate: 0, scale: 1, duration: 0.7, ease: "back.out(2)" });
-    setTheme(next, r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : undefined);
+    setTheme(next);
     play("toggle");
   };
   return (

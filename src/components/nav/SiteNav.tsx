@@ -12,7 +12,7 @@ export function SiteNav({ detail, plain = false }: { detail?: { title: string; s
   const sec = detail?.section ?? "work";
   const t = useTranslations("nav");
   const icons = [House, Waypoints, LayoutGrid, Route, Layers, Mail];
-  const tabs: Tab[] = SECTION_IDS.map((id, i) => ({ id, label: t(id), icon: icons[i] }));
+  const tabs: Tab[] = SECTION_IDS.map((id, i) => ({ id, label: t(id), short: t(`tabShort.${id}`), icon: icons[i] }));
   return (
     <>
     <GlassTopNav home={!detail} section={sec} plain={plain} />

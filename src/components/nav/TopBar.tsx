@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { shiftLocale } from "@/lib/shift";
 import { routing, type Locale } from "@/i18n/routing";
 import { Drop } from "@/components/glass/Drop";
 import { GlassSegmented } from "./GlassSegmented";
@@ -40,7 +41,7 @@ export function TopBar() {
       } catch {
         /* niente */
       }
-      router.replace(`${pathname}${hash}`, { locale: next, scroll: false });
+      void shiftLocale(next, () => router.replace(`${pathname}${hash}`, { locale: next, scroll: false }));
     },
     [pathname, router],
   );

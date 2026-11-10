@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import { ArrowRight, ArrowUpRight, ChevronLeft, FileText, type LucideIcon } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronUp, FileText, type LucideIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Locale } from "@/i18n/routing";
 import { SERVICES } from "@/content/services";
@@ -22,7 +22,7 @@ import { scrollToY } from "@/lib/scroll";
 import { play } from "@/lib/sound";
 import { ACCENT, INK_2, lerpColor, prefersReducedMotion, supportsBackdropLens, supportsElementLens, vibrate } from "@/lib/env";
 
-export type Tab = { id: string; label: string; icon: LucideIcon };
+export type Tab = { id: string; label: string; short?: string; icon: LucideIcon };
 
 type Props = {
   tabs: Tab[];
@@ -465,10 +465,17 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
   const items = (refs: React.MutableRefObject<(HTMLElement | null)[]>, interactive: boolean) =>
     tabs.map((t, i) => {
       const Icon = t.icon;
+      const menu = DRAWER[t.id];
       const inner = (
         <>
-          <Icon size={24} strokeWidth={1.6} aria-hidden className="shrink-0" />
-          <span className="sr-only">{t.label}</span>
+          <span className="relative shrink-0">
+            <Icon size={21} strokeWidth={1.6} aria-hidden />
+            {/* le voci che aprono un menu hanno la freccina: le altre portano alla sezione */}
+            {menu && (
+              <ChevronUp size={10} strokeWidth={2.6} aria-hidden className={`absolute -right-[9px] -top-[3px] opacity-75 transition-transform duration-300 ${drawer === menu ? "rotate-180" : ""}`} />
+            )}
+          </span>
+          <span className="max-w-full truncate text-[10px] font-medium leading-none tracking-[-0.01em]">{t.short ?? t.label}</span>
         </>
       );
       return interactive ? (
@@ -492,7 +499,7 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
             }
           }}
           onKeyDown={(e) => onKeyNav(e, i)}
-          className="relative flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-[3px] rounded-full outline-offset-[-2px]"
+          className="relative flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-[4px] rounded-full px-0.5 outline-offset-[-2px]"
           style={{ color: "var(--label-secondary)" }}
           draggable={false}
         >
@@ -504,7 +511,7 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
           ref={(el) => {
             refs.current[i] = el;
           }}
-          className="flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-[3px]"
+          className="flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-[4px] px-0.5"
           style={{ color: "var(--label-secondary)" }}
         >
           {inner}
@@ -515,7 +522,7 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
   return (
     <nav
       aria-label={navLabel}
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-5 lg:hidden"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 min-[400px]:px-5 lg:hidden"
       style={{ paddingBottom: "calc(10px + env(safe-area-inset-bottom))" }}
     >
       {lens.bar && size.w > 0 && (

@@ -33,7 +33,9 @@ export function ClientRow({ variant }: { variant: "top" | "bar" }) {
     <div
       role="note"
       aria-label={t("stripLabel")}
-      className={`client-row flex items-center gap-3 text-ink ${top ? "mx-[6px] mb-[6px] h-[36px] rounded-[22px] pl-4 pr-[5px] text-[13px]" : "h-[36px] rounded-[20px] pl-3.5 pr-[5px] text-[12px]"}`}
+      className={`client-row flex items-center gap-3 text-ink ${top ? "mx-[6px] mb-[6px] h-[36px] pl-4 pr-[5px] text-[13px]" : "h-[36px] pl-4 pr-[5px] text-[12px]"}`}
+      // concentrica con la capsula: raggio della capsula meno il margine (6 px) sul lato che la tocca
+      style={{ borderRadius: top ? "12px 12px 24px 24px" : "27px 27px 10px 10px" }}
     >
       <p className="min-w-0 flex-1 truncate">
         {top ? (
