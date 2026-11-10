@@ -44,13 +44,15 @@ function useColumns() {
  */
 function Body({ s, w, locale, open, still = false }: { s: Service; w: WidgetText; locale: Locale; open: string; still?: boolean }) {
   const bleed = { inset: "calc(var(--mb-pad, 20px) * -1)" };
+  // su computer lavora solo la scheda sotto il cursore: il fondale si muove e lo spot riparte da capo a ogni passaggio
+  const [hover, setHover] = useState(false);
   return (
-    <div className="theme-dark relative h-full">
+    <div className="theme-dark relative h-full" onPointerEnter={() => !still && setHover(true)} onPointerLeave={() => setHover(false)}>
       <div aria-hidden className="pointer-events-none absolute overflow-hidden" style={bleed}>
-        <ServiceBg k={s.key} live={!still} still={still} />
+        <ServiceBg k={s.key} live={!still} still={still} paused={!hover} />
       </div>
       <div className="svc-vis absolute overflow-hidden" style={bleed}>
-        <ServiceVisual k={s.key} t={w} max={1.2} />
+        <ServiceVisual k={s.key} t={w} max={1.2} play={still ? undefined : hover} />
       </div>
       <div className="svc-rest pointer-events-none absolute flex flex-col items-center justify-center px-8 text-center" style={bleed}>
         <span className="flex items-center gap-2.5 font-mono text-[11.5px] uppercase tracking-[0.16em] text-white/75">
@@ -136,7 +138,7 @@ export function Services() {
               spotlightRadius={420}
               enableBorderGlow
               enableStars={false}
-              enableTilt
+              enableTilt={false}
               enableMagnetism={false}
               clickEffect
               style={

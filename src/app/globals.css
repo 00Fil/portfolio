@@ -416,12 +416,12 @@ html[data-theme="light"] .giant-mask { background: var(--bg-canvas); color: #000
 html[data-theme="light"] .light-invert { filter: invert(1) hue-rotate(180deg) saturate(1.2); opacity: 0.55; }
 
 /* schede dei servizi: a riposo il titolo al centro; al passaggio del mouse si dissolve nel servizio a tutta scheda */
-.svc-rest, .svc-vis { transition: opacity 0.55s var(--ease-out), transform 0.9s var(--ease-out), filter 0.55s var(--ease-out); }
+.svc-rest, .svc-vis { transition: opacity 0.5s var(--ease-out), transform 0.8s var(--ease-out); }
 .svc-arrow { transition: transform 0.6s var(--ease-out); }
 @media (hover: hover) {
-  .svc-vis { opacity: 0; transform: scale(1.08); filter: blur(16px); }
-  .group:hover .svc-vis, .group:focus-visible .svc-vis { opacity: 1; transform: none; filter: none; }
-  .group:hover .svc-rest, .group:focus-visible .svc-rest { opacity: 0; transform: scale(0.9); filter: blur(12px); }
+  .svc-vis { opacity: 0; transform: scale(1.04); }
+  .group:hover .svc-vis, .group:focus-visible .svc-vis { opacity: 1; transform: none; }
+  .group:hover .svc-rest, .group:focus-visible .svc-rest { opacity: 0; transform: scale(0.96); }
 }
 @media (hover: none) {
   .svc-vis { bottom: 150px !important; }

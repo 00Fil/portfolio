@@ -35,10 +35,10 @@ const ANGLE: Record<ServiceKey, number> = { web: 35, seo: 145, geo: 60, ai: 160,
 
 const RAMPS = Object.keys(T) as (keyof typeof T)[];
 
-function Scene({ k, live, v = 0 }: { k: ServiceKey; live?: boolean; v?: number }) {
+function Scene({ k, live, v = 0, paused = false }: { k: ServiceKey; live?: boolean; v?: number; paused?: boolean }) {
   const colors = T[v ? RAMPS[(RAMPS.indexOf(PICK[k]) + v) % RAMPS.length] : PICK[k]];
   const angle = (ANGLE[k] + v * 65) % 360;
-  return <Grainient colors={colors} angle={angle} speed={0.55} flow={0.55} silk={0.3} grainAmount={0.05} contrast={0.95} interactive={!!live} stir={1.6} clickSwirl={!!live} intro={false} dpr={0.6} />;
+  return <Grainient colors={colors} angle={angle} speed={0.55} flow={0.55} silk={0.3} grainAmount={0.05} contrast={0.95} interactive={!!live} stir={1.6} clickSwirl={!!live} intro={false} dpr={0.6} paused={paused} />;
 }
 
 /** Lo stesso gradiente, fermo e senza WebGL: per il telefono, dove dieci contesti costano troppo. */
@@ -52,21 +52,21 @@ function stillBg(k: ServiceKey, v: number) {
  * Sfondo React Bits della scheda. Il contesto WebGL esiste solo mentre la scheda è vicina allo schermo,
  * così dieci schede non tengono aperti dieci contesti insieme.
  */
-export function ServiceBg({ k, live = false, v = 0, active = true, still: fixed = false }: { k: ServiceKey; live?: boolean; v?: number; active?: boolean; still?: boolean }) {
+export function ServiceBg({ k, live = false, v = 0, active = true, still: fixed = false, paused = false }: { k: ServiceKey; live?: boolean; v?: number; active?: boolean; still?: boolean; paused?: boolean }) {
   const box = useRef<HTMLDivElement>(null);
   const [on, setOn] = useState(false);
   useEffect(() => {
     if (fixed) return;
-    const io = new IntersectionObserver(([e]) => setOn(e.isIntersecting), { rootMargin: "120px" });
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setOn(true), { rootMargin: "200px" });
     io.observe(box.current!);
     return () => io.disconnect();
   }, [fixed]);
   const still = typeof window !== "undefined" && prefersReducedMotion();
   return (
-    <div ref={box} aria-hidden className="pointer-events-none absolute inset-0" style={{ background: fixed ? stillBg(k, v) : `radial-gradient(120% 90% at 70% 20%, color-mix(in srgb, ${HUE[k]} 30%, #050506), #050506)` }}>
+    <div ref={box} aria-hidden className="pointer-events-none absolute inset-0" style={{ background: stillBg(k, v) }}>
       {on && active && !still && (
         <div className="absolute inset-0 animate-[fadeIn_1s_ease_both]">
-          <Scene k={k} live={live} v={v} />
+          <Scene k={k} live={live} v={v} paused={paused} />
         </div>
       )}
     </div>

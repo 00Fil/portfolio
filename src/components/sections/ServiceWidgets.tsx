@@ -77,6 +77,8 @@ const Cursor = ({ className = "" }: { className?: string }) => (
 
 export type SpotCfg = { says: { a: string; b: string; sub?: string }[]; sub: string; href: string; cta: string };
 const SpotCtx = createContext<SpotCfg | null>(null);
+/** Se impostato, la tela gira solo quando è vero e riparte da capo ogni volta che lo diventa (schede della home). */
+const PlayCtx = createContext<boolean | undefined>(undefined);
 const SCRIM_OFF = 0.001;
 const BLUR = "blur(26px) saturate(1.8) brightness(0.86)";
 /** La sfocatura si accende mezzo secondo prima del commento (così è pronta) e si spegne dopo: tenerla sempre accesa
@@ -205,6 +207,8 @@ function SpotLayer({ spot }: { spot: SpotCfg }) {
  *  `ownSpot`: la scheda decide da sé quando mostrare i commenti (li sincronizza con le sue scene). */
 export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot = false }: { w: number; h: number; max?: number; build: (q: (s: string) => Element[]) => gsap.core.Timeline; children: ReactNode; framed?: boolean; ownSpot?: boolean }) {
   const spot = useContext(SpotCtx);
+  const play = useContext(PlayCtx);
+  const timelines = useRef<gsap.core.Timeline[]>([]);
   const box = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const [win, setWin] = useState(false);
@@ -228,7 +232,9 @@ export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot 
       const q = gsap.utils.selector(box.current);
       const tl = build(q).pause();
       const cap = spot && !ownSpot ? spotTimeline(q).pause() : null;
+      timelines.current = cap ? [tl, cap] : [tl];
       if (prefersReducedMotion()) return void tl.progress(1);
+      if (play !== undefined) return;
       // parte la prima volta che si vede e si ferma ogni volta che esce dallo schermo:
       // le animazioni infinite di sette schede non girano più in sottofondo mentre scorri altrove
       let started = false;
@@ -250,6 +256,20 @@ export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot 
     },
     { scope: box },
   );
+  useEffect(() => {
+    if (play === undefined || prefersReducedMotion()) return;
+    if (play) {
+      // si riparte pulito: niente inquadrature o commenti rimasti a metà dal passaggio precedente
+      const q = gsap.utils.selector(box.current);
+      gsap.set(q("[data-shot], [data-say], [data-end], [data-card], [data-p-blk], [data-p-maint]"), { autoAlpha: 0 });
+      const scrim = q("[data-scrim]")[0];
+      if (scrim) {
+        gsap.set(scrim, { opacity: SCRIM_OFF });
+        warm(scrim, false);
+      }
+    }
+    timelines.current.forEach((t) => (play ? t.restart() : t.pause()));
+  }, [play]);
   return (
     <div ref={box} aria-hidden className="pointer-events-none relative h-full w-full min-w-0 select-none">
       <div
@@ -1163,7 +1183,7 @@ function Comet({ d, color, attr }: { d: string; color: string; attr: string }) {
   return (
     <g {...{ [attr]: "" }} opacity="0">
       <path d={d} pathLength={100} fill="none" stroke={color} strokeOpacity=".35" strokeWidth="2.2" strokeLinecap="round" strokeDasharray="16 300" strokeDashoffset="16" />
-      <path d={d} pathLength={100} fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeDasharray="2.5 300" strokeDashoffset="2.5" style={{ filter: `drop-shadow(0 0 4px ${color})` }} />
+      <path d={d} pathLength={100} fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeDasharray="2.5 300" strokeDashoffset="2.5" />
     </g>
   );
 }
@@ -1176,7 +1196,7 @@ function Unit({ i, y }: { i: number; y: number }) {
     <g data-unit>
       <rect x={x} y={y - UNIT_H / 2} width={w} height={UNIT_H} rx="9" fill="url(#ops-unit)" stroke="rgba(255,255,255,.16)" />
       <rect data-unit-tint x={x} y={y - UNIT_H / 2} width={w} height={UNIT_H} rx="9" fill={RED} opacity="0" />
-      <circle data-led cx={x + 14} cy={y} r="3.2" fill={GREEN} style={{ filter: `drop-shadow(0 0 4px ${GREEN})` }} />
+      <circle data-led cx={x + 14} cy={y} r="3.2" fill={GREEN} />
       <text x={x + 26} y={y + 3.5} fill="rgba(255,255,255,.8)" fontSize="10" fontFamily={MONO} letterSpacing=".05em">
         SRV-0{i + 1}
       </text>
@@ -1514,7 +1534,7 @@ function HwV({ t, max }: { t: WidgetText; max?: number }) {
   );
 }
 
-export function ServiceVisual({ k, t, max }: { k: ServiceKey; t: WidgetText; max?: number }) {
+export function ServiceVisual({ k, t, max, play }: { k: ServiceKey; t: WidgetText; max?: number; play?: boolean }) {
   const pathname = usePathname();
   const locale = useLocale();
   const spots = (useMessages() as unknown as { services: { spots: Record<string, { s: [string, string, string?][]; sub: string }> } }).services.spots;
@@ -1529,7 +1549,11 @@ export function ServiceVisual({ k, t, max }: { k: ServiceKey; t: WidgetText; max
         cta: onPage ? t.spotBook : t.spotCta,
       }
     : null;
-  return <SpotCtx.Provider value={spot}>{visual(k, t, max)}</SpotCtx.Provider>;
+  return (
+    <PlayCtx.Provider value={play}>
+      <SpotCtx.Provider value={spot}>{visual(k, t, max)}</SpotCtx.Provider>
+    </PlayCtx.Provider>
+  );
 }
 
 function visual(k: ServiceKey, t: WidgetText, max?: number) {

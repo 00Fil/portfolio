@@ -26,6 +26,8 @@ export interface GrainientProps extends Omit<HTMLAttributes<HTMLDivElement>, 'st
   intro?: boolean;
   lightMode?: boolean;
   dpr?: number;
+  /** Fermo sull'ultimo fotogramma (il contesto resta pronto, ma non disegna). */
+  paused?: boolean;
   style?: CSSProperties;
 }
 
@@ -51,6 +53,7 @@ type Settings = {
   intro: boolean;
   lightMode: boolean;
   dpr?: number;
+  paused?: boolean;
 };
 
 type Sample = { x: number; y: number; vx: number; vy: number; age: number; grow: number; done: boolean };
@@ -330,6 +333,7 @@ const Grainient = ({
   intro = true,
   lightMode = false,
   dpr,
+  paused = false,
   className = '',
   style,
   ...rest
@@ -359,7 +363,8 @@ const Grainient = ({
     clickSwirl,
     intro,
     lightMode,
-    dpr
+    dpr,
+    paused
   };
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
@@ -571,6 +576,10 @@ const Grainient = ({
       raf = 0;
       if (!visible || document.hidden) return;
       const s = settingsRef.current;
+      if (s.paused) {
+        last = 0;
+        return;
+      }
       // il fondale è morbido e lento: 30 fotogrammi al secondo bastano, e liberano metà del lavoro
       if (last && now - last < 1000 / 30 - 2) {
         raf = requestAnimationFrame(frame);
