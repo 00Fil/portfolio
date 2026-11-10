@@ -13,6 +13,10 @@ import { play } from "@/lib/sound";
 import type { Line } from "@/lib/chat-actions";
 import { answer, type ChatText, type Msg } from "./engine";
 import { WidgetView } from "./Widgets";
+import dynamic from "next/dynamic";
+import { useTheme } from "@/lib/theme";
+
+const Strands = dynamic(() => import("@/components/reactbits/Strands"), { ssr: false });
 
 /** Dopo quanto compare la notifica, una volta per visita. */
 const NOTE_AFTER_MS = 6000;
@@ -38,13 +42,13 @@ function useBevel(ref: RefObject<HTMLElement | null>, radius: number, on = true)
   }, [ref, radius, on]);
 }
 
-/** Icona dell'"app": il monogramma, come un'icona su macOS e iOS. */
+/** Il logo della chat: la sfera di vetro con i filamenti di luce (React Bits · Strands), chiara o scura col tema. */
 function AppIcon({ size = 38 }: { size?: number }) {
+  const theme = useTheme();
   return (
-    <Bead aria-hidden tint="dark" radius={size * 0.3} className="relative flex shrink-0 items-center justify-center overflow-hidden font-medium tracking-[-0.04em] text-white" style={{ width: size, height: size, fontSize: size * 0.38 }}>
-      <span className="absolute inset-0 -z-10 bg-[radial-gradient(120%_90%_at_30%_0%,rgba(94,196,255,.5),transparent_62%)]" />
-      <span className="relative">FC</span>
-    </Bead>
+    <span aria-hidden className="relative block shrink-0" style={{ width: size, height: size }}>
+      <Strands glassSize={1.16} lightMode={theme === "light"} energy={0.55} speed={0.8} interactive={false} clickPulse={false} maxDevicePixelRatio={2} />
+    </span>
   );
 }
 
@@ -320,7 +324,7 @@ export function ChatDock() {
           className="drop acrylic fixed bottom-6 right-6 z-[60] flex h-14 w-14 items-center justify-center rounded-full transition-transform hover:scale-105"
           style={{ ["--drop-tint" as string]: "var(--acrylic)" }}
         >
-          <AppIcon size={38} />
+          <AppIcon size={46} />
           {unread && <span className="absolute right-1 top-1 h-3 w-3 rounded-full bg-[#ff3b30] shadow-[0_0_0_2px_var(--bg-canvas)]" aria-hidden />}
         </button>
       )}

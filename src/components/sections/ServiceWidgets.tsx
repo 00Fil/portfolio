@@ -9,7 +9,7 @@ import { Bead } from "@/components/glass/Bead";
 import { AI, API, APPS, DESIGN, GEO, HW, SEO, SHOP, StoryV, WEB } from "./Spots";
 import { Shape } from "@/components/visual/Shapes";
 import { prefersReducedMotion } from "@/lib/env";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon, CheckmarkCircle02Icon, Shield01Icon, Wrench01Icon } from "@hugeicons/core-free-icons";
 import { SERVICES, type ServiceKey } from "@/content/services";
@@ -153,6 +153,7 @@ function Words({ s, cls = "" }: { s: string; cls?: string }) {
 /** Livello sopra la tela, grande quanto la scheda: vetro, commenti, marchio. Il vetro è sempre lì (quasi trasparente)
  *  così la sfocatura è già pronta e non arriva in ritardo. */
 function SpotLayer({ spot }: { spot: SpotCfg }) {
+  const router = useRouter();
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]" style={{ containerType: "size" }}>
       <div data-scrim className="spot-scrim absolute inset-0" style={{ opacity: SCRIM_OFF }} />
@@ -185,10 +186,16 @@ function SpotLayer({ spot }: { spot: SpotCfg }) {
         </span>
         <span className="mt-[4cqw] inline-block overflow-hidden p-2">
           <span data-end-in className="inline-block">
+            {/* un pulsante, non un link: nella home la scheda è già un link e due link annidati rompono la pagina */}
             <Bead
-              as="a"
-              href={spot.href}
-              onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()}
+              as="button"
+              type="button"
+              onClick={(e: { stopPropagation: () => void; preventDefault: () => void }) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (spot.href.startsWith("#")) window.location.hash = spot.href.slice(1);
+                else router.push(spot.href);
+              }}
               tint="color-mix(in srgb, #5ec4ff 46%, transparent)"
               radius={24}
               className="pointer-events-auto flex h-11 items-center gap-2 px-5 text-[14px] font-medium text-white backdrop-blur-md"

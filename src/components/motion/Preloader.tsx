@@ -48,9 +48,11 @@ export function Preloader({ label }: { label: string }) {
     }
     if (html.dataset.intro !== "run") return;
 
-    // l'ingresso del nome è già partito in CSS: qui si aspetta la fine e che la pagina sia pronta
-    const inMs = (0.12 + total * STAGGER + 1.1) * 1000 - performance.now();
-    const ready = Promise.all([wait(Math.max(0, inMs)), Promise.race([Promise.all([document.fonts?.ready, loaded()]).then(settled), wait(Math.max(0, inMs) + MAX_WAIT_MS)])]);
+    // l'ingresso del nome è già partito in CSS: si aspetta che ogni lettera abbia davvero finito
+    // (le animazioni partono col primo disegno, non dall'inizio della navigazione) e che la pagina sia pronta
+    const letters = Array.from(el.querySelectorAll(".pre-ch")).flatMap((c) => c.getAnimations?.() ?? []);
+    const entered = letters.length ? Promise.all(letters.map((a) => a.finished.catch(() => undefined))) : wait((0.12 + total * STAGGER + 1.1) * 1000);
+    const ready = entered.then(() => Promise.race([Promise.all([document.fonts?.ready, loaded()]).then(settled), wait(MAX_WAIT_MS)]));
     ready.then(() => {
       if (!alive) return;
       lift();
