@@ -89,7 +89,7 @@ export function BriefOverlay() {
           <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
         </svg>
       </button>
-      <div data-panel className="relative mx-auto w-full max-w-[1040px] px-5 pb-16 pt-20 sm:px-8 lg:pt-[12vh]">
+      <div data-panel className="relative mx-auto w-full max-w-[1120px] px-6 pb-24 pt-24 sm:px-10 lg:pt-[14vh]">
         <Brief key={n} preset={preset} onClose={hide} />
       </div>
     </div>

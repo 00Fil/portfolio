@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { THEME_SCRIPT } from "@/lib/theme-script";
 import { Preloader } from "@/components/motion/Preloader";
 import { BriefOverlay } from "@/components/sections/BriefOverlay";
+import { ChatDock } from "@/components/chat/ChatDock";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -63,6 +64,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           <TopBar />
           <CoverTransition>{children}</CoverTransition>
           <BriefOverlay />
+          <ChatDock />
         </NextIntlClientProvider>
       </body>
     </html>

@@ -4,7 +4,7 @@ import type { ServiceKey } from "./services";
 type L = Record<Locale, string>;
 
 /** Cosa può comparire dentro una risposta, oltre al testo. */
-export type Widget = { kind: "book"; path?: string } | { kind: "service"; key: ServiceKey } | { kind: "project"; slug: string } | { kind: "projects" } | { kind: "area" } | { kind: "cv" } | { kind: "contact" };
+export type Widget = { kind: "book"; path?: string } | { kind: "service"; key: ServiceKey } | { kind: "project"; slug: string } | { kind: "projects" } | { kind: "area" } | { kind: "cv" } | { kind: "contact" } | { kind: "handoff" };
 
 export type Intent = { id: string; kw: string[]; a: L; w?: Widget[]; chip?: L };
 
@@ -13,6 +13,33 @@ export type Intent = { id: string; kw: string[]; a: L; w?: Widget[]; chip?: L };
  * Vale sempre la risposta con più corrispondenze; a parità, quella più in alto.
  */
 export const INTENTS: Intent[] = [
+  {
+    id: "start",
+    kw: ["avvi", "inizi", "partir", "comincia", "lanciar", "nuov", "start", "launch", "begin", "new"],
+    a: {
+      it: "Bene. Scrivimi in due righe di cosa si tratta e ti dico come lo imposterei, oppure prenota subito 30 minuti con Filippo.",
+      en: "Great. Tell me in a couple of lines what it is about and I’ll tell you how I’d set it up, or book 30 minutes with Filippo straight away.",
+    },
+    w: [{ kind: "book" }],
+  },
+  {
+    id: "agent",
+    kw: ["persona", "umano", "operator", "agent", "consulen", "consigl", "parlare", "filippo", "human", "advice", "someone", "consult"],
+    a: {
+      it: "Ti metto in contatto con Filippo. Lasciami nome ed email: riceve questa conversazione e ti risponde entro 24 ore.",
+      en: "I’ll put you in touch with Filippo. Leave your name and email: he gets this conversation and replies within 24 hours.",
+    },
+    w: [{ kind: "handoff" }],
+  },
+  {
+    id: "support",
+    kw: ["support", "assistenz", "problema", "errore", "bug", "funziona", "rotto", "bloccat", "down", "broken", "issue", "error"],
+    a: {
+      it: "Se sei già cliente, la via più rapida è una richiesta dall’area clienti: resta tracciata fino alla soluzione. Altrimenti descrivimi il problema e lo passo subito a Filippo.",
+      en: "If you are already a client, the quickest route is a request from the client area: it stays tracked until it is solved. Otherwise describe the issue and I’ll pass it to Filippo right away.",
+    },
+    w: [{ kind: "area" }, { kind: "handoff" }],
+  },
   {
     id: "cost",
     chip: { it: "Quanto costa?", en: "How much does it cost?" },

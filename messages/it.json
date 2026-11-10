@@ -31,7 +31,8 @@
     "stripShort": "Team, modifiche e avanzamento.",
     "stripWeb": "Sito",
     "stripMobile": "Area clienti in ogni progetto",
-    "toSection": "Vai alla sezione"
+    "toSection": "Vai alla sezione",
+    "contactCta": "Contattami"
   },
   "hero": {
     "a": "Sviluppo",
@@ -591,7 +592,14 @@
       "opsSiteCta": "Prenota una visita",
       "opsTile1": "Orari",
       "opsTile2": "Servizi",
-      "opsTile3": "Contatti"
+      "opsTile3": "Contatti",
+      "opsCrash": "Guasto",
+      "opsAgent": "Agente dedicato",
+      "opsAgentOn": "Preso in carico subito",
+      "opsAgentOk": "Risolto in 4 minuti",
+      "opsL5": "Server 3 non risponde: traffico spostato",
+      "opsL6": "Agente dedicato al lavoro in 40 secondi",
+      "opsL7": "Server 3 ripristinato, nessun dato perso"
     },
     "open": "Scopri",
     "includes": "Cosa include",
@@ -842,20 +850,49 @@
     "call": "Prenota una chiamata",
     "write": "Scrivi un’email"
   },
-  "assistant": {
-    "title": "Chiedi pure",
-    "lead": "Prezzi, tempi, metodo, lavori: risposte immediate, e se serve la chiamata è a un tocco.",
-    "name": "Assistente di Filippo",
-    "placeholder": "Scrivi una domanda",
+  "chat": {
+    "name": "Filippo Corsini",
+    "role": "Supporto e consulenza",
+    "status": "Online",
+    "hello": "Ciao! Sono l’assistente di Filippo. Posso rispondere subito su servizi, prezzi e tempi, o passarti a lui per un consiglio su misura.",
+    "starts": [
+      "Voglio avviare un progetto",
+      "Mi serve supporto",
+      "Vorrei un consiglio",
+      "Quanto costa?"
+    ],
+    "placeholder": "Messaggio",
     "send": "Invia",
-    "hello": "Ciao! Dimmi cosa ti serve o cosa vuoi sapere: ti porto alla pagina giusta.",
-    "fallback": "Su questo preferisco risponderti di persona. Prenota 30 minuti e ne parliamo.",
+    "close": "Chiudi",
+    "open": "Apri la chat",
+    "now": "ora",
+    "notifTitle": "Filippo Corsini",
+    "notifBody": "Ciao! Hai un progetto in mente o ti serve una mano? Scrivimi qui.",
+    "fallback": "Su questo preferisco che ti risponda Filippo di persona. Lasciami nome ed email, oppure prenota 30 minuti.",
     "book": "Prenota una chiamata di 30 minuti",
     "nextFree": "Primo orario libero: {when}",
-    "open": "Apri",
     "area": "Accedi all’area clienti",
-    "cv": "Il mio curriculum",
+    "cv": "Scarica il CV",
     "service": "Per {name}:",
-    "project": "Ecco {name}: la pagina racconta il problema, cosa ho costruito e le scelte tecniche."
+    "project": "Ecco {name}: la pagina racconta il problema, cosa ho costruito e le scelte tecniche.",
+    "hName": "Nome",
+    "hEmail": "Email",
+    "hSend": "Invia a Filippo",
+    "hDone": "Fatto. Filippo ha ricevuto la conversazione e ti risponde a {email} entro 24 ore.",
+    "hErr": "Controlla nome ed email e riprova."
+  },
+  "contactMenu": {
+    "status": "Disponibile · risponde entro 24 ore",
+    "book": "Prenota una chiamata",
+    "bookSub": "30 minuti, online",
+    "chat": "Scrivimi in chat",
+    "chatSub": "Supporto e consigli",
+    "email": "Email",
+    "copied": "Copiata",
+    "linkedin": "LinkedIn",
+    "instagram": "Instagram",
+    "whatsapp": "WhatsApp",
+    "github": "GitHub",
+    "cv": "CV"
   }
 }

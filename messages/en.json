@@ -31,7 +31,8 @@
     "stripShort": "Team, changes and progress.",
     "stripWeb": "Web",
     "stripMobile": "Client area with every project",
-    "toSection": "Go to section"
+    "toSection": "Go to section",
+    "contactCta": "Contact me"
   },
   "hero": {
     "a": "I build",
@@ -591,7 +592,14 @@
       "opsSiteCta": "Book a visit",
       "opsTile1": "Hours",
       "opsTile2": "Services",
-      "opsTile3": "Contact"
+      "opsTile3": "Contact",
+      "opsCrash": "Down",
+      "opsAgent": "Dedicated agent",
+      "opsAgentOn": "On it right away",
+      "opsAgentOk": "Fixed in 4 minutes",
+      "opsL5": "Server 3 down: traffic rerouted",
+      "opsL6": "Dedicated agent on it within 40 seconds",
+      "opsL7": "Server 3 restored, no data lost"
     },
     "open": "Explore",
     "includes": "What’s included",
@@ -842,20 +850,49 @@
     "call": "Book a call",
     "write": "Send an email"
   },
-  "assistant": {
-    "title": "Just ask",
-    "lead": "Prices, timing, method, work: instant answers, and the call is one tap away if you need it.",
-    "name": "Filippo’s assistant",
-    "placeholder": "Type a question",
+  "chat": {
+    "name": "Filippo Corsini",
+    "role": "Support and advice",
+    "status": "Online",
+    "hello": "Hi! I’m Filippo’s assistant. I can answer right away about services, pricing and timing, or pass you to him for tailored advice.",
+    "starts": [
+      "I want to start a project",
+      "I need support",
+      "I’d like some advice",
+      "How much does it cost?"
+    ],
+    "placeholder": "Message",
     "send": "Send",
-    "hello": "Hi! Tell me what you need or what you want to know: I’ll take you to the right page.",
-    "fallback": "I’d rather answer that in person. Book 30 minutes and we’ll talk it through.",
+    "close": "Close",
+    "open": "Open chat",
+    "now": "now",
+    "notifTitle": "Filippo Corsini",
+    "notifBody": "Hi! Got a project in mind or need a hand? Message me here.",
+    "fallback": "I’d rather Filippo answered this one himself. Leave your name and email, or book 30 minutes.",
     "book": "Book a 30-minute call",
     "nextFree": "First free slot: {when}",
-    "open": "Open",
     "area": "Sign in to the client area",
-    "cv": "My CV",
+    "cv": "Download CV",
     "service": "For {name}:",
-    "project": "Here is {name}: the page covers the problem, what I built and the technical choices."
+    "project": "Here is {name}: the page covers the problem, what I built and the technical choices.",
+    "hName": "Name",
+    "hEmail": "Email",
+    "hSend": "Send to Filippo",
+    "hDone": "Done. Filippo got the conversation and will reply to {email} within 24 hours.",
+    "hErr": "Check your name and email and try again."
+  },
+  "contactMenu": {
+    "status": "Available · replies within 24 hours",
+    "book": "Book a call",
+    "bookSub": "30 minutes, online",
+    "chat": "Chat with me",
+    "chatSub": "Support and advice",
+    "email": "Email",
+    "copied": "Copied",
+    "linkedin": "LinkedIn",
+    "instagram": "Instagram",
+    "whatsapp": "WhatsApp",
+    "github": "GitHub",
+    "cv": "CV"
   }
 }

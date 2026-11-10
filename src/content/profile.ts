@@ -11,6 +11,9 @@ export const profile = {
   email: "",
   github: "https://github.com/00Fil",
   linkedin: "",
+  instagram: "",
+  /** Numero WhatsApp in formato internazionale senza spazi né +, es. "393331234567". */
+  whatsapp: "",
   /** Percorsi dei CV in /public, per lingua. */
   cv: { it: "/cv/filippo-corsini-cv-it.pdf", en: "/cv/filippo-corsini-cv-en.pdf" },
   site: "https://example.com",

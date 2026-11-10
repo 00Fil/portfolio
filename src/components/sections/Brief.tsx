@@ -158,10 +158,10 @@ export function Brief({ preset, onClose }: { preset?: string; onClose?: () => vo
 
   const card = "rounded-[16px] bg-[var(--card)] shadow-[inset_0_0_0_1px_var(--hair)]";
   const chip = (on: boolean) =>
-    `rounded-[12px] px-3.5 text-[14.5px] transition-[background,box-shadow,color] duration-200 ${on ? "bg-[color-mix(in_srgb,var(--sky)_14%,var(--card))] text-ink shadow-[inset_0_0_0_1.5px_var(--sky)]" : "bg-[var(--card)] text-ink-2 shadow-[inset_0_0_0_1px_var(--hair)] hover:text-ink hover:shadow-[inset_0_0_0_1px_var(--hair-strong)]"}`;
-  const primary = "flex h-12 items-center justify-center gap-2 rounded-[12px] bg-ink px-6 text-[15px] font-medium text-[var(--bg-canvas)] transition-[transform,opacity] active:scale-[.98] disabled:opacity-40";
-  const input = "h-12 w-full rounded-[12px] bg-[var(--card)] px-3.5 text-[15.5px] text-ink shadow-[inset_0_0_0_1px_var(--hair-strong)] outline-none transition-shadow placeholder:text-ink-3 focus:shadow-[inset_0_0_0_1.5px_var(--sky),0_0_0_4px_color-mix(in_srgb,var(--sky)_16%,transparent)]";
-  const h = "text-[clamp(24px,2.6vw,32px)] font-medium leading-tight tracking-[-0.035em] text-ink";
+    `rounded-[16px] px-4 text-[15px] transition-[background,box-shadow,color] duration-200 ${on ? "bg-[color-mix(in_srgb,var(--sky)_14%,var(--card))] text-ink shadow-[inset_0_0_0_1.5px_var(--sky)]" : "bg-[var(--card)] text-ink-2 shadow-[inset_0_0_0_1px_var(--hair)] hover:text-ink hover:shadow-[inset_0_0_0_1px_var(--hair-strong)]"}`;
+  const primary = "flex h-[52px] items-center justify-center gap-2 rounded-full bg-ink px-8 text-[15px] font-medium text-[var(--bg-canvas)] transition-[transform,opacity] active:scale-[.98] disabled:opacity-40";
+  const input = "h-[52px] w-full rounded-[14px] bg-[var(--card)] px-4 text-[16px] text-ink shadow-[inset_0_0_0_1px_var(--hair-strong)] outline-none transition-shadow placeholder:text-ink-3 focus:shadow-[inset_0_0_0_1.5px_var(--sky),0_0_0_4px_color-mix(in_srgb,var(--sky)_16%,transparent)]";
+  const h = "text-[clamp(28px,3vw,40px)] font-medium leading-[1.1] tracking-[-0.04em] text-ink";
   const dateTile = (iso: string, big = false) => (
     <span className={`flex shrink-0 flex-col items-center justify-center rounded-[10px] bg-[var(--hover)] text-ink ${big ? "h-12 w-12" : "h-9 w-9"}`} aria-hidden>
       <span className={`${big ? "text-[10px]" : "text-[9px]"} uppercase leading-none tracking-[0.06em] text-ink-3`}>{fmt(iso, { month: "short" })}</span>
@@ -181,7 +181,7 @@ export function Brief({ preset, onClose }: { preset?: string; onClose?: () => vo
           <span className="block text-[13px] text-ink-3">{t.with}</span>
         </span>
       </div>
-      <ul className="mt-5 hidden space-y-2.5 text-[14px] text-ink-2 lg:block">
+      <ul className="mt-8 hidden space-y-3 text-[14px] text-ink-2 lg:block">
         <li className="flex items-center gap-2.5">
           <Clock size={16} strokeWidth={1.7} className="text-ink-3" aria-hidden />
           {t.meta}
@@ -192,10 +192,10 @@ export function Brief({ preset, onClose }: { preset?: string; onClose?: () => vo
         </li>
       </ul>
       {(p || slot) && (
-        <dl className={`${card} mt-5 hidden divide-y divide-[var(--hair)] lg:block`}>
+        <dl className={`${card} mt-8 hidden divide-y divide-[var(--hair)] lg:block`}>
           {p && (
-            <div className="flex items-start gap-3 p-3.5">
-              <ServiceIcon k={ICON[p.id]} size={36} />
+            <div className="flex items-start gap-3 p-4">
+              <ServiceIcon k={ICON[p.id]} size={32} className="text-ink-2" />
               <div className="min-w-0 flex-1">
                 <dt className="text-[12px] text-ink-3">{t.sumPath}</dt>
                 <dd className="text-[14.5px] font-medium text-ink">{p.label}</dd>
@@ -209,7 +209,7 @@ export function Brief({ preset, onClose }: { preset?: string; onClose?: () => vo
             </div>
           )}
           {slot && (
-            <div className="flex items-start gap-3 p-3.5">
+            <div className="flex items-start gap-3 p-4">
               {dateTile(slot)}
               <div className="min-w-0 flex-1">
                 <dt className="text-[12px] text-ink-3">{t.sumWhen}</dt>
@@ -233,11 +233,11 @@ export function Brief({ preset, onClose }: { preset?: string; onClose?: () => vo
   const progress = done ? 4 : i;
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[280px_1fr] lg:gap-14">
+    <div className="grid gap-10 lg:grid-cols-[300px_minmax(0,640px)] lg:justify-between lg:gap-20">
       {summary}
       <div className="min-w-0">
         {!done && (
-          <div className="mb-7 flex items-center gap-3">
+          <div className="mb-10 flex items-center gap-4 lg:mb-14">
             {i > 0 && (
               <button type="button" onClick={() => go(i - 1)} aria-label={t.back} className="-ml-2 flex h-9 w-9 items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-[var(--hover)] hover:text-ink">
                 <ArrowLeft size={18} strokeWidth={1.8} />
@@ -245,7 +245,7 @@ export function Brief({ preset, onClose }: { preset?: string; onClose?: () => vo
             )}
             <div className="flex flex-1 gap-1.5" aria-hidden>
               {[0, 1, 2, 3].map((k) => (
-                <span key={k} className={`h-1 flex-1 rounded-full transition-colors duration-500 ${k <= progress ? "bg-ink" : "bg-[var(--hair)]"}`} />
+                <span key={k} className={`h-[3px] flex-1 rounded-full transition-colors duration-500 ${k <= progress ? "bg-ink" : "bg-[var(--hair)]"}`} />
               ))}
             </div>
             <span className="font-mono text-[12px] tabular-nums text-ink-3">{i + 1}/4</span>
@@ -288,13 +288,13 @@ export function Brief({ preset, onClose }: { preset?: string; onClose?: () => vo
           ) : i === 0 ? (
             <div>
               <h2 className={h}>{t.s1}</h2>
-              <div className="mt-6 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3" role="radiogroup">
+              <div className="mt-8 grid gap-3 sm:grid-cols-2" role="radiogroup">
                 {t.paths.map((x) => (
-                  <button key={x.id} type="button" role="radio" aria-checked={path === x.id} data-opt onClick={() => pickPath(x.id)} className={`${chip(path === x.id)} flex items-center gap-3 py-3 text-left`}>
-                    <ServiceIcon k={ICON[x.id]} size={38} />
+                  <button key={x.id} type="button" role="radio" aria-checked={path === x.id} data-opt onClick={() => pickPath(x.id)} className={`${chip(path === x.id)} flex items-center gap-4 py-4 text-left`}>
+                    <ServiceIcon k={ICON[x.id]} size={36} className="text-ink-2" />
                     <span className="min-w-0">
                       <span className="block font-medium text-ink">{x.label}</span>
-                      <span className="block truncate text-[12.5px] text-ink-3">{x.sub}</span>
+                      <span className="mt-0.5 block truncate text-[13px] text-ink-3">{x.sub}</span>
                     </span>
                   </button>
                 ))}
@@ -304,23 +304,23 @@ export function Brief({ preset, onClose }: { preset?: string; onClose?: () => vo
             <div>
               <h2 className={h}>{p.q}</h2>
               {p.opts && (
-                <div className="mt-6 flex flex-wrap gap-2" role={p.multi ? "group" : "radiogroup"}>
+                <div className="mt-8 flex flex-wrap gap-3" role={p.multi ? "group" : "radiogroup"}>
                   {p.opts.map((o) => (
-                    <button key={o} type="button" data-opt role={p.multi ? "checkbox" : "radio"} aria-checked={detail.includes(o)} onClick={() => pickDetail(o)} className={`${chip(detail.includes(o))} flex h-11 items-center gap-2`}>
+                    <button key={o} type="button" data-opt role={p.multi ? "checkbox" : "radio"} aria-checked={detail.includes(o)} onClick={() => pickDetail(o)} className={`${chip(detail.includes(o))} flex h-12 items-center gap-2 px-5`}>
                       {detail.includes(o) && <Check size={15} strokeWidth={2.4} className="text-[var(--sky)]" aria-hidden />}
                       {o}
                     </button>
                   ))}
                 </div>
               )}
-              <label data-opt className="mt-6 block">
-                <span className="text-[13px] font-medium text-ink-2">
+              <label data-opt className="mt-10 block">
+                <span className="text-[13.5px] font-medium text-ink-2">
                   {t.note} {p.opts && <span className="font-normal text-ink-3">· {t.optional}</span>}
                 </span>
-                <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={1000} placeholder={t.notePh} className={`${input} mt-1.5 h-auto resize-none py-3 leading-[1.5]`} />
+                <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={1000} placeholder={t.notePh} className={`${input} mt-2 h-auto resize-none py-3.5 leading-[1.55]`} />
               </label>
               {(p.multi || !p.opts || note.trim() || detail.length > 0) && (
-                <button data-opt type="button" disabled={!detailOk} onClick={() => go(2)} className={`${primary} mt-5 w-full sm:w-auto`}>
+                <button data-opt type="button" disabled={!detailOk} onClick={() => go(2)} className={`${primary} mt-8 w-full sm:w-auto`}>
                   {t.next}
                 </button>
               )}
@@ -337,27 +337,27 @@ export function Brief({ preset, onClose }: { preset?: string; onClose?: () => vo
                 <p className="mt-6 text-[15.5px] text-ink-2">{t.noSlots}</p>
               ) : (
                 <>
-                  <div role="radiogroup" className="mt-6 grid grid-cols-4 gap-2 sm:grid-cols-5">
+                  <div role="radiogroup" className="mt-8 grid grid-cols-4 gap-2.5 sm:grid-cols-5 sm:gap-3">
                     {days.map((d, k) => (
-                      <button key={d.day} type="button" data-opt role="radio" aria-checked={k === dayAt} onClick={() => setDayAt(k)} className={`${chip(k === dayAt)} flex h-[66px] flex-col items-center justify-center px-1`}>
+                      <button key={d.day} type="button" data-opt role="radio" aria-checked={k === dayAt} onClick={() => setDayAt(k)} className={`${chip(k === dayAt)} flex h-[78px] flex-col items-center justify-center gap-0.5 px-1`}>
                         <span className="text-[11px] uppercase tracking-[0.06em] text-ink-3">{fmt(d.day, { weekday: "short" })}</span>
-                        <span className="text-[19px] font-medium leading-tight tabular-nums text-ink">{fmt(d.day, { day: "numeric" })}</span>
+                        <span className="text-[21px] font-medium leading-tight tabular-nums text-ink">{fmt(d.day, { day: "numeric" })}</span>
                         <span className="text-[10.5px] text-ink-3">{fmt(d.day, { month: "short" })}</span>
                       </button>
                     ))}
                   </div>
-                  <p className="mt-6 text-[13px] font-medium text-ink-2">
+                  <p className="mt-10 text-[13.5px] font-medium text-ink-2">
                     <span>{cap(fmt(days[dayAt].day, { weekday: "long", day: "numeric", month: "long" }))}</span> <span className="font-normal text-ink-3">· {t.tz}</span>
                   </p>
-                  <div role="radiogroup" className="mt-2.5 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  <div role="radiogroup" className="mt-3 grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3">
                     {days[dayAt].slots.map((iso) => (
-                      <button key={iso} type="button" data-opt role="radio" aria-checked={slot === iso} onClick={() => setSlot(iso)} className={`${chip(slot === iso)} h-11 tabular-nums`}>
+                      <button key={iso} type="button" data-opt role="radio" aria-checked={slot === iso} onClick={() => setSlot(iso)} className={`${chip(slot === iso)} h-12 tabular-nums`}>
                         {fmt(iso, { hour: "2-digit", minute: "2-digit" })}
                       </button>
                     ))}
                   </div>
                   {err && <p className="mt-4 text-[14px] text-[#e5484d]">{err}</p>}
-                  <button type="button" disabled={!slot} onClick={() => go(3)} className={`${primary} mt-6 w-full sm:w-auto`}>
+                  <button type="button" disabled={!slot} onClick={() => go(3)} className={`${primary} mt-10 w-full sm:w-auto`}>
                     {t.next}
                   </button>
                 </>
@@ -372,8 +372,8 @@ export function Brief({ preset, onClose }: { preset?: string; onClose?: () => vo
             >
               <h2 className={h}>{t.s4}</h2>
               {/* su telefono il riepilogo sta qui, prima di confermare */}
-              <div data-opt className={`${card} mt-5 flex items-center gap-3 p-3 lg:hidden`}>
-                {p && <ServiceIcon k={ICON[p.id]} size={34} />}
+              <div data-opt className={`${card} mt-6 flex items-center gap-3 p-4 lg:hidden`}>
+                {p && <ServiceIcon k={ICON[p.id]} size={32} className="text-ink-2" />}
                 <span className="min-w-0 text-[13.5px] leading-snug">
                   <span className="block truncate font-medium text-ink">{p?.label}</span>
                   <span className="block truncate text-ink-2">
@@ -381,7 +381,7 @@ export function Brief({ preset, onClose }: { preset?: string; onClose?: () => vo
                   </span>
                 </span>
               </div>
-              <div className="mt-6 grid gap-4">
+              <div className="mt-8 grid gap-6">
                 <label data-opt className="block">
                   <span className="text-[13px] font-medium text-ink-2">{t.name}</span>
                   <input value={who.name} onChange={(e) => setWho({ ...who, name: e.target.value })} autoComplete="name" required className={`${input} mt-1.5`} />
@@ -398,7 +398,7 @@ export function Brief({ preset, onClose }: { preset?: string; onClose?: () => vo
                 </label>
               </div>
               {err && <p className="mt-4 text-[14px] text-[#e5484d]">{err}</p>}
-              <button type="submit" disabled={!whoOk || sending} className={`${primary} mt-6 w-full`}>
+              <button type="submit" disabled={!whoOk || sending} className={`${primary} mt-10 w-full`}>
                 {sending ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden /> : t.confirm}
               </button>
             </form>

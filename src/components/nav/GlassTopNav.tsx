@@ -4,14 +4,13 @@ import { Wordmark } from "./Wordmark";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowRight, ArrowUpRight, ChevronDown, FileText } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 import { projects } from "@/content/projects";
 import { COVERS } from "@/content/covers";
 import { Cover } from "@/components/work/Covers";
-import { profile } from "@/content/profile";
 import { Drop } from "@/components/glass/Drop";
 import { GlassSegmented } from "./GlassSegmented";
 import { SPR, Spring } from "@/lib/spring";
@@ -23,7 +22,7 @@ import { ServiceIcon } from "@/components/services/ServiceIcon";
 import { ThemeToggle } from "./ThemeToggle";
 import { ClientRow } from "./ClientStrip";
 import { prefersReducedMotion } from "@/lib/env";
-import { Clock } from "@/components/sections/Clock";
+import { ContactMenu } from "./ContactMenu";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -40,7 +39,6 @@ const NAMES: Record<Locale, string> = { it: "Italiano", en: "English" };
  */
 export function GlassTopNav({ home, section = "work", plain = false }: { home: boolean; section?: "work" | "approach" | "home"; plain?: boolean }) {
   const t = useTranslations("nav");
-  const tc = useTranslations("contact");
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
@@ -49,7 +47,6 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
     { id: "work", label: t("work"), menu: "work" },
     { id: "path", label: t("path") },
     { id: "stack", label: t("stack") },
-    { id: "contact", label: t("contact"), menu: "contact" },
   ];
 
   const wrap = useRef<HTMLDivElement>(null);
@@ -59,6 +56,7 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
   const itemRefs = useRef<(HTMLElement | null)[]>([]);
   const panel = useRef<HTMLDivElement>(null);
   const panes = useRef<Record<string, HTMLDivElement | null>>({});
+  const cta = useRef<HTMLSpanElement>(null);
   const [active, setActive] = useState(home || section === "home" ? -1 : section === "approach" ? 0 : 1);
   const [hover, setHover] = useState<number | null>(null);
   const [menu, setMenu] = useState<Menu | null>(null);
@@ -178,7 +176,7 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
       return;
     }
     const pane = panes.current[menu];
-    const anchor = itemRefs.current[items.findIndex((i) => i.menu === menu)];
+    const anchor = menu === "contact" ? cta.current : itemRefs.current[items.findIndex((i) => i.menu === menu)];
     if (!pane || !anchor || !wrap.current) return;
     const w = pane.offsetWidth;
     const h = pane.offsetHeight;
@@ -242,7 +240,7 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
           className="drop float-glass relative flex flex-col"
           style={{ borderRadius: 30, ["--drop-tint" as string]: "var(--bar-tint)" }}
         >
-          <div className="flex items-center gap-2 transition-[padding] duration-500 ease-[var(--ease-out)]" style={{ padding: compact ? "5px 6px 5px 18px" : "8px 8px 8px 22px" }}>
+          <div className="flex items-center gap-2 transition-[padding] duration-500 ease-[var(--ease-out)]" style={{ padding: compact ? "6px 6px 6px 20px" : "8px 8px 8px 22px" }}>
           <a
             href={`/${locale}`}
             onClick={(e) => {
@@ -296,12 +294,23 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
               ))}
             </div>
           </nav>
-          <div className="flex shrink-0 items-center gap-2" onMouseEnter={() => menu && scheduleClose()}>
+          <div className="flex shrink-0 items-center gap-1.5" onMouseEnter={() => menu && menu !== "contact" && scheduleClose()} onMouseLeave={() => menu === "contact" && scheduleClose()}>
             <GlassSegmented id="lens-lang-top" options={options} selected={routing.locales.indexOf(locale)} onSelect={onLang} label={t("language")} />
             <ThemeToggle />
-            <Drop href="#brief" accent className="h-[42px] px-4 text-[14px] font-medium text-ink">
-              {t("write")}
-            </Drop>
+            {/* un solo tasto per tutti i contatti: apre il menu con chiamata, chat e canali */}
+            <span
+              ref={cta}
+              onMouseEnter={() => {
+                setHover(null);
+                openMenu("contact");
+              }}
+              className="relative"
+            >
+              <Drop onClick={() => openMenu(menu === "contact" ? null : "contact")} accent className="h-10 gap-1.5 px-4 text-[14px] font-medium text-ink">
+                {t("contactCta")}
+                <ChevronDown size={14} strokeWidth={2} aria-hidden className="transition-transform duration-300" style={{ transform: menu === "contact" ? "rotate(180deg)" : undefined }} />
+              </Drop>
+            </span>
           </div>
           </div>
           {!plain && <ClientRow variant="top" />}
@@ -398,50 +407,9 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
               ref={(el) => {
                 panes.current.contact = el;
               }}
-              className="absolute left-0 top-0 w-[360px] p-3 opacity-0"
+              className="absolute left-0 top-0 p-3 opacity-0"
             >
-              <p className="t-label px-3 pb-2 pt-2 text-ink-3">{t("menuContact")}</p>
-              <ul className="space-y-1">
-                {profile.email && (
-                  <li data-mi>
-                    <a href={`mailto:${profile.email}`} className="flex items-center justify-between rounded-[16px] px-3 py-2.5 text-ink hover:bg-[var(--hover)]">
-                      {profile.email}
-                    </a>
-                  </li>
-                )}
-                {[
-                  profile.github && { href: profile.github, label: tc("github") },
-                  profile.linkedin && { href: profile.linkedin, label: tc("linkedin") },
-                ]
-                  .filter(Boolean)
-                  .map((l) => {
-                    const x = l as { href: string; label: string };
-                    return (
-                      <li key={x.href} data-mi>
-                        <a href={x.href} target="_blank" rel="noopener noreferrer" className="group flex items-center justify-between rounded-[16px] px-3 py-2.5 text-ink hover:bg-[var(--hover)]">
-                          {x.label}
-                          <ArrowUpRight size={15} strokeWidth={1.8} aria-hidden className="text-ink-3 transition-colors group-hover:text-ink" />
-                        </a>
-                      </li>
-                    );
-                  })}
-                {profile.cv[locale] && (
-                  <li data-mi>
-                    <a href={profile.cv[locale]} download className="flex items-center gap-2 rounded-[16px] px-3 py-2.5 text-ink hover:bg-[var(--hover)]">
-                      <FileText size={15} strokeWidth={1.8} aria-hidden className="text-ink-2" />
-                      {tc("cv")}
-                    </a>
-                  </li>
-                )}
-                <li data-mi className="flex items-center justify-between px-3 pb-1 pt-3 text-ink-2">
-                  <span className="t-foot">
-                    {profile.city}, IT · {tc("time")}
-                  </span>
-                  <span className="t-foot">
-                    <Clock locale={locale} />
-                  </span>
-                </li>
-              </ul>
+              <ContactMenu onPick={() => setMenu(null)} />
             </div>
           </div>
         </div>

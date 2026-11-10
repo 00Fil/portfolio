@@ -2,6 +2,9 @@
 
 /* Token Canone (tema scuro di Relay, Theme.kt → DarkColors). Niente esadecimali fuori da qui. */
 :root {
+  --acrylic: rgba(30, 30, 34, 0.62);
+  --acrylic-solid: #1e1e22;
+  --bubble: rgba(255, 255, 255, 0.09);
   --icon-tile: #141518;
   --icon-acc: #5ec4ff;
   --bg-canvas: #000000;
@@ -86,6 +89,9 @@
   --shadow-strong: rgba(0, 0, 0, 0.9);
 }
 html[data-theme="light"] {
+  --acrylic: rgba(246, 246, 248, 0.72);
+  --acrylic-solid: #f4f4f6;
+  --bubble: rgba(0, 0, 0, 0.055);
   --icon-tile: #ffffff;
   --icon-acc: #2b9fe6;
   --strip-tint: rgba(94, 196, 255, 0.26);
@@ -302,6 +308,13 @@ html.lens .bar-glass { backdrop-filter: url(#lens-bar) blur(14px) saturate(1.5);
   backdrop-filter: blur(14px) saturate(1.5);
 }
 .bar-veil { background: var(--bar-tint); }
+.drop.select-text { user-select: text; -webkit-user-select: text; }
+/* materiale acrilico delle notifiche Apple: sfocatura ampia e colori saturati sotto un velo chiaro o scuro */
+.acrylic {
+  -webkit-backdrop-filter: blur(30px) saturate(1.8);
+  backdrop-filter: blur(30px) saturate(1.8);
+  box-shadow: inset 0 0 0 1px var(--drop-edge), 0 18px 50px -18px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.08);
+}
 
 }
 

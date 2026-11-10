@@ -11,6 +11,7 @@ import { COVERS } from "@/content/covers";
 import { profile } from "@/content/profile";
 import { Cover } from "@/components/work/Covers";
 import { ServiceIcon } from "@/components/services/ServiceIcon";
+import { ContactMenu } from "./ContactMenu";
 import { ClientRow } from "./ClientStrip";
 import { useScrollingDown } from "@/lib/use-scroll-dir";
 import { useRouter } from "@/i18n/navigation";
@@ -45,7 +46,6 @@ type DrawerKind = "services" | "work" | "contact";
 /** Contenuto del cassetto: le stesse scelte dei menu della barra in alto. */
 function DrawerBody({ kind, onPick, toSection }: { kind: DrawerKind; onPick: (href: string, external?: boolean) => void; toSection: () => void }) {
   const t = useTranslations("nav");
-  const tc = useTranslations("contact");
   const locale = useLocale() as Locale;
   const head = (label: string) => (
     <div className="flex items-center justify-between px-2 pb-2 pt-1">
@@ -93,33 +93,12 @@ function DrawerBody({ kind, onPick, toSection }: { kind: DrawerKind; onPick: (hr
         </ul>
       </>
     );
-  const links = [
-    profile.github && { href: profile.github, label: tc("github"), ext: true },
-    profile.linkedin && { href: profile.linkedin, label: tc("linkedin"), ext: true },
-    profile.cv[locale] && { href: profile.cv[locale], label: tc("cv"), ext: true, cv: true },
-  ].filter(Boolean) as { href: string; label: string; ext: boolean; cv?: boolean }[];
   return (
     <>
       {head(t("menuContact"))}
-      <ul className="space-y-1">
-        <li data-di>
-          <a href="#brief" onClick={() => onPick("", true)} className="flex items-center justify-between rounded-[16px] bg-[var(--strip-btn)] px-3 py-3 text-[14px] font-medium text-ink shadow-[inset_0_0_0_1px_var(--strip-edge)]">
-            {t("quote")}
-            <ArrowRight size={16} strokeWidth={1.8} aria-hidden />
-          </a>
-        </li>
-        {links.map((l) => (
-          <li key={l.href} data-di>
-            <a href={l.href} target="_blank" rel="noopener noreferrer" download={l.cv || undefined} onClick={() => onPick("", true)} className="flex items-center justify-between rounded-[16px] px-3 py-2.5 text-[14px] text-ink active:bg-[var(--hover)]">
-              <span className="flex items-center gap-2">
-                {l.cv && <FileText size={15} strokeWidth={1.8} aria-hidden className="text-ink-2" />}
-                {l.label}
-              </span>
-              <ArrowUpRight size={15} strokeWidth={1.8} aria-hidden className="text-ink-3" />
-            </a>
-          </li>
-        ))}
-      </ul>
+      <div className="px-1 pb-1">
+        <ContactMenu compact onPick={() => onPick("", true)} />
+      </div>
     </>
   );
 }

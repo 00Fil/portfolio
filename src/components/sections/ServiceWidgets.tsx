@@ -989,12 +989,12 @@ function ShopV({ t, max }: { t: WidgetText; max?: number }) {
    quelle vere passano, il bilanciatore le divide tra i server e uno va in manutenzione senza che nessuno se ne accorga ───────────── */
 
 const CORAL = "#ff7a7a";
-const NODE_Y = 150;
-const SRV_Y = [62, 150, 238];
-const NET = { x: 62, y: NODE_Y };
-const SHIELD = { x: 206, y: NODE_Y };
-const LB = { x: 352, y: NODE_Y };
-const SRV_X = 512;
+const NODE_Y = 170;
+const SRV_Y = [66, 170, 274];
+const NET = { x: 66, y: NODE_Y };
+const SHIELD = { x: 232, y: NODE_Y };
+const LB = { x: 410, y: NODE_Y };
+const SRV_X = 612;
 const FAKE = 16;
 const LEGIT = 12;
 function OpsV({ t, max }: { t: WidgetText; max?: number }) {
@@ -1011,8 +1011,8 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
   return (
     <Canvas
       framed={false}
-      w={600}
-      h={360}
+      w={700}
+      h={440}
       max={max}
       build={(q) => {
         const fakes = q("[data-fake]");
@@ -1077,11 +1077,35 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
           .to(lights[1], { backgroundColor: "#34d399", duration: 0.3 }, 8.2)
           .to(srv[1], { opacity: 1, duration: 0.4 }, 8.2);
         step(run, caps, 3, 8.3);
-        run.to({}, { duration: 1.6 }, 8.6);
+        // guasto: il server 3 smette di rispondere, il traffico si sposta e l'agente dedicato interviene subito
+        const crash = q("[data-crash]")[0];
+        const agent = q("[data-agent]")[0];
+        const [aOn, aOk] = q("[data-agent-st]");
+        run
+          .to(lights[2], { backgroundColor: "#ff453a", duration: 0.2 }, 9.8)
+          .to(srv[2], { ["--drop-tint" as string]: "rgba(255,69,58,.3)", duration: 0.3 }, 9.8)
+          .fromTo(srv[2], { x: 0 }, { x: 4, duration: 0.05, yoyo: true, repeat: 7, ease: "none" }, 9.8)
+          .to(crash, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2)" }, 9.9);
+        step(run, caps, 4, 10);
+        pass(10.3, [0, 1]);
+        run
+          .set(aOk, { autoAlpha: 0 }, 10.9)
+          .set(aOn, { autoAlpha: 1 }, 10.9)
+          .fromTo(agent, { autoAlpha: 0, y: 14, scale: 0.92 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.8)" }, 10.9)
+          .fromTo(q("[data-agent-ring]"), { scale: 0.6, opacity: 0.8 }, { scale: 1.9, opacity: 0, duration: 1.1, repeat: 2, ease: "power2.out" }, 11.1);
+        step(run, caps, 5, 11.1);
+        run
+          .to(lights[2], { backgroundColor: "#34d399", duration: 0.3 }, 13.4)
+          .to(srv[2], { ["--drop-tint" as string]: DARK, duration: 0.5 }, 13.4)
+          .to(crash, { autoAlpha: 0, scale: 0.6, duration: 0.3 }, 13.4)
+          .to(aOn, { autoAlpha: 0, duration: 0.2 }, 13.4)
+          .to(aOk, { autoAlpha: 1, duration: 0.3 }, 13.6);
+        step(run, caps, 6, 13.6);
+        run.to(agent, { autoAlpha: 0, y: 10, duration: 0.4, ease: "power2.in" }, 15.4).to({}, { duration: 0.6 }, 15.8);
         return tl.add(run, 1.1);
       }}
     >
-      <Links paths={lines} w={600} h={360} />
+      <Links paths={lines} w={700} h={440} />
 
       {/* nodi */}
       <span data-node className="absolute flex w-[96px] -translate-x-1/2 -translate-y-[26px] flex-col items-center gap-2" style={{ left: NET.x, top: NET.y }}>
@@ -1116,6 +1140,11 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
             </span>
             <span data-light className="ml-auto h-2 w-2 rounded-full bg-[#34d399] shadow-[0_0_8px_currentColor]" />
           </Bead>
+          {i === 2 && (
+            <span data-crash className="absolute -right-2 -top-3 rounded-full bg-[#ff453a] px-2 py-0.5 text-[10.5px] font-semibold text-white opacity-0" style={{ transform: "scale(.6)" }}>
+              {t.opsCrash}
+            </span>
+          )}
           {i === 1 && (
             <span data-maint className="absolute -right-2 -top-3 rounded-full bg-[#f5a524] px-2 py-0.5 text-[10.5px] font-semibold text-[#1a1204] opacity-0" style={{ transform: "scale(.6)" }}>
               {t.opsMaint}
@@ -1132,8 +1161,25 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
         <span key={`l${i}`} data-legit className="absolute left-0 top-0 -ml-[4px] -mt-[4px] h-2 w-2 rounded-full bg-white opacity-0 shadow-[0_0_10px_#bfe8ff]" />
       ))}
 
-      <Bead data-log tint={DARK} radius={22} className="absolute left-[300px] top-[300px] -ml-[180px] flex h-11 w-[360px] items-center justify-center px-4 text-[13px] text-white backdrop-blur-md">
-        <Steps items={[t.opsL1, t.opsL2, t.opsL3, t.opsL4].map((l) => <><Tick className="h-3.5 w-3.5 text-[#bfe8ff]" /> {l}</>)} className="justify-center" />
+      {/* l'agente dedicato che prende in carico il guasto */}
+      <span data-agent className="absolute opacity-0" style={{ left: SRV_X - 60, top: 326 }}>
+        <Bead tint={DARK} radius={16} className="flex h-12 w-[148px] items-center gap-2.5 px-2.5 text-white backdrop-blur-md">
+          <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#5ec4ff] text-[#04121c]">
+            <span data-agent-ring className="absolute inset-0 rounded-full border-2 border-[#5ec4ff]" />
+            {icon(<><path d="M4 14v-2a8 8 0 0 1 16 0v2" /><rect x="3" y="13" width="4" height="6" rx="1.5" /><rect x="17" y="13" width="4" height="6" rx="1.5" /><path d="M19 19c0 1.5-1.5 2.5-4 2.5h-2" /></>, "h-4 w-4")}
+          </span>
+          <span className="min-w-0 leading-tight">
+            <span className="block text-[12px] font-medium">{t.opsAgent}</span>
+            <span className="relative block h-[14px] text-[10.5px]">
+              <span data-agent-st className="absolute inset-0 whitespace-nowrap text-[#ffcf7a]">{t.opsAgentOn}</span>
+              <span data-agent-st className="absolute inset-0 whitespace-nowrap text-[#6ee7a8] opacity-0">{t.opsAgentOk}</span>
+            </span>
+          </span>
+        </Bead>
+      </span>
+
+      <Bead data-log tint={DARK} radius={22} className="absolute left-[350px] top-[388px] -ml-[180px] flex h-11 w-[360px] items-center justify-center px-4 text-[13px] text-white backdrop-blur-md">
+        <Steps items={[t.opsL1, t.opsL2, t.opsL3, t.opsL4, t.opsL5, t.opsL6, t.opsL7].map((l) => <><Tick className="h-3.5 w-3.5 text-[#bfe8ff]" /> {l}</>)} className="justify-center" />
       </Bead>
     </Canvas>
   );

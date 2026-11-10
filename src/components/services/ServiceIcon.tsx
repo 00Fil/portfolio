@@ -1,119 +1,90 @@
 import type { ServiceKey } from "@/content/services";
 
 /*
- * Pittogrammi disegnati per il sito: tre livelli (un piano di fondo tenue, il tratto nell'inchiostro del tema
- * e un solo dettaglio azzurro), costruiti su una griglia di 32. Si adattano da soli al tema chiaro e scuro.
+ * Pittogrammi a tratto unico, nello spirito di SF Symbols: griglia di 24, tratto 1,5 arrotondato,
+ * un solo colore (quello del testo), nessun riempimento e nessuna tessera dietro.
  */
-const S = { fill: "currentColor", fillOpacity: 0.13 } as const;
-const L = { fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" } as const;
-const A = { fill: "var(--icon-acc)" } as const;
-
 const P: Record<ServiceKey, React.ReactNode> = {
   web: (
     <>
-      <rect x="3.5" y="6" width="22" height="17" rx="3.5" {...S} />
-      <rect x="3.5" y="6" width="22" height="17" rx="3.5" {...L} />
-      <path d="M3.5 11h22" {...L} />
-      <circle cx="7" cy="8.6" r=".9" fill="currentColor" />
-      <circle cx="9.8" cy="8.6" r=".9" fill="currentColor" />
-      <rect x="15" y="15" width="13.5" height="11" rx="2.6" {...A} />
-      <path d="M18 19h7.5M18 22.2h4.5" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
+      <rect x="3" y="4.5" width="18" height="15" rx="3" />
+      <path d="M3 8.75h18" />
+      <path d="M6 6.65h.01M8.25 6.65h.01" strokeWidth="1.9" />
+      <path d="M7 12.5h6M7 15.5h10" />
     </>
   ),
   seo: (
     <>
-      <rect x="4" y="18" width="5" height="9" rx="1.6" {...S} />
-      <rect x="11.5" y="14" width="5" height="13" rx="1.6" {...S} />
-      <rect x="19" y="8" width="5" height="19" rx="1.6" {...A} />
-      <path d="M4.5 13.5 10 9l4 3 7.5-7" {...L} />
-      <path d="M17.5 5h4v4" {...L} />
+      <path d="M4 4v14.5A1.5 1.5 0 0 0 5.5 20H20" />
+      <path d="m7.5 15 3.5-4 3 2.5 5-6" />
+      <path d="M15.5 7.5H19V11" />
     </>
   ),
   geo: (
     <>
-      <path d="M27 15c0 5.2-4.9 9.2-11 9.2-1.5 0-3-.2-4.3-.7L5 25.5l1.8-4.7C5.7 19.1 5 17.1 5 15c0-5.2 4.9-9.2 11-9.2S27 9.8 27 15Z" {...S} />
-      <path d="M27 15c0 5.2-4.9 9.2-11 9.2-1.5 0-3-.2-4.3-.7L5 25.5l1.8-4.7C5.7 19.1 5 17.1 5 15c0-5.2 4.9-9.2 11-9.2S27 9.8 27 15Z" {...L} />
-      <path d="M16 9.5c.5 3 1.7 4.3 4.6 4.8-2.9.5-4.1 1.8-4.6 4.8-.5-3-1.7-4.3-4.6-4.8 2.9-.5 4.1-1.8 4.6-4.8Z" {...A} />
+      <path d="M20.5 11.5c0 4.14-3.8 7.5-8.5 7.5-1.2 0-2.36-.22-3.4-.62L4 19.5l1.15-3.45C4.1 14.78 3.5 13.2 3.5 11.5 3.5 7.36 7.3 4 12 4s8.5 3.36 8.5 7.5Z" />
+      <path d="M12 8.25c.33 1.9 1.1 2.67 3 3-1.9.33-2.67 1.1-3 3-.33-1.9-1.1-2.67-3-3 1.9-.33 2.67-1.1 3-3Z" />
     </>
   ),
   ai: (
     <>
-      <circle cx="16" cy="16" r="11.5" {...S} />
-      <circle cx="16" cy="16" r="11.5" {...L} strokeDasharray="2 3.2" />
-      <path d="M14 6.5c.8 5 3 7.2 8 8-5 .8-7.2 3-8 8-.8-5-3-7.2-8-8 5-.8 7.2-3 8-8Z" {...A} />
-      <path d="M23 19.5c.4 2.3 1.3 3.2 3.6 3.6-2.3.4-3.2 1.3-3.6 3.6-.4-2.3-1.3-3.2-3.6-3.6 2.3-.4 3.2-1.3 3.6-3.6Z" fill="currentColor" />
+      <path d="M10 3.5c.62 3.86 2.14 5.38 6 6-3.86.62-5.38 2.14-6 6-.62-3.86-2.14-5.38-6-6 3.86-.62 5.38-2.14 6-6Z" />
+      <path d="M17.5 14c.3 1.85 1.15 2.7 3 3-1.85.3-2.7 1.15-3 3-.3-1.85-1.15-2.7-3-3 1.85-.3 2.7-1.15 3-3Z" />
     </>
   ),
   design: (
     <>
-      <path d="M5 25C8 12 24 12 27 25" {...L} />
-      <path d="M16 3.5 21 13l-5 6-5-6Z" {...S} />
-      <path d="M16 3.5 21 13l-5 6-5-6Z" {...L} />
-      <path d="M16 12.5v6.5" {...L} />
-      <rect x="2.8" y="22.8" width="4.4" height="4.4" rx="1.1" {...A} />
-      <rect x="24.8" y="22.8" width="4.4" height="4.4" rx="1.1" {...A} />
+      <path d="m12 3 5 8.5-5 6.5-5-6.5Z" />
+      <path d="M12 11.5V18" />
+      <circle cx="12" cy="11.25" r="1.25" />
+      <path d="M9.5 21h5" />
     </>
   ),
   api: (
     <>
-      <path d="M11.5 16h3.5c2.5 0 3.2-1.6 4.2-3.8l1-2.2M15 16c2.5 0 3.2 1.6 4.2 3.8l1 2.2" {...L} />
-      <circle cx="24" cy="8" r="4" {...S} />
-      <circle cx="24" cy="8" r="4" {...L} />
-      <circle cx="24" cy="24" r="4" {...S} />
-      <circle cx="24" cy="24" r="4" {...L} />
-      <circle cx="8" cy="16" r="5" {...A} />
-      <circle cx="8" cy="16" r="1.7" fill="#fff" />
+      <circle cx="6" cy="12" r="2.5" />
+      <circle cx="18" cy="6" r="2.5" />
+      <circle cx="18" cy="18" r="2.5" />
+      <path d="m8.25 10.9 7.5-3.8M8.25 13.1l7.5 3.8" />
     </>
   ),
   ops: (
     <>
-      <rect x="3.5" y="4.5" width="19" height="8" rx="2.4" {...S} />
-      <rect x="3.5" y="4.5" width="19" height="8" rx="2.4" {...L} />
-      <rect x="3.5" y="15" width="13" height="8" rx="2.4" {...S} />
-      <rect x="3.5" y="15" width="13" height="8" rx="2.4" {...L} />
-      <circle cx="7.5" cy="8.5" r="1" fill="currentColor" />
-      <circle cx="7.5" cy="19" r="1" fill="currentColor" />
-      <path d="M23 13.5 29 16v4.6c0 3.6-2.5 6.3-6 7.6-3.5-1.3-6-4-6-7.6V16Z" {...A} />
-      <path d="m20.4 20.6 1.8 1.8 3.4-3.6" stroke="#fff" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="3.5" y="4" width="17" height="7" rx="2.25" />
+      <rect x="3.5" y="13" width="17" height="7" rx="2.25" />
+      <path d="M7 7.5h.01M7 16.5h.01" strokeWidth="1.9" />
+      <path d="M11 7.5h6M11 16.5h6" />
     </>
   ),
   hw: (
     <>
-      <rect x="7" y="7" width="18" height="18" rx="3.5" {...S} />
-      <rect x="7" y="7" width="18" height="18" rx="3.5" {...L} />
-      <path d="M12 3v4M16 3v4M20 3v4M12 25v4M16 25v4M20 25v4M3 12h4M3 16h4M3 20h4M25 12h4M25 16h4M25 20h4" {...L} />
-      <rect x="11.5" y="11.5" width="9" height="9" rx="2" {...A} />
+      <rect x="6" y="6" width="12" height="12" rx="2.5" />
+      <rect x="9.5" y="9.5" width="5" height="5" rx="1" />
+      <path d="M9.5 3v3M14.5 3v3M9.5 18v3M14.5 18v3M3 9.5h3M3 14.5h3M18 9.5h3M18 14.5h3" />
     </>
   ),
   apps: (
     <>
-      <path d="M4.5 21V8.5A2.5 2.5 0 0 1 7 6h16a2.5 2.5 0 0 1 2.5 2.5V10" {...L} />
-      <path d="M4.5 8.5A2.5 2.5 0 0 1 7 6h12v15H4.5Z" {...S} />
-      <path d="M2 24h15" {...L} />
-      <rect x="19" y="10.5" width="10" height="17.5" rx="2.6" {...A} />
-      <path d="M22.5 25h3" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M3.5 16.5V7A2 2 0 0 1 5.5 5h11A2 2 0 0 1 18.5 7v1" />
+      <path d="M1.5 18.5h12" />
+      <rect x="15" y="10" width="7" height="11" rx="1.75" />
+      <path d="M17.75 18.75h1.5" />
     </>
   ),
   shop: (
     <>
-      <path d="M6 11h20l-1.4 15.2a2.4 2.4 0 0 1-2.4 2.3H9.8a2.4 2.4 0 0 1-2.4-2.3Z" {...S} />
-      <path d="M6 11h20l-1.4 15.2a2.4 2.4 0 0 1-2.4 2.3H9.8a2.4 2.4 0 0 1-2.4-2.3Z" {...L} />
-      <path d="M11.5 14V9a4.5 4.5 0 0 1 9 0v5" {...L} />
-      <circle cx="22.5" cy="21.5" r="5" {...A} />
-      <path d="m20.3 21.6 1.5 1.5 2.9-3" stroke="#fff" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 8h14l-1 11.25A2 2 0 0 1 16 21H8a2 2 0 0 1-2-1.75Z" />
+      <path d="M9 10.5V7a3 3 0 0 1 6 0v3.5" />
     </>
   ),
 };
 
-/** Tessera neutra del tema con il pittogramma del servizio. */
+/** Il pittogramma del servizio, a tratto, nel colore del testo. `size` è lo spazio che occupa. */
 export function ServiceIcon({ k, size = 40, className = "" }: { k: ServiceKey; size?: number; className?: string }) {
+  const s = Math.round(size * 0.62);
   return (
-    <span
-      aria-hidden
-      className={`relative inline-flex shrink-0 items-center justify-center bg-[var(--icon-tile)] text-ink shadow-[inset_0_0_0_1px_var(--hair),0_1px_0_rgba(255,255,255,.06)_inset,0_6px_14px_-10px_var(--shadow-strong)] ${className}`}
-      style={{ width: size, height: size, borderRadius: size * 0.28 }}
-    >
-      <svg viewBox="0 0 32 32" width={size * 0.66} height={size * 0.66}>
+    <span aria-hidden className={`inline-flex shrink-0 items-center justify-center text-ink ${className}`} style={{ width: size, height: size }}>
+      <svg viewBox="0 0 24 24" width={s} height={s} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         {P[k]}
       </svg>
     </span>
