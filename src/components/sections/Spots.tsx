@@ -79,9 +79,14 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
           if (says[i]) addSay(run, says[i], scrim, zoom, at, 1.5);
           const st = at + (says[i] ? 2.3 : 0);
           const dur = s.dur ?? 4.6;
-          run.fromTo(el, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out", immediateRender: false }, st);
+          const inner = el.firstElementChild as Element;
+          run
+            .fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6, ease: "power2.out", immediateRender: false }, st)
+            // entra dal basso, leggermente più piccola, e poi continua a muoversi piano finché resta in scena
+            .fromTo(inner, { y: 34, scale: 0.94 }, { y: 0, scale: 1, duration: 1.1, ease: "power3.out", immediateRender: false }, st)
+            .to(inner, { y: -8, duration: dur - 1.1, ease: "sine.inOut" }, st + 1.1);
           s.play?.(run, $, st + 0.35);
-          run.to(el, { autoAlpha: 0, y: -8, duration: 0.4, ease: "power2.in" }, st + dur);
+          run.to(el, { autoAlpha: 0, duration: 0.45, ease: "power2.in" }, st + dur).to(inner, { y: -26, scale: 0.98, duration: 0.45, ease: "power2.in" }, st + dur);
           at = st + dur + 0.35;
         });
         const end = addEnd(run, q, at);
@@ -90,8 +95,12 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
       }}
     >
       {shots.map((s, i) => (
-        <div key={i} data-shot className="invisible absolute inset-0 flex flex-col items-center justify-center">
-          {s.node}
+        <div key={i} data-shot className="invisible absolute inset-0">
+          <div className="flex h-full w-full flex-col items-center justify-center will-change-transform">{s.node}</div>
+          {/* il cursore che tocca i pulsanti: micro interazioni vere, non solo cose che compaiono */}
+          <svg data-cursor viewBox="0 0 24 24" className="pointer-events-none absolute left-0 top-0 z-10 h-6 w-6 opacity-0 drop-shadow-[0_3px_6px_rgba(0,0,0,.45)]" aria-hidden>
+            <path d="M5 3.5 19 11l-6.2 1.7L10 19z" fill="#fff" stroke="#0b1620" strokeWidth="1.2" strokeLinejoin="round" />
+          </svg>
         </div>
       ))}
     </Canvas>
@@ -127,7 +136,7 @@ const OPENAI = "M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357
 
 /** Etichetta sotto l'inquadratura: una riga che dice cosa sta succedendo. */
 const Note = ({ children, attr = "data-note" }: { children: ReactNode; attr?: string }) => (
-  <span {...{ [attr]: "" }} className="mt-6 inline-flex">
+  <span {...{ [attr]: "" }} className="mt-6 inline-flex overflow-hidden p-1">
     <Bead tint={GL} radius={16} className="flex h-8 items-center gap-2 whitespace-nowrap px-3.5 text-[12.5px] text-white">
       {children}
     </Bead>
@@ -144,6 +153,31 @@ const typeIn = (run: gsap.core.Timeline, el: Element, at: number, dur = 1) => ru
 const count = (run: gsap.core.Timeline, el: Element, from: number, to: number, at: number, dur: number, fmt: (n: number) => string) => {
   const o = { v: from };
   run.set(o, { v: from }, at).to(o, { v: to, duration: dur, ease: "power2.out", onUpdate: () => void (el.textContent = fmt(o.v)) }, at);
+};
+/** Il cursore arriva sul pulsante, lo preme (il pulsante si abbassa), poi scivola via. */
+const tap = (run: gsap.core.Timeline, $: Q, sel: string, at: number) => {
+  const cur = $("[data-cursor]")[0];
+  const btn = $(sel)[0] as HTMLElement | undefined;
+  if (!cur || !btn) return;
+  const shot = cur.parentElement as HTMLElement;
+  const to = () => {
+    const a = shot.getBoundingClientRect();
+    const b = btn.getBoundingClientRect();
+    const k = a.width / shot.offsetWidth || 1;
+    return { x: (b.left - a.left + b.width * 0.62) / k, y: (b.top - a.top + b.height * 0.55) / k };
+  };
+  run
+    .set(cur, { x: () => to().x + 90, y: () => to().y + 70 }, at - 0.9)
+    .to(cur, { opacity: 1, duration: 0.25 }, at - 0.9)
+    .to(cur, { x: () => to().x, y: () => to().y, duration: 0.8, ease: "power3.inOut" }, at - 0.85)
+    .to(cur, { scale: 0.82, duration: 0.1, yoyo: true, repeat: 1, ease: "power2.inOut" }, at)
+    .to(btn, { scale: 0.94, duration: 0.1, yoyo: true, repeat: 1, ease: "power2.inOut" }, at)
+    .to(cur, { x: () => to().x + 60, y: () => to().y + 80, opacity: 0, duration: 0.7, ease: "power2.in" }, at + 0.6);
+};
+/** Una nota che arriva facendosi spazio: cresce in altezza e spinge su il resto, invece di comparire sopra. */
+const grow = (run: gsap.core.Timeline, el: Element | undefined, at: number, gap = 24) => {
+  if (!el) return;
+  run.fromTo(el, { height: 0, marginTop: 0, autoAlpha: 0, y: 10 }, { height: "auto", marginTop: gap, autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.inOut" }, at);
 };
 const it = (n: number, d = 0) => n.toLocaleString("it-IT", { minimumFractionDigits: d, maximumFractionDigits: d });
 const enter = (run: gsap.core.Timeline, els: Element[], at: number, stagger = 0.12) => run.fromTo(els, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.6, stagger, ease: "expo.out" }, at);
@@ -278,9 +312,10 @@ export const WEB: Shot[] = [
       typeIn(run, $("[data-type]")[0], at + 0.2, 1.3);
       run
         .to($("[data-caret]"), { opacity: 0, duration: 0.01, repeat: 5, yoyo: true, repeatDelay: 0.2 }, at)
-        .to($("[data-knob]"), { x: 16, duration: 0.35, ease: "power3.out" }, at + 2)
-        .to($("[data-sw]"), { backgroundColor: "#30d158", duration: 0.3 }, at + 2)
-        .fromTo($("[data-pub]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 2.4);
+        .to($("[data-knob]"), { x: 16, duration: 0.35, ease: "power3.out" }, at + 2.1)
+        .to($("[data-sw]"), { backgroundColor: "#30d158", duration: 0.3 }, at + 2.1);
+      tap(run, $, "[data-sw]", at + 2);
+      grow(run, $("[data-pub]")[0], at + 2.5);
     },
   },
 ];
@@ -561,7 +596,8 @@ export const APPS: Shot[] = [
         .to($("[data-fly]"), { x: 270, y: -10, duration: 1.1, ease: "power3.inOut" }, at + 0.5)
         .to($("[data-fly]"), { opacity: 0, duration: 0.2 }, at + 1.6)
         .fromTo($("[data-note-dst]"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, at + 1.55)
-        .fromTo($("[data-sync]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 1.9);
+;
+      grow(run, $("[data-sync]")[0], at + 1.8);
     },
   },
 ];
@@ -746,10 +782,10 @@ export const AI: Shot[] = [
         </Note>
       </>
     ),
-    play: (run, $, at) =>
-      run
-        .to($("[data-go]"), { scale: 0.94, duration: 0.12, yoyo: true, repeat: 1 }, at + 1.2)
-        .fromTo($("[data-done]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 1.6),
+    play: (run, $, at) => {
+      tap(run, $, "[data-go]", at + 1.4);
+      grow(run, $("[data-done]")[0], at + 1.8);
+    },
   },
 ];
 
@@ -789,7 +825,7 @@ export const HW: Shot[] = [
     node: (
       <>
         <Fridge hot />
-        <span data-alert className="mt-4 inline-flex">
+        <span data-alert className="mt-4 inline-flex overflow-hidden p-1">
           <Bead tint="rgba(30,34,40,.62)" radius={20} className="flex w-[360px] items-center gap-3 p-3 pr-4 text-white">
             <Tile size={36} tone="amber">
               <Ico i={Notification01Icon} s={16} />
@@ -805,7 +841,7 @@ export const HW: Shot[] = [
     play: (run, $, at) => {
       run.fromTo($("[data-spark]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 2.2, ease: "power1.in" }, at);
       count(run, $("[data-temp]")[0], 4.1, 7.8, at, 2.2, (n) => `${it(n, 1)}°`);
-      run.fromTo($("[data-alert]"), { autoAlpha: 0, y: -10 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 1.6);
+      grow(run, $("[data-alert]")[0], at + 1.6, 16);
     },
   },
   {
@@ -932,7 +968,10 @@ export const SHOP: Shot[] = [
       </span>
     ),
     play: (run, $, at) =>
-      run.to($("[data-add]"), { scale: 0.95, duration: 0.12, yoyo: true, repeat: 1 }, at + 1).fromTo($("[data-badge]"), { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2.4)" }, at + 1.2),
+{
+      tap(run, $, "[data-add]", at + 1.3);
+      run.fromTo($("[data-badge]"), { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2.4)" }, at + 1.45);
+    },
   },
   {
     node: (
@@ -961,7 +1000,10 @@ export const SHOP: Shot[] = [
       </>
     ),
     play: (run, $, at) =>
-      run.to($("[data-pay]"), { scale: 0.95, duration: 0.12, yoyo: true, repeat: 1 }, at + 1).fromTo($("[data-paid]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 1.4),
+{
+      tap(run, $, "[data-pay]", at + 1.3);
+      grow(run, $("[data-paid]")[0], at + 1.7);
+    },
   },
   {
     node: (

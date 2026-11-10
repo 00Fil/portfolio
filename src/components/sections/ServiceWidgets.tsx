@@ -96,9 +96,11 @@ export function addSay(run: gsap.core.Timeline, el: Element, scrim: Element, zoo
   run
     .to(scrim, { opacity: 1, duration: 0.45, ease: "power2.out" }, at)
     .set(el, { autoAlpha: 1 }, at)
-    .fromTo(w, { yPercent: 115 }, { yPercent: 0, duration: 0.75, stagger: 0.05, ease: "expo.out", immediateRender: false }, at + 0.1)
-    .to(w, { yPercent: -115, duration: 0.42, stagger: 0.025, ease: "power3.in" }, at + hold)
-    .set(el, { autoAlpha: 0 }, at + hold + 0.55);
+    // le parole salgono e si accendono con calma; il blocco intanto continua a salire piano
+    .fromTo(w, { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 1, stagger: 0.07, ease: "power3.out", immediateRender: false }, at + 0.15)
+    .fromTo(el, { y: 14 }, { y: -8, duration: hold + 0.6, ease: "sine.inOut", immediateRender: false }, at)
+    .to(w, { yPercent: -70, opacity: 0, duration: 0.5, stagger: 0.03, ease: "power2.in" }, at + hold)
+    .set(el, { autoAlpha: 0 }, at + hold + 0.6);
   if (!keep) run.to(scrim, { opacity: SCRIM_OFF, duration: 0.5, ease: "power2.inOut" }, at + hold + 0.35).call(() => warm(scrim, false), undefined, at + hold + 0.9);
   void zoom;
 }

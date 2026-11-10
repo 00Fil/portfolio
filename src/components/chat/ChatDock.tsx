@@ -43,11 +43,11 @@ function useBevel(ref: RefObject<HTMLElement | null>, radius: number, on = true)
 }
 
 /** Il logo della chat: la sfera di vetro con i filamenti di luce (React Bits · Strands), chiara o scura col tema. */
-function AppIcon({ size = 38 }: { size?: number }) {
+function AppIcon({ size = 38, listening = false }: { size?: number; listening?: boolean }) {
   const theme = useTheme();
   return (
     <span aria-hidden className="relative block shrink-0" style={{ width: size, height: size }}>
-      <Strands glassSize={1.16} lightMode={theme === "light"} energy={0.55} speed={0.8} interactive={false} clickPulse={false} maxDevicePixelRatio={2} />
+      <Strands glassSize={1.18} lightMode={theme === "light"} energy={0.7} speed={1.1} listening={listening} interactive={false} clickPulse={false} maxDevicePixelRatio={2} />
     </span>
   );
 }
@@ -288,7 +288,7 @@ export function ChatDock() {
             style={{ borderRadius: desk ? 18 : 26, ["--drop-tint" as string]: "var(--acrylic)" }}
           >
             <button type="button" onClick={openChat} className={`flex w-full items-start gap-3 text-left ${desk ? "p-3" : "px-3.5 py-3.5"}`}>
-              <AppIcon size={desk ? 36 : 40} />
+              <AppIcon size={desk ? 44 : 48} />
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline justify-between gap-2">
                   <span className={`truncate font-semibold text-ink ${desk ? "text-[13px]" : "text-[15px]"}`}>{t.notifTitle}</span>
@@ -314,17 +314,17 @@ export function ChatDock() {
         </div>
       )}
 
-      {/* pulsante sempre presente su computer */}
-      {desk && ready && !open && (
+      {/* pulsante sempre presente: in basso a destra su computer, sopra la barra su telefono */}
+      {ready && !open && (
         <button
           ref={launcherRef}
           type="button"
           onClick={openChat}
           aria-label={t.open}
-          className="drop acrylic fixed bottom-6 right-6 z-[60] flex h-14 w-14 items-center justify-center rounded-full transition-transform hover:scale-105"
+          className={`drop acrylic fixed z-[60] flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 ${desk ? "bottom-6 right-6 h-[68px] w-[68px]" : "bottom-[calc(env(safe-area-inset-bottom)+136px)] right-4 h-14 w-14 lg:hidden"}`}
           style={{ ["--drop-tint" as string]: "var(--acrylic)" }}
         >
-          <AppIcon size={46} />
+          <AppIcon size={desk ? 60 : 50} />
           {unread && <span className="absolute right-1 top-1 h-3 w-3 rounded-full bg-[#ff3b30] shadow-[0_0_0_2px_var(--bg-canvas)]" aria-hidden />}
         </button>
       )}
@@ -340,9 +340,9 @@ export function ChatDock() {
             className={`drop acrylic fixed z-[95] flex select-text flex-col overflow-hidden ${desk ? "bottom-6 right-6 h-[min(640px,calc(100svh-var(--bar-h)-80px))] w-[400px]" : "inset-x-2 bottom-2 top-[max(calc(env(safe-area-inset-top)+12px),40px)]"}`}
             style={{ borderRadius: desk ? 26 : 28, ["--drop-tint" as string]: "var(--acrylic)", ...(kb ? { top: kb.top, height: kb.h, bottom: "auto" } : {}) }}
           >
-            <header className="flex items-center gap-3 border-b border-[var(--hair)] px-4 py-3.5">
+            <header className="relative flex items-center gap-3 border-b border-[var(--hair)] px-4 py-3.5">
               <span className="relative">
-                <AppIcon size={38} />
+                <AppIcon size={46} listening={typing} />
                 <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-[#30d158] shadow-[0_0_0_2px_var(--acrylic-solid)]" aria-hidden />
               </span>
               <span className="min-w-0 flex-1 leading-tight">
