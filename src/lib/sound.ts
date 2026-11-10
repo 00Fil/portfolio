@@ -2,12 +2,12 @@
  * Suoni dell'interfaccia. Spenti di default; si accendono solo dal tasto nella barra.
  * Sintetizzati con Web Audio finché non ci sono i file ElevenLabs in /public/sfx (stessi nomi).
  */
-export type Sfx = "tick" | "press" | "toggle" | "copy" | "open";
+export type Sfx = "tick" | "press" | "toggle" | "copy" | "open" | "key" | "click" | "whoosh" | "notify" | "success" | "send" | "say";
 
 const KEY = "sound";
 let ctx: AudioContext | null = null;
 let enabled = false;
-let last = 0;
+const last: Record<string, number> = {};
 const listeners = new Set<(on: boolean) => void>();
 
 export function loadSoundPref() {
@@ -79,8 +79,8 @@ function tone(c: AudioContext, freq: number, to: number, out: AudioNode, dur: nu
 export function play(name: Sfx) {
   if (!enabled) return;
   const now = performance.now();
-  if (now - last < 80) return;
-  last = now;
+  if (now - (last[name] ?? 0) < (name === "key" ? 28 : 80)) return;
+  last[name] = now;
   const c = ensure();
   if (!c) return;
   switch (name) {
@@ -121,6 +121,82 @@ export function play(name: Sfx) {
       const n = noise(c, 0.26);
       n.connect(f);
       n.start();
+      break;
+    }
+    case "key": {
+      // un tasto: tocco corto e secco, con una leggera variazione a ogni battuta
+      const g = env(c, 0.03, 0.001, 0.022);
+      const f = c.createBiquadFilter();
+      f.type = "bandpass";
+      f.frequency.value = 2600 + Math.random() * 1400;
+      f.Q.value = 1.6;
+      f.connect(g);
+      const n = noise(c, 0.03);
+      n.connect(f);
+      n.start();
+      break;
+    }
+    case "click": {
+      // clic del mouse: un colpo sordo e uno più alto
+      tone(c, 900, 420, env(c, 0.045, 0.001, 0.05), 0.055);
+      const g = env(c, 0.03, 0.001, 0.02);
+      const f = c.createBiquadFilter();
+      f.type = "highpass";
+      f.frequency.value = 3000;
+      f.connect(g);
+      const n = noise(c, 0.025);
+      n.connect(f);
+      n.start();
+      break;
+    }
+    case "whoosh": {
+      const g = env(c, 0.022, 0.07, 0.3);
+      const f = c.createBiquadFilter();
+      f.type = "bandpass";
+      f.Q.value = 0.8;
+      f.frequency.setValueAtTime(380, c.currentTime);
+      f.frequency.exponentialRampToValueAtTime(2200, c.currentTime + 0.3);
+      f.connect(g);
+      const n = noise(c, 0.4);
+      n.connect(f);
+      n.start();
+      break;
+    }
+    case "say": {
+      // un commento a tutto quadro: respiro lungo e una nota bassa
+      const g = env(c, 0.026, 0.12, 0.5);
+      const f = c.createBiquadFilter();
+      f.type = "lowpass";
+      f.frequency.setValueAtTime(500, c.currentTime);
+      f.frequency.exponentialRampToValueAtTime(3000, c.currentTime + 0.5);
+      f.connect(g);
+      const n = noise(c, 0.7);
+      n.connect(f);
+      n.start();
+      tone(c, 220, 330, env(c, 0.018, 0.05, 0.4), 0.45);
+      break;
+    }
+    case "notify": {
+      tone(c, 988, 988, env(c, 0.03, 0.003, 0.22), 0.24);
+      window.setTimeout(() => c && tone(c, 1319, 1319, env(c, 0.026, 0.003, 0.3), 0.32), 110);
+      break;
+    }
+    case "success": {
+      [523, 659, 784].forEach((f, i) => window.setTimeout(() => c && tone(c, f, f, env(c, 0.026, 0.004, 0.34), 0.36), i * 85));
+      break;
+    }
+    case "send": {
+      const g = env(c, 0.02, 0.02, 0.16);
+      const f = c.createBiquadFilter();
+      f.type = "bandpass";
+      f.Q.value = 1.2;
+      f.frequency.setValueAtTime(900, c.currentTime);
+      f.frequency.exponentialRampToValueAtTime(3600, c.currentTime + 0.16);
+      f.connect(g);
+      const n = noise(c, 0.2);
+      n.connect(f);
+      n.start();
+      tone(c, 600, 1000, env(c, 0.018, 0.005, 0.12), 0.14);
       break;
     }
   }

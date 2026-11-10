@@ -9,6 +9,7 @@ import { Bead } from "@/components/glass/Bead";
 import { AI, API, APPS, DESIGN, GEO, HW, SEO, SHOP, StoryV, WEB } from "./Spots";
 import { Shape } from "@/components/visual/Shapes";
 import { prefersReducedMotion } from "@/lib/env";
+import { play as sfx } from "@/lib/sound";
 import { usePathname, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon, CheckmarkCircle02Icon, Shield01Icon, Wrench01Icon } from "@hugeicons/core-free-icons";
@@ -92,6 +93,7 @@ const warm = (el: Element, on: boolean) => {
 /** Un commento: il vetro si accende, le parole salgono una per una, poi si torna alla scena. `keep` lascia il vetro acceso. */
 export function addSay(run: gsap.core.Timeline, el: Element, scrim: Element, zoom: Element, at: number, hold = 1.6, keep = false) {
   const w = el.querySelectorAll("[data-sw]");
+  run.call(() => sfx("say"), undefined, at);
   run.call(() => warm(scrim, true), undefined, Math.max(0, at - 0.5));
   run
     .to(scrim, { opacity: 1, duration: 0.45, ease: "power2.out" }, at)
@@ -216,7 +218,7 @@ function SpotLayer({ spot }: { spot: SpotCfg }) {
 
 /** Tela fissa W×H scalata nello spazio disponibile; la timeline parte la prima volta che è visibile.
  *  `ownSpot`: la scheda decide da sé quando mostrare i commenti (li sincronizza con le sue scene). */
-export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot = false }: { w: number; h: number; max?: number; build: (q: (s: string) => Element[]) => gsap.core.Timeline; children: ReactNode; framed?: boolean; ownSpot?: boolean }) {
+export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot = false, stretch = false }: { w: number; h: number; max?: number; build: (q: (s: string) => Element[]) => gsap.core.Timeline; children: ReactNode; framed?: boolean; ownSpot?: boolean; stretch?: boolean }) {
   const spot = useContext(SpotCtx);
   const play = useContext(PlayCtx);
   const timelines = useRef<gsap.core.Timeline[]>([]);
@@ -230,6 +232,15 @@ export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot 
       // Altrimenti diventa una finestra con angoli, ombra e margine, invece di un rettangolo tagliato a caso.
       const fit = Math.min(o.clientWidth / w, o.clientHeight / h);
       const fill = Math.max(o.clientWidth / w, o.clientHeight / h);
+      if (stretch) {
+        // la tela si allarga fino ai bordi della scheda: le schermate (Figma, Google, il sito) la riempiono senza bande
+        const k = Math.max(fit, 0.2);
+        setWin(false);
+        stage.current!.style.width = `${o.clientWidth / k}px`;
+        stage.current!.style.height = `${o.clientHeight / k}px`;
+        stage.current!.style.transform = `translate(-50%, -50%) scale(${k})`;
+        return;
+      }
       const full = fill / fit < 1.1;
       const s = full ? fill : Math.min(max, fit * (framed ? 0.88 : 1));
       setWin(!full && framed);
@@ -237,7 +248,7 @@ export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot 
     });
     ro.observe(o);
     return () => ro.disconnect();
-  }, [w, h, max, framed]);
+  }, [w, h, max, framed, stretch]);
   useGSAP(
     () => {
       const q = gsap.utils.selector(box.current);
