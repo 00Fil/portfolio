@@ -793,6 +793,119 @@
         ],
         "sub": "Hosting, security and support"
       }
+    },
+    "story": {
+      "ops": {
+        "facts": [
+          {
+            "v": "24/7",
+            "l": "Automatic monitoring of your site, day and night, holidays included."
+          },
+          {
+            "v": "2 copies",
+            "l": "Of everything, every night, stored in two different places."
+          },
+          {
+            "v": "0 downtime",
+            "l": "For updates: your site stays online while it changes."
+          }
+        ],
+        "how": {
+          "title": "How it works",
+          "lead": "Four layers work together behind your site. You don’t have to think about any of them.",
+          "steps": [
+            {
+              "t": "A shield in front of your site",
+              "b": "Every visit first goes through a protection layer that stops fake traffic and attacks, and keeps pages ready to serve them faster."
+            },
+            {
+              "t": "A server set up for you",
+              "b": "Configured for your project, with your domain and a security padlock that renews itself."
+            },
+            {
+              "t": "Checked updates",
+              "b": "Every change goes through automatic checks and only goes live if everything passes. If needed, roll back in one click."
+            },
+            {
+              "t": "Backups and constant monitoring",
+              "b": "A copy of everything every night. If something stops responding I get an alert within seconds, at any hour."
+            }
+          ]
+        },
+        "timeline": {
+          "title": "If something goes wrong",
+          "lead": "It happens even to the best services. What matters is what happens next, minute by minute.",
+          "items": [
+            {
+              "at": "03:12",
+              "t": "Monitoring notices",
+              "b": "A server stops responding and the alert goes out immediately."
+            },
+            {
+              "at": "03:12",
+              "t": "Your site stays online",
+              "b": "Visits move to the other servers: nobody browsing notices a thing."
+            },
+            {
+              "at": "03:13",
+              "t": "I take the incident",
+              "b": "I get the notification and step in, even at night."
+            },
+            {
+              "at": "03:16",
+              "t": "Everything restored",
+              "b": "The server is back online, no data lost."
+            },
+            {
+              "at": "08:30",
+              "t": "You get a summary",
+              "b": "What happened, what I did and why it shouldn’t happen again. In plain words."
+            }
+          ]
+        },
+        "faq": {
+          "title": "Questions",
+          "items": [
+            {
+              "q": "Do I need to do anything?",
+              "a": "No. The site and the domain stay in your name; I take care of the technical side and only write when a decision of yours is needed."
+            },
+            {
+              "q": "What if the site goes down at night?",
+              "a": "Monitoring alerts me within seconds, at any hour. I step in right away and in the morning you find a summary of what happened."
+            },
+            {
+              "q": "Can I switch provider later?",
+              "a": "Yes. Code, data and access are yours: if one day you want to move, I hand everything over, documented."
+            },
+            {
+              "q": "How is it paid?",
+              "a": "With a monthly fee, separate from development. We set the price together based on what your project actually needs."
+            }
+          ]
+        },
+        "ui": {
+          "s0t": "Protection on",
+          "s0s": "Last 24 hours",
+          "s0r1": "Fake requests stopped",
+          "s0r2": "Pages served from cache",
+          "s0r3": "Response time",
+          "s1t": "Secure connection",
+          "s1s": "Valid certificate, auto-renewing",
+          "s1r1": "Server",
+          "s1r2": "Status",
+          "s1v2": "Online",
+          "s2t": "New version",
+          "s2a": "Automatic checks passed",
+          "s2b": "Tested on a copy of the site",
+          "s2c": "Live, no downtime",
+          "s2d": "Roll back in one click",
+          "s3t": "Backups",
+          "s3s": "Last two weeks",
+          "s3n": "Filippo Corsini",
+          "s3m": "Last night’s backup saved in two places · 03:00"
+        }
+      }
     }
   },
   "brief": {

@@ -793,6 +793,119 @@
         ],
         "sub": "Hosting, sicurezza e assistenza"
       }
+    },
+    "story": {
+      "ops": {
+        "facts": [
+          {
+            "v": "24/7",
+            "l": "Controllo automatico del sito, giorno e notte, festivi compresi."
+          },
+          {
+            "v": "2 copie",
+            "l": "Di tutto, ogni notte, salvate in due posti diversi."
+          },
+          {
+            "v": "0 fermi",
+            "l": "Per gli aggiornamenti: il sito resta online mentre cambia."
+          }
+        ],
+        "how": {
+          "title": "Come funziona",
+          "lead": "Quattro livelli lavorano insieme dietro al tuo sito. Tu non devi pensare a nessuno di questi.",
+          "steps": [
+            {
+              "t": "Uno scudo davanti al sito",
+              "b": "Ogni visita passa prima da una protezione che ferma traffico falso e attacchi, e tiene pronte le pagine per servirle più in fretta."
+            },
+            {
+              "t": "Un server configurato per te",
+              "b": "Preparato su misura per il tuo progetto, con il tuo dominio e il lucchetto di sicurezza che si rinnova da solo."
+            },
+            {
+              "t": "Aggiornamenti controllati",
+              "b": "Ogni modifica passa da controlli automatici e va online solo se tutto è a posto. Se serve, si torna alla versione precedente in un clic."
+            },
+            {
+              "t": "Copie e controllo continuo",
+              "b": "Ogni notte una copia di tutto. Se qualcosa smette di rispondere ricevo un avviso in pochi secondi, a qualsiasi ora."
+            }
+          ]
+        },
+        "timeline": {
+          "title": "Se qualcosa va storto",
+          "lead": "Succede anche ai servizi migliori. La differenza è cosa accade dopo, minuto per minuto.",
+          "items": [
+            {
+              "at": "03:12",
+              "t": "Il controllo se ne accorge",
+              "b": "Un server smette di rispondere e parte subito l’avviso."
+            },
+            {
+              "at": "03:12",
+              "t": "Il sito resta online",
+              "b": "Le visite passano sugli altri server: chi naviga non nota nulla."
+            },
+            {
+              "at": "03:13",
+              "t": "Prendo in carico il guasto",
+              "b": "Ricevo la notifica e intervengo, anche di notte."
+            },
+            {
+              "at": "03:16",
+              "t": "Tutto ripristinato",
+              "b": "Il server torna in linea, nessun dato perso."
+            },
+            {
+              "at": "08:30",
+              "t": "Ti scrivo un riepilogo",
+              "b": "Cosa è successo, cosa ho fatto e perché non dovrebbe ricapitare. In parole semplici."
+            }
+          ]
+        },
+        "faq": {
+          "title": "Domande",
+          "items": [
+            {
+              "q": "Devo fare qualcosa io?",
+              "a": "No. Il sito e il dominio restano intestati a te; io mi occupo della parte tecnica e ti scrivo solo quando serve una tua decisione."
+            },
+            {
+              "q": "Cosa succede se il sito si ferma di notte?",
+              "a": "Il controllo automatico mi avvisa in pochi secondi, a qualsiasi ora. Intervengo subito e la mattina trovi un riepilogo di cosa è successo."
+            },
+            {
+              "q": "Posso cambiare fornitore in futuro?",
+              "a": "Sì. Codice, dati e accessi sono tuoi: se un giorno vuoi spostarti ti consegno tutto, documentato."
+            },
+            {
+              "q": "Come si paga?",
+              "a": "Con un canone mensile, separato dallo sviluppo. Il prezzo lo decidiamo insieme in base a cosa serve davvero al tuo progetto."
+            }
+          ]
+        },
+        "ui": {
+          "s0t": "Protezione attiva",
+          "s0s": "Ultime 24 ore",
+          "s0r1": "Richieste false fermate",
+          "s0r2": "Pagine servite dalla cache",
+          "s0r3": "Tempo di risposta",
+          "s1t": "Connessione protetta",
+          "s1s": "Certificato valido, rinnovo automatico",
+          "s1r1": "Server",
+          "s1r2": "Stato",
+          "s1v2": "Online",
+          "s2t": "Nuova versione",
+          "s2a": "Controlli automatici superati",
+          "s2b": "Prova su copia del sito",
+          "s2c": "Online, senza interruzioni",
+          "s2d": "Si torna indietro in un clic",
+          "s3t": "Copie di sicurezza",
+          "s3s": "Ultime due settimane",
+          "s3n": "Filippo Corsini",
+          "s3m": "Copia di stanotte salvata in due posti · 03:00"
+        }
+      }
     }
   },
   "brief": {

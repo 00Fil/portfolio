@@ -7,6 +7,7 @@ import { SiteNav } from "@/components/nav/SiteNav";
 import { Footer } from "@/components/sections/Footer";
 import type { WidgetText } from "@/components/sections/ServiceWidgets";
 import { ServiceDetail } from "@/components/services/ServiceDetail";
+import type { Story } from "@/components/services/ServiceStory";
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) => SERVICES.map((s) => ({ locale, slug: s.slug })));
@@ -33,6 +34,7 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
   const t = await getTranslations("services");
   const tm = await getTranslations("method");
   const w = t.raw("w") as WidgetText;
+  const story = (t.raw("story") as Record<string, Story> | undefined)?.[s.key];
   const phases = (tm.raw("phases") as { name: string; title: string; out: string }[]).map(({ name, title, out }) => ({ name, title, out }));
   const i = SERVICES.findIndex((x) => x.slug === slug);
   const n = SERVICES[(i + 1) % SERVICES.length];
@@ -53,6 +55,7 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
           next={{ slug: n.slug, k: n.key, label: n.label[locale], title: n.title[locale], short: n.short[locale] }}
           others={SERVICES.filter((x) => x.slug !== slug).map((x) => ({ slug: x.slug, k: x.key, title: x.title[locale] }))}
           w={w}
+          story={story}
           t={{ services: t("title"), cta: t("cta"), includes: t("includes"), tech: t("tech"), method: tm("title"), methodLead: tm("lead"), next: t("next"), all: t("all") }}
         />
       </main>

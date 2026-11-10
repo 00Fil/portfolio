@@ -16,6 +16,7 @@ import { ServiceBg } from "@/components/sections/ServiceBg";
 import { ServiceVisual, type WidgetText } from "@/components/sections/ServiceWidgets";
 import LogoLoop from "@/components/reactbits/LogoLoop";
 import { ServiceIcon } from "./ServiceIcon";
+import { Bento, Facts, Faq, How, Timeline, type Story } from "./ServiceStory";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
@@ -36,6 +37,7 @@ export type ServiceDetailProps = {
   next: Other;
   others: { slug: string; k: ServiceKey; title: string }[];
   w: WidgetText;
+  story?: Story;
   t: { services: string; cta: string; includes: string; tech: string; method: string; methodLead: string; next: string; all: string; };
 };
 
@@ -330,9 +332,19 @@ export function ServiceDetail(p: ServiceDetailProps) {
     <>
       <Hero {...p} />
       <Statement lead={p.lead} />
-      <Includes {...p} />
+      {p.story ? (
+        <>
+          <Facts facts={p.story.facts} />
+          <How k={p.k} how={p.story.how} ui={p.story.ui} />
+          {p.story.timeline && <Timeline timeline={p.story.timeline} />}
+          <Bento k={p.k} title={p.t.includes} items={p.includes} />
+        </>
+      ) : (
+        <Includes {...p} />
+      )}
       <Method {...p} />
       {p.stack.length > 0 && <Tech {...p} />}
+      {p.story && <Faq faq={p.story.faq} />}
       <Next {...p} />
     </>
   );
