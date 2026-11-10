@@ -621,16 +621,16 @@
       "web": {
         "s": [
           [
-            "A fast website",
-            "that works for you."
+            "We design",
+            "every page."
           ],
           [
-            "Opens in a blink,",
+            "Fast,",
             "on every screen."
           ],
           [
-            "You update it,",
-            "no calls needed."
+            "Then you update it,",
+            "in a minute."
           ]
         ],
         "sub": "Custom websites and web apps"
@@ -642,8 +642,8 @@
             "They find you."
           ],
           [
-            "Fast, tidy,",
-            "clear to Google."
+            "We tune the site",
+            "for Google."
           ],
           [
             "More visits,",
@@ -659,12 +659,12 @@
             "AI."
           ],
           [
-            "AI answers",
-            "with your name."
+            "We make sure",
+            "it answers with you."
           ],
           [
             "ChatGPT, Gemini,",
-            "Perplexity."
+            "Claude, Perplexity."
           ]
         ],
         "sub": "Visibility in AI answers"
@@ -672,8 +672,8 @@
       "apps": {
         "s": [
           [
-            "One app.",
-            "Every device."
+            "One app,",
+            "phone and computer."
           ],
           [
             "iPhone, Android,",
@@ -693,8 +693,8 @@
             "then build."
           ],
           [
-            "Clear screens,",
-            "tested with real users."
+            "We test it",
+            "with real users."
           ],
           [
             "A system",
@@ -706,15 +706,15 @@
       "ai": {
         "s": [
           [
-            "Repetitive work,",
-            "done by AI."
+            "Requests",
+            "come in."
           ],
           [
-            "It reads, sorts,",
-            "replies."
+            "AI reads,",
+            "sorts and drafts."
           ],
           [
-            "You decide.",
+            "You approve.",
             "It executes."
           ]
         ],
@@ -740,12 +740,12 @@
       "api": {
         "s": [
           [
-            "Your software",
-            "talks to itself."
+            "We connect",
+            "your software."
           ],
           [
-            "Orders, invoices,",
-            "stock."
+            "An order becomes",
+            "invoice and stock."
           ],
           [
             "No more",

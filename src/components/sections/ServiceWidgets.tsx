@@ -6,6 +6,7 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import * as si from "simple-icons";
 import { Bead } from "@/components/glass/Bead";
+import { AI, API, APPS, DESIGN, GEO, HW, SEO, SHOP, StoryV, WEB } from "./Spots";
 import { Shape } from "@/components/visual/Shapes";
 import { prefersReducedMotion } from "@/lib/env";
 import { usePathname } from "next/navigation";
@@ -79,7 +80,7 @@ const SpotCtx = createContext<SpotCfg | null>(null);
 const SCRIM_OFF = 0.001;
 
 /** Un commento: il vetro si accende, le parole salgono una per una, poi si torna alla scena. `keep` lascia il vetro acceso. */
-function addSay(run: gsap.core.Timeline, el: Element, scrim: Element, zoom: Element, at: number, hold = 1.6, keep = false) {
+export function addSay(run: gsap.core.Timeline, el: Element, scrim: Element, zoom: Element, at: number, hold = 1.6, keep = false) {
   const w = el.querySelectorAll("[data-sw]");
   run
     .to(scrim, { opacity: 1, duration: 0.45, ease: "power2.out" }, at)
@@ -91,7 +92,7 @@ function addSay(run: gsap.core.Timeline, el: Element, scrim: Element, zoom: Elem
   if (!keep) run.to(scrim, { opacity: SCRIM_OFF, duration: 0.5, ease: "power2.inOut" }, at + hold + 0.35).to(zoom, { scale: 1, duration: 0.7, ease: "power2.inOut" }, at + hold + 0.35);
 }
 /** La chiusura: marchio, riga del servizio e tasto; poi il vetro si spegne. Restituisce la fine. */
-function addEnd(run: gsap.core.Timeline, q: (s: string) => Element[], at: number, hold = 3.4) {
+export function addEnd(run: gsap.core.Timeline, q: (s: string) => Element[], at: number, hold = 3.4) {
   const end = q("[data-end]")[0];
   const bits = q("[data-end-in]");
   const scrim = q("[data-scrim]")[0];
@@ -191,7 +192,7 @@ function SpotLayer({ spot }: { spot: SpotCfg }) {
 
 /** Tela fissa W×H scalata nello spazio disponibile; la timeline parte la prima volta che è visibile.
  *  `ownSpot`: la scheda decide da sé quando mostrare i commenti (li sincronizza con le sue scene). */
-function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot = false }: { w: number; h: number; max?: number; build: (q: (s: string) => Element[]) => gsap.core.Timeline; children: ReactNode; framed?: boolean; ownSpot?: boolean }) {
+export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot = false }: { w: number; h: number; max?: number; build: (q: (s: string) => Element[]) => gsap.core.Timeline; children: ReactNode; framed?: boolean; ownSpot?: boolean }) {
   const spot = useContext(SpotCtx);
   const box = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
@@ -1523,23 +1524,23 @@ export function ServiceVisual({ k, t, max }: { k: ServiceKey; t: WidgetText; max
 function visual(k: ServiceKey, t: WidgetText, max?: number) {
   switch (k) {
     case "web":
-      return <WebV t={t} max={max} />;
+      return <StoryV shots={WEB} max={max} />;
     case "seo":
-      return <SeoV t={t} max={max} />;
+      return <StoryV shots={SEO} max={max} />;
     case "geo":
-      return <GeoV t={t} max={max} />;
+      return <StoryV shots={GEO} max={max} />;
     case "apps":
-      return <AppsV max={max} />;
+      return <StoryV shots={APPS} max={max} />;
     case "design":
-      return <DesignV t={t} max={max} />;
+      return <StoryV shots={DESIGN} max={max} />;
     case "ai":
-      return <AiV t={t} max={max} />;
+      return <StoryV shots={AI} max={max} />;
     case "hw":
-      return <HwV t={t} max={max} />;
+      return <StoryV shots={HW} max={max} />;
     case "api":
-      return <ApiV t={t} max={max} />;
+      return <StoryV shots={API} max={max} />;
     case "shop":
-      return <ShopV t={t} max={max} />;
+      return <StoryV shots={SHOP} max={max} />;
     case "ops":
       return <OpsV t={t} max={max} />;
   }

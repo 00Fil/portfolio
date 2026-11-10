@@ -79,7 +79,7 @@ function Hero({ k, need, label, title, short, w, t }: ServiceDetailProps) {
               {label}
             </p>
             <div>
-              <h1 data-h1 className="max-w-[11ch] text-[clamp(44px,6.6vw,112px)] font-medium leading-[0.94] tracking-[-0.055em] text-white">
+              <h1 data-h1 className="max-w-[11ch] hyphens-auto text-[clamp(44px,6.6vw,112px)] font-medium leading-[0.94] tracking-[-0.055em] text-white">
                 {title}
               </h1>
               <p className="mt-5 max-w-[40ch] text-[16px] leading-[1.55] text-white/80 sm:mt-7 sm:text-[18px]" data-hrest>
