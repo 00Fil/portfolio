@@ -985,8 +985,9 @@ function ShopV({ t, max }: { t: WidgetText; max?: number }) {
   );
 }
 
-/* ───────────── Gestione: lo schema dell'infrastruttura. Le ondate di richieste false si fermano sullo scudo,
-   quelle vere passano, il bilanciatore le divide tra i server e uno va in manutenzione senza che nessuno se ne accorga ───────────── */
+/* ───────────── Gestione: uno spot montato sullo schema dell'infrastruttura. Tra una scena e l'altra il commento
+   occupa tutto il quadro, come nelle pubblicità: attacchi fermati, aggiornamenti senza fermarsi, un guasto
+   alle tre di notte e il tecnico reperibile che lo risolve prima che qualcuno se ne accorga ───────────── */
 
 const CORAL = "#ff7a7a";
 const NODE_Y = 170;
@@ -997,17 +998,49 @@ const LB = { x: 410, y: NODE_Y };
 const SRV_X = 612;
 const FAKE = 16;
 const LEGIT = 12;
+const EMOJI = { fontFamily: '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif' };
+const CARD = { x: 30, y: 282, w: 304 };
+
+/** Un commento a tutto quadro: parole che salgono una per una, la seconda parte in azzurro. */
+function Say({ a, b, sub }: { a: string; b: string; sub?: string }) {
+  const words = (s: string, cls = "") =>
+    s.split(" ").map((w, i) => (
+      <span key={i} className="inline-block overflow-hidden pb-[0.08em] align-bottom">
+        <span data-w className={`inline-block ${cls}`}>
+          {w}&nbsp;
+        </span>
+      </span>
+    ));
+  return (
+    <div data-say className="absolute inset-0 flex flex-col items-center justify-center px-16 text-center opacity-0">
+      <p className="text-[56px] font-semibold leading-[1] tracking-[-0.05em] text-white">
+        {words(a)}
+        <br />
+        {words(b, "text-[#7fd0ff]")}
+      </p>
+      {sub && (
+        <p data-w className="mt-6 font-mono text-[13px] uppercase tracking-[0.14em] text-white/65">
+          {sub}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function OpsV({ t, max }: { t: WidgetText; max?: number }) {
   const lines = [
     `M${NET.x + 28} ${NODE_Y} L${SHIELD.x - 32} ${NODE_Y}`,
     `M${SHIELD.x + 32} ${NODE_Y} L${LB.x - 28} ${NODE_Y}`,
     ...SRV_Y.map((y) => `M${LB.x + 28} ${NODE_Y} C${LB.x + 80} ${NODE_Y} ${SRV_X - 110} ${y} ${SRV_X - 62} ${y}`),
   ];
+  // il filo tra il tecnico e il server che ha in carico
+  const link = `M${CARD.x + CARD.w} ${CARD.y + 44} C${CARD.x + CARD.w + 110} ${CARD.y + 44} ${SRV_X - 150} ${SRV_Y[2] + 30} ${SRV_X - 62} ${SRV_Y[2] + 12}`;
   const icon = (d: ReactNode, cls = "h-5 w-5") => (
-    <svg viewBox="0 0 24 24" className={cls} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg viewBox="0 0 24 24" className={cls} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       {d}
     </svg>
   );
+  const label = "text-[11.5px] font-medium tracking-[-0.01em] text-white/85 [text-shadow:0_1px_6px_rgba(0,0,0,.6)]";
   return (
     <Canvas
       framed={false}
@@ -1022,16 +1055,34 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
         const maint = q("[data-maint]")[0];
         const srv = q("[data-srvb]");
         const lights = q("[data-light]");
+        const loads = q("[data-load]");
+        const scrim = q("[data-scrim]")[0];
+        const says = q("[data-say]");
+        const stage = q("[data-stage]")[0];
         const o = { n: 12380 };
         gsap.set([...fakes, ...legit], { x: NET.x, y: NODE_Y, autoAlpha: 0 });
+        gsap.set(loads, { scaleX: 0.25, transformOrigin: "0 50%" });
         const tl = gsap
           .timeline()
           .from(q("[data-node]"), { ...pop, stagger: 0.07 })
-          .to(q("[data-base]"), { strokeDashoffset: 0, duration: 0.9, stagger: 0.06, ease: "power2.inOut" }, 0.3)
-          .from(q("[data-log]"), pop, 0.8);
+          .to(q("[data-base]"), { strokeDashoffset: 0, duration: 0.9, stagger: 0.06, ease: "power2.inOut" }, 0.3);
 
         const run = gsap.timeline({ repeat: -1 });
-        const caps = q("[data-cap]");
+
+        // commento a tutto quadro: lo schema si sfoca e scurisce, le parole salgono, poi si torna alla scena
+        const say = (i: number, at: number, hold = 1.4) => {
+          const el = says[i];
+          const w = el.querySelectorAll("[data-w]");
+          run
+            .to(scrim, { autoAlpha: 1, duration: 0.35, ease: "power2.out" }, at)
+            .to(stage, { scale: 1.04, duration: 0.5, ease: "power2.out" }, at)
+            .set(el, { autoAlpha: 1 }, at)
+            .fromTo(w, { yPercent: 110, rotate: 4 }, { yPercent: 0, rotate: 0, duration: 0.6, stagger: 0.06, ease: "expo.out" }, at + 0.1)
+            .to(w, { yPercent: -110, duration: 0.4, stagger: 0.03, ease: "power3.in" }, at + hold)
+            .set(el, { autoAlpha: 0 }, at + hold + 0.5)
+            .to(scrim, { autoAlpha: 0, duration: 0.4, ease: "power2.inOut" }, at + hold + 0.3)
+            .to(stage, { scale: 1, duration: 0.6, ease: "power2.inOut" }, at + hold + 0.3);
+        };
         // un'ondata di richieste false: arrivano a ventaglio e si spengono contro lo scudo
         const wave = (at: number) => {
           fakes.forEach((f, i) => {
@@ -1057,130 +1108,185 @@ function OpsV({ t, max }: { t: WidgetText; max?: number }) {
               .to(p, { x: LB.x, duration: 0.9, ease: "none" }, s)
               .to(p, { x: SRV_X - 64, y: SRV_Y[k], duration: 0.5, ease: "power1.out" }, s + 0.9)
               .to(p, { autoAlpha: 0, duration: 0.12 }, s + 1.38)
-              .to(srv[k], { ["--drop-tint" as string]: "rgba(94,196,255,.3)", duration: 0.12, yoyo: true, repeat: 1 }, s + 1.36);
+              .to(loads[k], { scaleX: 0.35 + ((i * 29) % 50) / 100, duration: 0.3, ease: "power2.out" }, s + 1.36);
           });
         };
-        step(run, caps, 0, 0);
-        wave(0.2);
-        pass(0.4, [0, 1, 2]);
-        step(run, caps, 1, 2.6);
+
+        say(0, 0);
+        wave(2.0);
+        pass(2.3, [0, 1, 2]);
+        say(1, 4.4);
         // manutenzione: il server 2 esce dal giro, il traffico va sugli altri due
         run
-          .to(maint, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 4.2)
-          .to(lights[1], { backgroundColor: "#f5a524", duration: 0.3 }, 4.2)
-          .to(srv[1], { opacity: 0.55, duration: 0.4 }, 4.2);
-        step(run, caps, 2, 4.4);
-        wave(4.6);
-        pass(4.9, [0, 2]);
+          .to(maint, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 6.6)
+          .to(lights[1], { backgroundColor: "#f5a524", duration: 0.3 }, 6.6)
+          .to(loads[1], { scaleX: 0.04, duration: 0.6 }, 6.6)
+          .to(srv[1], { opacity: 0.6, duration: 0.4 }, 6.6);
+        pass(6.8, [0, 2]);
+        say(2, 8.6);
         run
-          .to(maint, { autoAlpha: 0, scale: 0.6, duration: 0.3 }, 8.2)
-          .to(lights[1], { backgroundColor: "#34d399", duration: 0.3 }, 8.2)
-          .to(srv[1], { opacity: 1, duration: 0.4 }, 8.2);
-        step(run, caps, 3, 8.3);
-        // guasto: il server 3 smette di rispondere, il traffico si sposta e l'agente dedicato interviene subito
+          .to(maint, { autoAlpha: 0, scale: 0.6, duration: 0.3 }, 10.6)
+          .to(lights[1], { backgroundColor: "#34d399", duration: 0.3 }, 10.6)
+          .to(srv[1], { opacity: 1, duration: 0.4 }, 10.6);
+
+        // guasto: il server 3 smette di rispondere, il traffico si sposta e il tecnico reperibile interviene
         const crash = q("[data-crash]")[0];
         const agent = q("[data-agent]")[0];
-        const [aOn, aOk] = q("[data-agent-st]");
+        const [stAlert, stWork, stOk] = q("[data-agent-st]");
+        const bar = q("[data-agent-bar]")[0];
+        const wire = q("[data-agent-link]")[0] as SVGPathElement;
+        const len = wire.getTotalLength();
+        gsap.set(wire, { strokeDasharray: `${len} ${len}`, strokeDashoffset: len });
         run
-          .to(lights[2], { backgroundColor: "#ff453a", duration: 0.2 }, 9.8)
-          .to(srv[2], { ["--drop-tint" as string]: "rgba(255,69,58,.3)", duration: 0.3 }, 9.8)
-          .fromTo(srv[2], { x: 0 }, { x: 4, duration: 0.05, yoyo: true, repeat: 7, ease: "none" }, 9.8)
-          .to(crash, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2)" }, 9.9);
-        step(run, caps, 4, 10);
-        pass(10.3, [0, 1]);
+          .to(lights[2], { backgroundColor: "#ff453a", duration: 0.2 }, 11.0)
+          .to(srv[2], { ["--drop-tint" as string]: "rgba(255,69,58,.32)", duration: 0.3 }, 11.0)
+          .to(loads[2], { scaleX: 0, duration: 0.3 }, 11.0)
+          .fromTo(srv[2], { x: 0 }, { x: 4, duration: 0.05, yoyo: true, repeat: 7, ease: "none" }, 11.0)
+          .to(crash, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2)" }, 11.1);
+        pass(11.2, [0, 1]);
+        say(3, 11.8, 1.2);
         run
-          .set(aOk, { autoAlpha: 0 }, 10.9)
-          .set(aOn, { autoAlpha: 1 }, 10.9)
-          .fromTo(agent, { autoAlpha: 0, y: 14, scale: 0.92 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.8)" }, 10.9)
-          .fromTo(q("[data-agent-ring]"), { scale: 0.6, opacity: 0.8 }, { scale: 1.9, opacity: 0, duration: 1.1, repeat: 2, ease: "power2.out" }, 11.1);
-        step(run, caps, 5, 11.1);
-        run
-          .to(lights[2], { backgroundColor: "#34d399", duration: 0.3 }, 13.4)
-          .to(srv[2], { ["--drop-tint" as string]: DARK, duration: 0.5 }, 13.4)
-          .to(crash, { autoAlpha: 0, scale: 0.6, duration: 0.3 }, 13.4)
-          .to(aOn, { autoAlpha: 0, duration: 0.2 }, 13.4)
-          .to(aOk, { autoAlpha: 1, duration: 0.3 }, 13.6);
-        step(run, caps, 6, 13.6);
-        run.to(agent, { autoAlpha: 0, y: 10, duration: 0.4, ease: "power2.in" }, 15.4).to({}, { duration: 0.6 }, 15.8);
+          .set([stWork, stOk], { autoAlpha: 0 }, 13.6)
+          .set(stAlert, { autoAlpha: 1 }, 13.6)
+          .set(bar, { scaleX: 0 }, 13.6)
+          .fromTo(agent, { autoAlpha: 0, y: 18, scale: 0.94 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "back.out(1.6)" }, 13.6)
+          .fromTo(q("[data-agent-ring]"), { scale: 0.7, opacity: 0.9 }, { scale: 1.8, opacity: 0, duration: 1, repeat: 2, ease: "power2.out" }, 13.8)
+          .to(wire, { strokeDashoffset: 0, duration: 0.8, ease: "power2.inOut" }, 14.0)
+          .to(stAlert, { autoAlpha: 0, duration: 0.2 }, 14.9)
+          .to(stWork, { autoAlpha: 1, duration: 0.25 }, 15.0)
+          .to(bar, { scaleX: 1, duration: 1.6, ease: "power1.inOut" }, 15.0)
+          // risolto
+          .to(lights[2], { backgroundColor: "#34d399", duration: 0.3 }, 16.7)
+          .to(srv[2], { ["--drop-tint" as string]: DARK, duration: 0.5 }, 16.7)
+          .to(loads[2], { scaleX: 0.4, duration: 0.5 }, 16.7)
+          .to(crash, { autoAlpha: 0, scale: 0.6, duration: 0.3 }, 16.7)
+          .to(stWork, { autoAlpha: 0, duration: 0.2 }, 16.7)
+          .to(stOk, { autoAlpha: 1, duration: 0.3 }, 16.8);
+        say(4, 18.0);
+        run.to([agent, wire], { autoAlpha: 0, duration: 0.3 }, 18.0).set(wire, { strokeDashoffset: len, autoAlpha: 1 }, 18.4);
+        say(5, 20.2, 1.8);
+        run.to({}, { duration: 0.4 }, 22.7);
         return tl.add(run, 1.1);
       }}
     >
-      <Links paths={lines} w={700} h={440} />
+      <div data-stage className="absolute inset-0 origin-center">
+        <Links paths={lines} w={700} h={440} />
+        <svg viewBox="0 0 700 440" className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" aria-hidden>
+          <path data-agent-link d={link} fill="none" stroke="#7fd0ff" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="0 1" opacity=".9" />
+        </svg>
 
-      {/* nodi */}
-      <span data-node className="absolute flex w-[96px] -translate-x-1/2 -translate-y-[26px] flex-col items-center gap-2" style={{ left: NET.x, top: NET.y }}>
-        <Bead tint={DARK} radius={26} className="flex h-[52px] w-[52px] items-center justify-center text-white/85 backdrop-blur-md">
-          {icon(<><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z" /></>)}
-        </Bead>
-        <span className="text-[12px] text-white [text-shadow:0_1px_6px_rgba(0,0,0,.7)]">{t.opsNet}</span>
-      </span>
-      <span data-node className="absolute flex w-[120px] -translate-x-1/2 -translate-y-[46px] flex-col items-center gap-2" style={{ left: SHIELD.x, top: SHIELD.y }}>
-        <Bead data-shield tint={DARK} radius={22} className="flex h-[92px] w-[64px] flex-col items-center justify-center gap-1.5 text-white backdrop-blur-md">
-          {icon(<><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z" /><path d="M9 12l2 2 4-4" /></>, "h-6 w-6")}
-        </Bead>
-        <span className="text-center text-[12px] leading-tight text-white [text-shadow:0_1px_6px_rgba(0,0,0,.7)]">
-          {t.opsShield}
-          <span className="mt-0.5 block font-mono text-[11px] text-[#ffb3b3]">
-            <span data-count>12.380</span> {t.opsBlockedN}
-          </span>
-        </span>
-      </span>
-      <span data-node className="absolute flex w-[110px] -translate-x-1/2 -translate-y-[28px] flex-col items-center gap-2" style={{ left: LB.x, top: LB.y }}>
-        <Bead tint={DARK} radius={18} className="flex h-14 w-14 items-center justify-center text-white/85 backdrop-blur-md">
-          {icon(<><circle cx="5" cy="12" r="2" /><circle cx="19" cy="5" r="2" /><circle cx="19" cy="12" r="2" /><circle cx="19" cy="19" r="2" /><path d="M7 12h10M7 12c5 0 5-7 10-7M7 12c5 0 5 7 10 7" /></>)}
-        </Bead>
-        <span className="text-[12px] text-white [text-shadow:0_1px_6px_rgba(0,0,0,.7)]">{t.opsLb}</span>
-      </span>
-      {SRV_Y.map((y, i) => (
-        <span key={y} data-node className="absolute -translate-y-1/2" style={{ left: SRV_X - 60, top: y }}>
-          <Bead data-srvb tint={DARK} radius={14} className="flex h-12 w-[132px] items-center gap-2.5 px-3 text-white backdrop-blur-md">
-            {icon(<><rect x="4" y="4" width="16" height="7" rx="2" /><rect x="4" y="13" width="16" height="7" rx="2" /><path d="M8 7.5h.01M8 16.5h.01" /></>, "h-[18px] w-[18px] text-white/80")}
-            <span className="text-[12.5px]">
-              {t.opsSrv} {i + 1}
-            </span>
-            <span data-light className="ml-auto h-2 w-2 rounded-full bg-[#34d399] shadow-[0_0_8px_currentColor]" />
+        {/* nodi */}
+        <span data-node className="absolute flex w-[96px] -translate-x-1/2 -translate-y-[26px] flex-col items-center gap-2" style={{ left: NET.x, top: NET.y }}>
+          <Bead tint={DARK} radius={26} className="flex h-[52px] w-[52px] items-center justify-center text-white/90 backdrop-blur-md">
+            {icon(<><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z" /></>)}
           </Bead>
-          {i === 2 && (
-            <span data-crash className="absolute -right-2 -top-3 rounded-full bg-[#ff453a] px-2 py-0.5 text-[10.5px] font-semibold text-white opacity-0" style={{ transform: "scale(.6)" }}>
-              {t.opsCrash}
-            </span>
-          )}
-          {i === 1 && (
-            <span data-maint className="absolute -right-2 -top-3 rounded-full bg-[#f5a524] px-2 py-0.5 text-[10.5px] font-semibold text-[#1a1204] opacity-0" style={{ transform: "scale(.6)" }}>
-              {t.opsMaint}
-            </span>
-          )}
+          <span className={label}>{t.opsNet}</span>
         </span>
-      ))}
-
-      {/* pacchetti */}
-      {Array.from({ length: FAKE }).map((_, i) => (
-        <span key={`f${i}`} data-fake className="absolute left-0 top-0 -ml-[4px] -mt-[4px] h-2 w-2 rounded-full opacity-0" style={{ background: CORAL, boxShadow: `0 0 10px ${CORAL}` }} />
-      ))}
-      {Array.from({ length: LEGIT }).map((_, i) => (
-        <span key={`l${i}`} data-legit className="absolute left-0 top-0 -ml-[4px] -mt-[4px] h-2 w-2 rounded-full bg-white opacity-0 shadow-[0_0_10px_#bfe8ff]" />
-      ))}
-
-      {/* l'agente dedicato che prende in carico il guasto */}
-      <span data-agent className="absolute opacity-0" style={{ left: SRV_X - 60, top: 326 }}>
-        <Bead tint={DARK} radius={16} className="flex h-12 w-[148px] items-center gap-2.5 px-2.5 text-white backdrop-blur-md">
-          <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#5ec4ff] text-[#04121c]">
-            <span data-agent-ring className="absolute inset-0 rounded-full border-2 border-[#5ec4ff]" />
-            {icon(<><path d="M4 14v-2a8 8 0 0 1 16 0v2" /><rect x="3" y="13" width="4" height="6" rx="1.5" /><rect x="17" y="13" width="4" height="6" rx="1.5" /><path d="M19 19c0 1.5-1.5 2.5-4 2.5h-2" /></>, "h-4 w-4")}
+        <span data-node className="absolute flex w-[130px] -translate-x-1/2 -translate-y-[46px] flex-col items-center gap-2" style={{ left: SHIELD.x, top: SHIELD.y }}>
+          <Bead data-shield tint={DARK} radius={22} className="flex h-[92px] w-[64px] items-center justify-center text-white backdrop-blur-md">
+            {icon(<><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z" /><path d="M9 12l2 2 4-4" /></>, "h-6 w-6")}
+          </Bead>
+          <span className={`text-center leading-tight ${label}`}>
+            {t.opsShield}
+            <Bead tint="rgba(255,90,90,.18)" radius={10} className="mx-auto mt-1.5 flex w-fit items-center gap-1 px-2 py-[3px] font-mono text-[10.5px] text-[#ffc2c2]">
+              <span data-count>12.380</span> {t.opsBlockedN}
+            </Bead>
           </span>
-          <span className="min-w-0 leading-tight">
-            <span className="block text-[12px] font-medium">{t.opsAgent}</span>
-            <span className="relative block h-[14px] text-[10.5px]">
-              <span data-agent-st className="absolute inset-0 whitespace-nowrap text-[#ffcf7a]">{t.opsAgentOn}</span>
-              <span data-agent-st className="absolute inset-0 whitespace-nowrap text-[#6ee7a8] opacity-0">{t.opsAgentOk}</span>
+        </span>
+        <span data-node className="absolute flex w-[110px] -translate-x-1/2 -translate-y-[28px] flex-col items-center gap-2" style={{ left: LB.x, top: LB.y }}>
+          <Bead tint={DARK} radius={18} className="flex h-14 w-14 items-center justify-center text-white/90 backdrop-blur-md">
+            {icon(<><circle cx="5" cy="12" r="2" /><circle cx="19" cy="5" r="2" /><circle cx="19" cy="12" r="2" /><circle cx="19" cy="19" r="2" /><path d="M7 12h10M7 12c5 0 5-7 10-7M7 12c5 0 5 7 10 7" /></>)}
+          </Bead>
+          <span className={label}>{t.opsLb}</span>
+        </span>
+        {SRV_Y.map((y, i) => (
+          <span key={y} data-node className="absolute -translate-y-1/2" style={{ left: SRV_X - 60, top: y }}>
+            <Bead data-srvb tint={DARK} radius={16} className="flex h-[54px] w-[136px] flex-col justify-center gap-[7px] px-3 text-white backdrop-blur-md">
+              <span className="flex items-center gap-2">
+                {icon(<><rect x="4" y="4" width="16" height="7" rx="2" /><rect x="4" y="13" width="16" height="7" rx="2" /><path d="M8 7.5h.01M8 16.5h.01" /></>, "h-[16px] w-[16px] text-white/75")}
+                <span className="text-[12.5px] font-medium">
+                  {t.opsSrv} {i + 1}
+                </span>
+                <span data-light className="ml-auto h-2 w-2 rounded-full bg-[#34d399] shadow-[0_0_8px_currentColor]" />
+              </span>
+              {/* carico */}
+              <span className="block h-[3px] overflow-hidden rounded-full bg-white/10">
+                <span data-load className="block h-full w-full rounded-full bg-gradient-to-r from-[#5ec4ff] to-[#9ee4ff]" />
+              </span>
+            </Bead>
+            {i === 2 && (
+              <span data-crash className="absolute -right-2 -top-3.5 flex items-center gap-1 rounded-full bg-[#ff453a] py-[3px] pl-1.5 pr-2.5 text-[10.5px] font-semibold text-white opacity-0 shadow-[0_4px_14px_rgba(255,69,58,.45)]" style={{ transform: "scale(.6)" }}>
+                <span style={EMOJI} className="text-[11px]">🚨</span>
+                {t.opsCrash}
+              </span>
+            )}
+            {i === 1 && (
+              <span data-maint className="absolute -right-2 -top-3.5 flex items-center gap-1 rounded-full bg-[#f5a524] py-[3px] pl-1.5 pr-2.5 text-[10.5px] font-semibold text-[#1a1204] opacity-0 shadow-[0_4px_14px_rgba(245,165,36,.4)]" style={{ transform: "scale(.6)" }}>
+                <span style={EMOJI} className="text-[11px]">🛠️</span>
+                {t.opsMaint}
+              </span>
+            )}
+          </span>
+        ))}
+
+        {/* pacchetti */}
+        {Array.from({ length: FAKE }).map((_, i) => (
+          <span key={`f${i}`} data-fake className="absolute left-0 top-0 -ml-[4px] -mt-[4px] h-2 w-2 rounded-full opacity-0" style={{ background: CORAL, boxShadow: `0 0 10px ${CORAL}` }} />
+        ))}
+        {Array.from({ length: LEGIT }).map((_, i) => (
+          <span key={`l${i}`} data-legit className="absolute left-0 top-0 -ml-[4px] -mt-[4px] h-2 w-2 rounded-full bg-white opacity-0 shadow-[0_0_10px_#bfe8ff]" />
+        ))}
+
+        {/* il tecnico reperibile che prende in carico il guasto */}
+        <span data-agent className="absolute opacity-0" style={{ left: CARD.x, top: CARD.y, width: CARD.w }}>
+          <Bead tint="rgba(10,14,20,.72)" radius={22} className="flex flex-col gap-3.5 p-3.5 text-white backdrop-blur-xl">
+            <span className="flex items-center gap-3">
+              <span className="relative shrink-0">
+                <span data-agent-ring className="absolute inset-0 rounded-full border-2 border-[#7fd0ff]" />
+                <Bead tint="radial-gradient(circle at 30% 25%, rgba(158,220,255,.55), rgba(31,127,184,.45) 60%, rgba(11,47,69,.6))" radius={24} className="flex h-14 w-14 items-center justify-center">
+                  <span style={EMOJI} className="text-[30px] leading-none">🧑‍🔧</span>
+                </Bead>
+                <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-[#30d158] shadow-[0_0_0_2.5px_rgba(10,14,20,.9)]" />
+              </span>
+              <span className="min-w-0 flex-1 leading-tight">
+                <span className="block text-[15px] font-semibold tracking-[-0.015em]">{t.opsAgent}</span>
+                <span className="mt-1 block w-fit rounded-full bg-white/10 px-2 py-[2px] font-mono text-[10px] text-white/70">{t.opsTicket}</span>
+              </span>
             </span>
-          </span>
-        </Bead>
-      </span>
+            {/* stato: allertato → al lavoro → risolto */}
+            <span className="relative block h-[36px]">
+              <span data-agent-st className="absolute inset-0 flex items-center gap-2 rounded-[12px] bg-[rgba(255,69,58,.14)] px-3 text-[12.5px] text-[#ffb4ae]">
+                <span style={EMOJI} className="text-[13px]">📟</span>
+                {t.opsAgentAlert}
+              </span>
+              <span data-agent-st className="absolute inset-0 flex flex-col justify-center gap-1.5 rounded-[12px] bg-white/[.06] px-3 opacity-0">
+                <span className="flex items-center justify-between text-[12.5px] text-white/85">
+                  {t.opsAgentOn}
+                  <span className="font-mono text-[10px] text-white/50">{t.opsAgentEta}</span>
+                </span>
+                <span className="block h-[3px] overflow-hidden rounded-full bg-white/10">
+                  <span data-agent-bar className="block h-full w-full origin-left rounded-full bg-gradient-to-r from-[#5ec4ff] to-[#9ee4ff]" />
+                </span>
+              </span>
+              <span data-agent-st className="absolute inset-0 flex items-center gap-2 rounded-[12px] bg-[rgba(48,209,88,.14)] px-3 text-[12.5px] text-[#8ff0ad] opacity-0">
+                <span style={EMOJI} className="text-[13px]">✅</span>
+                {t.opsAgentOk}
+              </span>
+            </span>
+          </Bead>
+        </span>
+      </div>
 
-      <Bead data-log tint={DARK} radius={22} className="absolute left-[350px] top-[388px] -ml-[180px] flex h-11 w-[360px] items-center justify-center px-4 text-[13px] text-white backdrop-blur-md">
-        <Steps items={[t.opsL1, t.opsL2, t.opsL3, t.opsL4, t.opsL5, t.opsL6, t.opsL7].map((l) => <><Tick className="h-3.5 w-3.5 text-[#bfe8ff]" /> {l}</>)} className="justify-center" />
-      </Bead>
+      {/* commenti a tutto quadro */}
+      <div data-scrim className="pointer-events-none absolute -inset-[900px] bg-[rgba(4,10,16,.52)] opacity-0 backdrop-blur-[12px]" />
+      <div className="pointer-events-none absolute inset-0">
+        <Say a={t.opsS1a} b={t.opsS1b} />
+        <Say a={t.opsS2a} b={t.opsS2b} />
+        <Say a={t.opsS3a} b={t.opsS3b} />
+        <Say a={t.opsS4a} b={t.opsS4b} />
+        <Say a={t.opsS5a} b={t.opsS5b} />
+        <Say a={t.opsS6a} b={t.opsS6b} sub={t.opsS6s} />
+      </div>
     </Canvas>
   );
 }
