@@ -17,39 +17,48 @@ const Globe = () => (
 );
 
 /**
- * Fascia sopra la barra, sempre presente: con ogni progetto c'è l'area clienti,
- * sull'app (iOS e Android) e sul sito.
+ * Riga dell'area clienti dentro la capsula di navigazione: acrilico azzurro, sempre visibile.
+ * "top": sotto le voci della barra in alto · "bar": sopra le icone della barra in basso, su telefono.
  */
-export function ClientStrip() {
+export function ClientRow({ variant }: { variant: "top" | "bar" }) {
   const t = useTranslations("nav");
   const links = [
     { href: profile.clientArea.ios, label: "iOS", long: "App Store", icon: <Logo path={si.siApple.path} /> },
     { href: profile.clientArea.android, label: "Android", long: "Google Play", icon: <Logo path={si.siGoogleplay.path} /> },
     { href: profile.clientArea.web, label: t("stripWeb"), long: t("stripWeb"), icon: <Globe /> },
   ];
+  const top = variant === "top";
   return (
-    <aside aria-label={t("stripLabel")} className="client-strip fixed inset-x-0 top-0 z-[51] flex h-[var(--strip-h)] items-center justify-center gap-3 px-3 text-[12.5px] text-ink sm:gap-5 sm:px-6 sm:text-[13px]">
-      <p className="min-w-0 truncate">
-        <span className="font-medium sm:hidden">{t("stripMobile")}</span>
-        <span className="hidden font-medium sm:inline">{t("stripLead")}</span>
-        <span className="hidden text-ink-2 lg:inline"> {t("strip")}</span>
-        <span className="hidden text-ink-2 sm:inline lg:hidden"> {t("stripShort")}</span>
+    <div
+      role="note"
+      aria-label={t("stripLabel")}
+      className={`client-row flex items-center gap-3 text-ink ${top ? "mx-[6px] mb-[6px] h-[36px] rounded-[22px] pl-4 pr-[5px] text-[13px]" : "h-[36px] rounded-[20px] pl-3.5 pr-[5px] text-[12px]"}`}
+    >
+      <p className="min-w-0 flex-1 truncate">
+        {top ? (
+          <>
+            <span className="font-medium">{t("stripLead")}</span>
+            <span className="text-ink-2"> {t("strip")}</span>
+          </>
+        ) : (
+          <span className="font-medium">{t("stripMobile")}</span>
+        )}
       </p>
-      <span className="flex shrink-0 items-center gap-1.5">
+      <span className="flex shrink-0 items-center gap-1">
         {links.map((l) => (
           <a
             key={l.long}
             href={l.href || "#"}
-            target={l.href && l.href.startsWith("http") ? "_blank" : undefined}
+            target={l.href.startsWith("http") ? "_blank" : undefined}
             rel="noreferrer"
             aria-label={l.long}
-            className="flex h-[26px] items-center gap-1.5 rounded-full bg-[var(--strip-btn)] px-2.5 font-medium text-ink shadow-[inset_0_0_0_1px_var(--strip-edge)] transition-colors hover:bg-[var(--strip-btn-hover)] sm:px-3"
+            className={`flex h-[26px] items-center gap-1.5 rounded-full bg-[var(--strip-btn)] font-medium text-ink shadow-[inset_0_0_0_1px_var(--strip-edge)] transition-colors hover:bg-[var(--strip-btn-hover)] ${top ? "px-3" : "w-[30px] justify-center"}`}
           >
             {l.icon}
-            <span className="hidden sm:inline">{l.label}</span>
+            {top && <span>{l.label}</span>}
           </a>
         ))}
       </span>
-    </aside>
+    </div>
   );
 }

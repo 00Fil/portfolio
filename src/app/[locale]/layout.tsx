@@ -12,7 +12,6 @@ import { routing } from "@/i18n/routing";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { CoverTransition } from "@/components/work/CoverTransition";
 import { TopBar } from "@/components/nav/TopBar";
-import { ClientStrip } from "@/components/nav/ClientStrip";
 import { profile } from "@/content/profile";
 import "../globals.css";
 
@@ -61,7 +60,6 @@ export default async function LocaleLayout({ children, params }: { children: Rea
             {t("skip")}
           </a>
           <SmoothScroll />
-          <ClientStrip />
           <TopBar />
           <CoverTransition>{children}</CoverTransition>
           <BriefOverlay />

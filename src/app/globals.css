@@ -30,8 +30,7 @@
   --drop-edge: rgba(255, 255, 255, 0.14);
   --drop-body: #0e3346;
 
-  --strip-h: 40px;
-  --bar-h: calc(66px + var(--strip-h));
+  --bar-h: 66px;
   --strip-tint: rgba(64, 160, 220, 0.22);
   --strip-btn: rgba(255, 255, 255, 0.1);
   --strip-btn-hover: rgba(255, 255, 255, 0.18);
@@ -380,10 +379,11 @@ html[data-intro="run"] .preloader { display: flex; animation: preloaderOut 0s 6s
 html[data-intro="run"], html[data-intro="run"] body { overflow: hidden; }
 @keyframes preloaderOut { to { visibility: hidden; } }
 
-/* fascia dell'area clienti: acrilico azzurro, sfocato e opaco quanto basta per leggere sopra qualsiasi sezione */
-.client-strip {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--strip-tint) 70%, transparent), var(--strip-tint), color-mix(in srgb, var(--strip-tint) 70%, transparent)), color-mix(in srgb, var(--bg-canvas) 62%, transparent);
-  backdrop-filter: blur(22px) saturate(1.7);
-  -webkit-backdrop-filter: blur(22px) saturate(1.7);
-  box-shadow: inset 0 -1px 0 var(--strip-edge), 0 8px 24px -18px rgba(10, 60, 100, 0.5);
+/* riga dell'area clienti dentro la capsula: acrilico azzurro, sfocato e opaco quanto basta per leggere */
+.client-row {
+  background: linear-gradient(90deg, var(--strip-tint), color-mix(in srgb, var(--strip-tint) 60%, transparent));
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  box-shadow: inset 0 0 0 1px var(--strip-edge), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
+@media (min-width: 1024px) { :root { --bar-h: 112px; } }

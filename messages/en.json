@@ -30,7 +30,8 @@
     "strip": "Talk to the team, request changes and follow progress, from the app or the web.",
     "stripShort": "Team, changes and progress.",
     "stripWeb": "Web",
-    "stripMobile": "Client area with every project"
+    "stripMobile": "Client area with every project",
+    "toSection": "Go to section"
   },
   "hero": {
     "a": "I build",

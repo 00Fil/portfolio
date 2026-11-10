@@ -21,6 +21,7 @@ import { play } from "@/lib/sound";
 import { SERVICES } from "@/content/services";
 import { ServiceIcon } from "@/components/services/ServiceIcon";
 import { ThemeToggle } from "./ThemeToggle";
+import { ClientRow } from "./ClientStrip";
 import { prefersReducedMotion } from "@/lib/env";
 import { Clock } from "@/components/sections/Clock";
 
@@ -73,7 +74,7 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
     const el = shell.current;
     if (!el) return;
     const bake = () => {
-      const u = bevelImage(el.offsetWidth, el.offsetHeight);
+      const u = bevelImage(el.offsetWidth, el.offsetHeight, 30);
       if (u) {
         el.style.setProperty("--bevel", u);
         el.dataset.bevel = "1";
@@ -234,13 +235,14 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
   };
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-0 z-50 hidden justify-center px-6 pt-[calc(var(--strip-h)+14px)] lg:flex">
+    <div className="pointer-events-none fixed inset-x-0 top-0 z-50 hidden justify-center px-6 pt-4 lg:flex">
       <div ref={wrap} className="pointer-events-auto relative w-full max-w-[1180px]" onMouseLeave={scheduleClose}>
         <div
           ref={shell}
-          className="drop float-glass relative flex items-center gap-2 transition-[padding] duration-500 ease-[var(--ease-out)]"
-          style={{ borderRadius: 999, padding: compact ? "5px 6px 5px 18px" : "8px 8px 8px 22px", ["--drop-tint" as string]: "var(--bar-tint)" }}
+          className="drop float-glass relative flex flex-col"
+          style={{ borderRadius: 30, ["--drop-tint" as string]: "var(--bar-tint)" }}
         >
+          <div className="flex items-center gap-2 transition-[padding] duration-500 ease-[var(--ease-out)]" style={{ padding: compact ? "5px 6px 5px 18px" : "8px 8px 8px 22px" }}>
           <a
             href={`/${locale}`}
             onClick={(e) => {
@@ -301,6 +303,8 @@ export function GlassTopNav({ home, section = "work" }: { home: boolean; section
               {t("write")}
             </Drop>
           </div>
+          </div>
+          <ClientRow variant="top" />
         </div>
 
         {/* pannello */}

@@ -30,7 +30,8 @@
     "strip": "Parli con il team, chiedi modifiche e segui l’avanzamento, dall’app o dal sito.",
     "stripShort": "Team, modifiche e avanzamento.",
     "stripWeb": "Sito",
-    "stripMobile": "Area clienti in ogni progetto"
+    "stripMobile": "Area clienti in ogni progetto",
+    "toSection": "Vai alla sezione"
   },
   "hero": {
     "a": "Sviluppo",
