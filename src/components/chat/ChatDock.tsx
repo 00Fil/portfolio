@@ -320,8 +320,11 @@ export function ChatDock() {
           type="button"
           onClick={openChat}
           aria-label={t.open}
-          className={`drop acrylic fixed z-[60] flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 ${desk ? "bottom-6 right-6 h-[68px] w-[68px]" : "bottom-[calc(env(safe-area-inset-bottom)+136px)] right-4 h-14 w-14 lg:hidden"}`}
-          style={{ ["--drop-tint" as string]: "var(--acrylic)" }}
+          className={`drop acrylic fixed z-[60] flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 ${desk ? "bottom-6 right-6 h-[68px] w-[68px]" : "right-4 h-14 w-14 lg:hidden"}`}
+          style={{
+            ["--drop-tint" as string]: "var(--acrylic)",
+            ...(desk ? {} : { bottom: "calc(env(safe-area-inset-bottom) + var(--bar-h, 118px) + 22px)", transition: "bottom 520ms cubic-bezier(.2,.9,.25,1.04), transform .2s" }),
+          }}
         >
           <AppIcon size={desk ? 60 : 50} />
           {unread && <span className="absolute right-1 top-1 h-3 w-3 rounded-full bg-[#ff3b30] shadow-[0_0_0_2px_var(--bg-canvas)]" aria-hidden />}

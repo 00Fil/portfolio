@@ -482,6 +482,11 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
   const extra = detail ? EXTRA_H : 0;
   const totalH = ROW_H + (slim ? 0 : extra + STRIP_H) + drawerH;
   const pillW = size.itemW;
+  // l'altezza reale della capsula (ritratta, estesa, con cassetto) è nota al resto della pagina: l'assistente le sta sopra
+  useEffect(() => {
+    document.documentElement.style.setProperty("--bar-h", `${totalH}px`);
+  }, [totalH]);
+  useEffect(() => () => void document.documentElement.style.removeProperty("--bar-h"), []);
   const pillH = ROW_H - PAD_Y * 2;
   const href = (id: string) => (detail ? `/${locale}#${id}` : `#${id}`);
 
