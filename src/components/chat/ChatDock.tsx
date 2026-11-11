@@ -323,7 +323,7 @@ export function ChatDock() {
           className={`drop acrylic fixed z-[60] flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 ${desk ? "bottom-6 right-6 h-[68px] w-[68px]" : "right-4 h-14 w-14 lg:hidden"}`}
           style={{
             ["--drop-tint" as string]: "var(--acrylic)",
-            ...(desk ? {} : { bottom: "calc(env(safe-area-inset-bottom) + var(--bar-h, 118px) + 22px)", transition: "bottom 520ms cubic-bezier(.2,.9,.25,1.04), transform .2s" }),
+            ...(desk ? {} : { bottom: "calc(env(safe-area-inset-bottom) + var(--tabbar-h, 118px) + 22px)", transition: "bottom 520ms cubic-bezier(.2,.9,.25,1.04), transform .2s" }),
           }}
         >
           <AppIcon size={desk ? 60 : 50} />
@@ -339,7 +339,7 @@ export function ChatDock() {
             ref={panelRef}
             role="dialog"
             aria-label={t.name}
-            className={`drop acrylic fixed z-[95] flex select-text flex-col overflow-hidden ${desk ? "bottom-6 right-6 h-[min(640px,calc(100svh-var(--bar-h)-80px))] w-[400px]" : "inset-x-2 bottom-2 top-[max(calc(env(safe-area-inset-top)+12px),40px)]"}`}
+            className={`drop acrylic fixed z-[95] flex select-text flex-col overflow-hidden ${desk ? "bottom-6 right-6 h-[min(640px,calc(100svh-var(--tabbar-h)-80px))] w-[400px]" : "inset-x-2 bottom-2 top-[max(calc(env(safe-area-inset-top)+12px),40px)]"}`}
             style={{ borderRadius: desk ? 26 : 28, ["--drop-tint" as string]: "var(--acrylic)", ...(kb ? { top: kb.top, height: kb.h, bottom: "auto" } : {}) }}
           >
             <header className="relative flex items-center gap-3 border-b border-[var(--hair)] px-4 py-3.5">

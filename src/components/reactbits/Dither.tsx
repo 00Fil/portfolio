@@ -564,6 +564,12 @@ const Dither = ({
     const frame = (now: number) => {
       raf = 0;
       if (!visible || document.hidden) return;
+      if (document.documentElement.classList.contains('nav-busy')) {
+        // la barra è in uso: l'ultimo fotogramma resta fermo
+        last = 0;
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       const s = settingsRef.current;
       if (s.fps > 0 && last && now - last < 1000 / s.fps - 2) {
         raf = requestAnimationFrame(frame);

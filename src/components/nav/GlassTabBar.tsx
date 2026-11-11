@@ -242,7 +242,7 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
   useEffect(() => {
     const reduce = prefersReducedMotion();
     // il disegno scrive sul DOM solo quando qualcosa è cambiato: a barra ferma non costa nulla
-    const last = { x: NaN, b: NaN, stretch: NaN, theme: "" };
+    const last = { x: NaN, b: NaN, stretch: NaN, theme: "", busy: false };
     const render = () => {
       const s = st.current;
       if (!detail) s.scrollPos = posFromScroll();
@@ -252,6 +252,12 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
       const stretch = reduce ? 0 : Math.min(Math.abs(follow.current.target - follow.current.value) * 0.3, 0.34);
       const x = pill * itemW;
       const theme = document.documentElement.dataset.theme ?? "";
+      // mentre la barra è in uso i disegni animati dietro (hero, rete di pixel) si fermano: la sfocatura non li rielabora a ogni fotogramma
+      const busy = s.holding || s.settling || s.openIdx >= 0;
+      if (busy !== last.busy) {
+        last.busy = busy;
+        document.documentElement.classList.toggle("nav-busy", busy);
+      }
       if (Math.abs(x - last.x) > 0.05 || b !== last.b || stretch !== last.stretch || theme !== last.theme) {
         const themeChanged = theme !== last.theme;
         const moved = Math.abs(x - last.x) > 0.05 || themeChanged;
@@ -281,7 +287,10 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
       }
     };
     gsap.ticker.add(render);
-    return () => gsap.ticker.remove(render);
+    return () => {
+      gsap.ticker.remove(render);
+      document.documentElement.classList.remove("nav-busy");
+    };
   }, [detail, n, posFromScroll, size.itemW]);
 
   // ------------------------------------------------------------ icona che si ridisegna quando diventa attiva (TabGlyph)
@@ -484,9 +493,9 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
   const pillW = size.itemW;
   // l'altezza reale della capsula (ritratta, estesa, con cassetto) è nota al resto della pagina: l'assistente le sta sopra
   useEffect(() => {
-    document.documentElement.style.setProperty("--bar-h", `${totalH}px`);
+    document.documentElement.style.setProperty("--tabbar-h", `${totalH}px`);
   }, [totalH]);
-  useEffect(() => () => void document.documentElement.style.removeProperty("--bar-h"), []);
+  useEffect(() => () => void document.documentElement.style.removeProperty("--tabbar-h"), []);
   const pillH = ROW_H - PAD_Y * 2;
   const href = (id: string) => (detail ? `/${locale}#${id}` : `#${id}`);
 
@@ -564,7 +573,7 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
       <div
         ref={barRef}
         className="pointer-events-auto relative w-full max-w-[440px]"
-        style={{ height: totalH, borderRadius: CORNER, boxShadow: "0 8px 24px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.08)", transition: "height 520ms cubic-bezier(.2,.9,.25,1.04)" }}
+        style={{ height: totalH, borderRadius: CORNER, boxShadow: "0 8px 24px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.08)", transition: "height 520ms cubic-bezier(.2,.9,.25,1.04)", transform: "translateZ(0)", willChange: "height" }}
       >
         {/* 1) vetro della capsula · 2) velo · 3) contorno tonale e riflesso */}
         <div className="bar-glass absolute inset-0" style={{ borderRadius: CORNER }} />

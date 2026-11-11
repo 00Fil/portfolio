@@ -12,6 +12,8 @@ type Common = {
   /** Vetro sfocato dietro (per gocce che galleggiano sopra il contenuto). */
   floating?: boolean;
   label?: string;
+  /** Raggio dell'angolo per lo smusso di luce: per tessere non a pillola. */
+  radius?: number;
 };
 
 type AsButton = Common & { onClick?: () => void; href?: undefined; external?: undefined; download?: undefined };
@@ -19,7 +21,7 @@ type AsLink = Common & { href: string; external?: boolean; download?: boolean; o
 
 /** Una goccia di vetro: tasto o link. */
 export function Drop(props: AsButton | AsLink) {
-  const { children, className = "", accent, floating, label } = props;
+  const { children, className = "", accent, floating, label, radius } = props;
   const cls = `drop ${accent ? "drop-accent" : ""} ${floating ? "float-glass" : ""} inline-flex items-center justify-center gap-2 ${className}`;
   const glow = <span className="drop-glow" aria-hidden />;
 
@@ -32,6 +34,7 @@ export function Drop(props: AsButton | AsLink) {
           href={props.href}
           className={cls}
           label={label}
+          radius={radius}
           onClick={(e) => {
             e?.preventDefault();
             user?.();
@@ -50,6 +53,7 @@ export function Drop(props: AsButton | AsLink) {
           href={props.href}
           className={cls}
           label={label}
+          radius={radius}
           external={props.external}
           download={props.download}
           onClick={props.onClick}
@@ -60,22 +64,22 @@ export function Drop(props: AsButton | AsLink) {
       );
     }
     return (
-      <DropLink href={props.href} className={cls} label={label} onClick={props.onClick}>
+      <DropLink href={props.href} className={cls} label={label} radius={radius} onClick={props.onClick}>
         {glow}
         {children}
       </DropLink>
     );
   }
   return (
-    <DropButton className={cls} label={label} onClick={props.onClick}>
+    <DropButton className={cls} label={label} radius={radius} onClick={props.onClick}>
       {glow}
       {children}
     </DropButton>
   );
 }
 
-function DropButton({ children, className, label, onClick }: { children: ReactNode; className: string; label?: string; onClick?: () => void }) {
-  const { ref } = useDrop<HTMLButtonElement>();
+function DropButton({ children, className, label, radius, onClick }: { children: ReactNode; className: string; label?: string; radius?: number; onClick?: () => void }) {
+  const { ref } = useDrop<HTMLButtonElement>({ radius });
   return (
     <button ref={ref} type="button" className={className} aria-label={label} onClick={onClick}>
       {children}
@@ -87,6 +91,7 @@ function DropAnchor({
   children,
   className,
   label,
+  radius,
   href,
   external,
   download,
@@ -95,12 +100,13 @@ function DropAnchor({
   children: ReactNode;
   className: string;
   label?: string;
+  radius?: number;
   href: string;
   external?: boolean;
   download?: boolean;
   onClick?: (e?: React.MouseEvent) => void;
 }) {
-  const { ref } = useDrop<HTMLAnchorElement>();
+  const { ref } = useDrop<HTMLAnchorElement>({ radius });
   return (
     <a
       ref={ref}
@@ -116,8 +122,8 @@ function DropAnchor({
   );
 }
 
-function DropLink({ children, className, label, href, onClick }: { children: ReactNode; className: string; label?: string; href: string; onClick?: () => void }) {
-  const { ref } = useDrop<HTMLAnchorElement>();
+function DropLink({ children, className, label, radius, href, onClick }: { children: ReactNode; className: string; label?: string; radius?: number; href: string; onClick?: () => void }) {
+  const { ref } = useDrop<HTMLAnchorElement>({ radius });
   return (
     <Link ref={ref} href={href} className={className} aria-label={label} onClick={onClick}>
       {children}

@@ -80,7 +80,7 @@ export function ContactMenu({ onPick, compact = false }: { onPick?: () => void; 
 
       {/* le due vie principali: due gocce di vetro, la prima con l'accento */}
       <div className="grid grid-cols-2 gap-2.5" data-mi data-di>
-        <Drop accent href="#brief" onClick={onPick} className="!flex min-h-[116px] !items-stretch !justify-between !gap-0 !rounded-[24px] p-4 text-left text-ink">
+        <Drop accent radius={24} href="#brief" onClick={onPick} className="!flex min-h-[116px] !items-stretch !justify-between !gap-0 !rounded-[24px] p-4 text-left text-ink">
           <span className="flex w-full flex-col justify-between">
             <span className="flex items-center justify-between">
               <HugeiconsIcon icon={Calendar03Icon as IconSvgElement} size={21} strokeWidth={1.6} aria-hidden />
@@ -93,6 +93,7 @@ export function ContactMenu({ onPick, compact = false }: { onPick?: () => void; 
           </span>
         </Drop>
         <Drop
+          radius={24}
           onClick={() => {
             onPick?.();
             window.dispatchEvent(new Event("chat:open"));

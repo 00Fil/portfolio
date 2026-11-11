@@ -97,7 +97,7 @@ export function PixelNetwork() {
     };
     const loop = (now: number) => {
       t = now / 1000;
-      draw();
+      if (!document.documentElement.classList.contains("nav-busy")) draw();
       if (visible && !reduce) raf = requestAnimationFrame(loop);
     };
     const io = new IntersectionObserver(([e]) => {

@@ -303,6 +303,13 @@ body {
   -webkit-backdrop-filter: blur(14px) saturate(1.5);
   backdrop-filter: blur(14px) saturate(1.5);
 }
+/* telefono: la sfocatura costa a ogni fotogramma sotto una pagina che si muove; raggio e saturazione più bassi, stessa resa */
+@media (pointer: coarse) {
+  .bar-glass {
+    -webkit-backdrop-filter: blur(9px) saturate(1.35);
+    backdrop-filter: blur(9px) saturate(1.35);
+  }
+}
 html.lens .bar-glass { backdrop-filter: url(#lens-bar) blur(14px) saturate(1.5); }
 .float-glass {
   -webkit-backdrop-filter: blur(14px) saturate(1.5);
