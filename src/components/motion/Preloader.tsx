@@ -73,7 +73,7 @@ export function Preloader({ label }: { label: string }) {
   return (
     <div ref={root} role="img" aria-label={label} className="preloader fixed inset-0 z-[200] items-center bg-[var(--bg-canvas)]">
       <div data-sig className="relative isolate w-full overflow-hidden">
-        <div aria-hidden className="absolute inset-0 bg-[#0b2f45]">
+        <div aria-hidden className="absolute inset-x-0 inset-y-[3px] overflow-hidden bg-[#0b2f45]">
           <div className="pre-flow" />
         </div>
         <div aria-hidden className="giant-mask pointer-events-none relative flex justify-center">
