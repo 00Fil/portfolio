@@ -13,7 +13,6 @@ import { GlassSegmented } from "./GlassSegmented";
 import { loadSoundPref, onSound, play, setSound, soundOn } from "@/lib/sound";
 import { profile } from "@/content/profile";
 import { scrollToY } from "@/lib/scroll";
-import { useScrollingDown } from "@/lib/use-scroll-dir";
 
 const NAMES: Record<Locale, string> = { it: "Italiano", en: "English" };
 
@@ -23,7 +22,6 @@ export function TopBar() {
   const router = useRouter();
   const pathname = usePathname();
   const [sound, setS] = useState(false);
-  const away = useScrollingDown();
 
   useEffect(() => {
     setS(loadSoundPref());
@@ -48,7 +46,7 @@ export function TopBar() {
 
   return (
     <header
-      className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-between px-4 pt-[max(12px,env(safe-area-inset-top))] transition-[transform,opacity] duration-500 ease-[var(--ease-out)] sm:px-6 sm:pt-5 lg:hidden ${away ? "-translate-y-[120%] opacity-0" : ""}`}
+      className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-between px-4 pt-[max(12px,env(safe-area-inset-top))] sm:px-6 sm:pt-5 lg:hidden`}
     >
       <a
         href={`/${locale}`}

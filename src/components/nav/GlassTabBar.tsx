@@ -132,7 +132,8 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
   if (drawer) lastKind.current = drawer;
   // scorrendo verso il basso restano solo le icone: area clienti e riga di dettaglio si ritirano
   const down = useScrollingDown();
-  const slim = down && !drawer;
+  // nelle pagine di dettaglio titolo e ritorno restano sempre visibili
+  const slim = down && !drawer && !detail;
 
   const st = useRef({
     holding: false,
@@ -216,7 +217,15 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
   useEffect(() => {
     if (detail) return;
     computeAnchors();
-    const onResize = () => computeAnchors();
+    let raf = 0;
+    const onResize = () => {
+      // una sola lettura del layout per fotogramma, anche se il corpo cambia misura di continuo
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        computeAnchors();
+      });
+    };
     window.addEventListener("resize", onResize);
     window.addEventListener("load", onResize);
     const ro = new ResizeObserver(onResize);
@@ -225,12 +234,15 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("load", onResize);
       ro.disconnect();
+      cancelAnimationFrame(raf);
     };
   }, [computeAnchors, detail]);
 
   // ------------------------------------------------------------ disegno, sul ticker di GSAP
   useEffect(() => {
     const reduce = prefersReducedMotion();
+    // il disegno scrive sul DOM solo quando qualcosa è cambiato: a barra ferma non costa nulla
+    const last = { x: NaN, b: NaN, stretch: NaN, theme: "" };
     const render = () => {
       const s = st.current;
       if (!detail) s.scrollPos = posFromScroll();
@@ -239,18 +251,29 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
       const b = bubble.current.value;
       const stretch = reduce ? 0 : Math.min(Math.abs(follow.current.target - follow.current.value) * 0.3, 0.34);
       const x = pill * itemW;
-      if (bubbleRef.current) {
-        bubbleRef.current.style.transform = `translate3d(${x}px,0,0) scale(${b * (1 + stretch)}, ${1 + (b - 1) * 0.75 - stretch * 0.28})`;
-      }
-      if (cloneRef.current) cloneRef.current.style.transform = `translate3d(${-x}px,0,0)`;
-      for (let i = 0; i < n; i++) {
-        const near = 1 - Math.min(1, Math.abs(i - pill));
-        const lt = document.documentElement.dataset.theme === "light";
-        const col = lerpColor(lt ? [0x7b, 0x7c, 0x82] : INK_2, lt ? [0x1f, 0x8f, 0xd0] : ACCENT, near);
-        const el = iconRefs.current[i];
-        if (el) el.style.color = col;
-        const c = cloneIconRefs.current[i];
-        if (c) c.style.color = col;
+      const theme = document.documentElement.dataset.theme ?? "";
+      if (Math.abs(x - last.x) > 0.05 || b !== last.b || stretch !== last.stretch || theme !== last.theme) {
+        const themeChanged = theme !== last.theme;
+        const moved = Math.abs(x - last.x) > 0.05 || themeChanged;
+        last.x = x;
+        last.b = b;
+        last.stretch = stretch;
+        last.theme = theme;
+        if (bubbleRef.current) {
+          bubbleRef.current.style.transform = `translate3d(${x}px,0,0) scale(${b * (1 + stretch)}, ${1 + (b - 1) * 0.75 - stretch * 0.28})`;
+        }
+        if (cloneRef.current) cloneRef.current.style.transform = `translate3d(${-x}px,0,0)`;
+        if (moved) {
+          const lt = theme === "light";
+          for (let i = 0; i < n; i++) {
+            const near = 1 - Math.min(1, Math.abs(i - pill));
+            const col = lerpColor(lt ? [0x7b, 0x7c, 0x82] : INK_2, lt ? [0x1f, 0x8f, 0xd0] : ACCENT, near);
+            const el = iconRefs.current[i];
+            if (el) el.style.color = col;
+            const c = cloneIconRefs.current[i];
+            if (c) c.style.color = col;
+          }
+        }
       }
       if (!s.holding && !s.settling && s.openIdx < 0) {
         const r = Math.round(pill);
