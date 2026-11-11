@@ -14,7 +14,6 @@ import type { Line } from "@/lib/chat-actions";
 import { answer, type ChatText, type Msg } from "./engine";
 import { WidgetView } from "./Widgets";
 import dynamic from "next/dynamic";
-import { useTheme } from "@/lib/theme";
 
 const Strands = dynamic(() => import("@/components/reactbits/Strands"), { ssr: false });
 
@@ -44,10 +43,10 @@ function useBevel(ref: RefObject<HTMLElement | null>, radius: number, on = true)
 
 /** Il logo della chat: la sfera di vetro con i filamenti di luce (React Bits · Strands), chiara o scura col tema. */
 function AppIcon({ size = 38, listening = false }: { size?: number; listening?: boolean }) {
-  const theme = useTheme();
+  // fondo nero in ogni tema: la sfera di luce si legge sempre allo stesso modo
   return (
-    <span aria-hidden className="relative block shrink-0" style={{ width: size, height: size }}>
-      <Strands glassSize={1.18} lightMode={theme === "light"} energy={0.7} speed={1.1} listening={listening} interactive={false} clickPulse={false} maxDevicePixelRatio={2} />
+    <span aria-hidden className="relative block shrink-0 overflow-hidden rounded-full bg-black" style={{ width: size, height: size }}>
+      <Strands glassSize={1.18} lightMode={false} energy={0.7} speed={1.1} listening={listening} interactive={false} clickPulse={false} maxDevicePixelRatio={2} />
     </span>
   );
 }

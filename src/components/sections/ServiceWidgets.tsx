@@ -116,7 +116,7 @@ export function addEnd(run: gsap.core.Timeline, q: (s: string) => Element[], at:
   run.call(() => warm(scrim, true), undefined, Math.max(0, at - 0.5));
   run
     .to(scrim, { opacity: 1, duration: 0.4 }, at)
-    .set(bits, { yPercent: 110, autoAlpha: 0 }, at)
+    .set(bits, { yPercent: 45, autoAlpha: 0 }, at)
     .set(end, { autoAlpha: 1 }, at)
     .to(bits, { yPercent: 0, autoAlpha: 1, duration: 0.7, stagger: 0.07, ease: "expo.out" }, at + 0.05)
     .to(bits, { autoAlpha: 0, duration: 0.4, stagger: 0.04, ease: "power2.in" }, at + hold)
@@ -180,17 +180,17 @@ function SpotLayer({ spot }: { spot: SpotCfg }) {
         </div>
       ))}
       <div data-end className="invisible absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="inline-block overflow-hidden pb-[0.1em]">
+        <span className="inline-block pb-[0.1em]">
           <span data-end-in className="inline-block text-[clamp(30px,8.6cqw,68px)] leading-none tracking-[-0.055em] text-white">
             <span className="font-medium">Filippo</span> <span className="font-normal text-white/60">Corsini</span>
           </span>
         </span>
-        <span className="mt-[1.6cqw] inline-block overflow-hidden">
+        <span className="mt-[1.6cqw] inline-block">
           <span data-end-in className="inline-block text-[clamp(12px,2.2cqw,16px)] text-white/60">
             {spot.sub}
           </span>
         </span>
-        <span className="mt-[4cqw] inline-block overflow-hidden p-2">
+        <span className="mt-[4cqw] inline-block p-2">
           <span data-end-in className="inline-block">
             {/* un pulsante, non un link: nella home la scheda è già un link e due link annidati rompono la pagina */}
             <Bead
