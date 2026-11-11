@@ -78,7 +78,7 @@ export function Preloader({ label }: { label: string }) {
         </div>
         <div aria-hidden className="giant-mask pointer-events-none relative flex justify-center">
           <p className="whitespace-nowrap text-[16.2vw] font-medium leading-[0.86] tracking-[-0.06em]">
-            <span className="inline-block overflow-hidden pb-[0.2em] pt-[0.04em] align-bottom">
+            <span className="inline-block pb-[0.2em] pt-[0.04em] align-bottom">
               {chars(first)} {chars(last, true)}
             </span>
           </p>
