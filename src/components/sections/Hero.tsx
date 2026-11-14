@@ -13,6 +13,7 @@ import { Cover } from "@/components/work/Covers";
 import { Shape, type ShapeKind } from "@/components/visual/Shapes";
 import { profile } from "@/content/profile";
 import { prefersReducedMotion } from "@/lib/env";
+import { isLow } from "@/lib/perf";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -43,12 +44,14 @@ function Cycler({ items, at, kind }: { items: ReactNode[]; at: number; kind: Kin
     const inn = kids[at];
     const from = kind === "shape" ? { scale: 0.2, rotate: -140 } : kind === "cover" ? { scale: 0.7, rotate: -6 } : { yPercent: 70 };
     const to = kind === "shape" ? { scale: 0.2, rotate: 140 } : kind === "cover" ? { scale: 0.7, rotate: 6 } : { yPercent: -70 };
+    // la sfocatura sul testo che cambia costa un ridisegno a ogni fotogramma: sui dispositivi lenti resta solo il movimento
+    const soft = isLow() ? {} : { filter: "blur(10px)" };
     gsap.to(el, { width: w, duration: 0.9, ease: "expo.inOut" });
-    gsap.to(out, { ...to, autoAlpha: 0, filter: "blur(10px)", duration: 0.5, ease: "power2.in" });
+    gsap.to(out, { ...to, ...soft, autoAlpha: 0, duration: 0.5, ease: "power2.in" });
     gsap.fromTo(
       inn,
-      { ...from, autoAlpha: 0, filter: "blur(10px)" },
-      { yPercent: 0, scale: 1, rotate: 0, autoAlpha: 1, filter: "blur(0px)", duration: 0.9, delay: 0.3, ease: "expo.out", clearProps: "filter" },
+      { ...from, ...soft, autoAlpha: 0 },
+      { yPercent: 0, scale: 1, rotate: 0, autoAlpha: 1, ...(isLow() ? {} : { filter: "blur(0px)", clearProps: "filter" }), duration: 0.9, delay: 0.3, ease: "expo.out" },
     );
     prev.current = at;
   }, [at, kind]);

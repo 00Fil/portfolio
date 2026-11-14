@@ -476,3 +476,20 @@ html[data-intro] .preloader.pre-out .pre-ch { animation: preChOut .6s cubic-bezi
   box-shadow: inset 0 0 0 1px var(--strip-edge), inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 @media (min-width: 1024px) { :root { --bar-h: 112px; } }
+
+/* ------------------------------------------------------------ Dispositivi lenti (html[data-perf="low"])
+   Stesso disegno, meno lavoro per fotogramma: il vetro diventa un velo pieno invece di sfocare ciò che ha sotto,
+   le sfocature animate spariscono, le ombre larghe si accorciano. Il contenuto non cambia. */
+html[data-perf="low"] *,
+html[data-perf="low"] *::before,
+html[data-perf="low"] *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html[data-perf="low"] .bar-glass,
+html[data-perf="low"] .float-glass:not(.drop-accent) { background-color: var(--acrylic-solid) !important; }
+html[data-perf="low"] .acrylic { background-color: var(--acrylic-solid); }
+html[data-perf="low"] .spot-scrim { background: rgba(5, 10, 16, 0.86); }
+html[data-perf="low"] .spot-scrim::after { display: none; }
+html[data-perf="low"] .sky-drift { animation: none; }
+html[data-perf="low"] .drop > .drop-glow { display: none; }

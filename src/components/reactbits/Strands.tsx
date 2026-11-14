@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { isLow } from '@/lib/perf';
 
 const MAX_COLORS = 8;
 const ROLES = 7;
@@ -545,6 +546,12 @@ export default function Strands({
     const frame = now => {
       st.raf = 0;
       const p = propsRef.current;
+      // la sfera è piccola e lenta: 30 fotogrammi al secondo bastano; sui dispositivi lenti molti meno, finché non ascolta
+      const cap = isLow() ? (p.listening ? 20 : 6) : 30;
+      if (st.last && now - st.last < 1000 / cap - 2) {
+        st.raf = requestAnimationFrame(frame);
+        return;
+      }
       const dt = st.last ? clamp((now - st.last) / 1000, 0, 0.05) : 0;
       st.last = now;
       const reduced = !!query?.matches;

@@ -10,6 +10,7 @@ import { AI, API, APPS, DESIGN, GEO, HW, SEO, SHOP, StoryV, WEB } from "./Spots"
 import { Shape } from "@/components/visual/Shapes";
 import { prefersReducedMotion } from "@/lib/env";
 import { play as sfx } from "@/lib/sound";
+import { isLow } from "@/lib/perf";
 import { usePathname, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon, CheckmarkCircle02Icon, Shield01Icon, Wrench01Icon } from "@hugeicons/core-free-icons";
@@ -85,6 +86,8 @@ const BLUR = "blur(26px) saturate(1.8) brightness(0.86)";
 /** La sfocatura si accende mezzo secondo prima del commento (così è pronta) e si spegne dopo: tenerla sempre accesa
  *  costringe il browser a ricalcolarla a ogni fotogramma dell'animazione sotto. */
 const warm = (el: Element, on: boolean) => {
+  // dispositivi lenti: il velo è già pieno (vedi globals.css), nessuna sfocatura da accendere
+  if (isLow()) return;
   const st = (el as HTMLElement).style;
   st.setProperty("backdrop-filter", on ? BLUR : "none");
   st.setProperty("-webkit-backdrop-filter", on ? BLUR : "none");
@@ -1571,10 +1574,40 @@ export function ServiceVisual({ k, t, max, play }: { k: ServiceKey; t: WidgetTex
         cta: onPage ? t.spotBook : t.spotCta,
       }
     : null;
+  // Lo spot esiste solo quando serve: vicino allo schermo se parte da solo, sotto il cursore se parte al passaggio.
+  // Sette spot sempre montati sulla home erano migliaia di nodi che il browser ricalcolava a ogni fotogramma.
+  const box = useRef<HTMLDivElement>(null);
+  const [near, setNear] = useState(false);
+  const [live, setLive] = useState(false);
+  useEffect(() => {
+    // si monta solo se resta in vista un attimo: scorrendo veloce le schede passano senza costruire nulla
+    let id = 0;
+    const io = new IntersectionObserver(([e]) => {
+      window.clearTimeout(id);
+      if (e.isIntersecting) id = window.setTimeout(() => setNear(true), 220);
+      else setNear(false);
+    });
+    io.observe(box.current!);
+    return () => {
+      io.disconnect();
+      window.clearTimeout(id);
+    };
+  }, []);
+  useEffect(() => {
+    if (play) return void setLive(true);
+    // lascia finire la dissolvenza d'uscita prima di smontare
+    const id = window.setTimeout(() => setLive(false), 700);
+    return () => window.clearTimeout(id);
+  }, [play]);
+  const mounted = near && (play === undefined || play || live);
   return (
-    <PlayCtx.Provider value={play}>
-      <SpotCtx.Provider value={spot}>{visual(k, t, max)}</SpotCtx.Provider>
-    </PlayCtx.Provider>
+    <div ref={box} className="h-full w-full">
+      {mounted && (
+        <PlayCtx.Provider value={play}>
+          <SpotCtx.Provider value={spot}>{visual(k, t, max)}</SpotCtx.Provider>
+        </PlayCtx.Provider>
+      )}
+    </div>
   );
 }
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, type CSSProperties } from 'react';
+import { isLow } from '@/lib/perf';
 
 export type DitherColor = string | [number, number, number];
 export type DitherMode = 'bayer' | 'bayer4' | 'bayer2' | 'halftone' | 'lines' | 'crosshatch' | 'noise' | 'none';
@@ -617,8 +618,9 @@ const Dither = ({
       else if (state.reveal < 1) state.reveal = Math.min(1, state.reveal + dt / INTRO_SECONDS);
 
       render();
+      // dispositivi lenti: finita la comparsa il cielo resta fermo, si ridisegna solo se serve
       const busy =
-        !s.disableAnimation ||
+        (!s.disableAnimation && !isLow()) ||
         state.reveal < 1 ||
         ripples.length > 0 ||
         state.presence > 0.002 ||

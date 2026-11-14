@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, type CSSProperties, type HTMLAttributes } from 'react';
+import { isLow } from '@/lib/perf';
 
 export type GrainientType = 'linear' | 'radial';
 
@@ -597,7 +598,7 @@ const Grainient = ({
       updateTouches(dt, view.width / view.height);
       draw();
       const busy =
-        (!reduce && (s.speed > 0 || s.grainAnimated)) || introClock < 1 || trail.length > 0 || spins.length > 0;
+        (!reduce && !isLow() && (s.speed > 0 || s.grainAnimated)) || introClock < 1 || trail.length > 0 || spins.length > 0;
       if (busy) raf = requestAnimationFrame(frame);
       else last = 0;
     };

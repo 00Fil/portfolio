@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
+import { isLow } from "@/lib/perf";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
@@ -24,6 +25,12 @@ export function Reveal({ children, className, as: Tag = "div", id }: { children:
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         root.querySelectorAll<HTMLElement>("[data-split]").forEach((el) => {
+          if (isLow()) {
+            // dispositivi lenti: il titolo entra intero, senza dividerlo in parole da animare una per una
+            gsap.set(el, { visibility: "visible" });
+            gsap.fromTo(el, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power2.out", clearProps: "opacity,transform", scrollTrigger: { trigger: el, start: "top 88%", once: true } });
+            return;
+          }
           const split = SplitText.create(el, { type: "words", mask: "words" });
           gsap.set(el, { visibility: "visible" });
           gsap.from(split.words, {

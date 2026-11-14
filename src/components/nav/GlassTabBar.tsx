@@ -243,6 +243,7 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
     const reduce = prefersReducedMotion();
     // il disegno scrive sul DOM solo quando qualcosa è cambiato: a barra ferma non costa nulla
     const last = { x: NaN, b: NaN, stretch: NaN, theme: "", busy: false };
+    const lastNear: number[] = [];
     const render = () => {
       const s = st.current;
       if (!detail) s.scrollPos = posFromScroll();
@@ -272,7 +273,10 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
         if (moved) {
           const lt = theme === "light";
           for (let i = 0; i < n; i++) {
-            const near = 1 - Math.min(1, Math.abs(i - pill));
+            // a passi di un ventesimo: mentre si scorre le voci lontane dalla bolla non vengono riscritte
+            const near = Math.round((1 - Math.min(1, Math.abs(i - pill))) * 20) / 20;
+            if (!themeChanged && lastNear[i] === near) continue;
+            lastNear[i] = near;
             const col = lerpColor(lt ? [0x7b, 0x7c, 0x82] : INK_2, lt ? [0x1f, 0x8f, 0xd0] : ACCENT, near);
             const el = iconRefs.current[i];
             if (el) el.style.color = col;

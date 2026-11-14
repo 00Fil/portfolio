@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import type { ServiceKey } from "@/content/services";
 import { prefersReducedMotion } from "@/lib/env";
+import { isLow } from "@/lib/perf";
 
 /*
  * Un solo colore, l'azzurro del sito, in quattro sfumature appena diverse (più chiara, più profonda,
@@ -61,7 +62,8 @@ export function ServiceBg({ k, live = false, v = 0, active = true, still: fixed 
     io.observe(box.current!);
     return () => io.disconnect();
   }, [fixed]);
-  const still = typeof window !== "undefined" && prefersReducedMotion();
+  // movimento ridotto o dispositivo lento: resta il gradiente fermo, nessun contesto WebGL
+  const still = typeof window !== "undefined" && (prefersReducedMotion() || isLow());
   return (
     <div ref={box} aria-hidden className="pointer-events-none absolute inset-0" style={{ background: stillBg(k, v) }}>
       {on && active && !still && (

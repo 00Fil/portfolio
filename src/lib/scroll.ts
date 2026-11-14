@@ -16,7 +16,10 @@ export function scrollToY(y: number, onComplete?: () => void) {
       onComplete: () => onComplete?.(),
     });
   } else {
-    window.scrollTo({ top: y, behavior: "auto" });
-    onComplete?.();
+    // senza Lenis (dispositivi lenti, movimento ridotto) scorre il sistema: morbido dove è permesso
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: y, behavior: reduce ? "auto" : "smooth" });
+    if (reduce) onComplete?.();
+    else window.setTimeout(() => onComplete?.(), 700);
   }
 }
