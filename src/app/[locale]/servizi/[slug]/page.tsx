@@ -8,6 +8,7 @@ import { Footer } from "@/components/sections/Footer";
 import type { WidgetText } from "@/components/sections/ServiceWidgets";
 import { ServiceDetail } from "@/components/services/ServiceDetail";
 import type { Story } from "@/components/services/ServiceStory";
+import { getStory } from "@/content/stories";
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) => SERVICES.map((s) => ({ locale, slug: s.slug })));
@@ -39,8 +40,16 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
   const i = SERVICES.findIndex((x) => x.slug === slug);
   const n = SERVICES[(i + 1) % SERVICES.length];
 
+  const tale = getStory(s.key, locale);
+  const faq = tale?.faq.items ?? story?.faq.items ?? [];
+  // le domande anche come dati strutturati: motori di ricerca e assistenti le leggono senza interpretare la pagina
+  const ld = faq.length
+    ? { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map((x) => ({ "@type": "Question", name: x.q, acceptedAnswer: { "@type": "Answer", text: x.a } })) }
+    : null;
+
   return (
     <>
+      {ld && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />}
       <main id="main">
         <ServiceDetail
           k={s.key}
@@ -50,13 +59,13 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
           short={s.short[locale]}
           lead={s.lead[locale]}
           includes={s.includes.map((x) => ({ title: x.title[locale], body: x.body[locale] }))}
-          stack={s.stack}
           phases={phases}
           next={{ slug: n.slug, k: n.key, label: n.label[locale], title: n.title[locale], short: n.short[locale] }}
           others={SERVICES.filter((x) => x.slug !== slug).map((x) => ({ slug: x.slug, k: x.key, title: x.title[locale] }))}
           w={w}
           story={story}
-          t={{ services: t("title"), cta: t("cta"), includes: t("includes"), tech: t("tech"), method: tm("title"), methodLead: tm("lead"), next: t("next"), all: t("all") }}
+          tale={tale}
+          t={{ services: t("title"), cta: t("cta"), ctaLead: t("ctaLead"), includes: t("includes"), before: t("before"), after: t("after"), method: tm("title"), methodLead: tm("lead"), next: t("next"), all: t("all") }}
         />
       </main>
       <Footer withContact={false} />

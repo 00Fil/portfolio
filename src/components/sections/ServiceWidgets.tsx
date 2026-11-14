@@ -161,7 +161,7 @@ function Words({ s, cls = "" }: { s: string; cls?: string }) {
 
 /** Livello sopra la tela, grande quanto la scheda: vetro, commenti, marchio. Il vetro è sempre lì (quasi trasparente)
  *  così la sfocatura è già pronta e non arriva in ritardo. */
-function SpotLayer({ spot }: { spot: SpotCfg }) {
+function SpotLayer({ spot, bars = 0 }: { spot: SpotCfg; bars?: number }) {
   const router = useRouter();
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]" style={{ containerType: "size" }}>
@@ -182,6 +182,15 @@ function SpotLayer({ spot }: { spot: SpotCfg }) {
           )}
         </div>
       ))}
+      {bars > 1 && (
+        <div data-bars className="invisible absolute inset-x-[4cqw] bottom-[3cqw] flex gap-[1cqw]">
+          {Array.from({ length: bars }, (_, i) => (
+            <span key={i} className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/20">
+              <span data-bar className="block h-full w-full origin-left scale-x-0 rounded-full bg-white/90" />
+            </span>
+          ))}
+        </div>
+      )}
       <div data-end className="invisible absolute inset-0 flex flex-col items-center justify-center text-center">
         <span className="inline-block pb-[0.1em]">
           <span data-end-in className="inline-block text-[clamp(30px,8.6cqw,68px)] leading-none tracking-[-0.055em] text-white">
@@ -221,7 +230,7 @@ function SpotLayer({ spot }: { spot: SpotCfg }) {
 
 /** Tela fissa W×H scalata nello spazio disponibile; la timeline parte la prima volta che è visibile.
  *  `ownSpot`: la scheda decide da sé quando mostrare i commenti (li sincronizza con le sue scene). */
-export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot = false, stretch = false }: { w: number; h: number; max?: number; build: (q: (s: string) => Element[]) => gsap.core.Timeline; children: ReactNode; framed?: boolean; ownSpot?: boolean; stretch?: boolean }) {
+export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot = false, stretch = false, bars = 0 }: { w: number; h: number; max?: number; build: (q: (s: string) => Element[]) => gsap.core.Timeline; children: ReactNode; framed?: boolean; ownSpot?: boolean; stretch?: boolean; bars?: number }) {
   const spot = useContext(SpotCtx);
   const play = useContext(PlayCtx);
   const timelines = useRef<gsap.core.Timeline[]>([]);
@@ -231,6 +240,7 @@ export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot 
   useEffect(() => {
     const o = box.current!;
     const ro = new ResizeObserver(() => {
+      if (!stage.current) return;
       // proporzioni quasi uguali: riempie tutto lo spazio, a filo dei bordi.
       // Altrimenti diventa una finestra con angoli, ombra e margine, invece di un rettangolo tagliato a caso.
       const fit = Math.min(o.clientWidth / w, o.clientHeight / h);
@@ -306,7 +316,7 @@ export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot 
           {children}
         </div>
       </div>
-      {spot && <SpotLayer spot={spot} />}
+      {spot && <SpotLayer spot={spot} bars={bars} />}
     </div>
   );
 }

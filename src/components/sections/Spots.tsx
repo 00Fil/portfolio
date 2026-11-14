@@ -6,8 +6,10 @@
  * In chiusura il marchio e il tasto. Il motore è uno solo; ogni servizio dichiara le sue inquadrature.
  */
 
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
+import { prefersReducedMotion } from "@/lib/env";
 import { useLocale } from "next-intl";
 import * as si from "simple-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -69,6 +71,7 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
       framed={false}
       ownSpot
       stretch
+      bars={shots.length}
       w={W}
       h={H}
       max={max}
@@ -77,6 +80,8 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
         const zoom = q("[data-zoom]")[0];
         const says = q("[data-say]");
         const els = q("[data-shot]");
+        const bars = q("[data-bar]");
+        const barBox = q("[data-bars]")[0];
         const tl = gsap.timeline();
         const run = gsap.timeline({ repeat: -1 });
         let at = 0;
@@ -94,35 +99,111 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
           s.play?.(sub, $, 0.35);
           const dur = Math.max(sub.duration() + 1, (s.dur ?? 3) * 0.7);
           run
+            .set(el, { scale: 1, x: 0, y: 0 }, st)
             .fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out", immediateRender: false }, st)
             .call(() => sfx("whoosh"), undefined, st);
           if (full) {
-            // le schermate a tutto riquadro non si rimpiccioliscono: partono un filo più grandi e si assestano
-            run.fromTo(inner, { scale: 1.04 }, { scale: 1, duration: 0.9, ease: "expo.out", immediateRender: false }, st);
+            // le schermate a tutto riquadro non si rimpiccioliscono: entrano di lato, un filo più grandi, e si assestano
+            run.fromTo(inner, { scale: 1.05, x: 44 }, { scale: 1, x: 0, duration: 0.9, ease: "expo.out", immediateRender: false }, st);
           } else {
             // entra dal basso, leggermente più piccola, e poi continua a muoversi piano finché resta in scena
             run.fromTo(inner, { y: 40, scale: 0.92 }, { y: 0, scale: 1, duration: 0.8, ease: "expo.out", immediateRender: false }, st).to(inner, { y: -6, duration: Math.max(0.1, dur - 0.8), ease: "sine.inOut" }, st + 0.8);
           }
           run.add(sub, st);
+          // a fine scena la camera torna larga sul risultato, poi si passa oltre
+          run.to(el, { scale: 1, x: 0, y: 0, duration: 0.7, ease: "power2.inOut", overwrite: "auto" }, st + dur - 0.75);
           run.to(el, { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, st + dur);
-          if (!full) run.to(inner, { y: -26, scale: 0.98, duration: 0.4, ease: "power2.in" }, st + dur);
+          if (full) run.to(inner, { x: -44, duration: 0.4, ease: "power2.in" }, st + dur);
+          else run.to(inner, { y: -26, scale: 0.98, duration: 0.4, ease: "power2.in" }, st + dur);
+          // la barra in basso: un tratto per atto, si riempie mentre l'atto va avanti (commento compreso)
+          if (bars[i]) run.fromTo(bars[i], { scaleX: 0 }, { scaleX: 1, duration: st + dur - at, ease: "none", immediateRender: false }, at);
           at = st + dur + 0.15;
         });
+        if (barBox) run.fromTo(barBox, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, immediateRender: false }, 0.1).to(barBox, { autoAlpha: 0, duration: 0.3 }, at - 0.1);
         const end = addEnd(run, q, at);
         run.to({}, { duration: 0.01 }, end + 0.4);
         return tl.add(run, 0.2);
       }}
     >
       {shots.map((s, i) => (
-        <div key={i} data-shot className="invisible absolute inset-0">
-          <div className="flex h-full w-full flex-col items-center justify-center will-change-transform">{s.node}</div>
-          {/* il cursore che tocca i pulsanti: micro interazioni vere, non solo cose che compaiono */}
-          <svg data-cursor viewBox="0 0 24 24" className="pointer-events-none absolute left-0 top-0 z-30 h-6 w-6 opacity-0 drop-shadow-[0_3px_6px_rgba(0,0,0,.45)]" style={{ marginLeft: -5, marginTop: -3.5, transformOrigin: "5px 3.5px" }} aria-hidden>
-            <path d="M5 3.5 19 11l-6.2 1.7L10 19z" fill="#fff" stroke="#0b1620" strokeWidth="1.2" strokeLinejoin="round" />
-          </svg>
-        </div>
+        <ShotFrame key={i} node={s.node} hidden />
       ))}
     </Canvas>
+  );
+}
+
+/** Un'inquadratura: la scena e, sopra, il cursore che tocca i pulsanti (micro interazioni vere, non solo cose che compaiono). */
+function ShotFrame({ node, hidden = false }: { node: ReactNode; hidden?: boolean }) {
+  return (
+    <div data-shot className={`absolute inset-0 ${hidden ? "invisible" : ""}`}>
+      <div className="flex h-full w-full flex-col items-center justify-center will-change-transform">{node}</div>
+      <svg data-cursor viewBox="0 0 24 24" className="pointer-events-none absolute left-0 top-0 z-30 h-6 w-6 opacity-0 drop-shadow-[0_3px_6px_rgba(0,0,0,.45)]" style={{ marginLeft: -5, marginTop: -3.5, transformOrigin: "5px 3.5px" }} aria-hidden>
+        <path d="M5 3.5 19 11l-6.2 1.7L10 19z" fill="#fff" stroke="#0b1620" strokeWidth="1.2" strokeLinejoin="round" />
+      </svg>
+    </div>
+  );
+}
+
+/**
+ * Una sola inquadratura, fuori dallo spot: nelle pagine dei servizi illustra un passo di "Come funziona".
+ * Parte da capo ogni volta che diventa attiva, arriva in fondo e resta sul risultato.
+ */
+export function ShotView({ shots, i, on }: { shots: Shot[]; i: number; on: boolean }) {
+  const box = useRef<HTMLDivElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const tl = useRef<gsap.core.Timeline | null>(null);
+  // esiste solo mentre serve: si monta quando diventa attiva e si smonta a dissolvenza finita
+  const [live, setLive] = useState(on);
+  useEffect(() => {
+    if (on) return void setLive(true);
+    const id = window.setTimeout(() => setLive(false), 700);
+    return () => window.clearTimeout(id);
+  }, [on]);
+  useEffect(() => {
+    if (!live) return;
+    const o = box.current!;
+    const fit = () => {
+      if (!stage.current) return;
+      const k = Math.max(Math.min(o.clientWidth / W, o.clientHeight / H), 0.2);
+      const st = stage.current.style;
+      st.width = `${o.clientWidth / k}px`;
+      st.height = `${o.clientHeight / k}px`;
+      st.transform = `translate(-50%, -50%) scale(${k})`;
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(o);
+    return () => ro.disconnect();
+  }, [live]);
+  useGSAP(
+    () => {
+      if (!live) return;
+      const el = box.current!.querySelector("[data-shot]") as HTMLElement;
+      const $: Q = (sel) => Array.from(el.querySelectorAll(sel));
+      const run = gsap.timeline({ paused: true });
+      shots[i].play?.(run, $, 0.35);
+      run.to(el, { scale: 1, x: 0, y: 0, duration: 0.7, ease: "power2.inOut" }, run.duration() + 0.1);
+      tl.current = run;
+      if (prefersReducedMotion()) run.progress(1);
+      else if (on) run.play(0);
+      return () => void (tl.current = null);
+    },
+    { dependencies: [live], scope: box },
+  );
+  useEffect(() => {
+    const run = tl.current;
+    if (!run || prefersReducedMotion()) return;
+    if (on) run.restart();
+    else run.pause();
+  }, [on]);
+  return (
+    <div ref={box} aria-hidden className={`pointer-events-none absolute inset-0 select-none overflow-hidden transition-opacity duration-700 ease-[var(--ease-out)] ${on ? "opacity-100" : "opacity-0"}`}>
+      {live && (
+        <div ref={stage} className="absolute left-1/2 top-1/2" style={{ width: W, height: H }}>
+          <ShotFrame node={shots[i].node} />
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -304,8 +385,20 @@ const cursorIn = (run: gsap.core.Timeline, $: Q, near: Element, at: number) => {
 /** Va su un elemento e lo preme. Restituisce l'istante del clic. */
 const click = (run: gsap.core.Timeline, c: { cur: Element; shot: HTMLElement }, el: Element, at: number, dur = 0.5, fx = 0.5, fy = 0.55) => {
   const t = human(run, c.cur, () => spot(c.shot, el, fx, fy), at, dur);
+  cam(run, c.shot, el, at);
   press(run, c.cur, el, t);
   return t;
+};
+/** La camera segue l'azione: mentre il cursore va verso un punto l'inquadratura si stringe appena su quel punto.
+ *  Lo spostamento è calcolato perché i bordi non si scoprano mai. Solo sulle schermate a tutto riquadro. */
+const CAM = 1.06;
+const cam = (run: gsap.core.Timeline, shot: HTMLElement, el: Element, at: number) => {
+  if (!shot.querySelector("[data-full]")) return;
+  const to = (axis: "x" | "y") => () => {
+    const p = spot(shot, el);
+    return axis === "x" ? (shot.offsetWidth / 2 - p.x) * (CAM - 1) : (shot.offsetHeight / 2 - p.y) * (CAM - 1);
+  };
+  run.to(shot, { scale: CAM, x: to("x"), y: to("y"), duration: 0.9, ease: "power2.out", overwrite: "auto" }, at);
 };
 /** Scrive in un campo con il ritmo irregolare di una persona. Restituisce quando ha finito. */
 const typeText = (run: gsap.core.Timeline, el: Element, text: string, at: number, fast = 1) => {
@@ -2002,3 +2095,6 @@ export const SHOP: Shot[] = [
     },
   },
 ];
+
+/** Le inquadrature di ogni servizio, per chi le usa una alla volta (i passi di "Come funziona" nelle pagine). */
+export const SHOTS = { web: WEB, seo: SEO, geo: GEO, apps: APPS, design: DESIGN, ai: AI, hw: HW, api: API, shop: SHOP };

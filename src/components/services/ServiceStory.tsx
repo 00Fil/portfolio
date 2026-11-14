@@ -1,22 +1,57 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Add01Icon,
+  AiChat02Icon,
+  Alert01Icon,
+  Analytics01Icon,
+  ArrowRight02Icon,
+  BrowserIcon,
+  ChartLineData01Icon,
   CheckmarkCircle02Icon,
   CircleArrowReload01Icon,
+  Clock01Icon,
+  ColorsIcon,
+  ComputerIcon,
+  CpuIcon,
+  CreditCardIcon,
   CustomerSupportIcon,
+  DashboardSpeed01Icon,
+  DashboardSquare01Icon,
   DatabaseRestoreIcon,
+  Download04Icon,
+  FlashIcon,
   Globe02Icon,
+  LaptopPhoneSyncIcon,
+  Link01Icon,
+  Location01Icon,
   LockKeyIcon,
   Notification01Icon,
+  PackageIcon,
+  PencilEdit02Icon,
+  Plug01Icon,
+  QuoteDownIcon,
+  RepeatIcon,
   Rocket01Icon,
+  Route01Icon,
+  Route02Icon,
+  Search01Icon,
   SecurityCheckIcon,
+  SecurityLockIcon,
+  Settings01Icon,
   Shield01Icon,
+  ShieldUserIcon,
+  SmartPhone01Icon,
+  Store01Icon,
+  TaskDone01Icon,
+  TouchInteraction01Icon,
+  UniversalAccessIcon,
+  WorkflowSquare01Icon,
 } from "@hugeicons/core-free-icons";
 import type { ServiceKey } from "@/content/services";
 import { prefersReducedMotion } from "@/lib/env";
@@ -62,18 +97,32 @@ export function Facts({ facts }: { facts: Story["facts"] }) {
 
 /* ───────────── Come funziona: i passi scorrono a sinistra, a destra un pannello fermo che cambia scena ───────────── */
 
-export function How({ k, how, ui }: { k: ServiceKey; how: Story["how"]; ui: Story["ui"] }) {
+/** true su computer, false su telefono; null finché non si sa (prima del primo disegno nel browser). */
+function useDesk() {
+  const [desk, setDesk] = useState<boolean | null>(null);
+  useEffect(() => {
+    const m = window.matchMedia("(min-width: 1024px)");
+    const on = () => setDesk(m.matches);
+    on();
+    m.addEventListener("change", on);
+    return () => m.removeEventListener("change", on);
+  }, []);
+  return desk;
+}
+
+export function How({ k, how, scene }: { k: ServiceKey; how: Story["how"]; scene: (i: number, on: boolean) => ReactNode }) {
   const root = useRef<HTMLElement>(null);
-  const [at, setAt] = useState(0);
+  // -1 finché non si arriva al primo passo: la scena parte quando la si guarda, non prima
+  const [at, setAt] = useState(-1);
+  const desk = useDesk();
   useGSAP(
     () => {
       gsap.utils.toArray<HTMLElement>("[data-step]").forEach((el, i) => {
-        ScrollTrigger.create({ trigger: el, start: "top 55%", end: "bottom 55%", onToggle: (s) => s.isActive && setAt(i) });
+        ScrollTrigger.create({ trigger: el, start: i === 0 ? "top 92%" : "top 55%", end: "bottom 55%", onToggle: (s) => s.isActive && setAt(i) });
       });
     },
-    { scope: root },
+    { scope: root, dependencies: [desk] },
   );
-  const Scene = SCENES[k];
   return (
     <section ref={root} className="mx-auto w-full max-w-[1400px] px-3 pt-24 sm:px-5 sm:pt-40">
       <header className="mx-auto mb-12 max-w-[1280px] px-2 sm:mb-20 sm:px-3">
@@ -84,10 +133,10 @@ export function How({ k, how, ui }: { k: ServiceKey; how: Story["how"]; ui: Stor
         <ol className="px-2 sm:px-3 lg:pl-[max(12px,calc((100vw-1280px)/2-28px))]">
           {how.steps.map((s, i) => (
             <li key={s.t} data-step className="flex flex-col justify-center py-8 lg:min-h-[78vh] lg:py-0">
-              {/* su telefono la scena sta sopra il testo */}
+              {/* su telefono la scena sta sopra il testo e parte quando arriva a metà schermo */}
               <div className="theme-dark relative mb-6 aspect-[4/3] overflow-hidden rounded-[28px] bg-[#05070a] lg:hidden">
                 <ServiceBg k={k} v={i} still />
-                {Scene && <Scene i={i} on ui={ui} />}
+                {desk === false && scene(i, at === i)}
               </div>
               <p className={`font-mono text-[12px] uppercase tracking-[0.14em] transition-colors duration-500 ${at === i ? "text-[var(--sky)]" : "text-ink-3"}`}>{pad(i + 1)}</p>
               <h3 className={`mt-3 max-w-[18ch] text-[clamp(26px,2.6vw,38px)] font-medium leading-[1.08] tracking-[-0.04em] transition-colors duration-500 ${at === i ? "text-ink" : "text-ink-3 lg:text-ink-3"}`}>{s.t}</h3>
@@ -97,11 +146,69 @@ export function How({ k, how, ui }: { k: ServiceKey; how: Story["how"]; ui: Stor
         </ol>
         <div className="hidden lg:block">
           <div className="theme-dark sticky top-[calc(var(--bar-h)+24px)] h-[calc(100svh-var(--bar-h)-48px)] max-h-[760px] overflow-hidden rounded-[40px] bg-[#05070a]">
-            <ServiceBg k={k} v={at} still />
-            {Scene && how.steps.map((_, i) => <Scene key={i} i={i} on={at === i} ui={ui} />)}
+            <ServiceBg k={k} v={Math.max(0, at)} still />
+            {desk && how.steps.map((_, i) => <div key={i}>{scene(i, at === i)}</div>)}
           </div>
         </div>
       </div>
+    </section>
+  );
+}
+
+/* ───────────── Cosa cambia: riga per riga, com'è oggi (che si spegne) e come diventa ───────────── */
+
+export function Changes({ changes, labels }: { changes: { title: string; lead: string; rows: { from: string; to: string }[] }; labels: { before: string; after: string } }) {
+  const root = useRef<HTMLElement>(null);
+  useGSAP(
+    () => {
+      const rows = gsap.utils.toArray<HTMLElement>("[data-row]");
+      if (prefersReducedMotion())
+        return void rows.forEach((r) => {
+          r.dataset.on = "1";
+          (r.querySelector("[data-from]") as HTMLElement).style.opacity = "0.55";
+        });
+      rows.forEach((row) => {
+        const q = gsap.utils.selector(row);
+        gsap
+          .timeline({ scrollTrigger: { trigger: row, start: "top 80%", once: true } })
+          .fromTo(q("[data-from]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" })
+          // "oggi" viene barrato e si spegne, la freccia ruota, "dopo" entra da sinistra
+          .call(() => void (row.dataset.on = "1"), undefined, 0.45)
+          .to(q("[data-from]"), { opacity: 0.55, duration: 0.6, ease: "power2.out" }, 0.45)
+          .fromTo(q("[data-arrow]"), { scale: 0, rotate: -120 }, { scale: 1, rotate: 0, duration: 0.8, ease: "back.out(2)" }, 0.5)
+          .fromTo(q("[data-to]"), { autoAlpha: 0, x: -22 }, { autoAlpha: 1, x: 0, duration: 0.9, ease: "expo.out" }, 0.62);
+      });
+    },
+    { scope: root },
+  );
+  return (
+    <section ref={root} className="mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-40">
+      <header className="mb-10 grid gap-5 sm:mb-16 lg:grid-cols-[1fr_1.15fr] lg:items-end lg:gap-[120px]">
+        <h2 className={h2}>{changes.title}</h2>
+        <p className="max-w-[46ch] text-[18px] leading-[1.55] text-ink-2">{changes.lead}</p>
+      </header>
+      <div className="hidden grid-cols-[1fr_56px_1.15fr] gap-x-8 pb-4 font-mono text-[12px] uppercase tracking-[0.14em] text-ink-3 lg:grid">
+        <span>{labels.before}</span>
+        <span />
+        <span className="text-[var(--sky)]">{labels.after}</span>
+      </div>
+      <ul className="border-b border-[var(--hair-strong)]">
+        {changes.rows.map((r) => (
+          <li key={r.from} data-row className="group grid items-center gap-x-8 gap-y-4 border-t border-[var(--hair-strong)] py-7 sm:py-9 lg:grid-cols-[1fr_56px_1.15fr]">
+            <p data-from className="max-w-[36ch] text-[17px] leading-[1.45] text-ink-2 line-through decoration-transparent decoration-1 transition-[text-decoration-color] duration-700 group-data-[on]:decoration-current sm:text-[19px]">
+              {r.from}
+            </p>
+            <span data-arrow className="justify-self-start">
+              <Bead radius={22} className="flex h-11 w-11 rotate-90 items-center justify-center text-[var(--sky)] lg:rotate-0">
+                <HugeiconsIcon icon={ArrowRight02Icon} size={19} strokeWidth={1.8} />
+              </Bead>
+            </span>
+            <p data-to className="max-w-[30ch] text-[clamp(22px,2.3vw,31px)] font-medium leading-[1.14] tracking-[-0.035em] text-ink">
+              {r.to}
+            </p>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -131,7 +238,7 @@ const Row = ({ label, value, tone }: { label: string; value: string; tone?: stri
   </div>
 );
 
-function OpsScene({ i, on, ui }: SceneProps) {
+export function OpsScene({ i, on, ui }: SceneProps) {
   if (i === 0)
     return (
       <Frame on={on}>
@@ -234,12 +341,12 @@ function OpsScene({ i, on, ui }: SceneProps) {
   );
 }
 
-const SCENES: Partial<Record<ServiceKey, (p: SceneProps) => ReactNode>> = { ops: OpsScene };
-
 /* ───────────── Una cronologia: cosa succede, ora per ora ───────────── */
 
 export function Timeline({ timeline }: { timeline: NonNullable<Story["timeline"]> }) {
   const root = useRef<HTMLElement>(null);
+  // orari (03:12) stanno in una colonna stretta; tappe a parole ("Ogni due settimane") vogliono più spazio e, su telefono, una riga loro
+  const wide = timeline.items.some((x) => x.at.length > 6);
   useGSAP(
     () => {
       if (prefersReducedMotion()) return;
@@ -262,9 +369,9 @@ export function Timeline({ timeline }: { timeline: NonNullable<Story["timeline"]
             <span data-tfill className="absolute inset-0 origin-top bg-[var(--sky)]" />
           </span>
           {timeline.items.map((it, i) => (
-            <li key={i} data-titem className="relative grid grid-cols-[auto_1fr] gap-x-6 pb-12 pl-8 last:pb-0 sm:grid-cols-[84px_1fr]">
+            <li key={i} data-titem className={`relative grid gap-x-6 gap-y-1.5 pb-12 pl-8 last:pb-0 ${wide ? "sm:grid-cols-[170px_1fr]" : "grid-cols-[auto_1fr] sm:grid-cols-[84px_1fr]"}`}>
               <span aria-hidden className="absolute left-0 top-[7px] h-[11px] w-[11px] rounded-full bg-[var(--bg-canvas)] shadow-[inset_0_0_0_2px_var(--sky)]" />
-              <p className="font-mono text-[14px] tabular-nums text-ink-3">{it.at}</p>
+              <p className={`font-mono tabular-nums text-ink-3 ${wide ? "pt-1 text-[12px] uppercase tracking-[0.12em]" : "text-[14px]"}`}>{it.at}</p>
               <div>
                 <p className="text-[20px] font-medium leading-[1.25] tracking-[-0.025em] text-ink">{it.t}</p>
                 <p className="mt-2 max-w-[44ch] text-[16px] leading-[1.55] text-ink-2">{it.b}</p>
@@ -279,7 +386,18 @@ export function Timeline({ timeline }: { timeline: NonNullable<Story["timeline"]
 
 /* ───────────── Cosa include: una griglia ordinata, un'icona per voce ───────────── */
 
-const INCLUDE_ICONS: Partial<Record<ServiceKey, Icon[]>> = { ops: [Globe02Icon, Rocket01Icon, DatabaseRestoreIcon, CustomerSupportIcon] };
+const INCLUDE_ICONS: Record<ServiceKey, Icon[]> = {
+  ops: [Globe02Icon, Rocket01Icon, DatabaseRestoreIcon, CustomerSupportIcon],
+  web: [BrowserIcon, DashboardSquare01Icon, SecurityLockIcon, PencilEdit02Icon],
+  seo: [FlashIcon, Search01Icon, Location01Icon, ChartLineData01Icon],
+  geo: [QuoteDownIcon, AiChat02Icon, Route01Icon, Analytics01Icon],
+  apps: [SmartPhone01Icon, ComputerIcon, LaptopPhoneSyncIcon, Download04Icon],
+  design: [Route02Icon, TouchInteraction01Icon, ColorsIcon, UniversalAccessIcon],
+  ai: [AiChat02Icon, RepeatIcon, Plug01Icon, ShieldUserIcon],
+  hw: [CpuIcon, DashboardSpeed01Icon, Notification01Icon, Clock01Icon],
+  api: [Link01Icon, WorkflowSquare01Icon, TaskDone01Icon, Alert01Icon],
+  shop: [Store01Icon, CreditCardIcon, PackageIcon, Settings01Icon],
+};
 
 export function Bento({ k, title, items }: { k: ServiceKey; title: string; items: { title: string; body: string }[] }) {
   const root = useRef<HTMLElement>(null);

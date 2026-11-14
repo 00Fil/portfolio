@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
@@ -14,9 +14,10 @@ import { Drop } from "@/components/glass/Drop";
 import { Bead } from "@/components/glass/Bead";
 import { ServiceBg } from "@/components/sections/ServiceBg";
 import { ServiceVisual, type WidgetText } from "@/components/sections/ServiceWidgets";
-import LogoLoop from "@/components/reactbits/LogoLoop";
 import { ServiceIcon } from "./ServiceIcon";
-import { Bento, Facts, Faq, How, Timeline, type Story } from "./ServiceStory";
+import { SHOTS, ShotView } from "@/components/sections/Spots";
+import type { ServiceStory } from "@/content/stories";
+import { Bento, Changes, Facts, Faq, How, OpsScene, Timeline, type Story } from "./ServiceStory";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
@@ -32,13 +33,13 @@ export type ServiceDetailProps = {
   short: string;
   lead: string;
   includes: Item[];
-  stack: { name: string; path?: string }[];
   phases: Phase[];
   next: Other;
   others: { slug: string; k: ServiceKey; title: string }[];
   w: WidgetText;
   story?: Story;
-  t: { services: string; cta: string; includes: string; tech: string; method: string; methodLead: string; next: string; all: string; };
+  tale?: ServiceStory | null;
+  t: { services: string; cta: string; ctaLead: string; includes: string; before: string; after: string; method: string; methodLead: string; next: string; all: string };
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -125,89 +126,6 @@ function Statement({ lead }: { lead: string }) {
   );
 }
 
-/* ───────────── Cosa include: tele che si impilano una sull'altra ───────────── */
-
-function Includes({ k, label, includes, t }: ServiceDetailProps) {
-  const root = useRef<HTMLElement>(null);
-  const [at, setAt] = useState(0);
-  const [small, setSmall] = useState(false);
-  const n = includes.length;
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
-      // computer: tele impilate mentre scorri
-      mm.add("(min-width: 1024px)", () => {
-        const cards = gsap.utils.toArray<HTMLElement>("[data-inner]");
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: "[data-stack]",
-            start: "top 20%",
-            end: "bottom bottom",
-            scrub: prefersReducedMotion() ? false : 0.6,
-            onUpdate: (s) => setAt(Math.min(n - 1, Math.floor(s.progress * n))),
-          },
-        });
-        if (prefersReducedMotion()) return;
-        cards.slice(0, -1).forEach((c, i) => {
-          tl.to(c, { scale: 0.92 - (n - 2 - i) * 0.015, yPercent: -2, ease: "none", duration: 1 }, i);
-        });
-        gsap.utils.toArray<HTMLElement>("[data-card]").forEach((c) => {
-          gsap.from(c.querySelectorAll("[data-in]"), { y: 40, autoAlpha: 0, duration: 1, stagger: 0.08, ease: "expo.out", clearProps: "transform", scrollTrigger: { trigger: c, start: "top 70%", once: true } });
-        });
-      });
-      // telefono: le tele una sotto l'altra, ognuna entra quando arriva
-      mm.add("(max-width: 1023px)", () => {
-        setSmall(true);
-        if (prefersReducedMotion()) return;
-        gsap.utils.toArray<HTMLElement>("[data-card]").forEach((c) =>
-          gsap.from(c, { y: 40, autoAlpha: 0, duration: 0.9, ease: "expo.out", clearProps: "all", scrollTrigger: { trigger: c, start: "top 90%", once: true } }),
-        );
-        return () => setSmall(false);
-      });
-      return () => mm.revert();
-    },
-    { scope: root },
-  );
-  return (
-    <section ref={root} id="include" className="mx-auto w-full max-w-[1400px] scroll-mt-10 px-3 sm:px-5">
-      <header className="mx-auto mb-8 flex max-w-[1280px] items-end justify-between gap-8 px-2 sm:mb-16 sm:px-3">
-        <h2 className="text-[clamp(40px,5vw,72px)] font-medium leading-none tracking-[-0.05em] text-ink">{t.includes}</h2>
-        <p className="hidden font-mono text-[13px] tabular-nums tracking-[0.1em] text-ink-3 lg:block">
-          {pad(at + 1)} / {pad(n)}
-        </p>
-      </header>
-      <div data-stack className="grid gap-3 lg:block">
-        {includes.map((it, i) => (
-          <article key={it.title} data-card className="lg:sticky lg:pb-[8vh] lg:last:pb-0" style={{ top: `calc(var(--bar-h) + 20px + ${i * 12}px)` }}>
-            <div data-inner className="theme-dark relative h-[360px] origin-top sm:h-[440px] lg:h-[min(640px,calc(100svh-var(--bar-h)-80px))] overflow-hidden rounded-[32px] bg-[#05070a] shadow-[0_-30px_60px_-40px_rgba(0,0,0,.6)] sm:rounded-[40px]">
-              <ServiceBg k={k} v={i} still={small} active={small || i === at || i === at + 1} />
-              <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(100deg,rgba(3,6,10,.7)_0%,rgba(3,6,10,.25)_55%,transparent_80%)]" />
-              <span aria-hidden className="pointer-events-none absolute -bottom-[0.2em] right-[0.02em] select-none text-[clamp(150px,30vw,440px)] font-medium leading-none tracking-[-0.08em] text-white/[0.14]">
-                {pad(i + 1)}
-              </span>
-              <div className="relative flex h-full flex-col justify-between p-6 sm:p-12 lg:p-14">
-                <p className="flex items-center gap-3 font-mono text-[12px] uppercase tracking-[0.14em] text-white/65" data-in>
-                  {pad(i + 1)} / {pad(n)}
-                  <span className="h-px w-6 bg-white/30" />
-                  {label}
-                </p>
-                <div>
-                  <h3 className="max-w-[16ch] text-[clamp(30px,4.6vw,76px)] font-medium leading-[0.98] tracking-[-0.05em] text-white" data-in>
-                    {it.title}
-                  </h3>
-                  <p className="mt-4 max-w-[44ch] text-[clamp(15px,1.3vw,19px)] sm:mt-6 leading-[1.6] text-white/78" data-in>
-                    {it.body}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 /* ───────────── Come lavoro: cinque tappe su una linea che si riempie ───────────── */
 
 function Method({ phases, t }: ServiceDetailProps) {
@@ -250,31 +168,30 @@ function Method({ phases, t }: ServiceDetailProps) {
   );
 }
 
-/* ───────────── Tecnologie: un nastro che scorre ───────────── */
+/* ───────────── L'invito, prima di passare oltre: una riga grande e un solo tasto ───────────── */
 
-function Tech({ stack, t }: ServiceDetailProps) {
-  const logos = useMemo(
-    () =>
-      stack.map((s) => ({
-        title: s.name,
-        node: (
-          <span className="flex items-center gap-3 whitespace-nowrap text-[clamp(22px,2.4vw,34px)] font-medium tracking-[-0.03em] text-ink-2">
-            {s.path && (
-              <svg viewBox="0 0 24 24" className="h-[0.85em] w-[0.85em] fill-current text-ink-3" aria-hidden>
-                <path d={s.path} />
-              </svg>
-            )}
-            {s.name}
-          </span>
-        ),
-      })),
-    [stack],
+function Close({ k, t }: ServiceDetailProps) {
+  const root = useRef<HTMLElement>(null);
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      gsap.from("[data-cl]", { y: 26, autoAlpha: 0, duration: 1, stagger: 0.09, ease: "expo.out", scrollTrigger: { trigger: root.current, start: "top 80%", once: true } });
+    },
+    { scope: root },
   );
   return (
-    <section className="mx-auto mt-24 w-full max-w-[1280px] px-5 sm:mt-44 sm:px-8">
-      <p className="mb-8 font-mono text-[12px] uppercase tracking-[0.14em] text-ink-3">{t.tech}</p>
-      <div className="border-y border-[var(--hair)] py-8">
-        <LogoLoop logos={logos} speed={32} direction="left" logoHeight={40} gap={64} pauseOnHover fadeOut scaleOnHover ariaLabel={t.tech} />
+    <section ref={root} className="mx-auto w-full max-w-[1280px] px-5 pt-24 text-center sm:px-8 sm:pt-44">
+      <h2 data-cl className="mx-auto max-w-[16ch] text-[clamp(40px,6vw,96px)] font-medium leading-[0.96] tracking-[-0.055em] text-ink">
+        {t.cta}
+      </h2>
+      <p data-cl className="mx-auto mt-6 max-w-[40ch] text-[18px] leading-[1.55] text-ink-2">
+        {t.ctaLead}
+      </p>
+      <div data-cl className="mt-9">
+        <Drop href={`#brief-${k}`} accent className="h-[56px] px-7 text-[17px] font-medium text-ink">
+          {t.cta}
+          <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
+        </Drop>
       </div>
     </section>
   );
@@ -328,23 +245,38 @@ function Next({ next, others, t }: ServiceDetailProps) {
 }
 
 export function ServiceDetail(p: ServiceDetailProps) {
+  const { tale, story, k } = p;
+  // i nove servizi: risultato, cosa cambia, come funziona (con le scene dello spot), cosa ricevi, tappe, domande
+  if (tale)
+    return (
+      <>
+        <Hero {...p} />
+        <Statement lead={p.lead} />
+        <Facts facts={tale.facts} />
+        <Changes changes={tale.changes} labels={{ before: p.t.before, after: p.t.after }} />
+        <How k={k} how={tale.how} scene={(i, on) => <ShotView shots={SHOTS[k as keyof typeof SHOTS]} i={i} on={on} />} />
+        <Bento k={k} title={tale.gets.title} items={tale.gets.items.map((x) => ({ title: x.t, body: x.b }))} />
+        <Timeline timeline={tale.timeline} />
+        <Faq faq={tale.faq} />
+        <Close {...p} />
+        <Next {...p} />
+      </>
+    );
   return (
     <>
       <Hero {...p} />
       <Statement lead={p.lead} />
-      {p.story ? (
+      {story && (
         <>
-          <Facts facts={p.story.facts} />
-          <How k={p.k} how={p.story.how} ui={p.story.ui} />
-          {p.story.timeline && <Timeline timeline={p.story.timeline} />}
-          <Bento k={p.k} title={p.t.includes} items={p.includes} />
+          <Facts facts={story.facts} />
+          <How k={k} how={story.how} scene={(i, on) => <OpsScene i={i} on={on} ui={story.ui} />} />
+          {story.timeline && <Timeline timeline={story.timeline} />}
         </>
-      ) : (
-        <Includes {...p} />
       )}
+      <Bento k={k} title={p.t.includes} items={p.includes} />
       <Method {...p} />
-      {p.stack.length > 0 && <Tech {...p} />}
-      {p.story && <Faq faq={p.story.faq} />}
+      {story && <Faq faq={story.faq} />}
+      <Close {...p} />
       <Next {...p} />
     </>
   );
