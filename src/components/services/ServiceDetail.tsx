@@ -17,7 +17,7 @@ import { ServiceVisual, type WidgetText } from "@/components/sections/ServiceWid
 import { ServiceIcon } from "./ServiceIcon";
 import { SHOTS, ShotView } from "@/components/sections/Spots";
 import type { ServiceStory } from "@/content/stories";
-import { Bento, Changes, Facts, Faq, How, OpsScene, Timeline, type Story } from "./ServiceStory";
+import { Bento, Changes, Facts, Faq, How, Timeline, type Story } from "./ServiceStory";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
@@ -269,7 +269,7 @@ export function ServiceDetail(p: ServiceDetailProps) {
       {story && (
         <>
           <Facts facts={story.facts} />
-          <How k={k} how={story.how} scene={(i, on) => <OpsScene i={i} on={on} ui={story.ui} />} />
+          <How k={k} how={story.how} scene={(i, on) => <ShotView shots={SHOTS.ops} i={i} on={on} />} />
           {story.timeline && <Timeline timeline={story.timeline} />}
         </>
       )}

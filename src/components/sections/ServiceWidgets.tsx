@@ -6,7 +6,7 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import * as si from "simple-icons";
 import { Bead } from "@/components/glass/Bead";
-import { AI, API, APPS, DESIGN, GEO, HW, SEO, SHOP, StoryV, WEB } from "./Spots";
+import { AI, API, APPS, DESIGN, GEO, HW, OPS, SEO, SHOP, StoryV, WEB } from "./Spots";
 import { Shape } from "@/components/visual/Shapes";
 import { prefersReducedMotion } from "@/lib/env";
 import { play as sfx } from "@/lib/sound";
@@ -1644,6 +1644,6 @@ function visual(k: ServiceKey, t: WidgetText, max?: number) {
     case "shop":
       return <StoryV shots={SHOP} max={max} />;
     case "ops":
-      return <OpsV t={t} max={max} />;
+      return <StoryV shots={OPS} max={max} />;
   }
 }

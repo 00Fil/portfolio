@@ -27,6 +27,7 @@ import {
   Notification01Icon,
   Package01Icon,
   Search01Icon,
+  Shield01Icon,
   ShoppingCart01Icon,
   SparklesIcon,
   ThermometerWarmIcon,
@@ -42,7 +43,7 @@ export type Shot = { node: ReactNode; play?: (run: gsap.core.Timeline, $: Q, at:
 const snd = (run: gsap.core.Timeline, name: Sfx, at: number) => run.call(() => sfx(name), undefined, at);
 
 const W = 620;
-const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too.", "Livelli": "Layers", "Desktop": "Desktop", "Hero": "Hero", "Titolo": "Title", "Servizi": "Services", "Prenota una visita": "Book a visit", "Perfetto così!": "Love it!", "Riempimento": "Fill", "Angoli": "Corners", "Il tuo sorriso, in buone mani": "Your smile, in good hands", "Pubblicazione": "Deployment", "Pubblica": "Deploy", "Compilato in 9 s": "Built in 9 s", "24 pagine generate": "24 pages generated", "Immagini ottimizzate": "Images optimised", "Online su studiobianchi.it": "Live on studiobianchi.it", "Online": "Live", "Chi siamo": "About", "Contatti": "Contact", "Giovedì 14 novembre": "Thursday 14 November", "Conferma": "Confirm", "Nuova prenotazione": "New booking", "Giulia R. · giovedì alle 14:30": "Giulia R. · Thursday at 2:30 pm", "ora": "now", "Buonasera, Marco": "Good evening, Marco", "Come posso aiutarti oggi?": "How can I help you today?", "Mi consigli un buon dentista a Brescia?": "Can you recommend a good dentist in Brescia?", ", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive.": ", in central Brescia: online booking, long hours and excellent reviews.", "e": "and", "Sei la loro": "You’re their", "prima scelta,": "first choice,", "quando si parla del tuo settore.": "whenever your field comes up.", "Nuova attività": "New task", "Recenti": "Recent", "Report vendite": "Sales report", "Fatture ottobre": "October invoices", "Listino 2026": "2026 price list", "Cosa facciamo oggi?": "What shall we do today?", "Smista le email di oggi, inserisci gli ordini e prepara le risposte": "Sort today’s emails, enter the orders and draft the replies", "Al lavoro sulle email di oggi": "Working on today’s emails", "Lette 24 email": "Read 24 emails", "12 ordini inseriti nel gestionale": "12 orders entered in the ERP", "9 risposte preparate": "9 replies drafted", "3 da controllare a mano": "3 to check by hand", "File": "Files", "ordini.xlsx": "orders.xlsx", "risposte (9)": "replies (9)", "Fatto. 9 risposte pronte": "Done. 9 replies ready", "12 ordini già nel gestionale · 3 da guardare tu": "12 orders already in the ERP · 3 for you to check", "Approva e invia": "Approve and send", "Prenotazione — Prototipo": "Booking — Prototype", "Presenta": "Present", "Scegli l'orario": "Pick a time", "Confermato": "Confirmed", "Ci vediamo giovedì": "See you Thursday", "Test con 5 persone vere": "Tested with 5 real people", "prenotare una visita": "book a visit", "Tempo medio": "Average time", "Completano la prenotazione": "Complete the booking", "Prima": "Before", "Dopo": "After", "2,5 volte più prenotazioni": "2.5× more bookings", "Il tuo gestionale": "Your ERP", "Nuovo ordine #1042 · 89,00 €": "New order #1042 · €89.00", "Pagamento ricevuto": "Payment received", "Fattura FT-1042 creata e scorte aggiornate": "Invoice FT-1042 created, stock updated", "Conferma inviata al cliente": "Confirmation sent to the customer", "Richiesta del cliente chiusa": "Customer request closed", "Prenota e gestisci le visite": "Book and manage visits", "Ottieni": "Get", "Apri": "Open", "Salute": "Health", "Età": "Age", "1 avviso": "1 alert", "Porta chiusa · temperatura in discesa": "Door closed · temperature falling", "Sbiancamento e igiene, prima visita gratuita.": "Whitening and hygiene, free first visit.", "Punteggio": "Score", "Tempo di apertura": "Load time", "Peso delle immagini": "Image weight", "Titoli delle pagine": "Page titles", "Scheda Google": "Google profile", "incompleta": "incomplete", "completa": "complete", "3 su 24": "3 of 24", "24 su 24": "24 of 24", "6,2 s": "6.2 s", "0,9 s": "0.9 s", "4,8 MB": "4.8 MB", "Senza rete": "Offline", "In attesa": "Queued", "Consegna alle 15": "Delivery at 3 pm", "Avvisa": "Notify", "Avvisato": "Notified", "In compilazione": "Building", "Codice scaricato": "Code fetched", "Dipendenze installate": "Dependencies installed", "Novembre 2026": "November 2026", "Giovedì 12 novembre": "Thursday 12 November"};
+const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too.", "Livelli": "Layers", "Desktop": "Desktop", "Hero": "Hero", "Titolo": "Title", "Servizi": "Services", "Prenota una visita": "Book a visit", "Perfetto così!": "Love it!", "Riempimento": "Fill", "Angoli": "Corners", "Il tuo sorriso, in buone mani": "Your smile, in good hands", "Pubblicazione": "Deployment", "Pubblica": "Deploy", "Compilato in 9 s": "Built in 9 s", "24 pagine generate": "24 pages generated", "Immagini ottimizzate": "Images optimised", "Online su studiobianchi.it": "Live on studiobianchi.it", "Online": "Live", "Chi siamo": "About", "Contatti": "Contact", "Giovedì 14 novembre": "Thursday 14 November", "Conferma": "Confirm", "Nuova prenotazione": "New booking", "Giulia R. · giovedì alle 14:30": "Giulia R. · Thursday at 2:30 pm", "ora": "now", "Buonasera, Marco": "Good evening, Marco", "Come posso aiutarti oggi?": "How can I help you today?", "Mi consigli un buon dentista a Brescia?": "Can you recommend a good dentist in Brescia?", ", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive.": ", in central Brescia: online booking, long hours and excellent reviews.", "e": "and", "Sei la loro": "You’re their", "prima scelta,": "first choice,", "quando si parla del tuo settore.": "whenever your field comes up.", "Nuova attività": "New task", "Recenti": "Recent", "Report vendite": "Sales report", "Fatture ottobre": "October invoices", "Listino 2026": "2026 price list", "Cosa facciamo oggi?": "What shall we do today?", "Smista le email di oggi, inserisci gli ordini e prepara le risposte": "Sort today’s emails, enter the orders and draft the replies", "Al lavoro sulle email di oggi": "Working on today’s emails", "Lette 24 email": "Read 24 emails", "12 ordini inseriti nel gestionale": "12 orders entered in the ERP", "9 risposte preparate": "9 replies drafted", "3 da controllare a mano": "3 to check by hand", "File": "Files", "ordini.xlsx": "orders.xlsx", "risposte (9)": "replies (9)", "Fatto. 9 risposte pronte": "Done. 9 replies ready", "12 ordini già nel gestionale · 3 da guardare tu": "12 orders already in the ERP · 3 for you to check", "Approva e invia": "Approve and send", "Prenotazione — Prototipo": "Booking — Prototype", "Presenta": "Present", "Scegli l'orario": "Pick a time", "Confermato": "Confirmed", "Ci vediamo giovedì": "See you Thursday", "Test con 5 persone vere": "Tested with 5 real people", "prenotare una visita": "book a visit", "Tempo medio": "Average time", "Completano la prenotazione": "Complete the booking", "Prima": "Before", "Dopo": "After", "2,5 volte più prenotazioni": "2.5× more bookings", "Il tuo gestionale": "Your ERP", "Nuovo ordine #1042 · 89,00 €": "New order #1042 · €89.00", "Pagamento ricevuto": "Payment received", "Fattura FT-1042 creata e scorte aggiornate": "Invoice FT-1042 created, stock updated", "Conferma inviata al cliente": "Confirmation sent to the customer", "Richiesta del cliente chiusa": "Customer request closed", "Prenota e gestisci le visite": "Book and manage visits", "Ottieni": "Get", "Apri": "Open", "Salute": "Health", "Età": "Age", "Attacchi fermati oggi": "Attacks stopped today", "Pagine già pronte": "Pages served ready", "Connessione protetta": "Secure connection", "Server": "Server", "Europa · Francia": "Europe · France", "Certificato": "Certificate", "Si rinnova da solo": "Renews itself", "Dominio": "Domain", "Intestato a te": "In your name", "Versione online": "Live version", "Torna alla precedente": "Roll back", "Modifica": "Change", "Controlli": "Checks", "Prova": "Staging", "Ripristinata in 4 secondi": "Restored in 4 seconds", "Copie di sicurezza · ultime due settimane": "Backups · last two weeks", "Il sito non risponde": "The site is down", "Di nuovo online in 41 secondi": "Back online in 41 seconds", "studiobianchi.it non risponde": "studiobianchi.it is down", "Avviso a Filippo · 03:12": "Filippo alerted · 3:12 am", "Online negli ultimi 90 giorni": "Uptime, last 90 days", "1 avviso": "1 alert", "Porta chiusa · temperatura in discesa": "Door closed · temperature falling", "Sbiancamento e igiene, prima visita gratuita.": "Whitening and hygiene, free first visit.", "Punteggio": "Score", "Tempo di apertura": "Load time", "Peso delle immagini": "Image weight", "Titoli delle pagine": "Page titles", "Scheda Google": "Google profile", "incompleta": "incomplete", "completa": "complete", "3 su 24": "3 of 24", "24 su 24": "24 of 24", "6,2 s": "6.2 s", "0,9 s": "0.9 s", "4,8 MB": "4.8 MB", "Senza rete": "Offline", "In attesa": "Queued", "Consegna alle 15": "Delivery at 3 pm", "Avvisa": "Notify", "Avvisato": "Notified", "In compilazione": "Building", "Codice scaricato": "Code fetched", "Dipendenze installate": "Dependencies installed", "Novembre 2026": "November 2026", "Giovedì 12 novembre": "Thursday 12 November"};
 /** Le scritte dentro le inquadrature: italiano, oppure inglese quando il sito è in inglese. */
 function Tx({ children }: { children: string }) {
   return <>{useLocale() === "en" ? (EN[children] ?? children) : children}</>;
@@ -2357,5 +2358,268 @@ export const SHOP: Shot[] = [
   },
 ];
 
+/* ───────────── Hosting: uno scudo, un indirizzo protetto, aggiornamenti che non rompono, copie e allarmi di notte ───────────── */
+
+/** Il fondo delle scene di hosting: un velo scuro steso su tutta la tela, il colore del servizio resta a filo. */
+const Night = ({ children }: { children: ReactNode }) => (
+  <span data-full="" className="relative block h-full w-full overflow-hidden bg-[linear-gradient(160deg,rgba(4,9,15,.78),rgba(4,9,15,.42))] text-white">
+    {children}
+  </span>
+);
+const Kicker = ({ children }: { children: ReactNode }) => <span className="block font-mono text-[12px] uppercase tracking-[0.14em] text-white/50">{children}</span>;
+/** Le richieste che arrivano allo scudo: alcune sono attacchi e si fermano, le altre passano. */
+const REQ = Array.from({ length: 30 }, (_, i) => ({ bad: [1, 3, 4, 7, 9, 10, 13, 15, 16, 19, 21, 24, 26, 28].includes(i), y: 8 + ((i * 37) % 84), d: (i * 0.17) % 2.6 }));
+const PIPE = ["Modifica", "Controlli", "Prova", "Online"];
+const NIGHTS = [64, 72, 58, 80, 76, 70, 88, 62, 74, 84, 79, 68, 90, 86];
+
+export const OPS: Shot[] = [
+  {
+    dur: 5,
+    node: (
+      <Night>
+        {/* lo scudo: una linea di luce verticale, il sito dietro */}
+        <span data-wall className="absolute bottom-[18%] left-[60%] top-[12%] block w-[3px] origin-center rounded-full bg-[linear-gradient(#8fd8ff00,#8fd8ff,#8fd8ff00)] shadow-[0_0_24px_4px_rgba(94,196,255,.45)]" />
+        <span className="absolute left-[60%] top-[12%] -translate-x-1/2 -translate-y-[130%]">
+          <Ico i={Shield01Icon} s={30} c="text-[#8fd8ff]" />
+        </span>
+        <span className="absolute right-[7%] top-1/2 flex -translate-y-[70%] flex-col items-end gap-2 text-right">
+          <span className="text-[28px] font-medium tracking-[-0.035em]">studiobianchi.it</span>
+          <span className="flex items-center gap-1.5 text-[14px] text-[#8ff0ad]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#30d158]" />
+            <Tx>Online</Tx>
+          </span>
+        </span>
+        <span className="absolute inset-y-[12%] left-0 right-[40%] block">
+          {REQ.map((r, i) => (
+            <span key={i} data-req={r.bad ? "bad" : "ok"} className={`absolute left-0 block h-[4px] w-9 rounded-full opacity-0 ${r.bad ? "bg-[#ff6b5e]" : "bg-[#8fd8ff]"}`} style={{ top: `${r.y}%` }} />
+          ))}
+        </span>
+        <span className="absolute bottom-[8%] left-[7%] right-[7%] flex items-end justify-between gap-6">
+          <span className="block">
+            <span data-blocked className="block font-mono text-[64px] leading-none tracking-[-0.05em] tabular-nums">0</span>
+            <span className="mt-2 block"><Kicker><Tx>Attacchi fermati oggi</Tx></Kicker></span>
+          </span>
+          <span className="block">
+            <span data-cache className="block font-mono text-[34px] leading-none tabular-nums text-white/85">0%</span>
+            <span className="mt-2 block"><Kicker><Tx>Pagine già pronte</Tx></Kicker></span>
+          </span>
+          <span className="block">
+            <span className="block font-mono text-[34px] leading-none tabular-nums text-white/85">38 ms</span>
+            <span className="mt-2 block"><Kicker><Tx>Risposta</Tx></Kicker></span>
+          </span>
+        </span>
+      </Night>
+    ),
+    play: (run, $, at) => {
+      const reqs = $("[data-req]");
+      const wall = $("[data-wall]")[0];
+      run.fromTo(wall, { scaleY: 0 }, { scaleY: 1, duration: 0.7, ease: "expo.out" }, at - 0.2);
+      // due ondate di richieste: gli attacchi si schiantano sullo scudo, le visite vere lo attraversano
+      [0, 1.3].forEach((wave) =>
+        reqs.forEach((r, i) => {
+          const bad = (r as HTMLElement).dataset.req === "bad";
+          const a = at + wave + REQ[i].d * 0.55;
+          const box = r.parentElement as HTMLElement;
+          if (bad)
+            run
+              .fromTo(r, { x: -30, opacity: 0, scaleX: 1 }, { x: () => box.offsetWidth - 36, opacity: 1, duration: 0.55, ease: "power1.in" }, a)
+              .to(r, { scaleX: 0.1, opacity: 0, duration: 0.18, ease: "power2.out" }, a + 0.55)
+              .to(wall, { boxShadow: "0 0 34px 8px rgba(255,107,94,.45)", duration: 0.08, yoyo: true, repeat: 1 }, a + 0.55);
+          else run.fromTo(r, { x: -30, opacity: 0 }, { x: () => box.offsetWidth * 1.45, opacity: 1, duration: 0.85, ease: "none" }, a).to(r, { opacity: 0, duration: 0.15 }, a + 0.75);
+        }),
+      );
+      count(run, $("[data-blocked]")[0], 0, 12480, at + 0.3, 2.6, (n) => it(n));
+      count(run, $("[data-cache]")[0], 0, 94, at + 0.3, 2.6, (n) => `${Math.round(n)}%`);
+      snd(run, "whoosh", at + 0.3);
+    },
+  },
+  {
+    dur: 5,
+    node: (
+      <Night>
+        <span className="absolute inset-x-[9%] top-1/2 block -translate-y-1/2">
+          <span data-addr className="flex h-[70px] items-center gap-3 border-b-2 border-white/15 pb-1 text-[34px] tracking-[-0.03em]">
+            <span className="relative block h-9 w-9 shrink-0">
+              <span data-lock0 className="absolute inset-0 text-white/35">
+                <Ico i={LockKeyIcon} s={34} />
+              </span>
+              <span data-lock1 className="absolute inset-0 text-[#6ee7a8] opacity-0">
+                <Ico i={LockKeyIcon} s={34} />
+              </span>
+              <span data-ring className="absolute -inset-2 block rounded-full border border-[#6ee7a8] opacity-0" />
+            </span>
+            <span className="text-white/35">https://</span>
+            <span data-host className="-ml-3 whitespace-pre" />
+            <span data-caret className="-ml-2 h-9 w-[2px] bg-[#8fd8ff]" />
+          </span>
+          <span data-safe className="mt-8 block text-[52px] font-medium leading-[0.95] tracking-[-0.05em] opacity-0">
+            <Tx>Connessione protetta</Tx>
+          </span>
+          <span className="mt-6 block">
+            {[
+              ["Server", "Europa · Francia"],
+              ["Certificato", "Si rinnova da solo"],
+              ["Dominio", "Intestato a te"],
+            ].map(([k, v]) => (
+              <span key={k} data-spec className="flex items-baseline justify-between border-t border-white/12 py-3.5 text-[16px] opacity-0">
+                <span className="text-white/50"><Tx>{k}</Tx></span>
+                <span><Tx>{v}</Tx></span>
+              </span>
+            ))}
+          </span>
+        </span>
+      </Night>
+    ),
+    play: (run, $, at) => {
+      run.set($("[data-caret]"), { opacity: 1 }, at - 0.3);
+      const t = typeText(run, $("[data-host]")[0], "studiobianchi.it", at + 0.1, 1.7);
+      run
+        .to($("[data-caret]"), { opacity: 0, duration: 0.01 }, t + 0.1)
+        .to($("[data-lock0]"), { opacity: 0, duration: 0.2 }, t + 0.25)
+        .fromTo($("[data-lock1]"), { opacity: 0, scale: 0.4, rotate: -20 }, { opacity: 1, scale: 1, rotate: 0, duration: 0.5, ease: "back.out(2.6)" }, t + 0.25)
+        .fromTo($("[data-ring]"), { opacity: 0.9, scale: 0.6 }, { opacity: 0, scale: 1.8, duration: 0.8, ease: "power2.out" }, t + 0.3)
+        .to($("[data-addr]"), { borderColor: "rgba(110,231,168,.55)", duration: 0.4 }, t + 0.3)
+        .fromTo($("[data-safe]"), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" }, t + 0.45)
+        .fromTo($("[data-spec]"), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.12, ease: "expo.out" }, t + 0.7);
+      snd(run, "success", t + 0.3);
+    },
+  },
+  {
+    dur: 5.4,
+    node: (
+      <Night>
+        <span className="absolute left-[8%] top-[13%] block">
+          <Kicker><Tx>Versione online</Tx></Kicker>
+          <span className="mt-2 flex h-[96px] items-baseline overflow-hidden font-mono text-[88px] leading-[96px] tracking-[-0.05em]">
+            v
+            <span className="relative block h-[96px] overflow-hidden">
+              <span data-ver className="block">
+                <span className="block">23</span>
+                <span className="block">24</span>
+              </span>
+            </span>
+          </span>
+        </span>
+        <span data-rb className="absolute right-[8%] top-[17%] flex items-center gap-2 rounded-full border border-white/30 px-5 py-2.5 text-[15px] opacity-0">
+          <Ico i={ArrowUp01Icon} s={13} c="-rotate-90" />
+          <Tx>Torna alla precedente</Tx>
+        </span>
+        {/* la strada di ogni modifica: si accende tappa dopo tappa */}
+        <span className="absolute inset-x-[8%] top-[56%] block">
+          <span className="absolute left-0 right-0 top-[10px] block h-[3px] rounded-full bg-white/12" />
+          <span data-fill className="absolute left-0 right-0 top-[10px] block h-[3px] origin-left rounded-full bg-[linear-gradient(90deg,#5ec4ff,#6ee7a8)]" />
+          <span className="relative flex justify-between">
+            {PIPE.map((p) => (
+              <span key={p} data-node className="flex w-0 flex-col items-center">
+                <span data-dot className="block h-[23px] w-[23px] shrink-0 rounded-full border-[3px] border-white/30 bg-[#0b141d]" />
+                <span className="mt-4 whitespace-nowrap text-[15px] text-white/50"><Tx>{p}</Tx></span>
+              </span>
+            ))}
+          </span>
+        </span>
+        <span data-back className="absolute bottom-[12%] left-[8%] flex items-center gap-2 text-[16px] text-[#8ff0ad] opacity-0">
+          <Ok><Tx>Ripristinata in 4 secondi</Tx></Ok>
+        </span>
+      </Night>
+    ),
+    play: (run, $, at) => {
+      const dots = $("[data-dot]");
+      const labels = $("[data-node] > span:last-child");
+      const ver = $("[data-ver]")[0];
+      run.set(ver, { yPercent: 0 }, at - 0.3);
+      run.fromTo($("[data-fill]"), { scaleX: 0 }, { scaleX: 1, duration: 1.8, ease: "power1.inOut" }, at);
+      dots.forEach((d, i) => {
+        const a = at + (i / (dots.length - 1)) * 1.8;
+        run
+          .to(d, { borderColor: i === dots.length - 1 ? GREEN : "#5ec4ff", backgroundColor: i === dots.length - 1 ? GREEN : "#5ec4ff", scale: 1.25, duration: 0.18, ease: "power2.out" }, a)
+          .to(d, { scale: 1, duration: 0.3 }, a + 0.18)
+          .to(labels[i], { color: "#fff", duration: 0.2 }, a);
+        snd(run, "tick", a);
+      });
+      // arrivata online, il numero di versione sale
+      run.to(ver, { yPercent: -50, duration: 0.5, ease: "back.out(1.8)" }, at + 1.85);
+      snd(run, "success", at + 1.85);
+      // e se qualcosa non convince, si torna indietro con un clic
+      run.fromTo($("[data-rb]"), { opacity: 0, y: -6 }, { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, at + 2.2);
+      const c = cursorIn(run, $, $("[data-rb]")[0], at + 2.4);
+      const t = click(run, c, $("[data-rb]")[0], at + 2.45, 0.5);
+      run
+        .to(ver, { yPercent: 0, duration: 0.5, ease: "back.out(1.8)" }, t + 0.1)
+        .fromTo($("[data-back]"), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.45, ease: "expo.out" }, t + 0.3)
+        .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.5);
+    },
+  },
+  {
+    dur: 6,
+    node: (
+      <Night>
+        <span className="absolute left-[8%] top-[11%] block">
+          <span className="relative block h-[92px] overflow-hidden font-mono text-[84px] leading-[92px] tracking-[-0.05em] tabular-nums">
+            <span data-clock className="block">
+              <span className="block">03:00</span>
+              <span className="block text-[#ffb4ae]">03:12</span>
+            </span>
+          </span>
+          <span className="mt-1 block"><Kicker><Tx>Copie di sicurezza · ultime due settimane</Tx></Kicker></span>
+        </span>
+        <span className="absolute right-[8%] top-[11%] flex h-[92px] w-[38%] items-end justify-between">
+          {NIGHTS.map((h, i) => (
+            <span key={i} data-night className="block w-[5.5%] origin-bottom rounded-full bg-[#5ec4ff]" style={{ height: `${h}%`, opacity: 0.35 + (i / NIGHTS.length) * 0.65 }} />
+          ))}
+        </span>
+        {/* il battito del sito: piatto e rosso quando non risponde, di nuovo vivo dopo pochi secondi */}
+        <svg viewBox="0 0 600 80" preserveAspectRatio="none" className="absolute inset-x-0 top-[40%] h-[80px] w-full overflow-visible" aria-hidden>
+          <path data-pulse d="M0 40 H140 L152 22 L164 58 L176 40 H300 L312 22 L324 58 L336 40 H600" fill="none" stroke={GREEN} strokeWidth="3" strokeLinejoin="round" vectorEffect="non-scaling-stroke" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+        </svg>
+        <span data-down className="absolute bottom-[9%] left-[8%] flex items-center gap-2 text-[16px] text-[#ffb4ae] opacity-0">
+          <span className="h-2 w-2 rounded-full bg-[#ff6b5e]" />
+          <Tx>Il sito non risponde</Tx>
+        </span>
+        <span data-up className="absolute bottom-[9%] left-[8%] flex items-center gap-2 text-[16px] text-[#8ff0ad] opacity-0">
+          <Ok><Tx>Di nuovo online in 41 secondi</Tx></Ok>
+        </span>
+        <span data-alert className="absolute right-[6%] top-[56%] block w-[300px] opacity-0">
+          <Bead tint="rgba(30,34,40,.92)" radius={18} className="flex items-center gap-3 p-3 pr-4 text-white">
+            <Ours size={32} />
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block text-[12.5px] font-semibold"><Tx>studiobianchi.it non risponde</Tx></span>
+              <span className="block truncate text-[11.5px] text-white/60"><Tx>Avviso a Filippo · 03:12</Tx></span>
+            </span>
+          </Bead>
+        </span>
+        <span data-uptime className="absolute bottom-[9%] right-[8%] text-right opacity-0">
+          <span className="block font-mono text-[48px] leading-none tracking-[-0.05em]">99,98%</span>
+          <span className="mt-2 block"><Kicker><Tx>Online negli ultimi 90 giorni</Tx></Kicker></span>
+        </span>
+      </Night>
+    ),
+    play: (run, $, at) => {
+      const pulse = $("[data-pulse]")[0];
+      const clock = $("[data-clock]")[0];
+      run.set(clock, { yPercent: 0 }, at - 0.3).set(pulse, { stroke: GREEN, attr: { d: "M0 40 H140 L152 22 L164 58 L176 40 H300 L312 22 L324 58 L336 40 H600" } }, at - 0.3);
+      // ore 03:00: le copie della notte, una barra per notte
+      run.fromTo($("[data-night]"), { scaleY: 0 }, { scaleY: 1, duration: 0.5, stagger: 0.05, ease: "back.out(1.6)" }, at);
+      run.fromTo(pulse, { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 1.2, ease: "none" }, at + 0.1);
+      // ore 03:12: il battito si appiattisce, parte l'avviso
+      const t = at + 1.5;
+      run
+        .to(clock, { yPercent: -50, duration: 0.45, ease: "back.out(1.8)" }, t)
+        .to(pulse, { stroke: "#ff6b5e", attr: { d: "M0 40 H140 L152 22 L164 58 L176 40 H300 L312 40 L324 40 L336 40 H600" }, duration: 0.35 }, t)
+        .fromTo($("[data-down]"), { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.3 }, t + 0.1)
+        .fromTo($("[data-alert]"), { opacity: 0, y: -18, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, t + 0.35);
+      snd(run, "notify", t + 0.35);
+      // pochi secondi dopo: di nuovo vivo
+      const u = t + 1.7;
+      run
+        .to(pulse, { stroke: GREEN, attr: { d: "M0 40 H140 L152 22 L164 58 L176 40 H300 L312 22 L324 58 L336 40 H600" }, duration: 0.4 }, u)
+        .to($("[data-down]"), { opacity: 0, duration: 0.2 }, u)
+        .fromTo($("[data-up]"), { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.35 }, u + 0.1)
+        .to($("[data-alert]"), { opacity: 0, y: -10, duration: 0.35 }, u + 0.2)
+        .fromTo($("[data-uptime]"), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "expo.out" }, u + 0.4);
+      snd(run, "success", u);
+    },
+  },
+];
+
 /** Le inquadrature di ogni servizio, per chi le usa una alla volta (i passi di "Come funziona" nelle pagine). */
-export const SHOTS = { web: WEB, seo: SEO, geo: GEO, apps: APPS, design: DESIGN, ai: AI, hw: HW, api: API, shop: SHOP };
+export const SHOTS = { ops: OPS, web: WEB, seo: SEO, geo: GEO, apps: APPS, design: DESIGN, ai: AI, hw: HW, api: API, shop: SHOP };
