@@ -100,26 +100,26 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
           const dur = Math.max(sub.duration() + 1, (s.dur ?? 3) * 0.7);
           run
             .set(el, { scale: 1, x: 0, y: 0 }, st)
-            .fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out", immediateRender: false }, st)
+            .fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, st)
             .call(() => sfx("whoosh"), undefined, st);
           if (full) {
             // le schermate a tutto riquadro non si rimpiccioliscono: entrano di lato, un filo più grandi, e si assestano
-            run.fromTo(inner, { scale: 1.05, x: 44 }, { scale: 1, x: 0, duration: 0.9, ease: "expo.out", immediateRender: false }, st);
+            run.fromTo(inner, { scale: 1.05, x: 44 }, { scale: 1, x: 0, duration: 0.9, ease: "expo.out" }, st);
           } else {
             // entra dal basso, leggermente più piccola, e poi continua a muoversi piano finché resta in scena
-            run.fromTo(inner, { y: 40, scale: 0.92 }, { y: 0, scale: 1, duration: 0.8, ease: "expo.out", immediateRender: false }, st).to(inner, { y: -6, duration: Math.max(0.1, dur - 0.8), ease: "sine.inOut" }, st + 0.8);
+            run.fromTo(inner, { y: 40, scale: 0.92 }, { y: 0, scale: 1, duration: 0.8, ease: "expo.out" }, st).to(inner, { y: -6, duration: Math.max(0.1, dur - 0.8), ease: "sine.inOut" }, st + 0.8);
           }
           run.add(sub, st);
           // a fine scena la camera torna larga sul risultato, poi si passa oltre
-          run.to(el, { scale: 1, x: 0, y: 0, duration: 0.7, ease: "power2.inOut", overwrite: "auto" }, st + dur - 0.75);
+          run.to(el, { scale: 1, x: 0, y: 0, duration: 0.7, ease: "power2.inOut" }, st + dur - 0.75);
           run.to(el, { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, st + dur);
           if (full) run.to(inner, { x: -44, duration: 0.4, ease: "power2.in" }, st + dur);
           else run.to(inner, { y: -26, scale: 0.98, duration: 0.4, ease: "power2.in" }, st + dur);
           // la barra in basso: un tratto per atto, si riempie mentre l'atto va avanti (commento compreso)
-          if (bars[i]) run.fromTo(bars[i], { scaleX: 0 }, { scaleX: 1, duration: st + dur - at, ease: "none", immediateRender: false }, at);
+          if (bars[i]) run.fromTo(bars[i], { scaleX: 0 }, { scaleX: 1, duration: st + dur - at, ease: "none" }, at);
           at = st + dur + 0.15;
         });
-        if (barBox) run.fromTo(barBox, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, immediateRender: false }, 0.1).to(barBox, { autoAlpha: 0, duration: 0.3 }, at - 0.1);
+        if (barBox) run.fromTo(barBox, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4 }, 0.1).to(barBox, { autoAlpha: 0, duration: 0.3 }, at - 0.1);
         const end = addEnd(run, q, at);
         run.to({}, { duration: 0.01 }, end + 0.4);
         return tl.add(run, 0.2);
@@ -422,7 +422,7 @@ const cam = (run: gsap.core.Timeline, shot: HTMLElement, el: Element, at: number
     const p = spot(shot, el);
     return axis === "x" ? (shot.offsetWidth / 2 - p.x) * (CAM - 1) : (shot.offsetHeight / 2 - p.y) * (CAM - 1);
   };
-  run.to(shot, { scale: CAM, x: to("x"), y: to("y"), duration: 0.9, ease: "power2.out", overwrite: "auto" }, at);
+  run.to(shot, { scale: CAM, x: to("x"), y: to("y"), duration: 0.9, ease: "power2.out" }, at);
 };
 /** Scrive in un campo con il ritmo irregolare di una persona. Restituisce quando ha finito. */
 const typeText = (run: gsap.core.Timeline, el: Element, text: string, at: number, fast = 1) => {
