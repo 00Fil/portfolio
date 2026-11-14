@@ -268,6 +268,8 @@ export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot 
       const tl = build(q).pause();
       const cap = spot && !ownSpot ? spotTimeline(q).pause() : null;
       timelines.current = cap ? [tl, cap] : [tl];
+      // per le prove: la timeline è raggiungibile dall'elemento, così la si può fermare su un istante preciso
+      (box.current as unknown as { __tl: gsap.core.Timeline }).__tl = tl;
       if (prefersReducedMotion()) return void tl.progress(1);
       if (play !== undefined) return;
       // parte la prima volta che si vede e si ferma ogni volta che esce dallo schermo:
@@ -306,7 +308,7 @@ export function Canvas({ w, h, max = 1, build, children, framed = true, ownSpot 
     timelines.current.forEach((t) => (play ? t.restart() : t.pause()));
   }, [play]);
   return (
-    <div ref={box} aria-hidden className="pointer-events-none relative h-full w-full min-w-0 select-none">
+    <div ref={box} data-canvas aria-hidden className="pointer-events-none relative h-full w-full min-w-0 select-none">
       <div
         ref={stage}
         className={`absolute left-1/2 top-1/2 ${win ? "overflow-hidden rounded-[22px] bg-[rgba(9,12,16,.72)] shadow-[0_50px_100px_-40px_rgba(0,0,0,.75),0_0_0_1px_rgba(255,255,255,.1)] backdrop-blur-xl" : ""}`}
@@ -1594,7 +1596,7 @@ export function ServiceVisual({ k, t, max, play }: { k: ServiceKey; t: WidgetTex
     let id = 0;
     const io = new IntersectionObserver(([e]) => {
       window.clearTimeout(id);
-      if (e.isIntersecting) id = window.setTimeout(() => setNear(true), 220);
+      if (e.isIntersecting) id = window.setTimeout(() => setNear(true), isLow() ? 600 : 220);
       else setNear(false);
     });
     io.observe(box.current!);

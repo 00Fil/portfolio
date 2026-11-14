@@ -639,15 +639,15 @@
         "s": [
           [
             "Ti cercano.",
-            "Ti trovano."
+            "Trovano gli altri."
           ],
           [
-            "Sistemiamo il sito",
-            "per Google."
+            "Sistemiamo il sito,",
+            "un punto alla volta."
           ],
           [
-            "Più visite,",
-            "ogni mese."
+            "Ora trovano",
+            "te."
           ]
         ],
         "sub": "SEO tecnica e prestazioni"
@@ -668,12 +668,12 @@
             "al telefono."
           ],
           [
-            "iPhone, Android,",
-            "Mac, Windows, Linux."
+            "La stessa app,",
+            "su ogni schermo."
           ],
           [
-            "Sempre",
-            "sincronizzata."
+            "Funziona anche",
+            "senza rete."
           ]
         ],
         "sub": "App multipiattaforma"
@@ -715,12 +715,8 @@
       "hw": {
         "s": [
           [
-            "Sensori e macchine,",
-            "dati dal vivo."
-          ],
-          [
-            "Un avviso",
-            "prima del problema."
+            "Le macchine parlano.",
+            "Ti avvisano prima."
           ],
           [
             "Tutto sotto controllo,",
@@ -749,16 +745,12 @@
       "shop": {
         "s": [
           [
-            "Il tuo negozio,",
-            "sempre aperto."
-          ],
-          [
-            "Pagamenti sicuri,",
-            "in un tocco."
+            "Si compra",
+            "in pochi tocchi."
           ],
           [
             "Ordini e magazzino",
-            "allineati."
+            "si aggiornano da soli."
           ]
         ],
         "sub": "Negozi online"

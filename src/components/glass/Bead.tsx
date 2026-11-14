@@ -20,15 +20,18 @@ export function Bead({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const bake = () => {
-      const url = bevelImage(el.offsetWidth, el.offsetHeight, radius);
+    // La misura arriva dal ResizeObserver (anche la prima): nessuna lettura forzata del layout.
+    // Con decine di gocce montate insieme, leggere e scrivere a turno costringeva il browser a ricalcolare a ogni goccia.
+    const ro = new ResizeObserver(([e]) => {
+      const b = e.borderBoxSize?.[0];
+      const w = b ? b.inlineSize : el.offsetWidth;
+      const h = b ? b.blockSize : el.offsetHeight;
+      const url = bevelImage(Math.round(w), Math.round(h), radius);
       if (url) {
         el.style.setProperty("--bevel", url);
         el.dataset.bevel = "1";
       }
-    };
-    bake();
-    const ro = new ResizeObserver(bake);
+    });
     ro.observe(el);
     return () => ro.disconnect();
   }, [radius]);

@@ -639,15 +639,15 @@
         "s": [
           [
             "They search.",
-            "They find you."
+            "They find the others."
           ],
           [
-            "We tune the site",
-            "for Google."
+            "We fix the site,",
+            "one point at a time."
           ],
           [
-            "More visits,",
-            "every month."
+            "Now they find",
+            "you."
           ]
         ],
         "sub": "Technical SEO and performance"
@@ -665,15 +665,15 @@
         "s": [
           [
             "From the store",
-            "to your phone."
+            "to the phone."
           ],
           [
-            "iPhone, Android,",
-            "Mac, Windows, Linux."
+            "The same app,",
+            "on every screen."
           ],
           [
-            "Always",
-            "in sync."
+            "It works",
+            "offline too."
           ]
         ],
         "sub": "Cross-platform apps"
@@ -715,15 +715,11 @@
       "hw": {
         "s": [
           [
-            "Sensors and machines,",
-            "live data."
+            "Machines talk.",
+            "They warn you first."
           ],
           [
-            "An alert",
-            "before the problem."
-          ],
-          [
-            "Everything in check,",
+            "Everything under control,",
             "from your phone."
           ]
         ],
@@ -749,16 +745,12 @@
       "shop": {
         "s": [
           [
-            "Your shop,",
-            "always open."
+            "Buying takes",
+            "a few taps."
           ],
           [
-            "Secure payments,",
-            "in one tap."
-          ],
-          [
-            "Orders and stock,",
-            "in sync."
+            "Orders and stock",
+            "update themselves."
           ]
         ],
         "sub": "Online stores"

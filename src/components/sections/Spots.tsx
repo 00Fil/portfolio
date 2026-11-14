@@ -42,7 +42,7 @@ export type Shot = { node: ReactNode; play?: (run: gsap.core.Timeline, $: Q, at:
 const snd = (run: gsap.core.Timeline, name: Sfx, at: number) => run.call(() => sfx(name), undefined, at);
 
 const W = 620;
-const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too.", "Livelli": "Layers", "Desktop": "Desktop", "Hero": "Hero", "Titolo": "Title", "Servizi": "Services", "Prenota una visita": "Book a visit", "Perfetto così!": "Love it!", "Riempimento": "Fill", "Angoli": "Corners", "Il tuo sorriso, in buone mani": "Your smile, in good hands", "Pubblicazione": "Deployment", "Pubblica": "Deploy", "Compilato in 9 s": "Built in 9 s", "24 pagine generate": "24 pages generated", "Immagini ottimizzate": "Images optimised", "Online su studiobianchi.it": "Live on studiobianchi.it", "Online": "Live", "Chi siamo": "About", "Contatti": "Contact", "Giovedì 14 novembre": "Thursday 14 November", "Conferma": "Confirm", "Nuova prenotazione": "New booking", "Giulia R. · giovedì alle 14:30": "Giulia R. · Thursday at 2:30 pm", "ora": "now", "Buonasera, Marco": "Good evening, Marco", "Come posso aiutarti oggi?": "How can I help you today?", "Mi consigli un buon dentista a Brescia?": "Can you recommend a good dentist in Brescia?", ", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive.": ", in central Brescia: online booking, long hours and excellent reviews.", "e": "and", "Sei la loro": "You’re their", "prima scelta,": "first choice,", "quando si parla del tuo settore.": "whenever your field comes up.", "Nuova attività": "New task", "Recenti": "Recent", "Report vendite": "Sales report", "Fatture ottobre": "October invoices", "Listino 2026": "2026 price list", "Cosa facciamo oggi?": "What shall we do today?", "Smista le email di oggi, inserisci gli ordini e prepara le risposte": "Sort today’s emails, enter the orders and draft the replies", "Al lavoro sulle email di oggi": "Working on today’s emails", "Lette 24 email": "Read 24 emails", "12 ordini inseriti nel gestionale": "12 orders entered in the ERP", "9 risposte preparate": "9 replies drafted", "3 da controllare a mano": "3 to check by hand", "File": "Files", "ordini.xlsx": "orders.xlsx", "risposte (9)": "replies (9)", "Fatto. 9 risposte pronte": "Done. 9 replies ready", "12 ordini già nel gestionale · 3 da guardare tu": "12 orders already in the ERP · 3 for you to check", "Approva e invia": "Approve and send", "Prenotazione — Prototipo": "Booking — Prototype", "Presenta": "Present", "Scegli l'orario": "Pick a time", "Confermato": "Confirmed", "Ci vediamo giovedì": "See you Thursday", "Test con 5 persone vere": "Tested with 5 real people", "prenotare una visita": "book a visit", "Tempo medio": "Average time", "Completano la prenotazione": "Complete the booking", "Prima": "Before", "Dopo": "After", "2,5 volte più prenotazioni": "2.5× more bookings", "Il tuo gestionale": "Your ERP", "Nuovo ordine #1042 · 89,00 €": "New order #1042 · €89.00", "Pagamento ricevuto": "Payment received", "Fattura FT-1042 creata e scorte aggiornate": "Invoice FT-1042 created, stock updated", "Conferma inviata al cliente": "Confirmation sent to the customer", "Richiesta del cliente chiusa": "Customer request closed", "Prenota e gestisci le visite": "Book and manage visits", "Ottieni": "Get", "Apri": "Open", "Salute": "Health", "Età": "Age", "Avvisa": "Notify", "Avvisato": "Notified", "In compilazione": "Building", "Codice scaricato": "Code fetched", "Dipendenze installate": "Dependencies installed", "Novembre 2026": "November 2026", "Giovedì 12 novembre": "Thursday 12 November"};
+const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too.", "Livelli": "Layers", "Desktop": "Desktop", "Hero": "Hero", "Titolo": "Title", "Servizi": "Services", "Prenota una visita": "Book a visit", "Perfetto così!": "Love it!", "Riempimento": "Fill", "Angoli": "Corners", "Il tuo sorriso, in buone mani": "Your smile, in good hands", "Pubblicazione": "Deployment", "Pubblica": "Deploy", "Compilato in 9 s": "Built in 9 s", "24 pagine generate": "24 pages generated", "Immagini ottimizzate": "Images optimised", "Online su studiobianchi.it": "Live on studiobianchi.it", "Online": "Live", "Chi siamo": "About", "Contatti": "Contact", "Giovedì 14 novembre": "Thursday 14 November", "Conferma": "Confirm", "Nuova prenotazione": "New booking", "Giulia R. · giovedì alle 14:30": "Giulia R. · Thursday at 2:30 pm", "ora": "now", "Buonasera, Marco": "Good evening, Marco", "Come posso aiutarti oggi?": "How can I help you today?", "Mi consigli un buon dentista a Brescia?": "Can you recommend a good dentist in Brescia?", ", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive.": ", in central Brescia: online booking, long hours and excellent reviews.", "e": "and", "Sei la loro": "You’re their", "prima scelta,": "first choice,", "quando si parla del tuo settore.": "whenever your field comes up.", "Nuova attività": "New task", "Recenti": "Recent", "Report vendite": "Sales report", "Fatture ottobre": "October invoices", "Listino 2026": "2026 price list", "Cosa facciamo oggi?": "What shall we do today?", "Smista le email di oggi, inserisci gli ordini e prepara le risposte": "Sort today’s emails, enter the orders and draft the replies", "Al lavoro sulle email di oggi": "Working on today’s emails", "Lette 24 email": "Read 24 emails", "12 ordini inseriti nel gestionale": "12 orders entered in the ERP", "9 risposte preparate": "9 replies drafted", "3 da controllare a mano": "3 to check by hand", "File": "Files", "ordini.xlsx": "orders.xlsx", "risposte (9)": "replies (9)", "Fatto. 9 risposte pronte": "Done. 9 replies ready", "12 ordini già nel gestionale · 3 da guardare tu": "12 orders already in the ERP · 3 for you to check", "Approva e invia": "Approve and send", "Prenotazione — Prototipo": "Booking — Prototype", "Presenta": "Present", "Scegli l'orario": "Pick a time", "Confermato": "Confirmed", "Ci vediamo giovedì": "See you Thursday", "Test con 5 persone vere": "Tested with 5 real people", "prenotare una visita": "book a visit", "Tempo medio": "Average time", "Completano la prenotazione": "Complete the booking", "Prima": "Before", "Dopo": "After", "2,5 volte più prenotazioni": "2.5× more bookings", "Il tuo gestionale": "Your ERP", "Nuovo ordine #1042 · 89,00 €": "New order #1042 · €89.00", "Pagamento ricevuto": "Payment received", "Fattura FT-1042 creata e scorte aggiornate": "Invoice FT-1042 created, stock updated", "Conferma inviata al cliente": "Confirmation sent to the customer", "Richiesta del cliente chiusa": "Customer request closed", "Prenota e gestisci le visite": "Book and manage visits", "Ottieni": "Get", "Apri": "Open", "Salute": "Health", "Età": "Age", "1 avviso": "1 alert", "Porta chiusa · temperatura in discesa": "Door closed · temperature falling", "Sbiancamento e igiene, prima visita gratuita.": "Whitening and hygiene, free first visit.", "Punteggio": "Score", "Tempo di apertura": "Load time", "Peso delle immagini": "Image weight", "Titoli delle pagine": "Page titles", "Scheda Google": "Google profile", "incompleta": "incomplete", "completa": "complete", "3 su 24": "3 of 24", "24 su 24": "24 of 24", "6,2 s": "6.2 s", "0,9 s": "0.9 s", "4,8 MB": "4.8 MB", "Senza rete": "Offline", "In attesa": "Queued", "Consegna alle 15": "Delivery at 3 pm", "Avvisa": "Notify", "Avvisato": "Notified", "In compilazione": "Building", "Codice scaricato": "Code fetched", "Dipendenze installate": "Dependencies installed", "Novembre 2026": "November 2026", "Giovedì 12 novembre": "Thursday 12 November"};
 /** Le scritte dentro le inquadrature: italiano, oppure inglese quando il sito è in inglese. */
 function Tx({ children }: { children: string }) {
   return <>{useLocale() === "en" ? (EN[children] ?? children) : children}</>;
@@ -93,7 +93,7 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
           if (say) addSay(run, say, scrim, zoom, at, 1);
           const st = at + (say ? 1.45 : 0);
           const inner = el.firstElementChild as Element;
-          const full = !!inner.firstElementChild?.hasAttribute("data-full");
+          const full = !!inner.querySelector(":scope > div > [data-full]");
           // le azioni vivono in una timeline a parte: la scena dura quanto servono, più un respiro per leggere
           const sub = gsap.timeline();
           s.play?.(sub, $, 0.35);
@@ -134,9 +134,33 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
 
 /** Un'inquadratura: la scena e, sopra, il cursore che tocca i pulsanti (micro interazioni vere, non solo cose che compaiono). */
 function ShotFrame({ node, hidden = false }: { node: ReactNode; hidden?: boolean }) {
+  const root = useRef<HTMLDivElement>(null);
+  const fit = useRef<HTMLDivElement>(null);
+  // Le scene "appoggiate" (un telefono, una tessera) sono disegnate per la tela minima: quando la scheda è più grande
+  // si ingrandiscono per occupare bene lo spazio, invece di restare piccole al centro. Le schermate piene no: riempiono già.
+  useEffect(() => {
+    const el = fit.current!;
+    if (el.querySelector("[data-full]")) return;
+    const size = () => {
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      const box = root.current!;
+      if (!w || !h) return;
+      const k = Math.min((box.offsetWidth * 0.86) / w, (box.offsetHeight * 0.76) / h, 1.9);
+      el.style.transform = `scale(${Math.max(1, k)})`;
+    };
+    size();
+    const ro = new ResizeObserver(size);
+    ro.observe(root.current!);
+    return () => ro.disconnect();
+  }, []);
   return (
-    <div data-shot className={`absolute inset-0 ${hidden ? "invisible" : ""}`}>
-      <div className="flex h-full w-full flex-col items-center justify-center will-change-transform">{node}</div>
+    <div ref={root} data-shot className={`absolute inset-0 ${hidden ? "invisible" : ""}`}>
+      <div className="flex h-full w-full flex-col items-center justify-center will-change-transform">
+        <div ref={fit} className="flex max-h-full max-w-full flex-col items-center justify-center has-[[data-full]]:h-full has-[[data-full]]:w-full">
+          {node}
+        </div>
+      </div>
       <svg data-cursor viewBox="0 0 24 24" className="pointer-events-none absolute left-0 top-0 z-30 h-6 w-6 opacity-0 drop-shadow-[0_3px_6px_rgba(0,0,0,.45)]" style={{ marginLeft: -5, marginTop: -3.5, transformOrigin: "5px 3.5px" }} aria-hidden>
         <path d="M5 3.5 19 11l-6.2 1.7L10 19z" fill="#fff" stroke="#0b1620" strokeWidth="1.2" strokeLinejoin="round" />
       </svg>
@@ -391,7 +415,7 @@ const click = (run: gsap.core.Timeline, c: { cur: Element; shot: HTMLElement }, 
 };
 /** La camera segue l'azione: mentre il cursore va verso un punto l'inquadratura si stringe appena su quel punto.
  *  Lo spostamento è calcolato perché i bordi non si scoprano mai. Solo sulle schermate a tutto riquadro. */
-const CAM = 1.06;
+const CAM = 1.045;
 const cam = (run: gsap.core.Timeline, shot: HTMLElement, el: Element, at: number) => {
   if (!shot.querySelector("[data-full]")) return;
   const to = (axis: "x" | "y") => () => {
@@ -868,13 +892,16 @@ export const WEB: Shot[] = [
 ];
 
 
-/* ───────────── SEO ───────────── */
+/* ───────────── SEO: ti cercano e trovano gli altri → si sistema il sito → ora trovano te ───────────── */
 
+const US = 3;
 const RESULTS = [
-  ["studiobianchi.it", "Studio Bianchi · Dentista a Brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato."],
   ["clinicarossi.it", "Clinica Dentale Rossi", "Igiene, ortodonzia e implantologia in centro città."],
   ["dentistiassociati.it", "Dentisti Associati", "Visite e preventivi su appuntamento."],
+  ["centrosorriso.it", "Centro Sorriso", "Sbiancamento e igiene, prima visita gratuita."],
+  ["studiobianchi.it", "Studio Bianchi · Dentista a Brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato."],
 ];
+const ROW = 70;
 const QUERY = "dentista brescia";
 /** Il logo di Google in lettere, coi suoi colori. */
 const GoogleWord = ({ size }: { size: number }) => (
@@ -886,6 +913,45 @@ const GoogleWord = ({ size }: { size: number }) => (
     ))}
   </span>
 );
+/** La pagina dei risultati: quattro righe alte uguali, così una può scalare la classifica scorrendo sulle altre. */
+const Serp = () => (
+  <span data-serp className="absolute inset-0 block px-8 pt-6">
+    <span className="flex items-center gap-4 border-b border-white/10 pb-4">
+      <GoogleWord size={22} />
+      <span className="flex h-9 flex-1 items-center gap-2 rounded-full bg-[#303134] px-4 text-[13.5px]">
+        <Tx>{QUERY}</Tx>
+        <Ico i={Search01Icon} s={15} c="ml-auto text-[#8ab4f8]" />
+      </span>
+    </span>
+    <span className="relative mt-3 block" style={{ height: ROW * RESULTS.length }}>
+      {RESULTS.map(([d, t, sn], i) => (
+        <span key={d} data-r {...(i === US ? { "data-us": "" } : {})} className="absolute inset-x-0 flex items-center gap-3 rounded-[14px] px-3" style={{ top: i * ROW, height: ROW - 8 }}>
+          <span data-rank className="w-5 shrink-0 text-center font-mono text-[13px] tabular-nums text-white/35">
+            {i + 1}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="flex items-center gap-2 text-[11.5px] text-[#bdc1c6]">
+              <span className={`flex h-[18px] w-[18px] items-center justify-center rounded-full text-[9px] font-semibold ${i === US ? "bg-[#5ec4ff] text-[#04121c]" : "bg-white/15"}`}>{t[0]}</span>
+              {d}
+            </span>
+            <span data-t className="block truncate text-[16px] leading-tight text-[#8ab4f8]">{t}</span>
+            <span className="block truncate text-[12px] text-[#bdc1c6]">
+              <Tx>{sn}</Tx>
+            </span>
+          </span>
+        </span>
+      ))}
+    </span>
+  </span>
+);
+const FIXES: [string, string, string][] = [
+  ["Tempo di apertura", "6,2 s", "0,9 s"],
+  ["Peso delle immagini", "4,8 MB", "310 KB"],
+  ["Titoli delle pagine", "3 su 24", "24 su 24"],
+  ["Scheda Google", "incompleta", "completa"],
+];
+const SCORES = [41, 58, 74, 89, 98];
+const tone = (v: number) => (v < 50 ? "#ff6b5e" : v < 85 ? AMBER : GREEN);
 
 export const SEO: Shot[] = [
   {
@@ -911,31 +977,8 @@ export const SEO: Shot[] = [
             </span>
           </span>
         </span>
-        {/* risultati */}
-        <span data-serp className="absolute inset-0 block px-8 pt-6 opacity-0">
-          <span className="flex items-center gap-4 border-b border-white/10 pb-4">
-            <GoogleWord size={22} />
-            <span className="flex h-9 flex-1 items-center gap-2 rounded-full bg-[#303134] px-4 text-[13.5px]">
-              <Tx>{QUERY}</Tx>
-              <Ico i={Search01Icon} s={15} c="ml-auto text-[#8ab4f8]" />
-            </span>
-          </span>
-          <span className="mt-4 block space-y-4">
-            {RESULTS.map(([d, t, sn], i) => (
-              <span key={d} data-r className={`block rounded-[14px] px-3 py-2 ${i === 0 ? "bg-[rgba(138,180,248,.1)] shadow-[inset_0_0_0_1px_rgba(138,180,248,.3)]" : ""}`}>
-                <span className="flex items-center gap-2 text-[11.5px] text-[#bdc1c6]">
-                  <span className={`flex h-[18px] w-[18px] items-center justify-center rounded-full text-[9px] font-semibold ${i === 0 ? "bg-[#5ec4ff] text-[#04121c]" : "bg-white/15"}`}>{t[0]}</span>
-                  {d}
-                </span>
-                <span data-t={i} className="mt-0.5 block text-[16.5px] leading-tight text-[#8ab4f8]">
-                  {t}
-                </span>
-                <span className="mt-0.5 block truncate text-[12.5px] text-[#bdc1c6]">
-                  <Tx>{sn}</Tx>
-                </span>
-              </span>
-            ))}
-          </span>
+        <span data-serpbox className="absolute inset-0 block opacity-0">
+          <Serp />
         </span>
       </Bead>
     ),
@@ -946,24 +989,27 @@ export const SEO: Shot[] = [
       const go = $("[data-go]")[0];
       const q = $("[data-q]")[0] as HTMLElement;
       const caret = $("[data-caret]")[0];
-      const first = $('[data-t="0"]')[0];
+      const rows = $("[data-r]");
+      const us = $("[data-us]")[0];
+      const first = rows[0].querySelector("[data-t]") as Element;
       const word = (document.documentElement.lang === "en" ? EN[QUERY] : undefined) ?? QUERY;
       // stato iniziale, a ogni giro
       run
         .call(() => void (q.textContent = ""), undefined, at - 0.35)
         .set($("[data-home]"), { autoAlpha: 1, y: 0 }, at - 0.35)
         .set($("[data-word]"), { scale: 1, x: 0, y: 0 }, at - 0.35)
-        .set($("[data-serp]"), { autoAlpha: 0 }, at - 0.35)
+        .set($("[data-serpbox]"), { autoAlpha: 0 }, at - 0.35)
         .set(bar, { boxShadow: "inset 0 0 0 1px #5f6368" }, at - 0.35)
         .set(first, { color: "#8ab4f8", textDecoration: "none" }, at - 0.35)
+        .set(us, { opacity: 1 }, at - 0.35)
         .set(cur, { x: () => spot(shot, bar).x + 170, y: () => spot(shot, bar).y + 150, opacity: 0, scale: 1 }, at - 0.35)
         .to(cur, { opacity: 1, duration: 0.2 }, at);
       // 1 · sulla barra, clic
-      human(run, cur, () => spot(shot, bar, 0.3, 0.55), at + 0.05, 0.65);
-      press(run, cur, bar, at + 0.9);
-      run.to(bar, { boxShadow: "inset 0 0 0 1px #8ab4f8, 0 0 0 4px rgba(138,180,248,.18)", duration: 0.2 }, at + 0.9).to(caret, { opacity: 1, duration: 0.01 }, at + 0.95);
+      human(run, cur, () => spot(shot, bar, 0.3, 0.55), at + 0.05, 0.6);
+      press(run, cur, bar, at + 0.8);
+      run.to(bar, { boxShadow: "inset 0 0 0 1px #8ab4f8, 0 0 0 4px rgba(138,180,248,.18)", duration: 0.2 }, at + 0.8).to(caret, { opacity: 1, duration: 0.01 }, at + 0.85);
       // 2 · scrive, con il ritmo irregolare di una persona
-      let t = at + 1.05;
+      let t = at + 0.95;
       for (let i = 1; i <= word.length; i++) {
         const sub = word.slice(0, i);
         run.call(() => {
@@ -973,90 +1019,148 @@ export const SEO: Shot[] = [
         t += word[i - 1] === " " ? 0.1 : 0.04 + ((i * 37) % 5) * 0.01;
       }
       // 3 · al pulsante, clic
-      human(run, cur, () => spot(shot, go, 0.55, 0.6), t + 0.1, 0.5);
-      press(run, cur, go, t + 0.65);
-      snd(run, "send", t + 0.7);
-      run.to(caret, { opacity: 0, duration: 0.01 }, t + 0.65);
+      human(run, cur, () => spot(shot, go, 0.55, 0.6), t + 0.1, 0.45);
+      press(run, cur, go, t + 0.6);
+      snd(run, "send", t + 0.65);
+      run.to(caret, { opacity: 0, duration: 0.01 }, t + 0.6);
       // 4 · la pagina dei risultati: il logo vola in alto a sinistra, i risultati arrivano a raffica
-      const sw = t + 0.75;
+      const sw = t + 0.7;
+      const small = () => shot.querySelector("[data-serp] .font-medium") as Element;
       run
         .to($("[data-btns]"), { autoAlpha: 0, y: 6, duration: 0.2 }, sw)
         .to(bar, { autoAlpha: 0, y: -40, duration: 0.35, ease: "power3.in" }, sw)
-        .to($("[data-word]"), { x: () => -spot(shot, $("[data-word]")[0]).x + spot(shot, shot.querySelector("[data-serp] .font-medium") as Element).x, y: () => -spot(shot, $("[data-word]")[0]).y + spot(shot, shot.querySelector("[data-serp] .font-medium") as Element).y, scale: 0.38, duration: 0.5, ease: "expo.inOut" }, sw)
+        .to($("[data-word]"), { x: () => -spot(shot, $("[data-word]")[0]).x + spot(shot, small()).x, y: () => -spot(shot, $("[data-word]")[0]).y + spot(shot, small()).y, scale: 0.38, duration: 0.5, ease: "expo.inOut" }, sw)
         .set($("[data-home]"), { autoAlpha: 0 }, sw + 0.5)
-        .to($("[data-serp]"), { autoAlpha: 1, duration: 0.2 }, sw + 0.42)
-        .fromTo($("[data-r]"), { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.45, stagger: 0.06, ease: "expo.out" }, sw + 0.48);
-      // 5 · il primo risultato è il nostro: il cursore ci va e clicca
-      human(run, cur, () => spot(shot, first, 0.35, 0.6), sw + 0.75, 0.55);
+        .to($("[data-serpbox]"), { autoAlpha: 1, duration: 0.2 }, sw + 0.42)
+        .fromTo(rows, { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.45, stagger: 0.06, ease: "expo.out" }, sw + 0.48)
+        // il nostro sito c'è, ma in fondo: resta in ombra
+        .to(us, { opacity: 0.38, duration: 0.5 }, sw + 1);
+      // 5 · chi cerca non scorre: preme il primo, che è un concorrente
+      human(run, cur, () => spot(shot, first, 0.35, 0.6), sw + 0.8, 0.5);
       run.to(first, { textDecoration: "underline", duration: 0.01 }, sw + 1.3);
       press(run, cur, first, sw + 1.45);
-      run.to(first, { color: "#c58af9", duration: 0.2 }, sw + 1.5).to(cur, { opacity: 0, duration: 0.3 }, sw + 2.1);
+      run.to(first, { color: "#c58af9", duration: 0.2 }, sw + 1.5).to(cur, { opacity: 0, duration: 0.3 }, sw + 2);
     },
   },
   {
+    dur: 5,
     node: (
-      <>
-        <span className="flex gap-6">
-          {[
-            ["Prestazioni", 98],
-            ["SEO", 100],
-            ["Accessibilità", 96],
-          ].map(([l, v]) => (
-            <span key={l} className="flex flex-col items-center gap-3">
-              <span className="relative h-[110px] w-[110px]">
-                <svg viewBox="0 0 110 110" className="absolute inset-0 -rotate-90">
-                  <circle cx="55" cy="55" r="48" fill="rgba(10,16,24,.5)" stroke="rgba(255,255,255,.1)" strokeWidth="7" />
-                  <circle data-ring={v} cx="55" cy="55" r="48" fill="none" stroke={GREEN} strokeWidth="7" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
-                </svg>
-                <span data-score={v} className="absolute inset-0 flex items-center justify-center font-mono text-[26px] tabular-nums text-white">
-                  0
+      <Win title={<span>studiobianchi.it</span>} logo={<Ours size={15} />}>
+        <span className="absolute inset-0 grid grid-cols-[38%_1fr] items-center gap-2 p-6">
+          <span className="flex flex-col items-center gap-3">
+            <span className="relative h-[150px] w-[150px]">
+              <svg viewBox="0 0 110 110" className="absolute inset-0 -rotate-90">
+                <circle cx="55" cy="55" r="48" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.1)" strokeWidth="7" />
+                <circle data-ring cx="55" cy="55" r="48" fill="none" stroke="#ff6b5e" strokeWidth="7" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="59" />
+              </svg>
+              <span data-score className="absolute inset-0 flex items-center justify-center font-mono text-[44px] tabular-nums text-white">
+                41
+              </span>
+            </span>
+            <span className="text-[12.5px] text-white/60"><Tx>Punteggio</Tx></span>
+          </span>
+          <span className="flex flex-col gap-2">
+            {FIXES.map(([l, a, b]) => (
+              <span key={l} data-fix className="flex items-center gap-3 rounded-[14px] bg-white/[.05] px-3.5 py-3 text-[13px]">
+                <span className="relative block h-4 w-4 shrink-0">
+                  <span data-dot className="absolute inset-[3px] block rounded-full bg-[#ff6b5e]" />
+                  <span data-chk className="absolute inset-0 opacity-0">
+                    <Ico i={CheckmarkCircle02Icon} s={16} c="text-[#6ee7a8]" />
+                  </span>
+                </span>
+                <span className="flex-1"><Tx>{l}</Tx></span>
+                <span className="relative block text-right font-mono text-[12px]">
+                  <span data-old className="block text-[#ffb4ae]"><Tx>{a}</Tx></span>
+                  <span data-new className="absolute right-0 top-0 block whitespace-nowrap text-[#8ff0ad] opacity-0"><Tx>{b}</Tx></span>
                 </span>
               </span>
-              <span className="text-[13px] text-white/75"><Tx>{l as string}</Tx></span>
-            </span>
-          ))}
-        </span>
-      </>
-    ),
-    play: (run, $, at) =>
-      $("[data-ring]").forEach((r, i) => {
-        const v = Number(r.getAttribute("data-ring"));
-        run.fromTo(r, { strokeDashoffset: 100 }, { strokeDashoffset: 100 - v, duration: 1.4, ease: "power2.out" }, at + i * 0.15);
-        count(run, $("[data-score]")[i], 0, v, at + i * 0.15, 1.4, (n) => String(Math.round(n)));
-      }),
-  },
-  {
-    node: (
-      <>
-        <Bead tint={GL} radius={26} className="block w-[460px] p-5 text-white">
-          <span className="flex items-baseline justify-between">
-            <span className="text-[14px] text-white/60"><Tx>Visite dalla ricerca</Tx></span>
-            <span data-pct className="font-mono text-[22px] tabular-nums text-[#8ff0ad]">
-              +0%
-            </span>
-          </span>
-          <svg viewBox="0 0 420 150" className="mt-3 w-full overflow-visible">
-            {[30, 70, 110].map((y) => (
-              <line key={y} x1="0" x2="420" y1={y} y2={y} stroke="rgba(255,255,255,.07)" />
             ))}
-            <path data-area d="M0 132 L60 124 L120 118 L180 104 L240 92 L300 70 L360 46 L420 22 L420 150 L0 150 Z" fill="url(#seo-fill)" opacity="0" />
-            <defs>
-              <linearGradient id="seo-fill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor={AQUA} stopOpacity=".35" />
-                <stop offset="1" stopColor={AQUA} stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path data-line d="M0 132 L60 124 L120 118 L180 104 L240 92 L300 70 L360 46 L420 22" fill="none" stroke={AQUA} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
-          </svg>
-          <span className="mt-2 flex justify-between font-mono text-[10.5px] text-white/40">
-            <Months />
           </span>
-        </Bead>
-      </>
+        </span>
+      </Win>
     ),
     play: (run, $, at) => {
-      run.fromTo($("[data-line]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 2, ease: "power2.inOut" }, at).fromTo($("[data-area]"), { opacity: 0 }, { opacity: 1, duration: 1 }, at + 1.2);
-      count(run, $("[data-pct]")[0], 0, 142, at, 2, (n) => `+${Math.round(n)}%`);
+      const ring = $("[data-ring]")[0];
+      const score = $("[data-score]")[0];
+      run.set(ring, { strokeDashoffset: 100 - SCORES[0], stroke: tone(SCORES[0]) }, at - 0.3).call(() => void (score.textContent = String(SCORES[0])), undefined, at - 0.3);
+      run.fromTo($("[data-fix]"), { autoAlpha: 0, x: 16 }, { autoAlpha: 1, x: 0, duration: 0.45, stagger: 0.07, ease: "expo.out" }, at);
+      // un intervento alla volta: la riga passa al verde, il valore cambia e il punteggio sale di conseguenza
+      $("[data-fix]").forEach((row, i) => {
+        const a = at + 0.9 + i * 0.6;
+        const v = SCORES[i + 1];
+        run
+          .to(row, { backgroundColor: "rgba(110,231,168,.1)", duration: 0.3 }, a)
+          .to($("[data-dot]")[i], { scale: 0, duration: 0.2 }, a)
+          .fromTo($("[data-chk]")[i], { opacity: 0, scale: 0.3 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2.6)" }, a + 0.05)
+          .to($("[data-old]")[i], { opacity: 0, y: -8, duration: 0.2 }, a)
+          .fromTo($("[data-new]")[i], { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.3, ease: "expo.out" }, a + 0.1)
+          .to(ring, { strokeDashoffset: 100 - v, stroke: tone(v), duration: 0.5, ease: "power2.out" }, a);
+        count(run, score, SCORES[i], v, a, 0.5, (n) => String(Math.round(n)));
+        snd(run, "tick", a);
+      });
+      const end = at + 0.9 + FIXES.length * 0.6;
+      run.fromTo(score, { scale: 1 }, { scale: 1.14, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out" }, end);
+      snd(run, "success", end);
+    },
+  },
+  {
+    dur: 5,
+    node: (
+      <Bead data-full="" tint="rgba(32,33,36,.99)" radius={0} className="relative block h-full w-full overflow-hidden text-[#e8eaed]">
+        <Serp />
+        <span data-gain className="absolute right-8 top-[158px] z-10 block opacity-0">
+          <Bead tint="rgba(20,32,26,.9)" radius={18} className="flex items-center gap-3 px-4 py-3 text-white">
+            <svg viewBox="0 0 60 24" className="h-6 w-[60px]" aria-hidden>
+              <path data-trend d="M2 21 L14 18 L26 16 L38 10 L48 7 L58 2" fill="none" stroke={GREEN} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+            </svg>
+            <span className="leading-tight">
+              <span data-pct className="block font-mono text-[18px] tabular-nums text-[#8ff0ad]">+0%</span>
+              <span className="block text-[11px] text-white/60"><Tx>Visite dalla ricerca</Tx></span>
+            </span>
+          </Bead>
+        </span>
+      </Bead>
+    ),
+    play: (run, $, at) => {
+      const rows = $("[data-r]");
+      const us = $("[data-us]")[0];
+      const ranks = $("[data-rank]");
+      const title = us.querySelector("[data-t]") as Element;
+      const c = cursorIn(run, $, us, at + 2);
+      run
+        .set(rows, { y: 0 }, at - 0.3)
+        .set(us, { backgroundColor: "rgba(138,180,248,0)", boxShadow: "inset 0 0 0 1px rgba(138,180,248,0)", zIndex: 2 }, at - 0.3)
+        .set(title, { color: "#8ab4f8", textDecoration: "none" }, at - 0.3)
+        .call(() => ranks.forEach((r, i) => void (r.textContent = String(i + 1))), undefined, at - 0.3);
+      // la nostra riga si accende e sale, una posizione alla volta, mentre le altre scendono
+      run.to(us, { backgroundColor: "rgba(138,180,248,.12)", boxShadow: "inset 0 0 0 1px rgba(138,180,248,.35)", duration: 0.3 }, at + 0.3);
+      for (let k = 1; k <= US; k++) {
+        const a = at + 0.55 + (k - 1) * 0.42;
+        run
+          .to(us, { y: -ROW * k, duration: 0.4, ease: "back.out(1.5)" }, a)
+          .to(rows[US - k], { y: ROW, duration: 0.4, ease: "power3.inOut" }, a)
+          .call(
+            () => {
+              ranks[US].textContent = String(US - k + 1);
+              ranks[US - k].textContent = String(US - k + 2);
+            },
+            undefined,
+            a + 0.2,
+          );
+        snd(run, "tick", a + 0.2);
+      }
+      const top = at + 0.55 + US * 0.42;
+      run.to(ranks[US], { color: "#8ff0ad", scale: 1.3, duration: 0.2, yoyo: true, repeat: 1 }, top);
+      snd(run, "success", top);
+      // adesso chi cerca preme noi
+      const t = click(run, c, title, at + 2.05, 0.5, 0.35, 0.6);
+      run
+        .to(title, { textDecoration: "underline", color: "#c58af9", duration: 0.15 }, t)
+        .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.4)
+        .fromTo($("[data-gain]"), { opacity: 0, y: 14, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.7)" }, t + 0.25)
+        .fromTo($("[data-trend]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.9, ease: "power2.inOut" }, t + 0.4);
+      count(run, $("[data-pct]")[0], 0, 142, t + 0.4, 0.9, (n) => `+${Math.round(n)}%`);
+      snd(run, "notify", t + 0.3);
     },
   },
 ];
@@ -1296,61 +1400,166 @@ export const APPS: Shot[] = [
     },
   },
   {
+    dur: 4.6,
     node: (
-      <span className="flex gap-3">
-        {[
-          ["iPhone", <Tile key="i" size={48} light><Brand p={si.siApple} c="h-6 w-6" /></Tile>],
-          ["Android", <Logo key="a" src="/visual/brands/android.svg" size={48} />],
-          ["Mac", <Tile key="m" size={48} light><Brand p={si.siApple} c="h-6 w-6" /></Tile>],
-          ["Windows", <Logo key="w" src="/visual/brands/windows.svg" size={48} pad={0.25} />],
-          ["Linux", <Logo key="l" src="/visual/brands/linux.svg" size={48} pad={0.18} />],
-        ].map(([n, ic]) => (
-          <span key={n as string} data-p>
-            <Bead tint={GL} radius={22} className="flex w-[100px] flex-col items-center gap-3 py-5 text-white">
-              {ic}
-              <span className="text-[13px] font-medium">{n as string}</span>
-            </Bead>
-          </span>
-        ))}
-      </span>
-    ),
-    play: (run, $, at) => enter(run, $("[data-p]"), at, 0.1),
-  },
-  {
-    node: (
-      <>
-        <span className="relative flex items-center gap-24">
-          <Phone w={130} h={250}>
-            <span data-note-src className="block rounded-[12px] bg-[rgba(94,196,255,.28)] p-2.5 text-[11px] leading-snug">
-              <Tx>Ordine fornitore</Tx>
-              <span className="mt-1 block text-white/60"><Tx>da confermare</Tx></span>
-            </span>
-          </Phone>
-          <Browser w={260} h={200} url="app.studiobianchi.it">
-            <span className="absolute inset-0 p-3.5">
-              <span data-note-dst className="block rounded-[12px] bg-[rgba(94,196,255,.28)] p-2.5 text-[12px] leading-snug opacity-0">
-                <Tx>Ordine fornitore</Tx>
-                <span className="mt-1 block text-white/60"><Tx>da confermare</Tx></span>
+      <span className="relative flex flex-col items-center">
+        <span className="relative block h-[244px] w-[540px]">
+          {/* la stessa app sul computer: nasce dal telefono e si allarga */}
+          <span data-desk className="absolute left-[18px] top-0 block origin-[78%_55%] opacity-0">
+            <Win w={404} h={240} title={<span>Studio Bianchi</span>} logo={<Ours size={15} />}>
+              <span className="absolute inset-0 grid grid-cols-[104px_1fr]">
+                <span className="flex flex-col gap-2 border-r border-white/[.07] p-3">
+                  <Bar w="70%" h={7} c="bg-white/70" />
+                  {[0, 1, 2, 3].map((k) => (
+                    <span key={k} className={`flex items-center gap-2 rounded-[8px] p-1.5 ${k === 0 ? "bg-[rgba(94,196,255,.2)]" : ""}`}>
+                      <span className="h-3.5 w-3.5 rounded-[4px] bg-white/25" />
+                      <Bar w="55%" h={5} />
+                    </span>
+                  ))}
+                </span>
+                <span className="flex flex-col gap-2 p-3">
+                  <span className="h-[62px] rounded-[12px] bg-[linear-gradient(135deg,rgba(94,196,255,.45),rgba(31,127,184,.25))]" />
+                  <span className="grid grid-cols-2 gap-2">
+                    {[0, 1, 2, 3].map((k) => (
+                      <span key={k} className="flex items-center gap-2 rounded-[10px] bg-white/[.06] p-2">
+                        <span className="h-5 w-5 rounded-[6px] bg-white/20" />
+                        <Bar w="60%" h={6} />
+                      </span>
+                    ))}
+                  </span>
+                </span>
               </span>
-            </span>
-          </Browser>
-          <span data-fly className="absolute left-[30px] top-[60px] w-[100px] rounded-[12px] bg-[rgba(94,196,255,.4)] p-2.5 text-[11px] text-white opacity-0 shadow-[0_10px_30px_-10px_rgba(94,196,255,.8)]">
-            <Tx>Ordine fornitore</Tx>
+            </Win>
+          </span>
+          <span data-ph className="absolute left-[400px] top-[16px] block">
+            <Phone w={122} h={236}>
+              <AppUI />
+            </Phone>
           </span>
         </span>
-        <Note attr="data-sync">
-          <Ok><Tx>Sincronizzato su tutti i dispositivi</Tx></Ok>
-        </Note>
-      </>
+        <span className="mt-6 flex gap-2">
+          {(
+            [
+              ["iPhone", <Brand key="i" p={si.siApple} c="h-3.5 w-3.5" />],
+              ["Android", <Img key="a" src="/visual/brands/android.svg" s={15} />],
+              ["Mac", <Brand key="m" p={si.siApple} c="h-3.5 w-3.5" />],
+              ["Windows", <Img key="w" src="/visual/brands/windows.svg" s={13} />],
+              ["Linux", <Img key="l" src="/visual/brands/linux.svg" s={15} />],
+            ] as [string, ReactNode][]
+          ).map(([n, ic]) => (
+            <span key={n} data-os className="opacity-0">
+              <Bead tint={GL} radius={17} className="flex h-[34px] items-center gap-2 px-3.5 text-[12.5px] font-medium text-white">
+                {ic}
+                {n}
+              </Bead>
+            </span>
+          ))}
+        </span>
+      </span>
     ),
     play: (run, $, at) => {
+      const ph = $("[data-ph]")[0];
+      const desk = $("[data-desk]")[0];
+      const os = $("[data-os]");
+      // il telefono parte al centro, grande; poi scivola di lato mentre dallo stesso punto si apre la versione per computer
       run
-        .fromTo($("[data-fly]"), { opacity: 0, x: 0, y: 0 }, { opacity: 1, duration: 0.2 }, at + 0.4)
-        .to($("[data-fly]"), { x: 270, y: -10, duration: 1.1, ease: "power3.inOut" }, at + 0.5)
-        .to($("[data-fly]"), { opacity: 0, duration: 0.2 }, at + 1.6)
-        .fromTo($("[data-note-dst]"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, at + 1.55)
-;
-      grow(run, $("[data-sync]")[0], at + 1.8);
+        .fromTo(ph, { x: -190, scale: 1.18 }, { x: 0, scale: 1, duration: 0.9, ease: "expo.inOut" }, at + 0.7)
+        .fromTo(desk, { opacity: 0, scale: 0.3 }, { opacity: 1, scale: 1, duration: 0.9, ease: "expo.inOut" }, at + 0.7);
+      snd(run, "whoosh", at + 0.8);
+      // i sistemi si accendono uno dopo l'altro; il dispositivo che li riguarda risponde con un piccolo colpo
+      os.forEach((o, i) => {
+        const a = at + (i < 2 ? 0.1 + i * 0.22 : 1.55 + (i - 2) * 0.22);
+        run.fromTo(o, { opacity: 0, y: 12, scale: 0.8 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(2.2)" }, a);
+        run.to(i < 2 ? ph : desk, { y: -5, duration: 0.14, yoyo: true, repeat: 1, ease: "power2.out" }, a);
+        snd(run, "tick", a);
+      });
+    },
+  },
+  {
+    dur: 6,
+    node: (
+      <span className="relative flex items-center gap-[108px]">
+        <Phone w={156} h={300}>
+          <span className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold"><Tx>Ordini</Tx></span>
+            <span className="relative flex h-4 items-center text-[8.5px]">
+              <span data-on className="flex items-center gap-1 whitespace-nowrap text-white/60">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#30d158]" />
+                <Tx>Online</Tx>
+              </span>
+              <span data-off className="absolute right-0 flex items-center gap-1 whitespace-nowrap text-[#f5c46b] opacity-0">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#f5c46b]" />
+                <Tx>Senza rete</Tx>
+              </span>
+            </span>
+          </span>
+          <span className="mt-3 flex flex-col gap-1.5 text-[10.5px]">
+            <span className="rounded-[10px] bg-white/[.06] p-2">Marco B.</span>
+            <span data-r1 className="rounded-[10px] bg-[rgba(94,196,255,.24)] p-2 opacity-0">
+              <span data-t1 className="block h-[14px]" />
+            </span>
+            <span data-r2 className="relative flex items-center justify-between rounded-[10px] border border-dashed border-[#f5c46b]/60 p-2 opacity-0">
+              <span className="whitespace-nowrap text-[9.5px]"><Tx>Consegna alle 15</Tx></span>
+              <span data-wait className="h-1.5 w-1.5 rounded-full bg-[#f5c46b]" />
+              <span data-sent className="absolute right-2 opacity-0">
+                <Ico i={CheckmarkCircle02Icon} s={12} c="text-[#6ee7a8]" />
+              </span>
+            </span>
+          </span>
+        </Phone>
+        {/* il filo tra i due dispositivi: un punto di luce porta ogni modifica dall'altra parte */}
+        <svg viewBox="0 0 108 20" className="absolute left-[156px] top-1/2 h-5 w-[108px] -translate-y-1/2 overflow-visible" aria-hidden>
+          <path data-wire d="M6 10H102" stroke="rgba(255,255,255,.28)" strokeWidth="1.5" strokeDasharray="3 5" strokeLinecap="round" />
+          <circle data-pulse cx="6" cy="10" r="4" fill="#8fd8ff" opacity="0" />
+        </svg>
+        <Win w={300} h={220} title={<span><Tx>Ordini di oggi</Tx></span>} logo={<Ours size={15} />}>
+          <span className="absolute inset-0 flex flex-col gap-2 p-3.5 text-[12px]">
+            <span className="rounded-[10px] bg-white/[.06] px-3 py-2.5">Marco B.</span>
+            <span data-d1 className="rounded-[10px] bg-[rgba(94,196,255,.24)] px-3 py-2.5 opacity-0">
+              <span data-dt1 className="block h-[16px]" />
+            </span>
+            <span data-d2 className="flex items-center justify-between rounded-[10px] bg-[rgba(94,196,255,.24)] px-3 py-2.5 opacity-0">
+              <Tx>Consegna alle 15</Tx>
+              <Ico i={CheckmarkCircle02Icon} s={14} c="text-[#6ee7a8]" />
+            </span>
+          </span>
+        </Win>
+      </span>
+    ),
+    play: (run, $, at) => {
+      const pulse = $("[data-pulse]")[0];
+      const fly = (a: number) => {
+        run.fromTo(pulse, { attr: { cx: 6 }, opacity: 0 }, { opacity: 1, duration: 0.1 }, a).to(pulse, { attr: { cx: 102 }, duration: 0.45, ease: "power2.inOut" }, a).to(pulse, { opacity: 0, duration: 0.15 }, a + 0.4);
+        snd(run, "send", a);
+      };
+      const name = "Giulia R. · 2";
+      // 1 · scrivi sul telefono: il computer si aggiorna mentre scrivi
+      run.fromTo($("[data-r1]"), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.3, ease: "expo.out" }, at);
+      let t = typeText(run, $("[data-t1]")[0], name, at + 0.2, 1.4);
+      fly(at + 0.35);
+      run.fromTo($("[data-d1]"), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.3, ease: "expo.out" }, at + 0.7);
+      typeText(run, $("[data-dt1]")[0], name, at + 0.75, 1.9);
+      // 2 · cade la rete: l'app continua a funzionare e tiene da parte la modifica
+      t += 0.5;
+      run
+        .to($("[data-on]"), { opacity: 0, duration: 0.2 }, t)
+        .to($("[data-off]"), { opacity: 1, duration: 0.2 }, t)
+        .to($("[data-wire]"), { opacity: 0.25, duration: 0.3 }, t)
+        .fromTo($("[data-r2]"), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, t + 0.45);
+      snd(run, "tick", t + 0.45);
+      // 3 · torna la rete: tutto si riallinea da solo
+      t += 1.5;
+      run
+        .to($("[data-off]"), { opacity: 0, duration: 0.2 }, t)
+        .to($("[data-on]"), { opacity: 1, duration: 0.2 }, t)
+        .to($("[data-wire]"), { opacity: 1, duration: 0.3 }, t);
+      fly(t + 0.15);
+      run
+        .to($("[data-wait]"), { opacity: 0, duration: 0.2 }, t + 0.5)
+        .to($("[data-r2]"), { borderColor: "rgba(94,196,255,0)", backgroundColor: "rgba(94,196,255,.24)", duration: 0.3 }, t + 0.5)
+        .fromTo($("[data-sent]"), { opacity: 0, scale: 0.3 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.5)" }, t + 0.55)
+        .fromTo($("[data-d2]"), { opacity: 0, y: 8, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(1.6)" }, t + 0.6);
+      snd(run, "success", t + 0.6);
     },
   },
 ];
@@ -1806,27 +2015,79 @@ export const HW: Shot[] = [
     },
   },
   {
+    dur: 5,
     node: (
-      <Phone w={210} h={340}>
-        <span className="block text-[15px] font-semibold"><Tx>Impianti</Tx></span>
-        <span className="mb-3 block text-[11px] text-white/50"><Tx>Tutto regolare</Tx></span>
-        <span className="block space-y-2">
-          {[
-            ["Cella frigo 1", "3,8°"],
-            ["Cella frigo 2", "4,0°"],
-            ["Forno", "180°"],
-            ["Compressore", "On"],
-          ].map(([n, v]) => (
-            <span key={n} data-row className="flex items-center gap-2 rounded-[12px] bg-white/[.07] px-3 py-2.5 text-[12px]">
-              <span className="h-2 w-2 rounded-full bg-[#34d399]" />
-              <span className="flex-1"><Tx>{n}</Tx></span>
-              <span className="font-mono text-white/70">{v}</span>
+      <Phone w={216} h={372}>
+        {/* la notifica arriva sul telefono: un tocco e si è dentro l'app */}
+        <span data-push className="absolute inset-x-2 top-8 z-10 block opacity-0">
+          <Bead tint="rgba(40,44,52,.96)" radius={16} className="flex items-center gap-2.5 p-2.5 text-white">
+            <Tile size={30} tone="amber">
+              <Ico i={Notification01Icon} s={14} />
+            </Tile>
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block text-[11px] font-semibold"><Tx>Temperatura in aumento</Tx></span>
+              <span className="block truncate text-[9.5px] text-white/60"><Tx>Cella frigo 2 · porta aperta da 6 min</Tx></span>
             </span>
-          ))}
+          </Bead>
+        </span>
+        <span data-app className="block">
+          <span className="block text-[15px] font-semibold"><Tx>Impianti</Tx></span>
+          <span className="relative mb-3 block h-4 text-[11px]">
+            <span data-warn className="absolute left-0 whitespace-nowrap text-[#f5c46b]"><Tx>1 avviso</Tx></span>
+            <span data-fine className="absolute left-0 flex items-center gap-1 whitespace-nowrap text-[#8ff0ad] opacity-0">
+              <Ok><Tx>Tutto regolare</Tx></Ok>
+            </span>
+          </span>
+          <span className="block space-y-2">
+            {[
+              ["Cella frigo 1", "3,8°"],
+              ["Cella frigo 2", "7,8°"],
+              ["Forno", "180°"],
+              ["Compressore", "On"],
+            ].map(([n, v], i) => (
+              <span key={n} data-row {...(i === 1 ? { "data-hot": "" } : {})} className="flex items-center gap-2 rounded-[12px] bg-white/[.07] px-3 py-2.5 text-[12px]">
+                <span {...(i === 1 ? { "data-hdot": "" } : {})} className={`h-2 w-2 rounded-full ${i === 1 ? "bg-[#f5c46b]" : "bg-[#34d399]"}`} />
+                <span className="flex-1"><Tx>{n}</Tx></span>
+                <span {...(i === 1 ? { "data-hval": "" } : {})} className="font-mono text-white/70">{v}</span>
+              </span>
+            ))}
+          </span>
+          <span data-door className="mt-3 flex items-center gap-2 rounded-[12px] bg-[rgba(110,231,168,.12)] px-3 py-2.5 text-[11px] text-[#8ff0ad] opacity-0">
+            <Ok><span className="whitespace-nowrap text-[10px]"><Tx>Porta chiusa · temperatura in discesa</Tx></span></Ok>
+          </span>
         </span>
       </Phone>
     ),
-    play: (run, $, at) => enter(run, $("[data-row]"), at, 0.15),
+    play: (run, $, at) => {
+      const push = $("[data-push]")[0];
+      const hot = $("[data-hot]")[0];
+      const val = $("[data-hval]")[0];
+      run
+        .set($("[data-app]"), { opacity: 0.25 }, at - 0.3)
+        .set(hot, { backgroundColor: "rgba(245,196,107,.16)" }, at - 0.3)
+        .set($("[data-hdot]"), { backgroundColor: "#f5c46b" }, at - 0.3)
+        .set($("[data-warn]"), { opacity: 1 }, at - 0.3)
+        .set($("[data-fine]"), { opacity: 0 }, at - 0.3)
+        .call(() => void (val.textContent = "7,8°"), undefined, at - 0.3)
+        .fromTo(push, { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.5)" }, at);
+      snd(run, "notify", at + 0.05);
+      const c = cursorIn(run, $, push, at + 0.5);
+      const t = click(run, c, push, at + 0.55, 0.5);
+      run
+        .to(push, { opacity: 0, y: -30, scale: 0.94, duration: 0.3, ease: "power2.in" }, t + 0.05)
+        .to($("[data-app]"), { opacity: 1, duration: 0.35 }, t + 0.1)
+        .fromTo($("[data-row]"), { y: 10 }, { y: 0, duration: 0.45, stagger: 0.05, ease: "expo.out" }, t + 0.1)
+        .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.5)
+        // qualcuno chiude la porta: il valore scende sotto gli occhi e la riga torna verde
+        .fromTo($("[data-door]"), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, t + 0.9)
+        .to(hot, { backgroundColor: "rgba(255,255,255,.07)", duration: 0.5 }, t + 1.9)
+        .to($("[data-hdot]"), { backgroundColor: "#34d399", duration: 0.4 }, t + 1.9)
+        .to($("[data-warn]"), { opacity: 0, duration: 0.2 }, t + 1.9)
+        .to($("[data-fine]"), { opacity: 1, duration: 0.3 }, t + 2);
+      count(run, val, 7.8, 4, t + 1, 1.1, (n) => `${it(n, 1)}°`);
+      snd(run, "tick", t + 0.9);
+      snd(run, "success", t + 2);
+    },
   },
 ];
 
@@ -2015,7 +2276,7 @@ export const SHOP: Shot[] = [
           </span>
           <span data-veil className="absolute inset-0 block bg-black/30 opacity-0" />
           {/* carrello */}
-          <span data-drawer className="absolute bottom-0 right-0 top-0 flex w-[260px] translate-x-[105%] flex-col bg-white p-4 shadow-[-20px_0_50px_-20px_rgba(0,0,0,.35)]">
+          <span data-drawer className="absolute bottom-0 right-0 top-0 flex w-[260px] flex-col bg-white p-4 shadow-[-20px_0_50px_-20px_rgba(0,0,0,.35)]">
             <span className="flex items-baseline justify-between">
               <span className="text-[13px] font-semibold"><Tx>Totale</Tx></span>
               <span className="font-mono text-[18px]">23,90 €</span>
