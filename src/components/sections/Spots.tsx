@@ -40,7 +40,7 @@ import { play as sfx, type Sfx } from "@/lib/sound";
 type Q = (s: string) => Element[];
 export type Shot = { node: ReactNode; play?: (run: gsap.core.Timeline, $: Q, at: number) => void; dur?: number; say?: boolean };
 /** Un suono nella timeline, nell'istante preciso dell'azione. */
-const snd = (run: gsap.core.Timeline, name: Sfx, at: number) => run.call(() => sfx(name), undefined, at);
+const snd = (run: gsap.core.Timeline, name: Sfx, at: number, pitch = 1) => run.call(() => sfx(name, pitch), undefined, at);
 
 const W = 620;
 const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too.", "Livelli": "Layers", "Desktop": "Desktop", "Hero": "Hero", "Titolo": "Title", "Servizi": "Services", "Prenota una visita": "Book a visit", "Perfetto così!": "Love it!", "Riempimento": "Fill", "Angoli": "Corners", "Il tuo sorriso, in buone mani": "Your smile, in good hands", "Pubblicazione": "Deployment", "Pubblica": "Deploy", "Compilato in 9 s": "Built in 9 s", "24 pagine generate": "24 pages generated", "Immagini ottimizzate": "Images optimised", "Online su studiobianchi.it": "Live on studiobianchi.it", "Online": "Live", "Chi siamo": "About", "Contatti": "Contact", "Giovedì 14 novembre": "Thursday 14 November", "Conferma": "Confirm", "Nuova prenotazione": "New booking", "Giulia R. · giovedì alle 14:30": "Giulia R. · Thursday at 2:30 pm", "ora": "now", "Buonasera, Marco": "Good evening, Marco", "Come posso aiutarti oggi?": "How can I help you today?", "Mi consigli un buon dentista a Brescia?": "Can you recommend a good dentist in Brescia?", ", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive.": ", in central Brescia: online booking, long hours and excellent reviews.", "e": "and", "Sei la loro": "You’re their", "prima scelta,": "first choice,", "quando si parla del tuo settore.": "whenever your field comes up.", "Nuova attività": "New task", "Recenti": "Recent", "Report vendite": "Sales report", "Fatture ottobre": "October invoices", "Listino 2026": "2026 price list", "Cosa facciamo oggi?": "What shall we do today?", "Smista le email di oggi, inserisci gli ordini e prepara le risposte": "Sort today’s emails, enter the orders and draft the replies", "Al lavoro sulle email di oggi": "Working on today’s emails", "Lette 24 email": "Read 24 emails", "12 ordini inseriti nel gestionale": "12 orders entered in the ERP", "9 risposte preparate": "9 replies drafted", "3 da controllare a mano": "3 to check by hand", "File": "Files", "ordini.xlsx": "orders.xlsx", "risposte (9)": "replies (9)", "Fatto. 9 risposte pronte": "Done. 9 replies ready", "12 ordini già nel gestionale · 3 da guardare tu": "12 orders already in the ERP · 3 for you to check", "Approva e invia": "Approve and send", "Prenotazione — Prototipo": "Booking — Prototype", "Presenta": "Present", "Scegli l'orario": "Pick a time", "Confermato": "Confirmed", "Ci vediamo giovedì": "See you Thursday", "Test con 5 persone vere": "Tested with 5 real people", "prenotare una visita": "book a visit", "Tempo medio": "Average time", "Completano la prenotazione": "Complete the booking", "Prima": "Before", "Dopo": "After", "2,5 volte più prenotazioni": "2.5× more bookings", "Il tuo gestionale": "Your ERP", "Nuovo ordine #1042 · 89,00 €": "New order #1042 · €89.00", "Pagamento ricevuto": "Payment received", "Fattura FT-1042 creata e scorte aggiornate": "Invoice FT-1042 created, stock updated", "Conferma inviata al cliente": "Confirmation sent to the customer", "Richiesta del cliente chiusa": "Customer request closed", "Prenota e gestisci le visite": "Book and manage visits", "Ottieni": "Get", "Apri": "Open", "Salute": "Health", "Età": "Age", "Attacchi fermati oggi": "Attacks stopped today", "Pagine già pronte": "Pages served ready", "Connessione protetta": "Secure connection", "Server": "Server", "Europa · Francia": "Europe · France", "Certificato": "Certificate", "Si rinnova da solo": "Renews itself", "Dominio": "Domain", "Intestato a te": "In your name", "Versione online": "Live version", "Torna alla precedente": "Roll back", "Modifica": "Change", "Controlli": "Checks", "Prova": "Staging", "Ripristinata in 4 secondi": "Restored in 4 seconds", "Copie di sicurezza · ultime due settimane": "Backups · last two weeks", "Il sito non risponde": "The site is down", "Di nuovo online in 41 secondi": "Back online in 41 seconds", "studiobianchi.it non risponde": "studiobianchi.it is down", "Avviso a Filippo · 03:12": "Filippo alerted · 3:12 am", "Online negli ultimi 90 giorni": "Uptime, last 90 days", "1 avviso": "1 alert", "Porta chiusa · temperatura in discesa": "Door closed · temperature falling", "Sbiancamento e igiene, prima visita gratuita.": "Whitening and hygiene, free first visit.", "Punteggio": "Score", "Tempo di apertura": "Load time", "Peso delle immagini": "Image weight", "Titoli delle pagine": "Page titles", "Scheda Google": "Google profile", "incompleta": "incomplete", "completa": "complete", "3 su 24": "3 of 24", "24 su 24": "24 of 24", "6,2 s": "6.2 s", "0,9 s": "0.9 s", "4,8 MB": "4.8 MB", "Senza rete": "Offline", "In attesa": "Queued", "Consegna alle 15": "Delivery at 3 pm", "Avvisa": "Notify", "Avvisato": "Notified", "In compilazione": "Building", "Codice scaricato": "Code fetched", "Dipendenze installate": "Dependencies installed", "Novembre 2026": "November 2026", "Giovedì 12 novembre": "Thursday 12 November"};
@@ -418,11 +418,13 @@ const press = (run: gsap.core.Timeline, cur: Element, btn: Element, at: number) 
     undefined,
     at,
   );
+  // un campo largo non si molla come un tasto: cede appena e torna, senza rimbalzo né deformarsi
+  const big = (btn as HTMLElement).offsetWidth > 140 || (btn as HTMLElement).offsetHeight > 56;
   return run
     .to(cur, { scale: 0.8, duration: 0.08, ease: "power2.out" }, at)
     .to(cur, { scale: 1, duration: 0.45, ease: "elastic.out(1,0.5)" }, at + 0.08)
-    .to(btn, { scale: 0.95, duration: 0.08, ease: "power2.out" }, at)
-    .to(btn, { scale: 1, duration: 0.5, ease: "elastic.out(1,0.45)" }, at + 0.08);
+    .to(btn, { scale: big ? 0.992 : 0.95, duration: 0.08, ease: "power2.out" }, at)
+    .to(btn, { scale: 1, duration: big ? 0.3 : 0.5, ease: big ? "power2.out" : "elastic.out(1,0.45)" }, at + 0.08);
 };
 /** Il cursore entra dal basso a destra rispetto a un elemento. */
 const cursorIn = (run: gsap.core.Timeline, $: Q, near: Element, at: number) => {
@@ -443,6 +445,8 @@ const click = (run: gsap.core.Timeline, c: { cur: Element; shot: HTMLElement }, 
 const CAM = 1.045;
 const cam = (run: gsap.core.Timeline, shot: HTMLElement, el: Element, at: number) => {
   if (!shot.querySelector("[data-full]")) return;
+  // sui campi larghi lo zoom si legge come se il campo cambiasse misura: lì la camera resta ferma
+  if ((el as HTMLElement).offsetWidth > 140) return;
   const to = (axis: "x" | "y") => () => {
     const p = spot(shot, el);
     return axis === "x" ? (shot.offsetWidth / 2 - p.x) * (CAM - 1) : (shot.offsetHeight / 2 - p.y) * (CAM - 1);
@@ -988,7 +992,7 @@ export const SEO: Shot[] = [
           <span data-word className="block origin-center">
             <GoogleWord size={58} />
           </span>
-          <span data-bar className="mt-7 flex h-[46px] w-[min(440px,72%)] items-center gap-3 rounded-full bg-[#303134] px-4 text-[15px] shadow-[inset_0_0_0_1px_#5f6368]">
+          <span data-sbar className="mt-7 flex h-[46px] w-[min(440px,72%)] items-center gap-3 rounded-full bg-[#303134] px-4 text-[15px] shadow-[inset_0_0_0_1px_#5f6368]">
             <Ico i={Search01Icon} s={17} c="text-[#9aa0a6]" />
             <span data-q className="whitespace-pre" />
             <span data-caret className="-ml-2 h-[18px] w-[1.5px] bg-[#8ab4f8] opacity-0" />
@@ -1010,7 +1014,7 @@ export const SEO: Shot[] = [
     play: (run, $, at) => {
       const cur = $("[data-cursor]")[0];
       const shot = cur.parentElement as HTMLElement;
-      const bar = $("[data-bar]")[0];
+      const bar = $("[data-sbar]")[0];
       const go = $("[data-go]")[0];
       const q = $("[data-q]")[0] as HTMLElement;
       const caret = $("[data-caret]")[0];
@@ -1272,8 +1276,11 @@ export const GEO: Shot[] = [
         .fromTo($("[data-chat]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, t + 0.3)
         .fromTo($("[data-think]"), { rotate: 0 }, { rotate: 180, duration: 0.6, ease: "power2.inOut" }, t + 0.35)
         .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.2);
+      snd(run, "send", t + 0.1);
+      snd(run, "open", t + 0.3);
       stream(run, $("[data-wd]"), t + 0.85, 0.035);
       run.to($("[data-mark]"), { scaleX: 1, duration: 0.45, ease: "expo.out" }, t + 1.15);
+      snd(run, "tick", t + 1.2, 0.8);
     },
   },
   {
@@ -1315,10 +1322,13 @@ export const GEO: Shot[] = [
         </span>
       </span>
     ),
-    play: (run, $, at) =>
+    play: (run, $, at) => {
       run
         .fromTo($("[data-n]"), { yPercent: 35, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.6, stagger: 0.16, ease: "expo.out" }, at - 0.3)
-        .fromTo($("[data-lg]"), { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.55, stagger: 0.16, ease: "expo.out" }, at - 0.1),
+        .fromTo($("[data-lg]"), { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.55, stagger: 0.16, ease: "expo.out" }, at - 0.1);
+      // un tocco di vetro per ogni logo, nell'istante in cui compare, in salita
+      [1, 1.12, 1.26, 1.5].forEach((p, i) => snd(run, "copy", at - 0.1 + i * 0.16, p));
+    },
   },
   {
     say: false,
@@ -1340,7 +1350,8 @@ export const GEO: Shot[] = [
     play: (run, $, at) =>
       run
         .fromTo($("[data-big]"), { yPercent: 35, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.6, stagger: 0.06, ease: "expo.out" }, at - 0.3)
-        .fromTo($("[data-ul]"), { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "expo.out" }, at + 0.5),
+        .fromTo($("[data-ul]"), { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "expo.out" }, at + 0.5)
+        .call(() => sfx("success"), undefined, at + 0.55),
   },
 ];
 
@@ -1861,7 +1872,7 @@ export const AI: Shot[] = [
               </span>
             </span>
             <span className="mt-3 block h-1 overflow-hidden rounded-full bg-white/10">
-              <span data-bar className="block h-full w-full origin-left rounded-full bg-[#d97757]" style={{ transform: "scaleX(0)" }} />
+              <span data-sbar className="block h-full w-full origin-left rounded-full bg-[#d97757]" style={{ transform: "scaleX(0)" }} />
             </span>
             <span className="mt-4 block space-y-2">
               {STEPS.map(([k, l]) => (
@@ -1898,7 +1909,7 @@ export const AI: Shot[] = [
     play: (run, $, at) => {
       run
         .fromTo($("[data-spin]"), { rotate: 0 }, { rotate: 360, duration: 2.6, ease: "none" }, at - 0.3)
-        .fromTo($("[data-bar]"), { scaleX: 0 }, { scaleX: 1, duration: 2.4, ease: "power1.inOut" }, at - 0.2)
+        .fromTo($("[data-sbar]"), { scaleX: 0 }, { scaleX: 1, duration: 2.4, ease: "power1.inOut" }, at - 0.2)
         .fromTo($("[data-step]"), { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.3, stagger: 0.5, ease: "expo.out" }, at - 0.1)
         .fromTo($("[data-ok]"), { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.3, stagger: 0.5, ease: "back.out(2.4)" }, at + 0.3)
         .fromTo($("[data-file]"), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.35, stagger: 0.6, ease: "expo.out" }, at + 0.8);

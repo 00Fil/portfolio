@@ -48,6 +48,8 @@ function ensure() {
 }
 
 let bus: GainNode | null = null;
+/** Altezza del suono in corso: chi chiama può alzarlo o abbassarlo per seguire il movimento (una scala di loghi, un conteggio). */
+let P = 1;
 /** Un'unica uscita morbida: taglia le alte, comprime appena, così ogni suono è pieno e mai tagliente. */
 function master(c: AudioContext) {
   if (bus && bus.context === c) return bus;
@@ -80,8 +82,8 @@ function note(c: AudioContext, f: number, peak: number, decay: number, o: { at?:
   g.connect(master(c));
   const osc = c.createOscillator();
   osc.type = o.type ?? "sine";
-  osc.frequency.setValueAtTime(f, t);
-  if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to, t + a + decay * 0.8);
+  osc.frequency.setValueAtTime(f * P, t);
+  if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to * P, t + a + decay * 0.8);
   osc.connect(g);
   osc.start(t);
   osc.stop(t + a + decay + 0.03);
@@ -98,13 +100,14 @@ function thock(c: AudioContext, f: number, peak: number, at = 0) {
   note(c, f * 7, peak * 0.1, 0.03, { at, attack: 0.001 });
 }
 
-export function play(name: Sfx) {
+export function play(name: Sfx, pitch = 1) {
   if (!enabled) return;
   const now = performance.now();
   if (now - (last[name] ?? 0) < (name === "key" ? 28 : 80)) return;
   last[name] = now;
   const c = ensure();
   if (!c) return;
+  P = pitch;
   switch (name) {
     case "tick":
       glass(c, 2093, 0.02, 0.08);
@@ -135,7 +138,9 @@ export function play(name: Sfx) {
       break;
     }
     case "whoosh":
-      note(c, 260, 0.022, 0.3, { to: 640, attack: 0.07 });
+      // segue l'entrata (parte veloce e si assesta): inizio pieno, altezza che scende, chiude con un tocco di vetro
+      note(c, 620, 0.024, 0.38, { to: 240, attack: 0.012 });
+      glass(c, 1319, 0.01, 0.16, 0.22);
       break;
     case "say":
       note(c, 392, 0.018, 0.42, { attack: 0.06 });
