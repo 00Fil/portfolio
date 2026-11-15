@@ -258,7 +258,7 @@ function Close({ k, t, tale }: ServiceDetailProps) {
 
 /* ───────────── In fondo: il servizio successivo, grande, e tutti gli altri ───────────── */
 
-function Next({ next, others, t }: ServiceDetailProps) {
+export function Next({ next, others, t }: Pick<ServiceDetailProps, "next" | "others" | "t">) {
   return (
     <section className="mx-auto mt-24 w-full max-w-[1400px] px-3 sm:mt-44 sm:px-5">
       <Link href={`/servizi/${next.slug}`} className="group theme-dark relative block h-[420px] overflow-hidden sm:h-[min(560px,72svh)] rounded-[32px] bg-[#05070a] sm:rounded-[44px]">
