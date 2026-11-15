@@ -47,33 +47,55 @@ function ensure() {
   return ctx;
 }
 
-function env(c: AudioContext, peak: number, attack: number, decay: number) {
+let bus: GainNode | null = null;
+/** Un'unica uscita morbida: taglia le alte, comprime appena, così ogni suono è pieno e mai tagliente. */
+function master(c: AudioContext) {
+  if (bus && bus.context === c) return bus;
   const g = c.createGain();
-  const t = c.currentTime;
-  g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(peak, t + attack);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay);
-  g.connect(c.destination);
+  g.gain.value = 0.9;
+  const lp = c.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.value = 6800;
+  lp.Q.value = 0.5;
+  const comp = c.createDynamicsCompressor();
+  comp.threshold.value = -20;
+  comp.ratio.value = 3;
+  comp.attack.value = 0.003;
+  comp.release.value = 0.12;
+  g.connect(lp);
+  lp.connect(comp);
+  comp.connect(c.destination);
+  bus = g;
   return g;
 }
 
-function noise(c: AudioContext, seconds: number) {
-  const buf = c.createBuffer(1, Math.ceil(c.sampleRate * seconds), c.sampleRate);
-  const d = buf.getChannelData(0);
-  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-  const src = c.createBufferSource();
-  src.buffer = buf;
-  return src;
+/** Una nota: attacco morbido, caduta naturale; opzionale scivolata di altezza. */
+function note(c: AudioContext, f: number, peak: number, decay: number, o: { at?: number; to?: number; attack?: number; type?: OscillatorType } = {}) {
+  const t = c.currentTime + (o.at ?? 0);
+  const a = o.attack ?? 0.005;
+  const g = c.createGain();
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(peak, t + a);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + a + decay);
+  g.connect(master(c));
+  const osc = c.createOscillator();
+  osc.type = o.type ?? "sine";
+  osc.frequency.setValueAtTime(f, t);
+  if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to, t + a + decay * 0.8);
+  osc.connect(g);
+  osc.start(t);
+  osc.stop(t + a + decay + 0.03);
 }
-
-function tone(c: AudioContext, freq: number, to: number, out: AudioNode, dur: number) {
-  const o = c.createOscillator();
-  o.type = "sine";
-  o.frequency.setValueAtTime(freq, c.currentTime);
-  o.frequency.exponentialRampToValueAtTime(to, c.currentTime + dur);
-  o.connect(out);
-  o.start();
-  o.stop(c.currentTime + dur + 0.02);
+/** Vetro: fondamentale più una parziale inarmonica che svanisce prima, come un bicchiere toccato. */
+function glass(c: AudioContext, f: number, peak: number, decay: number, at = 0) {
+  note(c, f, peak, decay, { at });
+  note(c, f * 2.76, peak * 0.22, decay * 0.35, { at });
+  note(c, f * 5.4, peak * 0.06, decay * 0.18, { at });
+}
+/** Colpo solido e sordo: il corpo dell'oggetto, con un velo di vetro sopra. */
+function thock(c: AudioContext, f: number, peak: number, at = 0) {
+  note(c, f, peak, 0.07, { at, to: f * 0.55, attack: 0.002 });
+  note(c, f * 7, peak * 0.1, 0.03, { at, attack: 0.001 });
 }
 
 export function play(name: Sfx) {
@@ -84,120 +106,51 @@ export function play(name: Sfx) {
   const c = ensure();
   if (!c) return;
   switch (name) {
-    case "tick": {
-      const g = env(c, 0.05, 0.001, 0.03);
-      const f = c.createBiquadFilter();
-      f.type = "bandpass";
-      f.frequency.value = 3400;
-      f.Q.value = 2.2;
-      f.connect(g);
-      const n = noise(c, 0.04);
-      n.connect(f);
-      n.start();
+    case "tick":
+      glass(c, 2093, 0.02, 0.08);
       break;
-    }
-    case "press": {
-      tone(c, 540, 360, env(c, 0.035, 0.002, 0.07), 0.08);
+    case "press":
+      thock(c, 220, 0.07);
       break;
-    }
-    case "toggle": {
-      tone(c, 620, 480, env(c, 0.03, 0.002, 0.05), 0.06);
-      window.setTimeout(() => c && tone(c, 820, 640, env(c, 0.026, 0.002, 0.05), 0.06), 70);
+    case "click":
+      // il tocco: corpo solido e un accenno di vetro nello stesso istante
+      thock(c, 260, 0.08);
+      glass(c, 1760, 0.012, 0.06);
       break;
-    }
-    case "copy": {
-      const g = env(c, 0.028, 0.004, 0.32);
-      tone(c, 880, 880, g, 0.34);
-      tone(c, 1320, 1320, env(c, 0.012, 0.004, 0.26), 0.28);
+    case "toggle":
+      glass(c, 880, 0.03, 0.14);
+      glass(c, 1175, 0.026, 0.18, 0.06);
       break;
-    }
-    case "open": {
-      const g = env(c, 0.02, 0.04, 0.2);
-      const f = c.createBiquadFilter();
-      f.type = "lowpass";
-      f.frequency.setValueAtTime(400, c.currentTime);
-      f.frequency.exponentialRampToValueAtTime(2400, c.currentTime + 0.2);
-      f.connect(g);
-      const n = noise(c, 0.26);
-      n.connect(f);
-      n.start();
+    case "copy":
+      glass(c, 1568, 0.03, 0.26);
+      glass(c, 2093, 0.018, 0.3, 0.07);
       break;
-    }
+    case "open":
+      note(c, 330, 0.02, 0.28, { to: 520, attack: 0.05 });
+      glass(c, 1047, 0.014, 0.22, 0.12);
+      break;
     case "key": {
-      // un tasto: tocco corto e secco, con una leggera variazione a ogni battuta
-      const g = env(c, 0.03, 0.001, 0.022);
-      const f = c.createBiquadFilter();
-      f.type = "bandpass";
-      f.frequency.value = 2600 + Math.random() * 1400;
-      f.Q.value = 1.6;
-      f.connect(g);
-      const n = noise(c, 0.03);
-      n.connect(f);
-      n.start();
+      const j = 1 + (Math.random() - 0.5) * 0.14;
+      thock(c, 520 * j, 0.03);
       break;
     }
-    case "click": {
-      // clic del mouse: un colpo sordo e uno più alto
-      tone(c, 900, 420, env(c, 0.045, 0.001, 0.05), 0.055);
-      const g = env(c, 0.03, 0.001, 0.02);
-      const f = c.createBiquadFilter();
-      f.type = "highpass";
-      f.frequency.value = 3000;
-      f.connect(g);
-      const n = noise(c, 0.025);
-      n.connect(f);
-      n.start();
+    case "whoosh":
+      note(c, 260, 0.022, 0.3, { to: 640, attack: 0.07 });
       break;
-    }
-    case "whoosh": {
-      const g = env(c, 0.022, 0.07, 0.3);
-      const f = c.createBiquadFilter();
-      f.type = "bandpass";
-      f.Q.value = 0.8;
-      f.frequency.setValueAtTime(380, c.currentTime);
-      f.frequency.exponentialRampToValueAtTime(2200, c.currentTime + 0.3);
-      f.connect(g);
-      const n = noise(c, 0.4);
-      n.connect(f);
-      n.start();
+    case "say":
+      note(c, 392, 0.018, 0.42, { attack: 0.06 });
+      glass(c, 784, 0.014, 0.4, 0.04);
       break;
-    }
-    case "say": {
-      // un commento a tutto quadro: respiro lungo e una nota bassa
-      const g = env(c, 0.026, 0.12, 0.5);
-      const f = c.createBiquadFilter();
-      f.type = "lowpass";
-      f.frequency.setValueAtTime(500, c.currentTime);
-      f.frequency.exponentialRampToValueAtTime(3000, c.currentTime + 0.5);
-      f.connect(g);
-      const n = noise(c, 0.7);
-      n.connect(f);
-      n.start();
-      tone(c, 220, 330, env(c, 0.018, 0.05, 0.4), 0.45);
+    case "notify":
+      glass(c, 1319, 0.034, 0.34);
+      glass(c, 1760, 0.03, 0.5, 0.11);
       break;
-    }
-    case "notify": {
-      tone(c, 988, 988, env(c, 0.03, 0.003, 0.22), 0.24);
-      window.setTimeout(() => c && tone(c, 1319, 1319, env(c, 0.026, 0.003, 0.3), 0.32), 110);
+    case "success":
+      [1047, 1319, 1568].forEach((f, i) => glass(c, f, 0.028, 0.5, i * 0.085));
       break;
-    }
-    case "success": {
-      [523, 659, 784].forEach((f, i) => window.setTimeout(() => c && tone(c, f, f, env(c, 0.026, 0.004, 0.34), 0.36), i * 85));
+    case "send":
+      note(c, 520, 0.022, 0.16, { to: 1040, attack: 0.012 });
+      glass(c, 1568, 0.018, 0.2, 0.09);
       break;
-    }
-    case "send": {
-      const g = env(c, 0.02, 0.02, 0.16);
-      const f = c.createBiquadFilter();
-      f.type = "bandpass";
-      f.Q.value = 1.2;
-      f.frequency.setValueAtTime(900, c.currentTime);
-      f.frequency.exponentialRampToValueAtTime(3600, c.currentTime + 0.16);
-      f.connect(g);
-      const n = noise(c, 0.2);
-      n.connect(f);
-      n.start();
-      tone(c, 600, 1000, env(c, 0.018, 0.005, 0.12), 0.14);
-      break;
-    }
   }
 }

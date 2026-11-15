@@ -350,7 +350,7 @@ export function Faq({ faq }: { faq: Story["faq"] }) {
 
 /* ───────────── Già fatto da me: progetti veri, uno per riga, con immagine e titolo-risultato ───────────── */
 
-export function Proof({ proof, items }: { proof: { title: string; cta: string }; items: { slug: string; headline: string; context: string; tags: string[]; icon: string }[] }) {
+export function Proof({ proof, items }: { proof: { title: string; cta: string }; items: { slug: string; name: string; headline: string; context: string; tags: string[]; icon: string }[] }) {
   const root = useRef<HTMLElement>(null);
   useGSAP(
     () => {
@@ -376,11 +376,13 @@ export function Proof({ proof, items }: { proof: { title: string; cta: string };
             <div data-pimg className="relative aspect-[4/3] overflow-hidden rounded-[28px] bg-[#05070a]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={`/work/${p.slug}/fibers.webp`} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-[1.2s] ease-[var(--ease-out)] group-hover:scale-[1.04]" />
-              <span className="absolute bottom-5 left-5 flex items-center gap-3">
-                <Bead tint="rgba(255,255,255,.16)" radius={16} className="flex h-12 w-12 items-center justify-center overflow-hidden">
+              <span aria-hidden className="absolute inset-0 bg-[linear-gradient(0deg,rgba(3,6,10,.7),transparent_55%)]" />
+              <span className="absolute inset-x-5 bottom-5 flex items-center gap-4 sm:inset-x-7 sm:bottom-7">
+                <Bead tint="rgba(255,255,255,.18)" radius={26} className="flex h-[76px] w-[76px] shrink-0 items-center justify-center overflow-hidden sm:h-24 sm:w-24">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.icon} alt="" className="h-7 w-7 object-contain" />
+                  <img src={p.icon} alt="" className="h-[52px] w-[52px] object-contain sm:h-16 sm:w-16" />
                 </Bead>
+                <span className="text-[clamp(34px,4.4vw,60px)] font-medium leading-none tracking-[-0.05em] text-white">{p.name}</span>
               </span>
             </div>
             <div>

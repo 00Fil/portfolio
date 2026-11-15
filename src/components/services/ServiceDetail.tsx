@@ -39,7 +39,7 @@ export type ServiceDetailProps = {
   w: WidgetText;
   story?: Story;
   tale?: ServiceStory | null;
-  proof?: { slug: string; headline: string; context: string; tags: string[]; icon: string }[];
+  proof?: { slug: string; name: string; headline: string; context: string; tags: string[]; icon: string }[];
   github?: string;
   t: { services: string; cta: string; ctaLead: string; how: string; includes: string; before: string; after: string; method: string; methodLead: string; next: string; all: string };
 };

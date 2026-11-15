@@ -48,7 +48,7 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
   const ICON: Record<string, string> = { relay: "/work/relay/icon.webp", creacloud: "/work/creacloud/icon.svg", unispace: "/work/unispace/mascot-base.webp" };
   const proof = tale.proof.slugs.flatMap((slug) => {
     const pr = getProject(slug);
-    return pr ? [{ slug, headline: pr.headline[locale], context: pr.context[locale], tags: pr.tags[locale], icon: ICON[slug] }] : [];
+    return pr ? [{ slug, name: pr.name, headline: pr.headline[locale], context: pr.context[locale], tags: pr.tags[locale], icon: ICON[slug] }] : [];
   });
   // le domande anche come dati strutturati: motori di ricerca e assistenti le leggono senza interpretare la pagina
   const ld = faq.length

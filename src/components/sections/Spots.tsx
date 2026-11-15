@@ -398,7 +398,31 @@ const human = (run: gsap.core.Timeline, cur: Element, get: () => { x: number; y:
 };
 const press = (run: gsap.core.Timeline, cur: Element, btn: Element, at: number) => {
   snd(run, "click", at);
-  return run.to(cur, { scale: 0.78, duration: 0.07, yoyo: true, repeat: 1, ease: "power2.out" }, at).to(btn, { scale: 0.95, duration: 0.07, yoyo: true, repeat: 1, ease: "power2.out" }, at);
+  // l'onda nasce nel punto esatto del tocco e il bersaglio cede come una molla, nello stesso istante del suono
+  run.call(
+    () => {
+      const host = cur.parentElement;
+      if (!host) return;
+      let r = host.querySelector<HTMLElement>("[data-ripple]");
+      if (!r) {
+        r = document.createElement("span");
+        r.setAttribute("data-ripple", "");
+        r.className = "pointer-events-none absolute left-0 top-0 z-20 h-12 w-12 rounded-full border border-white/70 bg-white/25";
+        r.style.marginLeft = "-24px";
+        r.style.marginTop = "-24px";
+        host.appendChild(r);
+      }
+      gsap.killTweensOf(r);
+      gsap.fromTo(r, { x: gsap.getProperty(cur, "x"), y: gsap.getProperty(cur, "y"), scale: 0.2, opacity: 0.9 }, { scale: 1.1, opacity: 0, duration: 0.55, ease: "expo.out" });
+    },
+    undefined,
+    at,
+  );
+  return run
+    .to(cur, { scale: 0.8, duration: 0.08, ease: "power2.out" }, at)
+    .to(cur, { scale: 1, duration: 0.45, ease: "elastic.out(1,0.5)" }, at + 0.08)
+    .to(btn, { scale: 0.95, duration: 0.08, ease: "power2.out" }, at)
+    .to(btn, { scale: 1, duration: 0.5, ease: "elastic.out(1,0.45)" }, at + 0.08);
 };
 /** Il cursore entra dal basso a destra rispetto a un elemento. */
 const cursorIn = (run: gsap.core.Timeline, $: Q, near: Element, at: number) => {
