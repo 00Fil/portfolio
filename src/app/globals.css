@@ -511,13 +511,19 @@ html[data-perf="low"] .drop > .drop-glow { display: none; }
 
 /* ------------------------------------------------------------ Pagina GEO: vetro liquido e accenti */
 .geo-grad {
-  background: linear-gradient(120deg, var(--brand-sky) 0%, var(--sky) 48%, #5aa8ff 100%);
+  background: linear-gradient(120deg, #e6f7ff 0%, var(--brand-sky) 42%, var(--sky) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
-html[data-theme="light"] .geo-grad {
-  background: linear-gradient(120deg, #0b4a70 0%, #1f8fd0 52%, #1d5596 100%);
+html[data-theme="light"] :not(.theme-dark) > .geo-grad,
+html[data-theme="light"] :not(.theme-dark) .geo-grad {
+  background: linear-gradient(120deg, #0b4a70 0%, #1676ad 52%, #1d5596 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+html[data-theme="light"] .theme-dark .geo-grad {
+  background: linear-gradient(120deg, #e6f7ff 0%, var(--brand-sky) 42%, var(--sky) 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }

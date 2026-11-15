@@ -159,9 +159,9 @@ function Hero({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
         className="theme-dark relative mx-auto flex max-w-[1400px] flex-col overflow-hidden rounded-[32px] bg-[#05070a] [clip-path:inset(0_0_0_0_round_0)] sm:rounded-[44px] lg:min-h-[min(960px,calc(100svh-var(--bar-h)-40px))]"
       >
         <ServiceBg k={K} live />
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(85%_70%_at_50%_40%,rgba(3,6,10,.66),rgba(3,6,10,.3)_62%,rgba(3,6,10,.12))]" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_75%_at_50%_42%,rgba(3,6,10,.76),rgba(3,6,10,.52)_65%,rgba(3,6,10,.34))]" />
         <div className="relative flex flex-1 flex-col items-center px-5 pb-6 pt-12 text-center sm:px-10 sm:pb-10 sm:pt-20 lg:pt-24">
-          <Bead data-eyebrow tint="rgba(255,255,255,.1)" className="liquid inline-flex h-9 items-center gap-2.5 px-4 text-[13px] font-medium text-white/85">
+          <Bead data-eyebrow tint="rgba(6,14,24,.56)" className="liquid inline-flex h-9 items-center gap-2.5 px-4 text-[13px] font-medium text-white/95">
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--sky)] shadow-[0_0_10px_var(--sky)]" />
             {h.eyebrow}
           </Bead>
@@ -662,7 +662,7 @@ function Gets({ copy, gets }: { copy: GeoCopy; gets: ServiceStory["gets"] }) {
         </article>
         {gets.items.map((it, i) => (
           <article key={it.t} data-rise className={`flex min-h-[300px] flex-col p-8 sm:p-9 ${tile}`}>
-            <Bead tint="sky" radius={16} className="flex h-12 w-12 items-center justify-center text-white">
+            <Bead tint="var(--accent-subtle)" radius={16} className="flex h-12 w-12 items-center justify-center text-[var(--accent-on-subtle)]">
               <Ico i={GET_ICONS[i % GET_ICONS.length]} s={22} />
             </Bead>
             <h3 className="mt-auto pt-10 text-[clamp(22px,1.9vw,28px)] font-semibold leading-[1.12] tracking-[-0.035em] text-ink">{it.t}</h3>
@@ -711,7 +711,7 @@ function Steps({ timeline }: { timeline: ServiceStory["timeline"] }) {
               <span data-tdot className="absolute inset-0 rounded-full bg-[var(--sky)] shadow-[0_0_0_5px_rgba(94,196,255,.16),0_0_22px_rgba(94,196,255,.55)]" />
               <span className="relative">{i + 1}</span>
             </span>
-            <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-[var(--sky)]">{it.at}</p>
+            <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-[var(--accent-on-subtle)]">{it.at}</p>
             <p className="mt-3 text-[20px] font-semibold leading-[1.2] tracking-[-0.03em] text-ink">{it.t}</p>
             <p className="mt-3 text-[15px] leading-[1.55] text-ink-2">{it.b}</p>
           </li>
@@ -799,7 +799,7 @@ function Faq({ copy, faq }: { copy: GeoCopy; faq: ServiceStory["faq"] }) {
                 className="flex w-full items-center justify-between gap-6 px-6 py-5 text-left sm:px-8 sm:py-6"
               >
                 <span className="text-[18px] font-semibold leading-[1.3] tracking-[-0.02em] text-ink sm:text-[20px]">{it.q}</span>
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-[transform,background-color,color] duration-500 ease-[var(--ease-out)] ${on ? "rotate-45 bg-[var(--sky)] text-white" : "bg-[var(--hover)] text-ink"}`}>
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-[transform,background-color,color] duration-500 ease-[var(--ease-out)] ${on ? "rotate-45 bg-[var(--accent-subtle)] text-[var(--accent-on-subtle)]" : "bg-[var(--hover)] text-ink"}`}>
                   <Ico i={Add01Icon} s={16} />
                 </span>
               </button>
