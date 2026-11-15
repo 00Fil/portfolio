@@ -1225,30 +1225,33 @@ export const GEO: Shot[] = [
           </span>
         </span>
         {/* conversazione */}
-        <span data-chat className="absolute inset-0 block px-7 pt-6 opacity-0">
+        <span data-chat className="absolute inset-0 flex flex-col justify-center px-8 opacity-0 sm:px-12">
+          <span className="mx-auto block w-full max-w-[560px]">
           <span className="flex justify-end">
-            <span className="rounded-[14px] bg-[#30302e] px-3.5 py-2 text-[13.5px] text-[#ece9e1]">
+            <span className="rounded-[16px] bg-[#30302e] px-4 py-2.5 text-[15px] text-[#ece9e1]">
               <Tx>{ASK}</Tx>
             </span>
           </span>
-          <span className="mt-5 grid grid-cols-[22px_minmax(0,1fr)] items-start gap-3">
+          <span className="mt-6 grid grid-cols-[28px_minmax(0,1fr)] items-start gap-3.5">
             <span data-think className="mt-1 block">
-              <Img src={claudeLogo} s={22} />
+              <Img src={claudeLogo} s={28} />
             </span>
-            <span className="block text-[15px] leading-[1.6] text-[#ece9e1]">
+            <span className="block text-[18px] leading-[1.6] text-[#ece9e1]">
               <Words s="Ti consiglio" />
               <span data-wd className="relative inline-block font-semibold text-white">
                 Studio Bianchi
                 <span data-mark className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left rounded-full bg-[#5ec4ff]" style={{ transform: "scaleX(0)" }} />
               </span>
               <Words s=", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive." />
-              <span data-wd className="mt-3 flex w-fit items-center gap-1.5 rounded-full bg-white/[.07] px-2.5 py-1 text-[11.5px] text-white/70">
+              <span data-wd className="mt-3 flex w-fit items-center gap-1.5 rounded-full bg-white/[.07] px-2.5 py-1 text-[13px] text-white/70">
                 <Ico i={LockKeyIcon} s={11} />
                 studiobianchi.it
               </span>
             </span>
           </span>
         </span>
+        </span>
+
       </Win>
     ),
     play: (run, $, at) => {
@@ -1314,8 +1317,8 @@ export const GEO: Shot[] = [
     ),
     play: (run, $, at) =>
       run
-        .fromTo($("[data-n]"), { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.5, stagger: 0.16, ease: "expo.out" }, at - 0.3)
-        .fromTo($("[data-lg]"), { scale: 0, rotate: -20 }, { scale: 1, rotate: 0, duration: 0.5, stagger: 0.16, ease: "back.out(2.4)" }, at - 0.1),
+        .fromTo($("[data-n]"), { yPercent: 35, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.6, stagger: 0.16, ease: "expo.out" }, at - 0.3)
+        .fromTo($("[data-lg]"), { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.55, stagger: 0.16, ease: "expo.out" }, at - 0.1),
   },
   {
     say: false,
@@ -1336,7 +1339,7 @@ export const GEO: Shot[] = [
     ),
     play: (run, $, at) =>
       run
-        .fromTo($("[data-big]"), { yPercent: 70, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.55, stagger: 0.06, ease: "expo.out" }, at - 0.3)
+        .fromTo($("[data-big]"), { yPercent: 35, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.6, stagger: 0.06, ease: "expo.out" }, at - 0.3)
         .fromTo($("[data-ul]"), { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "expo.out" }, at + 0.5),
   },
 ];
