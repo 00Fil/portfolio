@@ -2,7 +2,6 @@ import type { Locale } from "@/i18n/routing";
 
 /**
  * Copy della pagina GEO: essenziale, positivo e fattuale, in stile pagina prodotto Apple.
- * Nessuna ripetizione tra sezioni, nessun linguaggio forzato.
  */
 export type GeoCopy = {
   hero: { eyebrow: string; l1: string; l2: string; on: string; and: string; sub: string; how: string };
@@ -37,14 +36,22 @@ const IT: GeoCopy = {
     kicker: "Dalla domanda al tuo sito",
     title: "Una risposta chiara. Con te come fonte.",
     steps: [
-      { t: "La domanda", b: "Chi cerca un professionista o un’azienda oggi scrive una domanda completa, come farebbe a voce." },
-      { t: "La lettura delle fonti", b: "L’assistente consulta il web in tempo reale e seleziona le pagine più chiare, complete e coerenti." },
-      { t: "La risposta", b: "Il tuo nome viene presentato con i dati corretti: specializzazione, sede, orari e punti di forza." },
-      { t: "La fonte diretta", b: "Sotto la risposta compare il collegamento diretto al tuo sito, pronto per essere aperto." },
+      {
+        t: "La domanda del cliente",
+        b: "Chi cerca un professionista o un’azienda scrive una richiesta completa in linguaggio naturale.",
+      },
+      {
+        t: "La risposta con i tuoi dati",
+        b: "L’assistente legge le informazioni ordinate sul tuo sito e ti consiglia con orari, sede e punti di forza.",
+      },
+      {
+        t: "Il collegamento diretto",
+        b: "Subito sotto la risposta compare la scheda del tuo sito web, pronta per essere aperta in un clic.",
+      },
     ],
     ask: "Mi consigli un buon dentista a Brescia?",
-    searching: "Ricerca su 3 fonti",
-    sourcesRead: "3 fonti consultate",
+    searching: "Lettura delle fonti in corso",
+    sourcesRead: "Fonte verificata · studiobianchi.it",
     answer: [
       "A Brescia puoi rivolgerti a",
       "Studio Bianchi",
@@ -98,14 +105,22 @@ const EN: GeoCopy = {
     kicker: "From question to your site",
     title: "A clear answer. With you as the source.",
     steps: [
-      { t: "The question", b: "People looking for a service today ask a complete question in natural language." },
-      { t: "Reading the sources", b: "The assistant searches the web in real time and selects the clearest, most reliable pages." },
-      { t: "The answer", b: "Your business is presented with accurate facts: expertise, location, hours and strengths." },
-      { t: "The direct source", b: "Right below the answer sits the direct link to your website, ready to open in one tap." },
+      {
+        t: "The customer’s question",
+        b: "People looking for a service ask a complete question in natural language.",
+      },
+      {
+        t: "The answer with your facts",
+        b: "The assistant reads the structured information on your site and recommends you with accurate details.",
+      },
+      {
+        t: "The direct link",
+        b: "Right below the answer sits your website preview card, ready to open in a single tap.",
+      },
     ],
     ask: "Can you recommend a good dentist in Brescia?",
-    searching: "Searching 3 sources",
-    sourcesRead: "3 sources read",
+    searching: "Reading sources",
+    sourcesRead: "Verified source · studiobianchi.it",
     answer: [
       "In Brescia you can visit",
       "Studio Bianchi",

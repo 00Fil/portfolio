@@ -1,15 +1,15 @@
 "use client";
 
 /*
- * Pagina prodotto GEO: essenziale, positiva e fattuale in stile Apple.
- * Ogni sezione racconta un solo concetto senza ripetizioni:
- * 1. Hero con la riga firma degli assistenti
- * 2. Scena interattiva allo scroll con una vera chat AI in produzione
- * 3. Bento "Cosa ricevi" con gradiente dei servizi e vetro liquido
- * 4. Domande essenziali e chiusura
+ * Pagina prodotto GEO: architettura coerente su griglia 1280px, in stile Apple.
+ * 1. Hero: promessa e riga firma animata con i 4 assistenti
+ * 2. Dalla domanda al tuo sito: palco interattivo con chat AI + 3 card dei passaggi sincronizzate
+ * 3. Cosa ricevi: bento 2+1 / 1+1+1 con gradiente dei servizi e vetro liquido
+ * 4. Domande frequenti
+ * 5. Chiusura + navigazione agli altri servizi
  */
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
@@ -21,19 +21,18 @@ import {
   Analytics01Icon,
   DatabaseIcon,
   FileScriptIcon,
-  LockKeyIcon,
-  MapsLocation01Icon,
   QuoteDownIcon,
-  StarIcon,
 } from "@hugeicons/core-free-icons";
+import { Link } from "@/i18n/navigation";
 import { Drop } from "@/components/glass/Drop";
 import { Bead } from "@/components/glass/Bead";
 import { ServiceBg } from "@/components/sections/ServiceBg";
+import { ServiceIcon } from "../ServiceIcon";
+import type { ServiceDetailProps } from "../ServiceDetail";
 import { prefersReducedMotion } from "@/lib/env";
 import { onIntroLift } from "@/lib/intro";
 import type { GeoCopy } from "@/content/geo";
 import type { ServiceStory } from "@/content/stories";
-import { Next, type ServiceDetailProps } from "../ServiceDetail";
 import { AiTile, AssistantLine, ASSISTANTS, playLine } from "./Assistants";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
@@ -58,24 +57,7 @@ const words = (s: string, attr: string, cls = "") =>
       </span>
     ));
 
-function useFit(box: RefObject<HTMLDivElement | null>, inner: RefObject<HTMLDivElement | null>, max = 1.08) {
-  useEffect(() => {
-    const b = box.current;
-    const el = inner.current;
-    if (!b || !el) return;
-    const fit = () => {
-      const k = Math.min(max, b.clientWidth / el.offsetWidth, b.clientHeight / el.offsetHeight);
-      el.style.transform = `translate(-50%, -50%) scale(${Math.max(0.5, k)})`;
-    };
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(b);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [box, inner, max]);
-}
-
-/* ───────────── 1. Apertura: essenziale, centrata, con la riga firma degli assistenti ───────────── */
+/* ───────────── 1. Apertura ───────────── */
 
 function Hero({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
   const h = copy.hero;
@@ -141,207 +123,208 @@ function Hero({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
   );
 }
 
-/* ───────────── 2. Scena: interfaccia chat AI reale in produzione, guidata dallo scroll ───────────── */
-
-const TAB = 46;
+/* ───────────── 2. Dalla domanda al tuo sito: palco chat AI + 3 card sincronizzate ───────────── */
 
 function Scene({ copy }: { copy: GeoCopy }) {
   const s = copy.scene;
   const root = useRef<HTMLElement>(null);
-  const box = useRef<HTMLDivElement>(null);
-  const win = useRef<HTMLDivElement>(null);
-  useFit(box, win);
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const [ai, setAi] = useState(0);
+  const [step, setStep] = useState(0);
+
   useGSAP(
     () => {
-      const q = gsap.utils.selector(root);
+      const el = root.current!;
+      const q = gsap.utils.selector(el);
       const reduced = prefersReducedMotion();
-      const tl = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: reduced ? undefined : { trigger: root.current, start: "top top", end: "bottom bottom", scrub: 0.7 } });
       const chars = q("[data-ch]");
       const aw = q("[data-aw]");
-      // Passo 1 · domanda utente
-      tl.fromTo(q("[data-ubub]"), { autoAlpha: 0, y: 20, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.25, ease: "power2.out" }, 0.02).fromTo(
-        chars,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.01, stagger: 0.58 / chars.length },
-        0.18,
-      );
-      // Passo 2 · consultazione fonti e passaggio tra i 4 assistenti
-      tl.fromTo(q("[data-seek]"), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.2 }, 1).fromTo(
-        q("[data-src]"),
-        { autoAlpha: 0, y: 12, scale: 0.92 },
-        { autoAlpha: 1, y: 0, scale: 1, duration: 0.22, stagger: 0.14, ease: "power2.out" },
-        1.1,
-      );
-      [1, 2, 3, 0].forEach((p, j) => {
-        const at = 1.1 + j * 0.18;
-        tl.to(q("[data-thumb]"), { x: p * TAB, duration: 0.14, ease: "power2.inOut" }, at).to(q("[data-av]"), { opacity: (k: number) => (k === p ? 1 : 0), duration: 0.1 }, at);
+      const bars = q("[data-sbar]");
+
+      const tl = gsap.timeline({
+        paused: true,
+        repeat: -1,
+        onRepeat: () => {
+          setAi((prev) => (prev + 1) % ASSISTANTS.length);
+        },
       });
-      tl.to(q("[data-src]:not([data-hl])"), { opacity: 0.4, duration: 0.15 }, 1.72).fromTo(q("[data-ring]"), { opacity: 0 }, { opacity: 1, duration: 0.15 }, 1.72);
-      // Passo 3 · risposta generata con pillola fonti consultate e nota [1]
-      tl.to(q("[data-seek]"), { autoAlpha: 0, y: -8, duration: 0.15 }, 2)
-        .fromTo(q("[data-read]"), { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.18 }, 2.02)
-        .fromTo(aw, { opacity: 0, y: 5 }, { opacity: 1, y: 0, duration: 0.06, stagger: 0.58 / aw.length }, 2.1)
-        .fromTo(q("[data-mark]"), { scaleX: 0 }, { scaleX: 1, duration: 0.2 }, 2.74)
-        .fromTo(q("[data-ref]"), { scale: 0.6, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.2, ease: "power2.out" }, 2.84);
-      // Passo 4 · scheda fonte diretta
-      tl.fromTo(q("[data-cite]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.28, ease: "power2.out" }, 3);
-      tl.to({}, { duration: 0.5 }, 3.5);
-      // didascalie sincronizzate a sinistra
-      const caps = q("[data-cap]");
-      const bars = q("[data-pbar]");
-      caps.forEach((c, i) => {
-        if (i) tl.fromTo(c, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.2, ease: "power2.out" }, i);
-        if (i < caps.length - 1) tl.to(c, { autoAlpha: 0, y: -24, duration: 0.18, ease: "power2.in" }, i + 0.8);
-        tl.fromTo(bars[i], { scaleY: 0 }, { scaleY: 1, duration: 1 }, i);
-      });
+      tlRef.current = tl;
+
+      // Reset iniziale
+      tl.set(bars, { scaleX: 0 }, 0)
+        .set(q("[data-ubub]"), { autoAlpha: 0, y: 14, scale: 0.97 }, 0)
+        .set(chars, { opacity: 0 }, 0)
+        .set(q("[data-read]"), { autoAlpha: 0, y: 6 }, 0)
+        .set(aw, { opacity: 0, y: 4 }, 0)
+        .set(q("[data-mark]"), { scaleX: 0 }, 0)
+        .set(q("[data-cite]"), { autoAlpha: 0, y: 12 }, 0);
+
+      // Passo 1 (0s -> 2.0s): La domanda del cliente
+      tl.call(() => setStep(0), undefined, 0)
+        .to(bars[0], { scaleX: 1, duration: 2.0, ease: "none" }, 0)
+        .to(q("[data-ubub]"), { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: "expo.out" }, 0.1)
+        .to(chars, { opacity: 1, duration: 0.01, stagger: 1.1 / chars.length, ease: "none" }, 0.3);
+
+      // Passo 2 (2.0s -> 4.4s): La risposta con i tuoi dati
+      tl.call(() => setStep(1), undefined, 2.0)
+        .to(bars[1], { scaleX: 1, duration: 2.4, ease: "none" }, 2.0)
+        .to(q("[data-read]"), { autoAlpha: 1, y: 0, duration: 0.3, ease: "power2.out" }, 2.05)
+        .to(aw, { opacity: 1, y: 0, duration: 0.18, stagger: 1.25 / aw.length, ease: "power2.out" }, 2.25)
+        .to(q("[data-mark]"), { scaleX: 1, duration: 0.45, ease: "expo.out" }, 3.55);
+
+      // Passo 3 (4.4s -> 7.2s): Il collegamento diretto
+      tl.call(() => setStep(2), undefined, 4.4)
+        .to(bars[2], { scaleX: 1, duration: 2.8, ease: "none" }, 4.4)
+        .to(q("[data-cite]"), { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" }, 4.45);
+
       if (reduced) {
-        tl.progress(1);
-        gsap.set(caps, { autoAlpha: 1, y: 0 });
+        tl.progress(1).pause();
+        return;
       }
+
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 80%",
+        end: "bottom 20%",
+        onToggle: (self) => void (self.isActive ? tl.play() : tl.pause()),
+      });
     },
     { scope: root },
   );
-  const sources: { l: string; i: typeof Add01Icon; hl?: boolean }[] = [
-    { l: s.sourceUrl, i: LockKeyIcon, hl: true },
-    { l: copy.hero.and === "and" ? "Reviews" : "Recensioni", i: StarIcon },
-    { l: copy.hero.and === "and" ? "Maps" : "Mappe", i: MapsLocation01Icon },
-  ];
+
+  const jumpStep = (idx: number) => {
+    const tl = tlRef.current;
+    if (!tl) return;
+    const times = [0.05, 2.05, 4.45];
+    setStep(idx);
+    tl.play(times[idx]);
+  };
+
   return (
-    <section id="come-funziona" ref={root} className="geo-scene relative mt-20 h-[420svh] px-3 sm:mt-32 sm:px-5">
-      <div className="geo-stick sticky top-[calc(var(--bar-h)+12px)] h-[calc(100svh-var(--bar-h)-24px)] min-h-[560px]">
-        <div className="theme-dark relative mx-auto h-full max-w-[1400px] overflow-hidden rounded-[32px] bg-[#05070a] sm:rounded-[44px]">
-          <ServiceBg k={K} v={1} />
-          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(3,6,10,.74),rgba(3,6,10,.38)_50%,rgba(3,6,10,.22))] lg:bg-[linear-gradient(90deg,rgba(3,6,10,.76),rgba(3,6,10,.34)_55%,rgba(3,6,10,.16))]" />
-          <div className="relative grid h-full grid-rows-[auto_minmax(0,1fr)] gap-5 p-6 sm:p-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:grid-rows-1 lg:gap-12 lg:p-14">
-            <div className="flex flex-col lg:justify-between">
-              <div>
-                <p className={kick}>{s.kicker}</p>
-                <h2 className="mt-3 hidden max-w-[14ch] text-[clamp(30px,3.8vw,58px)] font-semibold leading-[1.02] tracking-[-0.05em] text-white sm:block">{s.title}</h2>
-              </div>
-              <div className="mt-4 flex gap-5 sm:mt-8 lg:mt-0">
-                <div aria-hidden className="flex flex-col gap-1.5 py-1">
-                  {s.steps.map((st) => (
-                    <span key={st.t} className="relative w-[3px] flex-1 overflow-hidden rounded-full bg-white/15">
-                      <span data-pbar className="absolute inset-0 origin-top rounded-full bg-[var(--sky)]" />
-                    </span>
-                  ))}
-                </div>
-                <ol className="grid flex-1">
-                  {s.steps.map((st, i) => (
-                    <li key={st.t} data-cap className="geo-cap [grid-area:1/1]">
-                      <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-white/55">
-                        {pad(i + 1)} / {pad(s.steps.length)}
-                      </p>
-                      <p className="mt-2 text-[clamp(22px,2.4vw,36px)] font-semibold leading-[1.1] tracking-[-0.04em] text-white">{st.t}</p>
-                      <p className="mt-2.5 max-w-[38ch] text-[14.5px] leading-[1.55] text-white/75 sm:mt-3 sm:text-[17px]">{st.b}</p>
-                    </li>
-                  ))}
-                </ol>
+    <section id="come-funziona" ref={root} className="mx-auto w-full max-w-[1400px] scroll-mt-10 px-3 pt-28 sm:px-5 sm:pt-44">
+      <header className="mx-auto max-w-[920px] px-2 text-center">
+        <p data-rise className={kick}>
+          {s.kicker}
+        </p>
+        <h2 data-rise className={`${h2} mt-4`}>
+          {s.title}
+        </h2>
+      </header>
+
+      <div className="mx-auto mt-14 max-w-[1280px] sm:mt-20">
+        {/* Palco principale col gradiente dei servizi e la finestra della chat AI */}
+        <div data-rise className="theme-dark relative overflow-hidden rounded-[32px] bg-[#05070a] p-5 sm:rounded-[40px] sm:p-10 lg:p-12">
+          <ServiceBg k={K} v={1} still />
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(85%_80%_at_50%_50%,rgba(3,6,10,.38),rgba(3,6,10,.68))]" />
+
+          {/* Barra di selezione dei 4 assistenti */}
+          <div className="relative flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+            {ASSISTANTS.map((a, i) => {
+              const active = ai === i;
+              return (
+                <button
+                  key={a.n}
+                  type="button"
+                  onClick={() => setAi(i)}
+                  className={`inline-flex items-center gap-2.5 rounded-full px-3.5 py-2 text-[13.5px] font-medium transition-all duration-300 ${
+                    active
+                      ? "bg-white/[.18] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.28),0_8px_24px_-8px_rgba(0,0,0,.5)]"
+                      : "bg-white/[.06] text-white/65 hover:bg-white/[.11] hover:text-white"
+                  }`}
+                >
+                  <AiTile i={i} size={22} radius={6} />
+                  <span>{a.n}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Finestra della conversazione AI in vetro scuro ad alto contrasto */}
+          <div className="relative mx-auto mt-6 max-w-[720px] overflow-hidden rounded-[26px] bg-[#080d14]/88 p-5 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.14),0_28px_70px_-24px_rgba(0,0,0,.75)] backdrop-blur-2xl sm:mt-8 sm:rounded-[30px] sm:p-8">
+            {/* Domanda del cliente */}
+            <div className="flex justify-end">
+              <div data-ubub className="max-w-[85%] rounded-[20px] rounded-br-[6px] bg-white/[.11] px-4 py-2.5 text-[15px] leading-[1.45] text-white ring-1 ring-inset ring-white/10 sm:text-[16px]">
+                {s.ask.split("").map((c, i) => (
+                  <span key={i} data-ch>
+                    {c}
+                  </span>
+                ))}
               </div>
             </div>
-            <div ref={box} className="geo-fit relative min-h-0">
-              <div ref={win} aria-hidden className="absolute left-1/2 top-1/2 w-[540px]" style={{ transform: "translate(-50%, -50%)" }}>
-                <Bead tint="rgba(10,16,24,.56)" radius={30} className="liquid block overflow-hidden text-white">
-                  {/* Barra superiore con selettore dei 4 assistenti */}
-                  <span className="flex items-center justify-between border-b border-white/[.08] px-4 py-3">
-                    <span className="flex w-[52px] gap-1.5">
-                      {[0, 1, 2].map((d) => (
-                        <span key={d} className="h-2.5 w-2.5 rounded-full bg-white/20" />
-                      ))}
-                    </span>
-                    <Bead tint="rgba(255,255,255,.06)" className="relative flex p-1">
-                      <Bead data-thumb tint="rgba(255,255,255,.2)" className="absolute left-1 top-1 h-9" style={{ width: TAB }} />
-                      {ASSISTANTS.map((a, i) => (
-                        <span key={a.n} className="relative flex h-9 items-center justify-center" style={{ width: TAB }}>
-                          <AiTile i={i} size={24} radius={7} />
-                        </span>
-                      ))}
-                    </Bead>
-                    <span className="w-[52px]" />
+
+            {/* Risposta dell'assistente selezionato */}
+            <div className="mt-6 grid grid-cols-[36px_minmax(0,1fr)] items-start gap-3.5 sm:gap-4">
+              <div className="mt-0.5">
+                <AiTile i={ai} size={36} radius={10} />
+              </div>
+              <div className="min-w-0">
+                <div data-read className="mb-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/[.07] px-3 py-1 text-[12px] text-white/70 ring-1 ring-inset ring-white/10">
+                  <Globe size={12} strokeWidth={1.8} className="text-[var(--sky)]" />
+                  <span>{s.sourcesRead}</span>
+                </div>
+
+                <p className="text-[16px] leading-[1.62] text-white/92 sm:text-[17.5px]">
+                  {words(s.answer[0], "data-aw")}
+                  <span data-aw className="relative inline-block font-semibold text-white">
+                    {s.answer[1]}
+                    <span data-mark className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left rounded-full bg-[var(--sky)]" style={{ transform: "scaleX(0)" }} />
                   </span>
-                  {/* Conversazione */}
-                  <span className="block p-6">
-                    <span data-ubub className="ml-auto block w-fit max-w-[82%] rounded-[20px] rounded-br-[6px] bg-white/[.12] px-4 py-2.5 text-[15px] leading-[1.45]">
-                      {s.ask.split("").map((c, i) => (
-                        <span key={i} data-ch>
-                          {c}
-                        </span>
-                      ))}
-                    </span>
-                    <span className="mt-6 grid grid-cols-[34px_minmax(0,1fr)] gap-3.5">
-                      <span className="relative mt-0.5 h-[34px] w-[34px]">
-                        {ASSISTANTS.map((a, i) => (
-                          <span key={a.n} data-av className={`absolute inset-0 ${i ? "opacity-0" : ""}`}>
-                            <AiTile i={i} size={34} radius={10} />
-                          </span>
-                        ))}
-                      </span>
-                      <span className="grid">
-                        {/* Fase di ricerca delle fonti */}
-                        <span data-seek className="block [grid-area:1/1]">
-                          <span className="geo-shimmer text-[14.5px] font-medium">{s.searching}…</span>
-                          <span className="mt-3 flex flex-wrap gap-2">
-                            {sources.map((x) => (
-                              <Bead key={x.l} data-src {...(x.hl ? { "data-hl": "" } : {})} tint="rgba(255,255,255,.08)" className="relative flex h-8 items-center gap-2 px-3 text-[12.5px] text-white/85">
-                                <Ico i={x.i} s={12} />
-                                {x.l}
-                                {x.hl && <span data-ring className="pointer-events-none absolute inset-0 rounded-full opacity-0 shadow-[inset_0_0_0_1.5px_var(--sky),0_0_22px_rgba(94,196,255,.45)]" />}
-                              </Bead>
-                            ))}
-                          </span>
-                        </span>
-                        {/* Risposta finale con indicatore fonti lette e nota [1] */}
-                        <span className="block [grid-area:1/1]">
-                          <span data-read className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-white/[.07] px-2.5 py-0.5 text-[11.5px] text-white/65 ring-1 ring-inset ring-white/10">
-                            <Globe size={11} strokeWidth={1.8} />
-                            {s.sourcesRead}
-                          </span>
-                          <span className="block text-[16px] leading-[1.6] text-white/92">
-                            {words(s.answer[0], "data-aw")}
-                            <span data-aw className="relative inline-block font-semibold text-white">
-                              {s.answer[1]}
-                              <span data-mark className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left rounded-full bg-[var(--sky)]" style={{ transform: "scaleX(0)" }} />
-                            </span>
-                            {words(s.answer[2], "data-aw")}
-                            <span
-                              data-ref
-                              className="ml-0.5 inline-flex h-[18px] min-w-[18px] -translate-y-0.5 items-center justify-center rounded-full bg-white/[.14] px-1.5 align-middle font-mono text-[10.5px] font-medium text-[var(--brand-sky)] ring-1 ring-inset ring-white/15"
-                            >
-                              1
-                            </span>
-                          </span>
-                        </span>
-                      </span>
-                    </span>
-                    {/* Scheda fonte in calce alla risposta, come nelle chat AI in produzione */}
-                    <span data-cite className="ml-[48px] mt-4 block">
-                      <span className="flex items-center gap-3.5 rounded-[18px] bg-white/[.07] p-3.5 ring-1 ring-inset ring-white/[.12]">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] bg-white/[.1] font-mono text-[12px] font-semibold text-[var(--brand-sky)] ring-1 ring-inset ring-white/10">
-                          1
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="flex items-center gap-1.5 text-[11.5px] text-white/55">
-                            <Globe size={11} strokeWidth={1.8} />
-                            <span className="truncate">{s.sourceUrl}</span>
-                          </span>
-                          <span className="mt-0.5 block truncate text-[13.5px] font-medium leading-[1.3] text-white">{s.sourceTitle}</span>
-                          <span className="mt-0.5 block truncate text-[12px] text-white/60">{s.sourceSub}</span>
-                        </span>
-                        <ArrowUpRight size={16} strokeWidth={1.8} className="shrink-0 text-white/50" />
-                      </span>
-                    </span>
+                  {words(s.answer[2], "data-aw")}
+                </p>
+
+                {/* Scheda della fonte linkata */}
+                <div data-cite className="mt-5 flex items-center gap-3.5 rounded-[18px] bg-white/[.06] p-3.5 ring-1 ring-inset ring-white/[.12] sm:p-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--sky)]/15 text-[var(--sky)] ring-1 ring-inset ring-[var(--sky)]/30">
+                    <Globe size={18} strokeWidth={1.8} />
                   </span>
-                </Bead>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[12px] font-medium text-[var(--brand-sky)]">{s.sourceUrl}</span>
+                    <span className="mt-0.5 block truncate text-[14px] font-semibold leading-[1.3] text-white sm:text-[15px]">{s.sourceTitle}</span>
+                    <span className="mt-0.5 hidden truncate text-[12.5px] text-white/60 sm:block">{s.sourceSub}</span>
+                  </span>
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[.08] text-white/75">
+                    <ArrowUpRight size={15} strokeWidth={1.8} />
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* I 3 passaggi: griglia a 3 colonne allineata al Bento sottostante */}
+        <ol className="mt-4 grid gap-4 lg:grid-cols-3">
+          {s.steps.map((st, i) => {
+            const active = step === i;
+            return (
+              <li key={st.t} data-rise>
+                <button
+                  type="button"
+                  onClick={() => jumpStep(i)}
+                  className={`flex h-full w-full flex-col justify-between p-7 text-left transition-colors duration-300 sm:p-8 ${tile}`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className={`font-mono text-[12px] uppercase tracking-[0.14em] transition-colors duration-300 ${active ? "text-[var(--accent)]" : "text-ink-3"}`}>
+                        {pad(i + 1)}
+                      </span>
+                      <span className="relative h-[3px] flex-1 overflow-hidden rounded-full bg-[var(--hair-strong)]">
+                        <span data-sbar className="absolute inset-0 origin-left rounded-full bg-[var(--sky)]" style={{ transform: "scaleX(0)" }} />
+                      </span>
+                    </div>
+                    <h3 className="mt-6 text-[clamp(21px,1.8vw,26px)] font-semibold leading-[1.14] tracking-[-0.03em] text-ink">{st.t}</h3>
+                  </div>
+                  <p className="mt-3 text-[15.5px] leading-[1.55] text-ink-2">{st.b}</p>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
       </div>
     </section>
   );
 }
 
-/* ───────────── 3. Cosa ricevi: bento approvato (1 card grande col gradiente + 4 card chiare) ───────────── */
+/* ───────────── 3. Cosa ricevi: bento approvato ───────────── */
 
 const GET_ICONS = [QuoteDownIcon, DatabaseIcon, FileScriptIcon, Analytics01Icon];
 
@@ -439,9 +422,9 @@ function Faq({ copy }: { copy: GeoCopy }) {
   );
 }
 
-/* ───────────── 5. Chiusura approvata ───────────── */
+/* ───────────── 5. Chiusura approvata + navigazione agli altri servizi ───────────── */
 
-function Close({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
+function Close({ copy, others, t }: Pick<GeoPageProps, "copy" | "others" | "t">) {
   return (
     <section className="mx-auto mt-28 w-full max-w-[1400px] px-3 sm:mt-44 sm:px-5">
       <div className="theme-dark relative overflow-hidden rounded-[32px] bg-[#05070a] px-6 py-20 text-center sm:rounded-[44px] sm:px-12 sm:py-32">
@@ -463,6 +446,21 @@ function Close({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
           </div>
         </div>
       </div>
+
+      <nav aria-label={t.all} className="mx-auto mt-16 max-w-[1280px] px-2 sm:mt-24 sm:px-3">
+        <p className="mb-6 font-mono text-[12px] uppercase tracking-[0.14em] text-ink-3">{t.all}</p>
+        <ul className="grid border-t border-[var(--hair)] sm:grid-cols-2 sm:gap-x-10 lg:grid-cols-3">
+          {others.map((o) => (
+            <li key={o.slug} className="border-b border-[var(--hair)]">
+              <Link href={`/servizi/${o.slug}`} className="group flex items-center gap-4 py-4 text-[17px] text-ink-2 transition-colors hover:text-ink">
+                <ServiceIcon k={o.k} size={36} className="transition-transform duration-500 ease-[var(--ease-out)] group-hover:-rotate-6" />
+                <span className="flex-1">{o.title}</span>
+                <ArrowUpRight size={16} strokeWidth={1.8} className="shrink-0 text-ink-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-ink" aria-hidden />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </section>
   );
 }
@@ -489,8 +487,7 @@ export function GeoPage(p: GeoPageProps) {
       <Scene copy={copy} />
       <Gets copy={copy} gets={tale.gets} />
       <Faq copy={copy} />
-      <Close copy={copy} t={t} />
-      <Next next={p.next} others={p.others} t={t} />
+      <Close copy={copy} others={p.others} t={t} />
     </div>
   );
 }
