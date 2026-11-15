@@ -7,6 +7,10 @@ import type { ServiceKey } from "./services";
  * I passi di `how` seguono, uno a uno, le inquadrature dello spot dello stesso servizio.
  */
 export type ServiceStory = {
+  hero: { title: string; sub: string; trust: string };
+  proof: { title: string; slugs: string[]; cta: string };
+  promise: { title: string; yes: string[]; noTitle: string; no: string[]; me: string; meLead: string };
+  close: { title: string; lead: string };
   facts: { v: string; l: string }[];
   changes: { title: string; lead: string; rows: { from: string; to: string }[] };
   how: { title: string; lead: string; steps: { t: string; b: string }[] };
@@ -17,6 +21,10 @@ export type ServiceStory = {
 
 type Body = {
   facts: [string, string][];
+  /** titolo-risultato (≤ 10 parole) e sottotitolo: per chi, cosa, in che modo */
+  hero?: [string, string];
+  /** cosa non prometto, specifico del servizio */
+  no?: string[];
   changesLead: string;
   rows: [string, string][];
   howLead: string;
@@ -36,6 +44,21 @@ const COMMON = {
     timelineLead: "Le tappe sono sempre le stesse. Date e costi precisi li trovi nel preventivo, prima di iniziare.",
     first: ["Giorno 1", "Una chiamata di 30 minuti", "Mi racconti cosa ti serve e cosa non funziona oggi. Pochi giorni dopo ricevi un preventivo scritto, con tempi e costi di ogni parte."] as [string, string, string],
     faq: "Domande",
+    changesTitle: "Ti riconosci?",
+    trust: "Rispondo io, non un commerciale. Preventivo scritto prima di iniziare.",
+    proof: "Già fatto da me",
+    proofCta: "Guarda il progetto",
+    promise: "Cosa ti garantisco",
+    yes: [
+      "Un preventivo scritto prima di iniziare: cosa faccio, in quanto tempo, con quali costi.",
+      "Parli sempre con me, dalla prima chiamata all’assistenza.",
+      "Codice, dominio, dati e account restano intestati a te.",
+      "Nessun vincolo: se un giorno vuoi cambiare, ti passo tutto, documentato.",
+    ],
+    noTitle: "Cosa non ti prometto",
+    me: "Filippo Corsini",
+    meLead: "Studio Ingegneria Informatica all’Università di Brescia e sviluppo software per aziende e professionisti. Progetto, scrivo il codice e lo seguo dopo il lancio: un solo referente, sempre lo stesso.",
+    close: ["Raccontami cosa ti serve.", "In 30 minuti capiamo se e come posso aiutarti. Se la risposta è no, te lo dico."] as [string, string],
     cost: ["Quanto costa?", "Dipende da cosa serve davvero. Dopo la prima chiamata ricevi un preventivo scritto, voce per voce: decidi tu cosa fare subito e cosa rimandare."] as [string, string],
   },
   en: {
@@ -46,15 +69,34 @@ const COMMON = {
     timelineLead: "The stages are always the same. Exact dates and costs are in the quote, before we start.",
     first: ["Day 1", "A 30-minute call", "You tell me what you need and what isn’t working today. A few days later you get a written quote, with timing and cost for each part."] as [string, string, string],
     faq: "Questions",
+    changesTitle: "Sound familiar?",
+    trust: "You talk to me, not a salesperson. A written quote before we start.",
+    proof: "Built before",
+    proofCta: "See the project",
+    promise: "What I guarantee",
+    yes: [
+      "A written quote before we start: what I’ll do, how long it takes, what it costs.",
+      "You always talk to me, from the first call to support.",
+      "Code, domain, data and accounts stay in your name.",
+      "No lock-in: if you ever want to switch, I hand everything over, documented.",
+    ],
+    noTitle: "What I won’t promise",
+    me: "Filippo Corsini",
+    meLead: "I study Computer Engineering at the University of Brescia and build software for businesses and professionals. I design it, write the code and look after it after launch: one contact, always the same.",
+    close: ["Tell me what you need.", "In 30 minutes we work out whether and how I can help. If the answer is no, I’ll tell you."] as [string, string],
     cost: ["How much does it cost?", "It depends on what you really need. After the first call you get a written quote, item by item: you decide what to do now and what can wait."] as [string, string],
   },
 };
 
-const build = (l: Locale, b: Body): ServiceStory => {
+const build = (l: Locale, b: Body, k: ServiceKey): ServiceStory => {
   const c = COMMON[l];
   return {
+    hero: { title: b.hero?.[0] ?? "", sub: b.hero?.[1] ?? "", trust: c.trust },
+    proof: { title: c.proof, slugs: PROOF[k] ?? [], cta: c.proofCta },
+    promise: { title: c.promise, yes: c.yes, noTitle: c.noTitle, no: b.no ?? [], me: c.me, meLead: c.meLead },
+    close: { title: c.close[0], lead: c.close[1] },
     facts: b.facts.map(([v, l2]) => ({ v, l: l2 })),
-    changes: { title: c.changes, lead: b.changesLead, rows: b.rows.map(([from, to]) => ({ from, to })) },
+    changes: { title: c.changesTitle, lead: b.changesLead, rows: b.rows.map(([from, to]) => ({ from, to })) },
     how: { title: c.how, lead: b.howLead, steps: b.steps.map(([t, b2]) => ({ t, b: b2 })) },
     gets: { title: c.gets, items: b.gets.map(([t, b2]) => ({ t, b: b2 })) },
     timeline: { title: c.timeline, lead: c.timelineLead, items: [c.first, ...b.path].map(([at, t, b2]) => ({ at, t, b: b2 })) },
@@ -62,7 +104,7 @@ const build = (l: Locale, b: Body): ServiceStory => {
   };
 };
 
-const IT: Record<Exclude<ServiceKey, "ops">, Body> = {
+const IT: Record<ServiceKey, Body> = {
   web: {
     facts: [
       ["2 settimane", "Ogni due settimane provi una versione che funziona, non un documento."],
@@ -394,9 +436,39 @@ const IT: Record<Exclude<ServiceKey, "ops">, Body> = {
       ["Posso collegarlo al gestionale o al negozio fisico?", "Sì: ordini, fatture e scorte possono restare allineati tra online e punto vendita."],
     ],
   },
+  ops: {
+    facts: [],
+    changesLead: "Un sito che si ferma, si apre lento o perde i dati costa clienti. Tenerlo in salute è un lavoro continuo, e non deve essere il tuo.",
+    rows: [],
+    howLead: "Quattro livelli lavorano insieme dietro al tuo sito. Tu non devi pensare a nessuno di questi.",
+    steps: [
+      ["Uno scudo davanti al sito", "Ogni visita passa prima da una protezione che ferma traffico falso e attacchi, e tiene pronte le pagine per servirle più in fretta."],
+      ["Un indirizzo protetto, intestato a te", "Server preparato per il tuo progetto, con il tuo dominio e il lucchetto di sicurezza che si rinnova da solo."],
+      ["Aggiornamenti che non rompono niente", "Ogni modifica passa da controlli automatici e va online solo se tutto è a posto. Se qualcosa non convince, si torna alla versione precedente in un clic."],
+      ["Copie e controllo, anche di notte", "Ogni notte una copia di tutto. Se il sito smette di rispondere ricevo un avviso in pochi secondi, a qualsiasi ora, e intervengo."],
+    ],
+    gets: [
+      ["Sempre online", "Server dedicato e configurato per il tuo progetto, con il tuo dominio e il lucchetto di sicurezza che si rinnova da solo."],
+      ["Aggiornamenti senza interruzioni", "Sistema, sicurezza e nuove versioni del sito vanno online senza fermarlo, e si possono annullare in un clic."],
+      ["Copie di sicurezza e controllo", "Una copia di tutto ogni notte, conservata altrove, e un controllo continuo che mi avvisa se qualcosa smette di rispondere."],
+      ["Assistenza da chi conosce il progetto", "Piccole modifiche, dubbi e problemi: scrivi a me, che il sito l’ho costruito o l’ho studiato."],
+    ],
+    path: [
+      ["Prima settimana", "Il passaggio", "Sposto il sito sul nuovo server senza fermarlo e attivo protezione, copie e controllo."],
+      ["Ogni notte", "Copie di sicurezza", "Una copia completa di sito e dati, conservata in un luogo diverso."],
+      ["Ogni mese", "Aggiornamenti e resoconto", "Sistema e componenti aggiornati, con un riepilogo di cosa è stato fatto."],
+      ["Quando serve", "Intervento", "Se qualcosa si ferma ricevo l’avviso e intervengo, anche fuori orario."],
+    ],
+    faq: [
+      ["Devo fare qualcosa io?", "No. Il sito e il dominio restano intestati a te; io mi occupo della parte tecnica e ti scrivo solo quando serve una tua decisione."],
+      ["Cosa succede se il sito si ferma di notte?", "Il controllo automatico mi avvisa in pochi secondi, a qualsiasi ora. Intervengo subito e la mattina trovi un riepilogo di cosa è successo."],
+      ["Posso cambiare fornitore in futuro?", "Sì. Codice, dati e accessi sono tuoi: se un giorno vuoi spostarti ti consegno tutto, documentato."],
+      ["Gestisci anche siti che non hai fatto tu?", "Sì. Prima li studio e ti dico in che stato sono; poi li sposto e li tengo in salute come fossero miei."],
+    ],
+  },
 };
 
-const ENG: Record<Exclude<ServiceKey, "ops">, Body> = {
+const ENG: Record<ServiceKey, Body> = {
   web: {
     facts: [
       ["2 weeks", "Every two weeks you try a working version, not a document."],
@@ -728,9 +800,256 @@ const ENG: Record<Exclude<ServiceKey, "ops">, Body> = {
       ["Can I connect it to my back office or physical shop?", "Yes: orders, invoices and stock can stay in step between online and the shop floor."],
     ],
   },
+  ops: {
+    facts: [],
+    changesLead: "A site that goes down, loads slowly or loses data costs customers. Keeping it healthy is ongoing work, and it doesn’t have to be yours.",
+    rows: [],
+    howLead: "Four layers work together behind your site. You don’t have to think about any of them.",
+    steps: [
+      ["A shield in front of your site", "Every visit first goes through a protection layer that stops fake traffic and attacks, and keeps pages ready to serve them faster."],
+      ["A protected address, in your name", "A server set up for your project, with your domain and a security padlock that renews itself."],
+      ["Updates that break nothing", "Every change goes through automatic checks and only goes live if everything passes. If something looks wrong, roll back in one click."],
+      ["Backups and monitoring, nights included", "A copy of everything every night. If the site stops responding I get an alert within seconds, at any hour, and step in."],
+    ],
+    gets: [
+      ["Always online", "A dedicated server configured for your project, with your domain and a security padlock that renews itself."],
+      ["Updates without downtime", "System, security and new versions of the site go live without stopping it, and can be undone in one click."],
+      ["Backups and monitoring", "A copy of everything every night, stored elsewhere, and constant monitoring that alerts me if something stops responding."],
+      ["Support from someone who knows the project", "Small changes, questions and problems: you write to me, because I built the site or studied it."],
+    ],
+    path: [
+      ["First week", "The move", "I move the site to the new server without taking it down and switch on protection, backups and monitoring."],
+      ["Every night", "Backups", "A full copy of site and data, stored in a different place."],
+      ["Every month", "Updates and report", "System and components updated, with a summary of what was done."],
+      ["When needed", "Intervention", "If something stops I get the alert and step in, out of hours too."],
+    ],
+    faq: [
+      ["Do I need to do anything?", "No. The site and the domain stay in your name; I take care of the technical side and only write when a decision of yours is needed."],
+      ["What if the site goes down at night?", "Monitoring alerts me within seconds, at any hour. I step in right away and in the morning you find a summary of what happened."],
+      ["Can I switch provider later?", "Yes. Code, data and access are yours: if one day you want to move, I hand everything over, documented."],
+      ["Do you look after sites you didn’t build?", "Yes. First I study them and tell you what state they’re in; then I move them and look after them as if they were mine."],
+    ],
+  },
 };
 
-export function getStory(k: ServiceKey, l: Locale): ServiceStory | null {
-  if (k === "ops") return null;
-  return build(l, (l === "en" ? ENG : IT)[k]);
+type Extra = Pick<Body, "hero" | "no" | "rows">;
+/** Il titolo-risultato, le frasi del cliente ("Ti riconosci?") e le promesse che non faccio. */
+const EXTRA_IT: Record<ServiceKey, Extra> = {
+  web: {
+    hero: ["Un sito che fa chiamare i clienti, non solo guardare.", "Per studi, negozi e aziende: veloce su ogni telefono, facile da aggiornare, tuo al 100%."],
+    rows: [
+      ["«Per cambiare un orario sul sito devo chiamare qualcuno.»", "Testi, foto e prezzi li cambi tu, in pochi minuti"],
+      ["«Le richieste arrivano al telefono e qualcuna si perde.»", "Prenotazioni e richieste arrivano ordinate, con una notifica"],
+      ["«Da telefono il sito si apre lento e si legge male.»", "Si apre in un attimo, su qualsiasi schermo"],
+      ["«Gestiamo tutto tra fogli Excel e messaggi.»", "Un solo posto dove tu e il tuo team trovate tutto"],
+    ],
+    no: ["Funzioni che non ti servono, solo per gonfiare il progetto.", "Un modello già pronto spacciato per su misura."],
+  },
+  seo: {
+    hero: ["Il tuo sito si apre in un attimo, e Google lo capisce.", "Sistemo velocità, errori e struttura che ti fanno perdere visite. Ti mostro i numeri prima e dopo."],
+    rows: [
+      ["«Chi mi cerca in zona trova i concorrenti.»", "Compari con scheda, orari e recensioni quando ti cercano vicino"],
+      ["«Il sito ci mette secondi ad aprirsi.»", "Si apre subito, anche su telefono con rete lenta"],
+      ["«Non so da dove arrivano le visite.»", "Un resoconto mensile con numeri che capisci"],
+      ["«Ho pagato per la SEO e non ho capito cosa hanno fatto.»", "Ogni intervento spiegato e misurato, prima e dopo"],
+    ],
+    no: ["Il primo posto su Google: nessuno può garantirlo, lo scrive Google stesso.", "Scorciatoie che oggi funzionano e domani ti penalizzano."],
+  },
+  geo: {
+    hero: ["Quando chiedono all’AI del tuo settore, ci sei anche tu?", "Controllo cosa dicono di te ChatGPT, Gemini, Claude e Perplexity, rendo le tue informazioni chiare ovunque e misuro ogni mese."],
+    rows: [
+      ["«Ho chiesto a ChatGPT e ha consigliato un concorrente.»", "Compari tra le risposte quando chiedono del tuo settore"],
+      ["«L’AI riporta orari e servizi sbagliati.»", "Trova sul tuo sito informazioni corrette e aggiornate"],
+      ["«Non so cosa dicono di me.»", "Un controllo mensile con le risposte, così come arrivano"],
+      ["«Il sito è pieno di testo ma non risponde a nessuna domanda.»", "Risposte brevi e chiare, pronte per essere citate"],
+    ],
+    no: ["Che un assistente ti citi: nessuno controlla cosa risponde.", "Trucchi speciali: conta un sito chiaro, completo e coerente ovunque."],
+  },
+  apps: {
+    hero: ["Un’app sola, su iPhone, Android e computer.", "Un unico progetto per tutte le piattaforme: costa meno di app separate ed è più semplice da aggiornare."],
+    rows: [
+      ["«Il nostro programma gira solo sul computer in ufficio.»", "La stessa app su telefono e computer, ovunque sei"],
+      ["«Ognuno ha dati diversi sul suo dispositivo.»", "Tutto allineato in tempo reale, per tutti"],
+      ["«Senza connessione non si lavora.»", "Continui offline, si sincronizza dopo"],
+      ["«Ci avevano proposto due app diverse, al doppio del prezzo.»", "Un progetto solo, per tutti i sistemi"],
+    ],
+    no: ["Un’app quando basta un sito: se è così, te lo dico prima.", "Una pubblicazione sugli store a mio nome: gli account restano tuoi."],
+  },
+  design: {
+    hero: ["Prova il prodotto prima di pagarne lo sviluppo.", "Un prototipo cliccabile, provato con persone vere, per decidere con i fatti e non a sensazione."],
+    rows: [
+      ["«Le persone iniziano a prenotare e poi lasciano a metà.»", "Arrivano in fondo, in meno passaggi"],
+      ["«I clienti mi chiamano per chiedere come si usa.»", "Capiscono da soli cosa fare, al primo colpo"],
+      ["«Abbiamo scoperto i problemi dopo averlo sviluppato.»", "Si scoprono sul prototipo, quando correggere costa poco"],
+      ["«Ogni schermata sembra fatta da una persona diversa.»", "Stessi colori, stessi comandi, ovunque"],
+    ],
+    no: ["Un bel disegno mai provato da nessuno.", "File che restano a me: il progetto è tuo."],
+  },
+  ai: {
+    hero: ["Il lavoro ripetitivo si fa da solo. Le decisioni restano a te.", "Parto da un compito che oggi ti ruba ore, lo automatizzo con i tuoi strumenti e ti lascio l’ultima parola sui casi dubbi."],
+    rows: [
+      ["«Passo la mattina a leggere e smistare email.»", "Email già lette, ordinate e con la risposta pronta"],
+      ["«Ricopio gli ordini a mano da un programma all’altro.»", "Inseriti da soli, e tu controlli solo i casi dubbi"],
+      ["«Rispondo ai clienti il giorno dopo.»", "Bozze pronte in pochi minuti, da approvare con un tocco"],
+      ["«Nessuno trova mai il documento giusto.»", "Fai una domanda e ricevi la risposta, con il documento da cui viene"],
+    ],
+    no: ["Un’AI che non sbaglia mai: per questo le azioni importanti passano da te.", "Di sostituire le persone del tuo team: toglie il lavoro noioso, non chi lo fa."],
+  },
+  hw: {
+    hero: ["Se il frigo si scalda alle 3 di notte, lo sai alle 3 e un minuto.", "Sensori sulle tue macchine, avvisi sul telefono e uno storico sempre pronto per i controlli."],
+    rows: [
+      ["«Ci siamo accorti del guasto quando la merce era da buttare.»", "Ricevi un avviso appena qualcosa esce dalla norma"],
+      ["«Qualcuno passa a controllare e scrive su un foglio.»", "I dati si registrano da soli, giorno e notte"],
+      ["«Non so cosa succede nel fine settimana.»", "Lo storico completo, con grafici leggibili"],
+      ["«Ogni macchina ha il suo schermo e il suo programma.»", "Un’unica schermata per tutto"],
+    ],
+    no: ["Di cambiare le macchine che hai: si lavora su quelle.", "Sensori in più del necessario: si misura solo quello che serve."],
+  },
+  api: {
+    hero: ["I tuoi programmi si parlano. Basta copia e incolla.", "Collego gli strumenti che usi già, così ordini, pagamenti e clienti si aggiornano da soli."],
+    rows: [
+      ["«Ricopio ogni ordine dal negozio al gestionale.»", "Arrivano da soli, appena il cliente paga"],
+      ["«Fatture e scorte le aggiorno a fine giornata.»", "Si aggiornano nel momento in cui succede qualcosa"],
+      ["«Il cliente aspetta la conferma finché ho tempo.»", "La conferma parte subito, in automatico"],
+      ["«Un errore di battitura è diventato un ordine sbagliato.»", "Nessuno ricopia, nessuno sbaglia"],
+    ],
+    no: ["Di farti cambiare i programmi che usi.", "Collegamenti lasciati a sé stessi: li controllo e li tengo aggiornati."],
+  },
+  shop: {
+    hero: ["Un negozio online che vende anche mentre dormi.", "Catalogo, pagamenti, spedizioni e magazzino in ordine. E lo gestisci da solo."],
+    rows: [
+      ["«Vendo solo quando il negozio è aperto.»", "Vendi a ogni ora, anche a chi è lontano"],
+      ["«Il carrello si riempie e poi nessuno paga.»", "Pagamento in un tocco, senza moduli infiniti"],
+      ["«Ho venduto un prodotto che era già finito.»", "Le scorte si aggiornano a ogni ordine"],
+      ["«Per cambiare un prezzo devo chiamare qualcuno.»", "Prodotti, prezzi e foto li gestisci tu"],
+    ],
+    no: ["Vendite garantite: rendo facile comprare, il prodotto e il prezzo restano tuoi.", "Commissioni nascoste sui tuoi incassi: arrivano direttamente sul tuo conto."],
+  },
+  ops: {
+    hero: ["Il sito sempre acceso, aggiornato e al sicuro.", "Server, copie di sicurezza, aggiornamenti e assistenza. Se qualcosa si rompe, scrivi a me."],
+    rows: [
+      ["«Il sito è andato giù e me l’ha detto un cliente.»", "Lo so io per primo, e intervengo subito"],
+      ["«Non ricordo l’ultima volta che è stato aggiornato.»", "Aggiornamenti regolari, senza fermare il sito"],
+      ["«Se si rompe qualcosa non so chi chiamare.»", "Un solo referente, che conosce il progetto"],
+      ["«Non so se esiste una copia dei miei dati.»", "Una copia di tutto ogni notte, conservata altrove"],
+    ],
+    no: ["Zero guasti: possono capitare a chiunque. Prometto di accorgermene subito e di intervenire.", "Contratti pluriennali: se non sei soddisfatto, puoi andare."],
+  },
+};
+const EXTRA_EN: Record<ServiceKey, Extra> = {
+  web: {
+    hero: ["A website that makes customers call, not just look.", "For practices, shops and businesses: fast on any phone, easy to update, 100% yours."],
+    rows: [
+      ["“Changing opening hours on the site means calling someone.”", "You change text, photos and prices yourself, in minutes"],
+      ["“Requests come in by phone and some get lost.”", "Bookings and requests arrive in order, with a notification"],
+      ["“On a phone the site is slow and hard to read.”", "It opens instantly, on any screen"],
+      ["“We run everything across spreadsheets and messages.”", "One place where you and your team find everything"],
+    ],
+    no: ["Features you don’t need, just to inflate the project.", "A ready-made template passed off as custom."],
+  },
+  seo: {
+    hero: ["Your site opens instantly, and Google understands it.", "I fix the speed, errors and structure that lose you visits. I show you the numbers before and after."],
+    rows: [
+      ["“People searching nearby find my competitors.”", "You show up with profile, hours and reviews when they search close by"],
+      ["“The site takes seconds to open.”", "It opens instantly, even on a phone with a slow connection"],
+      ["“I don’t know where visits come from.”", "A monthly report with numbers you understand"],
+      ["“I paid for SEO and never understood what they did.”", "Every change explained and measured, before and after"],
+    ],
+    no: ["The top spot on Google: nobody can guarantee it, Google says so itself.", "Shortcuts that work today and get you penalised tomorrow."],
+  },
+  geo: {
+    hero: ["When people ask AI about your field, are you there?", "I check what ChatGPT, Gemini, Claude and Perplexity say about you, make your information clear everywhere and measure every month."],
+    rows: [
+      ["“I asked ChatGPT and it recommended a competitor.”", "You appear in the answers when people ask about your field"],
+      ["“AI reports the wrong hours and services.”", "It finds correct, up-to-date facts on your site"],
+      ["“I don’t know what they say about me.”", "A monthly check with the answers, exactly as they come"],
+      ["“The site is full of text but answers no question.”", "Short, clear answers, ready to be quoted"],
+    ],
+    no: ["That an assistant will mention you: nobody controls what it answers.", "Special tricks: what counts is a clear, complete site, consistent everywhere."],
+  },
+  apps: {
+    hero: ["One app, on iPhone, Android and computer.", "A single project for every platform: cheaper than separate apps and simpler to update."],
+    rows: [
+      ["“Our software only runs on the office computer.”", "The same app on phone and computer, wherever you are"],
+      ["“Everyone has different data on their device.”", "Everything in step in real time, for everyone"],
+      ["“No connection, no work.”", "You carry on offline; it syncs later"],
+      ["“We were quoted two separate apps, at twice the price.”", "One project, for every system"],
+    ],
+    no: ["An app when a website is enough: if so, I’ll tell you first.", "Store listings under my name: the accounts stay yours."],
+  },
+  design: {
+    hero: ["Try the product before paying to build it.", "A clickable prototype, tested with real people, so you decide on facts rather than gut feeling."],
+    rows: [
+      ["“People start booking and drop out halfway.”", "They reach the end, in fewer steps"],
+      ["“Customers phone to ask how it works.”", "They work out what to do on their own, first time"],
+      ["“We found the problems after building it.”", "They show up in the prototype, when fixing is cheap"],
+      ["“Every screen looks like a different person made it.”", "Same colours, same controls, everywhere"],
+    ],
+    no: ["A pretty design nobody has ever tested.", "Files that stay with me: the project is yours."],
+  },
+  ai: {
+    hero: ["Repetitive work does itself. Decisions stay with you.", "I start from a task that eats your hours, automate it with your tools and leave you the final word on doubtful cases."],
+    rows: [
+      ["“I spend the morning reading and sorting email.”", "Email already read, sorted and with a reply ready"],
+      ["“I retype orders from one program to another.”", "Entered automatically; you only check the doubtful cases"],
+      ["“I reply to customers the next day.”", "Drafts ready in minutes, approved with one tap"],
+      ["“Nobody can ever find the right document.”", "Ask a question and get the answer, with the document it comes from"],
+    ],
+    no: ["An AI that never makes mistakes: that’s why important actions go through you.", "To replace people on your team: it removes the dull work, not the people."],
+  },
+  hw: {
+    hero: ["If the fridge warms up at 3 am, you know at 3:01.", "Sensors on your machines, alerts on your phone and a history always ready for inspections."],
+    rows: [
+      ["“We noticed the fault when the stock had to be thrown away.”", "You get an alert as soon as something leaves the normal range"],
+      ["“Someone goes round checking and writes it on paper.”", "Data records itself, day and night"],
+      ["“I don’t know what happens over the weekend.”", "The full history, with readable charts"],
+      ["“Every machine has its own screen and its own program.”", "One screen for everything"],
+    ],
+    no: ["To replace the machines you have: we work with those.", "More sensors than needed: we only measure what matters."],
+  },
+  api: {
+    hero: ["Your programs talk to each other. No more copy and paste.", "I connect the tools you already use, so orders, payments and customers update themselves."],
+    rows: [
+      ["“I retype every order from the shop into the back office.”", "They arrive by themselves, as soon as the customer pays"],
+      ["“I update invoices and stock at the end of the day.”", "They update the moment something happens"],
+      ["“The customer waits for a confirmation until I have time.”", "The confirmation goes out immediately, automatically"],
+      ["“A typo turned into a wrong order.”", "Nobody retypes, nobody gets it wrong"],
+    ],
+    no: ["To make you change the programs you use.", "Connections left to fend for themselves: I monitor and update them."],
+  },
+  shop: {
+    hero: ["An online shop that sells while you sleep.", "Catalogue, payments, shipping and stock in order. And you run it yourself."],
+    rows: [
+      ["“I only sell when the shop is open.”", "You sell at any hour, to people far away too"],
+      ["“Carts fill up and then nobody pays.”", "Payment in one tap, no endless forms"],
+      ["“I sold a product that was already out of stock.”", "Stock updates with every order"],
+      ["“Changing a price means calling someone.”", "You manage products, prices and photos yourself"],
+    ],
+    no: ["Guaranteed sales: I make buying easy, the product and price are yours.", "Hidden cuts of your takings: they go straight to your account."],
+  },
+  ops: {
+    hero: ["Your site always on, up to date and safe.", "Servers, backups, updates and support. If something breaks, you write to me."],
+    rows: [
+      ["“The site went down and a customer told me.”", "I know first, and step in right away"],
+      ["“I can’t remember the last time it was updated.”", "Regular updates, without taking the site down"],
+      ["“If something breaks I don’t know who to call.”", "One contact, who knows the project"],
+      ["“I don’t know if a copy of my data exists.”", "A copy of everything every night, stored elsewhere"],
+    ],
+    no: ["Zero faults: they can happen to anyone. I promise to notice straight away and step in.", "Multi-year contracts: if you’re not happy, you can leave."],
+  },
+};
+
+/** Progetti veri da mostrare come prova, solo dove c'entrano davvero. */
+const PROOF: Partial<Record<ServiceKey, string[]>> = {
+  web: ["creacloud", "unispace"],
+  apps: ["relay"],
+  design: ["relay", "unispace"],
+  ai: ["creacloud"],
+  api: ["creacloud", "relay"],
+  ops: ["unispace", "creacloud"],
+};
+
+export function getStory(k: ServiceKey, l: Locale): ServiceStory {
+  const b = { ...(l === "en" ? ENG : IT)[k], ...(l === "en" ? EXTRA_EN : EXTRA_IT)[k] };
+  return build(l, b, k);
 }

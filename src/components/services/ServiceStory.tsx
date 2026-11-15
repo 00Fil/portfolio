@@ -11,6 +11,8 @@ import {
   Alert01Icon,
   Analytics01Icon,
   ArrowRight02Icon,
+  Cancel01Icon,
+  CheckmarkCircle02Icon,
   BrowserIcon,
   ChartLineData01Icon,
   Clock01Icon,
@@ -51,6 +53,7 @@ import {
 import type { ServiceKey } from "@/content/services";
 import { prefersReducedMotion } from "@/lib/env";
 import { Bead } from "@/components/glass/Bead";
+import { Link } from "@/i18n/navigation";
 import { ServiceBg } from "@/components/sections/ServiceBg";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -119,7 +122,7 @@ export function How({ k, how, scene }: { k: ServiceKey; how: Story["how"]; scene
     { scope: root, dependencies: [desk] },
   );
   return (
-    <section ref={root} className="mx-auto w-full max-w-[1400px] px-3 pt-24 sm:px-5 sm:pt-40">
+    <section ref={root} id="come-funziona" className="mx-auto w-full max-w-[1400px] scroll-mt-10 px-3 pt-24 sm:px-5 sm:pt-40">
       <header className="mx-auto mb-12 max-w-[1280px] px-2 sm:mb-20 sm:px-3">
         <h2 className={h2}>{how.title}</h2>
         <p className="mt-5 max-w-[48ch] text-[18px] leading-[1.55] text-ink-2">{how.lead}</p>
@@ -344,3 +347,130 @@ export function Faq({ faq }: { faq: Story["faq"] }) {
   );
 }
 
+
+/* ───────────── Già fatto da me: progetti veri, uno per riga, con immagine e titolo-risultato ───────────── */
+
+export function Proof({ proof, items }: { proof: { title: string; cta: string }; items: { slug: string; headline: string; context: string; tags: string[]; icon: string }[] }) {
+  const root = useRef<HTMLElement>(null);
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      gsap.utils.toArray<HTMLElement>("[data-pf]").forEach((el) => {
+        const q = gsap.utils.selector(el);
+        gsap
+          .timeline({ scrollTrigger: { trigger: el, start: "top 82%", once: true } })
+          .fromTo(q("[data-pimg]"), { clipPath: "inset(12% 12% 12% 12% round 40px)" }, { clipPath: "inset(0% 0% 0% 0% round 28px)", duration: 1.3, ease: "expo.inOut" })
+          .fromTo(q("[data-pimg] img"), { scale: 1.25 }, { scale: 1, duration: 1.6, ease: "expo.out" }, 0)
+          .fromTo(q("[data-ptx]"), { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08, ease: "expo.out" }, 0.4);
+      });
+    },
+    { scope: root },
+  );
+  if (!items.length) return null;
+  return (
+    <section ref={root} className="mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-40">
+      <h2 className={`${h2} mb-10 sm:mb-16`}>{proof.title}</h2>
+      <div className="grid gap-14 sm:gap-20">
+        {items.map((p, i) => (
+          <Link key={p.slug} href={`/lavori/${p.slug}`} data-pf className={`group grid items-center gap-7 lg:grid-cols-2 lg:gap-16 ${i % 2 ? "lg:[&>*:first-child]:order-2" : ""}`}>
+            <div data-pimg className="relative aspect-[4/3] overflow-hidden rounded-[28px] bg-[#05070a]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/work/${p.slug}/fibers.webp`} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-[1.2s] ease-[var(--ease-out)] group-hover:scale-[1.04]" />
+              <span className="absolute bottom-5 left-5 flex items-center gap-3">
+                <Bead tint="rgba(255,255,255,.16)" radius={16} className="flex h-12 w-12 items-center justify-center overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={p.icon} alt="" className="h-7 w-7 object-contain" />
+                </Bead>
+              </span>
+            </div>
+            <div>
+              <p data-ptx className="font-mono text-[12px] uppercase tracking-[0.14em] text-ink-3">{p.context}</p>
+              <h3 data-ptx className="mt-4 max-w-[18ch] text-[clamp(28px,3.4vw,48px)] font-medium leading-[1.04] tracking-[-0.045em] text-ink">
+                {p.headline}
+              </h3>
+              <p data-ptx className="mt-5 flex flex-wrap gap-x-4 gap-y-1 text-[15px] text-ink-2">
+                {p.tags.map((t) => (
+                  <span key={t}>{t}</span>
+                ))}
+              </p>
+              <p data-ptx className="mt-7 inline-flex items-center gap-2 text-[16px] font-medium text-[var(--sky)]">
+                {proof.cta}
+                <HugeiconsIcon icon={ArrowRight02Icon} size={17} strokeWidth={1.8} className="transition-transform duration-300 group-hover:translate-x-1" />
+              </p>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ───────────── Cosa garantisco e cosa no, e chi c'è dietro ───────────── */
+
+export function Promise({ promise, github }: { promise: { title: string; yes: string[]; noTitle: string; no: string[]; me: string; meLead: string }; github?: string }) {
+  const root = useRef<HTMLElement>(null);
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      gsap.utils.toArray<HTMLElement>("[data-pl]").forEach((list) => {
+        const q = gsap.utils.selector(list);
+        gsap
+          .timeline({ scrollTrigger: { trigger: list, start: "top 82%", once: true } })
+          .fromTo(q("[data-pi]"), { autoAlpha: 0, x: -18 }, { autoAlpha: 1, x: 0, duration: 0.8, stagger: 0.09, ease: "expo.out" })
+          .fromTo(q("[data-pm]"), { scale: 0, rotate: -90 }, { scale: 1, rotate: 0, duration: 0.6, stagger: 0.09, ease: "back.out(2.4)" }, 0.1);
+      });
+      gsap.fromTo("[data-me]", { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 1, ease: "expo.out", scrollTrigger: { trigger: "[data-me]", start: "top 88%", once: true } });
+    },
+    { scope: root },
+  );
+  return (
+    <section ref={root} className="mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-40">
+      <div className="grid gap-14 lg:grid-cols-[1.25fr_1fr] lg:gap-20">
+        <div>
+          <h2 className={`${h2} mb-8 sm:mb-10`}>{promise.title}</h2>
+          <ul data-pl className="grid gap-6">
+            {promise.yes.map((y) => (
+              <li key={y} data-pi className="flex gap-4 text-[clamp(19px,1.7vw,24px)] leading-[1.35] tracking-[-0.02em] text-ink">
+                <span data-pm className="mt-1 shrink-0 text-[var(--sky)]">
+                  <HugeiconsIcon icon={CheckmarkCircle02Icon} size={24} strokeWidth={1.7} />
+                </span>
+                {y}
+              </li>
+            ))}
+          </ul>
+        </div>
+        {promise.no.length > 0 && (
+          <div className="lg:pt-[calc(clamp(40px,5vw,72px)*0.18)]">
+            <p className="mb-8 font-mono text-[12px] uppercase tracking-[0.14em] text-ink-3 sm:mb-10 lg:mt-6">{promise.noTitle}</p>
+            <ul data-pl className="grid gap-6 border-l border-[var(--hair-strong)] pl-6">
+              {promise.no.map((n) => (
+                <li key={n} data-pi className="flex gap-3 text-[17px] leading-[1.5] text-ink-2">
+                  <span data-pm className="mt-0.5 shrink-0 text-ink-3">
+                    <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={1.7} />
+                  </span>
+                  {n}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+      {/* chi c'è dietro: per un freelance la persona è la garanzia principale */}
+      <div data-me className="mt-20 flex flex-col gap-6 border-t border-[var(--hair-strong)] pt-10 sm:mt-28 sm:flex-row sm:items-center sm:gap-10">
+        <Bead tint="dark" radius={36} className="flex h-[72px] w-[72px] shrink-0 items-center justify-center text-[22px] font-medium tracking-[-0.02em] text-white">
+          FC
+        </Bead>
+        <div className="flex-1">
+          <p className="text-[22px] font-medium tracking-[-0.03em] text-ink">{promise.me}</p>
+          <p className="mt-2 max-w-[62ch] text-[16.5px] leading-[1.6] text-ink-2">{promise.meLead}</p>
+        </div>
+        {github && (
+          <a href={github} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[15px] font-medium text-ink-2 transition-colors hover:text-ink">
+            GitHub
+            <HugeiconsIcon icon={ArrowRight02Icon} size={16} strokeWidth={1.8} className="-rotate-45" />
+          </a>
+        )}
+      </div>
+    </section>
+  );
+}

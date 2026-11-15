@@ -543,7 +543,7 @@ export const WEB: Shot[] = [
             {/* tela */}
             <span className="relative block overflow-hidden bg-[#1e1e1e]" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px)", backgroundSize: "16px 16px" }}>
               <span className="absolute left-5 top-2.5 text-[10px] text-white/45">Desktop</span>
-              <span data-frame className="absolute inset-x-5 bottom-5 top-7 block overflow-hidden rounded-[3px] bg-[#f7f7f4] text-[#111827]">
+              <span data-frame className="absolute inset-x-5 bottom-5 top-7 block max-h-[360px] overflow-hidden rounded-[3px] bg-[#f7f7f4] text-[#111827]">
                 <span className="flex items-center justify-between px-4 pt-3">
                   <span className="flex items-center gap-1.5 text-[10.5px] font-semibold">
                     <span className="h-3.5 w-3.5 rounded-[5px] bg-[#1f7fb8]" />

@@ -17,7 +17,7 @@ import { ServiceVisual, type WidgetText } from "@/components/sections/ServiceWid
 import { ServiceIcon } from "./ServiceIcon";
 import { SHOTS, ShotView } from "@/components/sections/Spots";
 import type { ServiceStory } from "@/content/stories";
-import { Bento, Changes, Facts, Faq, How, Timeline, type Story } from "./ServiceStory";
+import { Bento, Changes, Faq, How, Promise, Proof, Timeline, type Story } from "./ServiceStory";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
@@ -39,14 +39,17 @@ export type ServiceDetailProps = {
   w: WidgetText;
   story?: Story;
   tale?: ServiceStory | null;
-  t: { services: string; cta: string; ctaLead: string; includes: string; before: string; after: string; method: string; methodLead: string; next: string; all: string };
+  proof?: { slug: string; headline: string; context: string; tags: string[]; icon: string }[];
+  github?: string;
+  t: { services: string; cta: string; ctaLead: string; how: string; includes: string; before: string; after: string; method: string; methodLead: string; next: string; all: string };
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
 /* ───────────── Apertura: titolo a sinistra, il servizio in movimento a destra ───────────── */
 
-function Hero({ k, need, label, title, short, w, t }: ServiceDetailProps) {
+function Hero({ k, label, title, short, w, t, tale }: ServiceDetailProps) {
+  const h = tale?.hero;
   const root = useRef<HTMLElement>(null);
   useGSAP(
     () => {
@@ -77,21 +80,32 @@ function Hero({ k, need, label, title, short, w, t }: ServiceDetailProps) {
                 {t.services}
               </Link>
               <span className="h-px w-6 bg-white/35" />
-              {label}
+              {h?.title ? title : label}
             </p>
             <div>
-              <h1 data-h1 className="max-w-[11ch] hyphens-auto text-[clamp(44px,6.6vw,112px)] font-medium leading-[0.94] tracking-[-0.055em] text-white">
-                {title}
+              <h1 data-h1 className={h?.title ? "max-w-[15ch] text-[clamp(38px,4.7vw,80px)] font-medium leading-[0.98] tracking-[-0.05em] text-white" : "max-w-[11ch] hyphens-auto text-[clamp(44px,6.6vw,112px)] font-medium leading-[0.94] tracking-[-0.055em] text-white"}>
+                {h?.title || title}
               </h1>
-              <p className="mt-5 max-w-[40ch] text-[16px] leading-[1.55] text-white/80 sm:mt-7 sm:text-[18px]" data-hrest>
-                {short}
+              <p className="mt-5 max-w-[42ch] text-[16px] leading-[1.55] text-white/80 sm:mt-7 sm:text-[18px]" data-hrest>
+                {h?.sub || short}
               </p>
-              <div className="mt-7 sm:mt-9" data-hrest>
+              <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-4 sm:mt-9" data-hrest>
                 <Drop href={`#brief-${k}`} accent className="h-[52px] px-6 text-[16px] font-medium text-ink">
                   {t.cta}
                   <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
                 </Drop>
+                {tale && (
+                  <a href="#come-funziona" className="group inline-flex h-[52px] items-center gap-2 text-[16px] font-medium text-white/85 transition-colors hover:text-white">
+                    {t.how}
+                    <ArrowRight size={17} strokeWidth={1.8} className="rotate-90 transition-transform duration-300 group-hover:translate-y-0.5" aria-hidden />
+                  </a>
+                )}
               </div>
+              {h?.trust && (
+                <p className="mt-6 max-w-[44ch] text-[13.5px] leading-[1.5] text-white/55" data-hrest>
+                  {h.trust}
+                </p>
+              )}
             </div>
           </div>
           <div data-hvis className="relative h-[300px] sm:h-[440px] lg:col-span-6 lg:h-auto">
@@ -170,7 +184,7 @@ function Method({ phases, t }: ServiceDetailProps) {
 
 /* ───────────── L'invito, prima di passare oltre: una riga grande e un solo tasto ───────────── */
 
-function Close({ k, t }: ServiceDetailProps) {
+function Close({ k, t, tale }: ServiceDetailProps) {
   const root = useRef<HTMLElement>(null);
   useGSAP(
     () => {
@@ -182,10 +196,10 @@ function Close({ k, t }: ServiceDetailProps) {
   return (
     <section ref={root} className="mx-auto w-full max-w-[1280px] px-5 pt-24 text-center sm:px-8 sm:pt-44">
       <h2 data-cl className="mx-auto max-w-[16ch] text-[clamp(40px,6vw,96px)] font-medium leading-[0.96] tracking-[-0.055em] text-ink">
-        {t.cta}
+        {tale?.close.title ?? t.cta}
       </h2>
       <p data-cl className="mx-auto mt-6 max-w-[40ch] text-[18px] leading-[1.55] text-ink-2">
-        {t.ctaLead}
+        {tale?.close.lead ?? t.ctaLead}
       </p>
       <div data-cl className="mt-9">
         <Drop href={`#brief-${k}`} accent className="h-[56px] px-7 text-[17px] font-medium text-ink">
@@ -245,38 +259,24 @@ function Next({ next, others, t }: ServiceDetailProps) {
 }
 
 export function ServiceDetail(p: ServiceDetailProps) {
-  const { tale, story, k } = p;
-  // i nove servizi: risultato, cosa cambia, come funziona (con le scene dello spot), cosa ricevi, tappe, domande
-  if (tale)
-    return (
-      <>
-        <Hero {...p} />
-        <Statement lead={p.lead} />
-        <Facts facts={tale.facts} />
-        <Changes changes={tale.changes} labels={{ before: p.t.before, after: p.t.after }} />
-        <How k={k} how={tale.how} scene={(i, on) => <ShotView shots={SHOTS[k as keyof typeof SHOTS]} i={i} on={on} />} />
-        <Bento k={k} title={tale.gets.title} items={tale.gets.items.map((x) => ({ title: x.t, body: x.b }))} />
-        <Timeline timeline={tale.timeline} />
-        <Faq faq={tale.faq} />
-        <Close {...p} />
-        <Next {...p} />
-      </>
-    );
+  const { tale, k } = p;
+  /* L'ordine segue le domande di chi compra: cosa ottengo, è il mio problema?, come funziona, cosa ricevo,
+     l'hai già fatto?, come si procede, cosa rischio, dubbi. Il prezzo non si mostra: arriva nel preventivo scritto. */
   return (
     <>
       <Hero {...p} />
-      <Statement lead={p.lead} />
-      {story && (
+      {tale && (
         <>
-          <Facts facts={story.facts} />
-          <How k={k} how={story.how} scene={(i, on) => <ShotView shots={SHOTS.ops} i={i} on={on} />} />
-          {story.timeline && <Timeline timeline={story.timeline} />}
+          <Changes changes={tale.changes} labels={{ before: p.t.before, after: p.t.after }} />
+          <How k={k} how={tale.how} scene={(i, on) => <ShotView shots={SHOTS[k as keyof typeof SHOTS]} i={i} on={on} />} />
+          <Bento k={k} title={tale.gets.title} items={tale.gets.items.map((x) => ({ title: x.t, body: x.b }))} />
+          <Proof proof={tale.proof} items={p.proof ?? []} />
+          <Timeline timeline={tale.timeline} />
+          <Promise promise={tale.promise} github={p.github} />
+          <Faq faq={tale.faq} />
+          <Close {...p} />
         </>
       )}
-      <Bento k={k} title={p.t.includes} items={p.includes} />
-      <Method {...p} />
-      {story && <Faq faq={story.faq} />}
-      <Close {...p} />
       <Next {...p} />
     </>
   );
