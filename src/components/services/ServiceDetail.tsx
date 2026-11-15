@@ -119,6 +119,51 @@ function Hero({ k, label, title, short, w, t, tale }: ServiceDetailProps) {
   );
 }
 
+/* ───────────── Una fascia di risultati che scorre: accelera con lo scorrimento e si gira con lui ───────────── */
+
+function Marquee({ words }: { words: string[] }) {
+  const root = useRef<HTMLDivElement>(null);
+  useGSAP(
+    () => {
+      if (prefersReducedMotion() || !words.length) return;
+      const track = root.current!.querySelector<HTMLElement>("[data-track]")!;
+      const loop = gsap.to(track, { xPercent: -50, duration: 38, ease: "none", repeat: -1 });
+      let dir = 1;
+      ScrollTrigger.create({
+        trigger: root.current,
+        start: "top bottom",
+        end: "bottom top",
+        onUpdate: (self) => {
+          const v = self.getVelocity();
+          if (v) dir = v > 0 ? 1 : -1;
+          const boost = Math.min(5, Math.abs(v) / 450);
+          gsap.to(loop, { timeScale: dir * (1 + boost), duration: 0.35, overwrite: true, ease: "power2.out" });
+          gsap.to(loop, { timeScale: dir, duration: 1.1, delay: 0.35, ease: "power2.out", overwrite: "auto" });
+        },
+        onToggle: (self) => void (self.isActive ? loop.resume() : loop.pause()),
+      });
+    },
+    { scope: root, dependencies: [words.length] },
+  );
+  const row = [...words, ...words];
+  return (
+    <div ref={root} aria-hidden className="mt-16 overflow-hidden sm:mt-28">
+      <div data-track className="flex w-max items-center will-change-transform">
+        {[0, 1].map((n) => (
+          <div key={n} className="flex shrink-0 items-center">
+            {row.map((w, i) => (
+              <span key={`${n}-${i}`} className="flex items-center">
+                <span className={`px-6 text-[clamp(40px,6.4vw,104px)] font-medium leading-none tracking-[-0.05em] sm:px-10 ${i % 2 ? "text-ink" : "text-transparent [-webkit-text-stroke:1.5px_var(--label-primary)]"}`}>{w}</span>
+                <span className="h-[3px] w-10 shrink-0 rounded-full bg-[var(--sky)] sm:w-16" />
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ───────────── La promessa, letta parola per parola scorrendo ───────────── */
 
 function Statement({ lead }: { lead: string }) {
@@ -267,6 +312,7 @@ export function ServiceDetail(p: ServiceDetailProps) {
       <Hero {...p} />
       {tale && (
         <>
+          <Marquee words={tale.gets.items.map((x) => x.t)} />
           <Changes changes={tale.changes} labels={{ before: p.t.before, after: p.t.after }} />
           <How k={k} how={tale.how} scene={(i, on) => <ShotView shots={SHOTS[k as keyof typeof SHOTS]} i={i} on={on} />} />
           <Bento k={k} title={tale.gets.title} items={tale.gets.items.map((x) => ({ title: x.t, body: x.b }))} />

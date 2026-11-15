@@ -192,16 +192,16 @@ export function Changes({ changes, labels }: { changes: { title: string; lead: s
       </div>
       <ul className="border-b border-[var(--hair-strong)]">
         {changes.rows.map((r) => (
-          <li key={r.from} data-row className="group grid items-center gap-x-8 gap-y-4 border-t border-[var(--hair-strong)] py-7 sm:py-9 lg:grid-cols-[1fr_56px_1.15fr]">
+          <li key={r.from} data-row className="group grid cursor-default items-center gap-x-8 gap-y-4 border-t border-[var(--hair-strong)] py-7 sm:py-9 lg:grid-cols-[1fr_56px_1.15fr]">
             <p data-from className="max-w-[36ch] text-[17px] leading-[1.45] text-ink-2 line-through decoration-transparent decoration-1 transition-[text-decoration-color] duration-700 group-data-[on]:decoration-current sm:text-[19px]">
               {r.from}
             </p>
-            <span data-arrow className="justify-self-start">
+            <span data-arrow className="justify-self-start transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-x-1 group-active:scale-90">
               <Bead radius={22} className="flex h-11 w-11 rotate-90 items-center justify-center text-[var(--sky)] lg:rotate-0">
                 <HugeiconsIcon icon={ArrowRight02Icon} size={19} strokeWidth={1.8} />
               </Bead>
             </span>
-            <p data-to className="max-w-[30ch] text-[clamp(22px,2.3vw,31px)] font-medium leading-[1.14] tracking-[-0.035em] text-ink">
+            <p data-to className="max-w-[30ch] transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-x-2 text-[clamp(22px,2.3vw,31px)] font-medium leading-[1.14] tracking-[-0.035em] text-ink">
               {r.to}
             </p>
           </li>
