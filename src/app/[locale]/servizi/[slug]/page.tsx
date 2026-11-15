@@ -7,12 +7,12 @@ import { SiteNav } from "@/components/nav/SiteNav";
 import { Footer } from "@/components/sections/Footer";
 import type { WidgetText } from "@/components/sections/ServiceWidgets";
 import { ServiceDetail } from "@/components/services/ServiceDetail";
-import { GeoPage } from "@/components/services/geo/GeoPage";
-import { getGeoCopy } from "@/content/geo";
 import type { Story } from "@/components/services/ServiceStory";
 import { getStory } from "@/content/stories";
 import { getProject } from "@/content/projects";
 import { profile } from "@/content/profile";
+import { getGeoContent } from "@/content/geo";
+import { GeoPage } from "@/components/services/geo/GeoPage";
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) => SERVICES.map((s) => ({ locale, slug: s.slug })));
@@ -43,6 +43,36 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
   const phases = (tm.raw("phases") as { name: string; title: string; out: string }[]).map(({ name, title, out }) => ({ name, title, out }));
   const i = SERVICES.findIndex((x) => x.slug === slug);
   const n = SERVICES[(i + 1) % SERVICES.length];
+  const next = { slug: n.slug, k: n.key, label: n.label[locale], title: n.title[locale], short: n.short[locale] };
+  const others = SERVICES.filter((x) => x.slug !== slug).map((x) => ({ slug: x.slug, k: x.key, title: x.title[locale] }));
+
+  if (s.key === "geo") {
+    const geo = getGeoContent(locale);
+    const geoLd = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: geo.faq.items.map((x) => ({ "@type": "Question", name: x.q, acceptedAnswer: { "@type": "Answer", text: x.a } })),
+    };
+    return (
+      <>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(geoLd).replace(/</g, "\\u003c") }} />
+        <main id="main">
+          <GeoPage
+            locale={locale}
+            content={geo}
+            servicesLabel={t("title")}
+            next={next}
+            others={others}
+            nextLabel={t("next")}
+            allLabel={t("all")}
+            github={profile.github}
+          />
+        </main>
+        <Footer withContact={false} />
+        <SiteNav detail={{ title: s.title[locale], section: "approach" }} />
+      </>
+    );
+  }
 
   const tale = getStory(s.key, locale);
   const faq = tale.faq.items;
@@ -56,36 +86,29 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
   const ld = faq.length
     ? { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map((x) => ({ "@type": "Question", name: x.q, acceptedAnswer: { "@type": "Answer", text: x.a } })) }
     : null;
-  const commonT = { services: t("title"), cta: t("cta"), ctaLead: t("ctaLead"), how: tale.how.title, includes: t("includes"), before: t("before"), after: t("after"), method: tm("title"), methodLead: tm("lead"), next: t("next"), all: t("all") };
-  const next = { slug: n.slug, k: n.key, label: n.label[locale], title: n.title[locale], short: n.short[locale] };
-  const others = SERVICES.filter((x) => x.slug !== slug).map((x) => ({ slug: x.slug, k: x.key, title: x.title[locale] }));
 
   return (
     <>
       {ld && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />}
       <main id="main">
-        {s.key === "geo" ? (
-          <GeoPage copy={getGeoCopy(locale)} tale={tale} next={next} others={others} t={commonT} />
-        ) : (
-          <ServiceDetail
-            k={s.key}
-            need={s.need}
-            label={s.label[locale]}
-            title={s.title[locale]}
-            short={s.short[locale]}
-            lead={s.lead[locale]}
-            includes={s.includes.map((x) => ({ title: x.title[locale], body: x.body[locale] }))}
-            phases={phases}
-            next={next}
-            others={others}
-            w={w}
-            story={story}
-            tale={tale}
-            proof={proof}
-            github={profile.github}
-            t={commonT}
-          />
-        )}
+        <ServiceDetail
+          k={s.key}
+          need={s.need}
+          label={s.label[locale]}
+          title={s.title[locale]}
+          short={s.short[locale]}
+          lead={s.lead[locale]}
+          includes={s.includes.map((x) => ({ title: x.title[locale], body: x.body[locale] }))}
+          phases={phases}
+          next={next}
+          others={others}
+          w={w}
+          story={story}
+          tale={tale}
+          proof={proof}
+          github={profile.github}
+          t={{ services: t("title"), cta: t("cta"), ctaLead: t("ctaLead"), how: tale.how.title, includes: t("includes"), before: t("before"), after: t("after"), method: tm("title"), methodLead: tm("lead"), next: t("next"), all: t("all") }}
+        />
       </main>
       <Footer withContact={false} />
       <SiteNav detail={{ title: s.title[locale], section: "approach" }} />
