@@ -1,9 +1,8 @@
 "use client";
 
 /*
- * La pagina del servizio GEO, costruita come una pagina prodotto Apple: una frase forte per schermata,
- * una scena che si svolge scorrendo, tessere di vetro liquido sopra i gradienti delle schede dei servizi.
- * Il filo conduttore è la riga con i nomi degli assistenti e i loro marchi, con lo stesso movimento dello spot.
+ * Pagina prodotto GEO: stile Apple rivisitato con il design system del sito
+ * (gradienti ServiceBg, vetro liquido, card pulite e copy orientato al risultato).
  */
 
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
@@ -11,14 +10,13 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Globe } from "lucide-react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Add01Icon,
   Analytics01Icon,
   ArrowUp01Icon,
   Cancel01Icon,
-  CheckmarkCircle02Icon,
   DatabaseIcon,
   FileScriptIcon,
   LockKeyIcon,
@@ -46,13 +44,10 @@ const K = "geo" as const;
 const pad = (n: number) => String(n).padStart(2, "0");
 const Ico = ({ i, s = 18, c = "" }: { i: typeof Add01Icon; s?: number; c?: string }) => <HugeiconsIcon icon={i} size={s} strokeWidth={1.7} className={c} />;
 
-/* titoli e occhielli, come nelle pagine prodotto: occhiello in gradiente, titolo grande e stretto */
-const kick = "geo-grad inline-block text-[15px] font-semibold tracking-[-0.01em] sm:text-[19px]";
-const h2 = "text-[clamp(38px,5.4vw,80px)] font-semibold leading-[1.02] tracking-[-0.05em] text-ink";
-/* una tessera sul fondo della pagina: chiara nel tema chiaro, quasi nera nello scuro */
+const kick = "geo-grad inline-block text-[15px] font-semibold tracking-[-0.01em] sm:text-[18px]";
+const h2 = "text-[clamp(36px,5.2vw,76px)] font-semibold leading-[1.02] tracking-[-0.05em] text-ink";
 const tile = "rounded-[32px] bg-[var(--chip)] ring-1 ring-inset ring-[var(--hair)] sm:rounded-[40px]";
 
-/** Parole separate, per farle entrare una alla volta. */
 const words = (s: string, attr: string, cls = "") =>
   s
     .trim()
@@ -63,7 +58,6 @@ const words = (s: string, attr: string, cls = "") =>
       </span>
     ));
 
-/** Adatta un oggetto disegnato a misura fissa allo spazio che ha: si rimpicciolisce sui telefoni, cresce appena sui grandi schermi. */
 function useFit(box: RefObject<HTMLDivElement | null>, inner: RefObject<HTMLDivElement | null>, max = 1.12) {
   useEffect(() => {
     const b = box.current;
@@ -81,7 +75,7 @@ function useFit(box: RefObject<HTMLDivElement | null>, inner: RefObject<HTMLDivE
   }, [box, inner, max]);
 }
 
-/* ───────────── Apertura: la domanda di tutti, la risposta con il tuo nome ───────────── */
+/* ───────────── Apertura: promessa, riga assistenti e barra domanda animata ───────────── */
 
 function Hero({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
   const h = copy.hero;
@@ -94,7 +88,6 @@ function Hero({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
         ask.textContent = h.ask;
         return;
       }
-      // la barra della domanda: scrive, invia, ricomincia con l'assistente successivo
       const tiles = gsap.utils.toArray<HTMLElement>("[data-ptile]", el);
       const send = el.querySelector("[data-send]")!;
       const loop = gsap.timeline({ paused: true, repeat: -1 });
@@ -137,7 +130,6 @@ function Hero({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
           undefined,
           2.5,
         );
-      // la barra lavora solo mentre l'apertura è sullo schermo
       ScrollTrigger.create({
         trigger: el,
         start: "top bottom",
@@ -147,7 +139,6 @@ function Hero({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
           if (ready) void (seen ? loop.play() : loop.pause());
         },
       });
-      // uscendo, la tela si stringe appena
       gsap.to("[data-island]", { scale: 0.96, borderRadius: 56, ease: "none", scrollTrigger: { trigger: el, start: "top top", end: "bottom top", scrub: true } });
     },
     { scope: root },
@@ -156,7 +147,7 @@ function Hero({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
     <section ref={root} className="px-3 pt-[calc(var(--bar-h)+20px)] sm:px-5">
       <div
         data-island
-        className="theme-dark relative mx-auto flex max-w-[1400px] flex-col overflow-hidden rounded-[32px] bg-[#05070a] [clip-path:inset(0_0_0_0_round_0)] sm:rounded-[44px] lg:min-h-[min(960px,calc(100svh-var(--bar-h)-40px))]"
+        className="theme-dark relative mx-auto flex max-w-[1400px] flex-col overflow-hidden rounded-[32px] bg-[#05070a] [clip-path:inset(0_0_0_0_round_0)] sm:rounded-[44px] lg:min-h-[min(920px,calc(100svh-var(--bar-h)-40px))]"
       >
         <ServiceBg k={K} live />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_75%_at_50%_42%,rgba(3,6,10,.76),rgba(3,6,10,.52)_65%,rgba(3,6,10,.34))]" />
@@ -165,7 +156,7 @@ function Hero({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--sky)] shadow-[0_0_10px_var(--sky)]" />
             {h.eyebrow}
           </Bead>
-          <h1 className="mt-7 text-[clamp(40px,7vw,112px)] font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:mt-9">
+          <h1 className="mt-7 text-[clamp(40px,7vw,110px)] font-semibold leading-[0.98] tracking-[-0.055em] text-white sm:mt-9">
             <span data-h1a className="block">
               {h.l1}
             </span>
@@ -189,7 +180,6 @@ function Hero({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
               <ArrowRight size={17} strokeWidth={1.8} className="rotate-90 transition-transform duration-300 group-hover:translate-y-0.5" aria-hidden />
             </a>
           </div>
-          {/* la domanda che un cliente fa, a ogni assistente: vetro liquido sopra il gradiente */}
           <div aria-hidden className="mt-auto w-full pt-12 sm:pt-16">
             <Bead
               data-prompt
@@ -219,39 +209,42 @@ function Hero({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
   );
 }
 
-/* ───────────── Cosa è cambiato: la frase si accende scorrendo, poi tre numeri ───────────── */
+/* ───────────── Perché adesso: una frase netta e tre numeri in tessere pulite ───────────── */
 
-function Shift({ copy, facts }: { copy: GeoCopy; facts: ServiceStory["facts"] }) {
+function Shift({ copy }: { copy: GeoCopy }) {
+  const s = copy.shift;
   const root = useRef<HTMLElement>(null);
   useGSAP(
     () => {
       if (prefersReducedMotion()) return;
-      gsap.fromTo("[data-sw]", { opacity: 0.12 }, { opacity: 1, stagger: 0.1, ease: "none", scrollTrigger: { trigger: "[data-shift]", start: "top 80%", end: "bottom 50%", scrub: true } });
+      gsap.fromTo("[data-sw]", { opacity: 0.14 }, { opacity: 1, stagger: 0.1, ease: "none", scrollTrigger: { trigger: "[data-shift]", start: "top 82%", end: "bottom 52%", scrub: true } });
     },
     { scope: root },
   );
   return (
-    <section ref={root} className="mx-auto w-full max-w-[1180px] px-5 pt-28 sm:px-8 sm:pt-48">
-      <p data-rise className={kick}>
-        {copy.shift.kicker}
-      </p>
-      <p data-shift className="mt-6 text-[clamp(30px,4.6vw,68px)] font-semibold leading-[1.08] tracking-[-0.045em] text-ink">
-        {words(copy.shift.text, "data-sw")}
-        {words(copy.shift.accent, "data-sw", "text-[var(--sky)]")}
-      </p>
-      <dl className="mt-20 grid gap-10 border-t border-[var(--hair-strong)] pt-10 sm:mt-28 sm:grid-cols-3 sm:gap-8">
-        {facts.map((f) => (
-          <div key={f.v} data-rise>
-            <dt className="geo-grad text-[clamp(38px,4.2vw,60px)] font-semibold leading-[1.05] tracking-[-0.05em]">{f.v}</dt>
-            <dd className="mt-4 max-w-[30ch] text-[16px] leading-[1.55] text-ink-2">{f.l}</dd>
-          </div>
+    <section ref={root} className="mx-auto w-full max-w-[1280px] px-5 pt-24 sm:px-8 sm:pt-40">
+      <div className="max-w-[960px]">
+        <p data-rise className={kick}>
+          {s.kicker}
+        </p>
+        <p data-shift className="mt-5 text-[clamp(30px,4.5vw,64px)] font-semibold leading-[1.06] tracking-[-0.045em] text-ink">
+          {words(s.text, "data-sw")}
+          {words(s.accent, "data-sw", "text-[var(--accent)]")}
+        </p>
+      </div>
+      <div className="mt-14 grid gap-4 sm:mt-20 sm:grid-cols-3">
+        {s.stats.map((st) => (
+          <article key={st.v} data-rise className={`flex flex-col justify-between p-7 sm:p-9 ${tile}`}>
+            <p className="geo-grad text-[clamp(34px,3.6vw,52px)] font-semibold leading-[1.05] tracking-[-0.05em]">{st.v}</p>
+            <p className="mt-6 text-[15.5px] leading-[1.55] text-ink-2">{st.l}</p>
+          </article>
         ))}
-      </dl>
+      </div>
     </section>
   );
 }
 
-/* ───────────── La scena: scorrendo, una domanda diventa una risposta che ti nomina e ti cita ───────────── */
+/* ───────────── La scena: vera chat AI in produzione (inline citation + source card reale) ───────────── */
 
 const TAB = 46;
 
@@ -268,14 +261,14 @@ function Scene({ copy }: { copy: GeoCopy }) {
       const tl = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: reduced ? undefined : { trigger: root.current, start: "top top", end: "bottom bottom", scrub: 0.7 } });
       const chars = q("[data-ch]");
       const aw = q("[data-aw]");
-      // 0 → 1 · la domanda arriva e si scrive
+      // 0 -> 1 · domanda utente
       tl.fromTo(q("[data-ubub]"), { autoAlpha: 0, y: 24, scale: 0.94 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.25, ease: "power2.out" }, 0.02).fromTo(
         chars,
         { opacity: 0 },
         { opacity: 1, duration: 0.01, stagger: 0.6 / chars.length },
         0.2,
       );
-      // 1 → 2 · l'assistente legge le fonti; la scelta passa da un assistente all'altro, la fonte giusta si accende
+      // 1 -> 2 · ricerca fonti e cambio assistente
       tl.fromTo(q("[data-seek]"), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.2 }, 1).fromTo(
         q("[data-src]"),
         { autoAlpha: 0, y: 14, scale: 0.9 },
@@ -287,19 +280,15 @@ function Scene({ copy }: { copy: GeoCopy }) {
         tl.to(q("[data-thumb]"), { x: p * TAB, duration: 0.14, ease: "power2.inOut" }, at).to(q("[data-av]"), { opacity: (k: number) => (k === p ? 1 : 0), duration: 0.1 }, at);
       });
       tl.to(q("[data-src]:not([data-hl])"), { opacity: 0.35, duration: 0.15 }, 1.72).fromTo(q("[data-ring]"), { opacity: 0 }, { opacity: 1, duration: 0.15 }, 1.72);
-      // 2 → 3 · risponde, parola per parola, e il tuo nome si sottolinea
+      // 2 -> 3 · risposta con citazione inline reale
       tl.to(q("[data-seek]"), { autoAlpha: 0, y: -10, duration: 0.15 }, 2)
         .fromTo(aw, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.06, stagger: 0.6 / aw.length }, 2.08)
-        .fromTo(q("[data-mark]"), { scaleX: 0 }, { scaleX: 1, duration: 0.2 }, 2.75);
-      // 3 → 4 · ti cita come fonte
-      tl.fromTo(q("[data-cite]"), { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: "power2.out" }, 3).fromTo(
-        q("[data-badge]"),
-        { scale: 0.4, autoAlpha: 0 },
-        { scale: 1, autoAlpha: 1, duration: 0.25, ease: "back.out(2.2)" },
-        3.22,
-      );
+        .fromTo(q("[data-mark]"), { scaleX: 0 }, { scaleX: 1, duration: 0.2 }, 2.75)
+        .fromTo(q("[data-inline]"), { scale: 0.7, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.22, ease: "power2.out" }, 2.86);
+      // 3 -> 4 · source card in stile chat AI in produzione
+      tl.fromTo(q("[data-cite]"), { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.28, ease: "power2.out" }, 3);
       tl.to({}, { duration: 0.5 }, 3.5);
-      // le didascalie a sinistra: una per passo, con la barra che si riempie
+      // didascalie a sinistra
       const caps = q("[data-cap]");
       const bars = q("[data-pbar]");
       caps.forEach((c, i) => {
@@ -315,7 +304,7 @@ function Scene({ copy }: { copy: GeoCopy }) {
     { scope: root },
   );
   const sources: { l: string; i: typeof Add01Icon; hl?: boolean }[] = [
-    { l: "studiobianchi.it", i: LockKeyIcon, hl: true },
+    { l: s.sourceUrl, i: LockKeyIcon, hl: true },
     { l: copy.hero.and === "and" ? "Reviews" : "Recensioni", i: StarIcon },
     { l: copy.hero.and === "and" ? "Maps" : "Mappe", i: MapsLocation01Icon },
   ];
@@ -329,7 +318,7 @@ function Scene({ copy }: { copy: GeoCopy }) {
             <div className="flex flex-col lg:justify-between">
               <div>
                 <p className={kick}>{s.kicker}</p>
-                <h2 className="mt-3 hidden max-w-[13ch] text-[clamp(30px,3.9vw,62px)] font-semibold leading-[1.02] tracking-[-0.05em] text-white sm:block">{s.title}</h2>
+                <h2 className="mt-3 hidden max-w-[14ch] text-[clamp(30px,3.9vw,60px)] font-semibold leading-[1.02] tracking-[-0.05em] text-white sm:block">{s.title}</h2>
               </div>
               <div className="mt-4 flex gap-5 sm:mt-8 lg:mt-0">
                 <div aria-hidden className="flex flex-col gap-1.5 py-1">
@@ -342,26 +331,25 @@ function Scene({ copy }: { copy: GeoCopy }) {
                 <ol className="grid flex-1">
                   {s.steps.map((st, i) => (
                     <li key={st.t} data-cap className="geo-cap [grid-area:1/1]">
-                      <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-white/50">
+                      <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-white/55">
                         {pad(i + 1)} / {pad(s.steps.length)}
                       </p>
                       <p className="mt-2 text-[clamp(22px,2.4vw,36px)] font-semibold leading-[1.1] tracking-[-0.04em] text-white">{st.t}</p>
-                      <p className="mt-2.5 max-w-[38ch] text-[14.5px] leading-[1.55] text-white/70 sm:mt-3 sm:text-[17px]">{st.b}</p>
+                      <p className="mt-2.5 max-w-[38ch] text-[14.5px] leading-[1.55] text-white/75 sm:mt-3 sm:text-[17px]">{st.b}</p>
                     </li>
                   ))}
                 </ol>
               </div>
             </div>
             <div ref={box} className="geo-fit relative min-h-0">
-              <div ref={win} aria-hidden className="absolute left-1/2 top-1/2 w-[520px]" style={{ transform: "translate(-50%, -50%)" }}>
-                <Bead tint="rgba(12,18,26,.46)" radius={30} className="liquid block overflow-hidden text-white">
+              <div ref={win} aria-hidden className="absolute left-1/2 top-1/2 w-[540px]" style={{ transform: "translate(-50%, -50%)" }}>
+                <Bead tint="rgba(12,18,26,.48)" radius={30} className="liquid block overflow-hidden text-white">
                   <span className="flex items-center justify-between border-b border-white/[.08] px-4 py-3">
                     <span className="flex w-[52px] gap-1.5">
                       {[0, 1, 2].map((d) => (
                         <span key={d} className="h-2.5 w-2.5 rounded-full bg-white/20" />
                       ))}
                     </span>
-                    {/* un solo comando a capsula, il cursore di vetro scivola sull'assistente scelto */}
                     <Bead tint="rgba(255,255,255,.06)" className="relative flex p-1">
                       <Bead data-thumb tint="rgba(255,255,255,.2)" className="absolute left-1 top-1 h-9" style={{ width: TAB }} />
                       {ASSISTANTS.map((a, i) => (
@@ -401,27 +389,31 @@ function Scene({ copy }: { copy: GeoCopy }) {
                             ))}
                           </span>
                         </span>
-                        <span className="block text-[17px] leading-[1.6] text-white/90 [grid-area:1/1]">
+                        <span className="block text-[16.5px] leading-[1.6] text-white/92 [grid-area:1/1]">
                           {words(s.answer[0], "data-aw")}
                           <span data-aw className="relative inline-block font-semibold text-white">
                             {s.answer[1]}
                             <span data-mark className="absolute -bottom-0.5 left-0 h-[2px] w-full origin-left rounded-full bg-[var(--sky)]" style={{ transform: "scaleX(0)" }} />
                           </span>
                           {words(s.answer[2], "data-aw")}
+                          <span data-inline className="ml-1 inline-flex items-center gap-1 rounded-full bg-white/[.12] px-2 py-0.5 align-middle text-[11.5px] font-medium text-white/85 ring-1 ring-inset ring-white/15">
+                            {s.sourceUrl}
+                          </span>
                         </span>
                       </span>
                     </span>
+                    {/* Card fonte reale in stile chat AI in produzione */}
                     <span data-cite className="ml-[48px] mt-5 block border-t border-white/[.08] pt-4">
-                      <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-white/45">{s.sources}</span>
-                      <span className="mt-2.5 flex items-center gap-3">
-                        <Bead tint="rgba(94,196,255,.18)" className="flex h-10 items-center gap-2 px-4 text-[14px] text-white">
-                          <Ico i={LockKeyIcon} s={13} />
-                          studiobianchi.it
-                        </Bead>
-                        <span data-badge className="inline-flex items-center gap-1.5 rounded-full bg-[var(--sky)] px-3 py-1.5 text-[12.5px] font-semibold text-[#03121c] shadow-[0_0_24px_rgba(94,196,255,.45)]">
-                          <Ico i={Tick02Icon} s={14} />
-                          {s.cites}
+                      <span className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-white/50">{s.sources}</span>
+                      <span className="mt-2.5 flex items-center gap-3 rounded-[16px] bg-white/[.07] p-3 ring-1 ring-inset ring-white/[.12]">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-white/[.12] text-white/85">
+                          <Globe size={15} strokeWidth={1.8} />
                         </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[13px] font-medium leading-[1.3] text-white">{s.sourceTitle}</span>
+                          <span className="mt-0.5 block truncate text-[11.5px] text-white/55">{s.sourceUrl}</span>
+                        </span>
+                        <ArrowUpRight size={15} strokeWidth={1.8} className="shrink-0 text-white/55" />
                       </span>
                     </span>
                   </span>
@@ -435,64 +427,57 @@ function Scene({ copy }: { copy: GeoCopy }) {
   );
 }
 
-/* ───────────── Ti riconosci? La frase di oggi si cancella, al suo posto quello che cambia ───────────── */
+/* ───────────── Prima vs Dopo: due card nette a confronto, orientate a vendere ───────────── */
 
-function Changes({ changes, labels }: { changes: ServiceStory["changes"]; labels: { before: string; after: string } }) {
-  const root = useRef<HTMLElement>(null);
-  useGSAP(
-    () => {
-      if (prefersReducedMotion()) return;
-      gsap.utils.toArray<HTMLElement>("[data-row]").forEach((row) => {
-        const q = gsap.utils.selector(row);
-        gsap
-          .timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: row, start: "top 88%", end: "top 50%", scrub: 0.6 } })
-          .fromTo(row, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" }, 0)
-          .fromTo(q("[data-strike]"), { "--s": 0 }, { "--s": 1, duration: 0.4 }, 0.35)
-          .fromTo(q("[data-from]"), { opacity: 1 }, { opacity: 0.5, duration: 0.3 }, 0.45)
-          .fromTo(q("[data-arrow]"), { scale: 0.5, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.25, ease: "back.out(2)" }, 0.55)
-          .fromTo(q("[data-to]"), { x: 30, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.35, ease: "power2.out" }, 0.65);
-      });
-    },
-    { scope: root },
-  );
+function Compare({ copy }: { copy: GeoCopy }) {
+  const c = copy.compare;
   return (
-    <section ref={root} className="mx-auto w-full max-w-[1180px] px-5 pt-28 sm:px-8 sm:pt-48">
-      <header className="mx-auto max-w-[800px] text-center">
-        <h2 data-rise className={h2}>
-          {changes.title}
-        </h2>
-        <p data-rise className="mt-6 text-[18px] leading-[1.5] text-ink-2 sm:text-[21px]">
-          {changes.lead}
+    <section className="mx-auto w-full max-w-[1280px] px-5 pt-28 sm:px-8 sm:pt-44">
+      <header className="mx-auto max-w-[820px] text-center">
+        <p data-rise className={kick}>
+          {c.kicker}
         </p>
+        <h2 data-rise className={`${h2} mt-4`}>
+          {c.title}
+        </h2>
       </header>
-      <div aria-hidden className="mt-14 hidden grid-cols-[1fr_44px_1fr] gap-8 px-8 font-mono text-[12px] uppercase tracking-[0.14em] text-ink-3 sm:mt-20 sm:grid">
-        <span>{labels.before}</span>
-        <span />
-        <span>{labels.after}</span>
+      <div className="mt-14 grid gap-4 sm:mt-16 lg:grid-cols-2">
+        <article data-rise className={`p-8 sm:p-11 ${tile}`}>
+          <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-ink-3">{c.beforeLabel}</p>
+          <ul className="mt-7 grid gap-5">
+            {c.before.map((item) => (
+              <li key={item} className="flex items-start gap-4 text-[17px] leading-[1.5] text-ink-2">
+                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--hover)] text-ink-3">
+                  <Ico i={Cancel01Icon} s={14} />
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </article>
+        <article data-rise className="theme-dark relative overflow-hidden rounded-[32px] bg-[#05070a] p-8 sm:rounded-[40px] sm:p-11">
+          <ServiceBg k={K} v={2} still />
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(160deg,rgba(3,6,10,.64),rgba(3,6,10,.26))]" />
+          <div className="relative">
+            <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-[var(--brand-sky)]">{c.afterLabel}</p>
+            <ul className="mt-7 grid gap-5">
+              {c.after.map((item) => (
+                <li key={item} className="flex items-start gap-4 text-[17px] font-medium leading-[1.5] text-white">
+                  <Bead tint="rgba(255,255,255,.16)" className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center text-white">
+                    <Ico i={Tick02Icon} s={15} />
+                  </Bead>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </article>
       </div>
-      <ul className="mt-6 grid gap-3 sm:mt-4">
-        {changes.rows.map((r) => (
-          <li key={r.from} data-row className={`grid items-center gap-4 p-6 sm:grid-cols-[1fr_44px_1fr] sm:gap-8 sm:p-8 ${tile}`}>
-            <p data-from className="t-serif text-[clamp(22px,2.2vw,30px)] leading-[1.2] text-ink-2">
-              <span data-strike className="geo-strike">
-                {r.from}
-              </span>
-            </p>
-            <Bead data-arrow tint="sky" className="hidden h-11 w-11 items-center justify-center text-white sm:flex">
-              <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
-            </Bead>
-            <p data-to className="flex items-start gap-3 text-[clamp(18px,1.7vw,22px)] font-semibold leading-[1.3] tracking-[-0.02em] text-ink">
-              <Ico i={CheckmarkCircle02Icon} s={22} c="mt-0.5 shrink-0 text-[var(--sky)]" />
-              {r.to}
-            </p>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }
 
-/* ───────────── Come funziona: tre schede col gradiente dei servizi, ognuna con il suo oggetto di vetro ───────────── */
+/* ───────────── Come funziona: tre schede sui gradienti dei servizi ───────────── */
 
 function StepTile({ i, t, b, children }: { i: number; t: string; b: string; children: ReactNode }) {
   const [hover, setHover] = useState(false);
@@ -501,25 +486,23 @@ function StepTile({ i, t, b, children }: { i: number; t: string; b: string; chil
       data-tile
       onPointerEnter={() => setHover(true)}
       onPointerLeave={() => setHover(false)}
-      className="theme-dark relative flex min-h-[560px] flex-col overflow-hidden rounded-[32px] bg-[#05070a] p-7 sm:min-h-[620px] sm:rounded-[40px] sm:p-9"
+      className="theme-dark relative flex min-h-[480px] flex-col overflow-hidden rounded-[32px] bg-[#05070a] p-7 sm:min-h-[520px] sm:rounded-[40px] sm:p-9"
     >
       <ServiceBg k={K} v={i} live paused={!hover} />
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(3,6,10,.6),rgba(3,6,10,.12)_48%,rgba(3,6,10,.3))]" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(3,6,10,.64),rgba(3,6,10,.16)_50%,rgba(3,6,10,.34))]" />
       <div className="relative">
-        <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-white/55">{pad(i + 1)}</p>
-        <h3 className="mt-3 max-w-[18ch] text-[clamp(24px,2.1vw,32px)] font-semibold leading-[1.08] tracking-[-0.04em] text-white">{t}</h3>
-        <p className="mt-3 max-w-[40ch] text-[15.5px] leading-[1.55] text-white/72">{b}</p>
+        <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-white/60">{pad(i + 1)}</p>
+        <h3 className="mt-3 max-w-[18ch] text-[clamp(24px,2.1vw,30px)] font-semibold leading-[1.08] tracking-[-0.04em] text-white">{t}</h3>
+        <p className="mt-3 max-w-[40ch] text-[15.5px] leading-[1.55] text-white/75">{b}</p>
       </div>
-      <div aria-hidden className="relative mt-auto pt-10">
+      <div aria-hidden className="relative mt-auto pt-8">
         {children}
       </div>
     </article>
   );
 }
 
-const BARS = [88, 74, 81, 34];
-
-function How({ copy, how }: { copy: GeoCopy; how: ServiceStory["how"] }) {
+function How({ copy }: { copy: GeoCopy }) {
   const c = copy.how;
   const root = useRef<HTMLElement>(null);
   useGSAP(
@@ -529,35 +512,27 @@ function How({ copy, how }: { copy: GeoCopy; how: ServiceStory["how"] }) {
       tiles.forEach((el, i) => {
         const q = gsap.utils.selector(el);
         const tl = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
-        tl.fromTo(el, { y: 60, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 1.2 }, 0);
+        tl.fromTo(el, { y: 50, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 1.1 }, 0);
         if (i === 0) {
-          // le domande arrivano come i nomi della riga firma: salgono, e il marchio si apre subito dopo
-          tl.fromTo(q("[data-qb]"), { yPercent: 35, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.7, stagger: 0.16 }, 0.35).fromTo(
-            q("[data-ql]"),
-            { scale: 0.6, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 0.6, stagger: 0.16 },
-            0.5,
-          );
+          tl.fromTo(q("[data-qb]"), { yPercent: 30, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.65, stagger: 0.14 }, 0.35);
         } else if (i === 1) {
-          tl.fromTo(q("[data-kv]"), { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, stagger: 0.1 }, 0.4)
-            .fromTo(q("[data-ok]"), { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, stagger: 0.12, ease: "back.out(2.4)" }, 0.75)
-            .fromTo(q("[data-ready]"), { scale: 0.6, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.6, ease: "back.out(2)" }, 1.3);
+          tl.fromTo(q("[data-kv]"), { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, stagger: 0.1 }, 0.35).fromTo(q("[data-ok]"), { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, stagger: 0.1, ease: "back.out(2.2)" }, 0.65);
         } else {
-          tl.fromTo(q("[data-bar]"), { scaleX: 0 }, { scaleX: 1, duration: 1.4, stagger: 0.12, ease: "power3.out" }, 0.4).fromTo(q("[data-st]"), { opacity: 0 }, { opacity: 1, duration: 0.5, stagger: 0.12 }, 1);
+          tl.fromTo(q("[data-bar]"), { scaleX: 0 }, { scaleX: 1, duration: 1.2, stagger: 0.12, ease: "power3.out" }, 0.35);
         }
-        ScrollTrigger.create({ trigger: el, start: "top 82%", once: true, onEnter: () => void tl.play() });
+        ScrollTrigger.create({ trigger: el, start: "top 84%", once: true, onEnter: () => void tl.play() });
       });
     },
     { scope: root },
   );
   return (
-    <section ref={root} className="mx-auto w-full max-w-[1400px] px-3 pt-28 sm:px-5 sm:pt-48">
+    <section ref={root} className="mx-auto w-full max-w-[1400px] px-3 pt-28 sm:px-5 sm:pt-44">
       <header className="mx-auto grid max-w-[1280px] gap-6 px-2 sm:px-3 lg:grid-cols-[1.25fr_1fr] lg:items-end lg:gap-16">
         <div>
           <p data-rise className={kick}>
             {c.kicker}
           </p>
-          <h2 data-rise className={`${h2} mt-4 max-w-[17ch]`}>
+          <h2 data-rise className={`${h2} mt-4 max-w-[16ch]`}>
             {c.title}
           </h2>
         </div>
@@ -565,54 +540,51 @@ function How({ copy, how }: { copy: GeoCopy; how: ServiceStory["how"] }) {
           {c.lead}
         </p>
       </header>
-      <div className="mx-auto mt-14 grid max-w-[1280px] gap-4 sm:mt-20 lg:grid-cols-3">
-        <StepTile i={0} t={how.steps[0].t} b={how.steps[0].b}>
+      <div className="mx-auto mt-14 grid max-w-[1280px] gap-4 sm:mt-16 lg:grid-cols-3">
+        <StepTile i={0} t={c.steps[0].t} b={c.steps[0].b}>
           <div className="grid gap-2.5">
-            {c.v1.map((x, j) => (
-              <Bead key={x} data-qb tint="rgba(255,255,255,.1)" radius={22} className={`liquid flex items-center gap-3 p-2.5 pr-4 text-[14.5px] text-white ${j === 1 ? "ml-5" : j === 2 ? "ml-2.5" : ""}`}>
-                <span data-ql className="inline-flex">
-                  <AiTile i={[0, 2, 3][j]} size={34} radius={10} />
+            {c.v1.map((row, j) => (
+              <Bead key={row.q} data-qb tint="rgba(255,255,255,.1)" radius={20} className="liquid flex items-center justify-between gap-2.5 p-2.5 pl-3 text-[13.5px] text-white">
+                <span className="flex min-w-0 items-center gap-2.5">
+                  <AiTile i={[0, 2, 3][j]} size={28} radius={8} />
+                  <span className="truncate">{row.q}</span>
                 </span>
-                <span className="truncate">{x}</span>
+                <span className="shrink-0 rounded-full bg-white/[.1] px-2.5 py-0.5 text-[11px] text-white/75">{row.res}</span>
               </Bead>
             ))}
           </div>
         </StepTile>
-        <StepTile i={1} t={how.steps[1].t} b={how.steps[1].b}>
-          <Bead tint="rgba(255,255,255,.1)" radius={24} className="liquid block p-4 text-white">
-            <span className="flex items-center justify-between border-b border-white/10 pb-3 text-[12.5px] text-white/65">
-              <span className="flex items-center gap-1.5">
-                <Ico i={LockKeyIcon} s={12} />
-                studiobianchi.it
-              </span>
-              <span data-ready className="rounded-full bg-[var(--sky)] px-2.5 py-1 text-[11.5px] font-semibold text-[#03121c]">
-                {c.ready}
-              </span>
+        <StepTile i={1} t={c.steps[1].t} b={c.steps[1].b}>
+          <Bead tint="rgba(255,255,255,.1)" radius={22} className="liquid block p-4 text-white">
+            <span className="flex items-center gap-1.5 border-b border-white/10 pb-3 text-[12px] text-white/70">
+              <Ico i={LockKeyIcon} s={12} />
+              {copy.scene.sourceUrl}
             </span>
             {c.v2.map((r) => (
               <span key={r.k} data-kv className="flex items-center gap-3 border-b border-white/[.06] py-2.5 last:border-0">
-                <span className="w-[64px] shrink-0 font-mono text-[11px] uppercase tracking-[0.12em] text-white/45">{r.k}</span>
-                <span className="min-w-0 flex-1 truncate text-[14px]">{r.v}</span>
+                <span className="w-[62px] shrink-0 font-mono text-[11px] uppercase tracking-[0.12em] text-white/50">{r.k}</span>
+                <span className="min-w-0 flex-1 truncate text-[13.5px]">{r.v}</span>
                 <span data-ok className="inline-flex text-[var(--sky)]">
-                  <Ico i={Tick02Icon} s={16} />
+                  <Ico i={Tick02Icon} s={15} />
                 </span>
               </span>
             ))}
           </Bead>
         </StepTile>
-        <StepTile i={2} t={how.steps[2].t} b={how.steps[2].b}>
-          <Bead tint="rgba(255,255,255,.1)" radius={24} className="liquid block p-4 text-white">
-            <span className="block border-b border-white/10 pb-3 text-[12.5px] text-white/65">{c.v3.title}</span>
-            {ASSISTANTS.map((a, j) => (
-              <span key={a.n} className="flex items-center gap-3 py-2">
-                <AiTile i={j} size={28} radius={8} />
-                <span className="w-[74px] shrink-0 text-[13.5px]">{a.n}</span>
+        <StepTile i={2} t={c.steps[2].t} b={c.steps[2].b}>
+          <Bead tint="rgba(255,255,255,.1)" radius={22} className="liquid block p-4 text-white">
+            <span className="flex items-center justify-between border-b border-white/10 pb-3 text-[12px] text-white/70">
+              <span>{c.v3.title}</span>
+              <span className="rounded-full bg-white/[.14] px-2 py-0.5 text-[11px] font-medium text-[var(--brand-sky)]">{c.v3.badge}</span>
+            </span>
+            {c.v3.rows.map((r, j) => (
+              <span key={r.name} className="flex items-center gap-3 py-2">
+                <AiTile i={j === 1 ? 3 : j === 3 ? 1 : j} size={26} radius={8} />
+                <span className="w-[72px] shrink-0 text-[13px]">{r.name}</span>
                 <span className="relative h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-white/10">
-                  <span data-bar className="absolute inset-y-0 left-0 origin-left rounded-full bg-[linear-gradient(90deg,#5aa8ff,#5ec4ff,#cfeeff)]" style={{ width: `${BARS[j]}%` }} />
+                  <span data-bar className="absolute inset-y-0 left-0 origin-left rounded-full bg-[linear-gradient(90deg,#5aa8ff,#5ec4ff,#cfeeff)]" style={{ width: `${r.pct}%` }} />
                 </span>
-                <span data-st className={`w-[78px] shrink-0 text-right text-[11.5px] ${j < 3 ? "text-[var(--sky)]" : "text-white/45"}`}>
-                  {j < 3 ? c.v3.mentions : c.v3.soon}
-                </span>
+                <span className="w-[34px] shrink-0 text-right font-mono text-[11.5px] text-white/80">{r.pct}%</span>
               </span>
             ))}
           </Bead>
@@ -622,14 +594,14 @@ function How({ copy, how }: { copy: GeoCopy; how: ServiceStory["how"] }) {
   );
 }
 
-/* ───────────── Cosa ricevi: una griglia di tessere, la più grande con i quattro assistenti ───────────── */
+/* ───────────── Cosa ricevi: bento approvato (grande scura + 4 card chiare) ───────────── */
 
 const GET_ICONS = [QuoteDownIcon, DatabaseIcon, FileScriptIcon, Analytics01Icon];
 
 function Gets({ copy, gets }: { copy: GeoCopy; gets: ServiceStory["gets"] }) {
   const [hover, setHover] = useState(false);
   return (
-    <section className="mx-auto w-full max-w-[1400px] px-3 pt-28 sm:px-5 sm:pt-48">
+    <section className="mx-auto w-full max-w-[1400px] px-3 pt-28 sm:px-5 sm:pt-44">
       <header className="mx-auto max-w-[920px] px-2 text-center">
         <p data-rise className={kick}>
           {copy.gets.kicker}
@@ -674,72 +646,26 @@ function Gets({ copy, gets }: { copy: GeoCopy; gets: ServiceStory["gets"] }) {
   );
 }
 
-/* ───────────── Le tappe: una linea che si riempie scorrendo e accende i punti ───────────── */
+/* ───────────── Zero sorprese: cosa garantisco e cosa no ───────────── */
 
-function Steps({ timeline }: { timeline: ServiceStory["timeline"] }) {
-  const root = useRef<HTMLElement>(null);
-  useGSAP(
-    () => {
-      if (prefersReducedMotion()) return;
-      const dots = gsap.utils.toArray<HTMLElement>("[data-tdot]");
-      const steps = gsap.utils.toArray<HTMLElement>("[data-tstep]");
-      const tl = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: "[data-tline]", start: "top 78%", end: "bottom 55%", scrub: 0.6 } });
-      tl.fromTo("[data-tfill]", { scaleX: 0, scaleY: 0 }, { scaleX: 1, scaleY: 1, duration: dots.length }, 0);
-      dots.forEach((d, i) => {
-        tl.fromTo(d, { opacity: 0 }, { opacity: 1, duration: 0.2 }, i + 0.05).fromTo(steps[i], { opacity: 0.32 }, { opacity: 1, duration: 0.4 }, i);
-      });
-    },
-    { scope: root },
-  );
+function Promise({ copy }: { copy: GeoCopy }) {
+  const p = copy.promise;
   return (
-    <section ref={root} className="mx-auto w-full max-w-[1280px] px-5 pt-28 sm:px-8 sm:pt-48">
-      <header className="grid gap-5 lg:grid-cols-[1.15fr_1fr] lg:items-end lg:gap-16">
-        <h2 data-rise className={`${h2} max-w-[14ch]`}>
-          {timeline.title}
-        </h2>
-        <p data-rise className="text-[18px] leading-[1.55] text-ink-2 lg:pb-3">
-          {timeline.lead}
-        </p>
-      </header>
-      <ol data-tline className="relative mt-16 grid gap-10 pl-12 sm:mt-24 lg:grid-cols-5 lg:gap-6 lg:pl-0 lg:pt-16">
-        <span aria-hidden className="absolute bottom-4 left-[15px] top-4 w-[2px] rounded-full bg-[var(--hair-strong)] lg:inset-x-4 lg:bottom-auto lg:top-[15px] lg:h-[2px] lg:w-auto">
-          <span data-tfill className="absolute inset-0 origin-top rounded-full bg-[linear-gradient(180deg,#5ec4ff,#5aa8ff)] lg:origin-left lg:bg-[linear-gradient(90deg,#5ec4ff,#5aa8ff)]" />
-        </span>
-        {timeline.items.map((it, i) => (
-          <li key={it.t} data-tstep className="relative">
-            <span className="absolute -left-12 top-0 flex h-8 w-8 items-center justify-center rounded-full bg-canvas text-[12.5px] font-semibold text-ink shadow-[inset_0_0_0_1.5px_var(--hair-strong)] lg:-top-16 lg:left-0">
-              <span data-tdot className="absolute inset-0 rounded-full bg-[var(--sky)] shadow-[0_0_0_5px_rgba(94,196,255,.16),0_0_22px_rgba(94,196,255,.55)]" />
-              <span className="relative">{i + 1}</span>
-            </span>
-            <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-[var(--accent-on-subtle)]">{it.at}</p>
-            <p className="mt-3 text-[20px] font-semibold leading-[1.2] tracking-[-0.03em] text-ink">{it.t}</p>
-            <p className="mt-3 text-[15px] leading-[1.55] text-ink-2">{it.b}</p>
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
-
-/* ───────────── Patti chiari: cosa garantisco, sul gradiente; cosa non prometto, accanto ───────────── */
-
-function Promise({ copy, promise }: { copy: GeoCopy; promise: ServiceStory["promise"] }) {
-  return (
-    <section className="mx-auto w-full max-w-[1280px] px-5 pt-28 sm:px-8 sm:pt-48">
+    <section className="mx-auto w-full max-w-[1280px] px-5 pt-28 sm:px-8 sm:pt-44">
       <header className="text-center">
         <p data-rise className={kick}>
-          {copy.promise.kicker}
+          {p.kicker}
         </p>
         <h2 data-rise className={`${h2} mt-4`}>
-          {promise.title}
+          {p.title}
         </h2>
       </header>
-      <div className="mt-14 grid gap-4 sm:mt-20 lg:grid-cols-[1.25fr_1fr]">
+      <div className="mt-14 grid gap-4 sm:mt-16 lg:grid-cols-[1.25fr_1fr]">
         <article data-rise className="theme-dark relative overflow-hidden rounded-[32px] bg-[#05070a] p-8 sm:rounded-[40px] sm:p-11">
           <ServiceBg k={K} v={3} still />
-          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(160deg,rgba(3,6,10,.55),rgba(3,6,10,.2))]" />
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(160deg,rgba(3,6,10,.58),rgba(3,6,10,.22))]" />
           <ul className="relative grid gap-5">
-            {promise.yes.map((y) => (
+            {p.yes.map((y) => (
               <li key={y} className="flex items-start gap-4 text-[17px] leading-[1.5] text-white">
                 <Bead tint="rgba(255,255,255,.16)" className="flex h-8 w-8 shrink-0 items-center justify-center">
                   <Ico i={Tick02Icon} s={16} />
@@ -748,15 +674,11 @@ function Promise({ copy, promise }: { copy: GeoCopy; promise: ServiceStory["prom
               </li>
             ))}
           </ul>
-          <div className="relative mt-10 border-t border-white/15 pt-6">
-            <p className="text-[17px] font-semibold tracking-[-0.02em] text-white">{promise.me}</p>
-            <p className="mt-1.5 max-w-[56ch] text-[14.5px] leading-[1.55] text-white/70">{promise.meLead}</p>
-          </div>
         </article>
         <article data-rise className={`p-8 sm:p-11 ${tile}`}>
-          <h3 className="text-[clamp(24px,2.2vw,32px)] font-semibold leading-[1.1] tracking-[-0.04em] text-ink">{promise.noTitle}</h3>
-          <ul className="mt-8 grid gap-5">
-            {promise.no.map((n) => (
+          <h3 className="text-[clamp(24px,2.2vw,30px)] font-semibold leading-[1.1] tracking-[-0.04em] text-ink">{p.noTitle}</h3>
+          <ul className="mt-7 grid gap-5">
+            {p.no.map((n) => (
               <li key={n} className="flex items-start gap-4 text-[17px] leading-[1.5] text-ink-2">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--hover)] text-ink-3">
                   <Ico i={Cancel01Icon} s={15} />
@@ -771,22 +693,23 @@ function Promise({ copy, promise }: { copy: GeoCopy; promise: ServiceStory["prom
   );
 }
 
-/* ───────────── Domande: una alla volta ───────────── */
+/* ───────────── Domande frequenti ───────────── */
 
-function Faq({ copy, faq }: { copy: GeoCopy; faq: ServiceStory["faq"] }) {
+function Faq({ copy }: { copy: GeoCopy }) {
+  const f = copy.faq;
   const [open, setOpen] = useState(0);
   return (
-    <section className="mx-auto w-full max-w-[920px] px-5 pt-28 sm:px-8 sm:pt-48">
+    <section className="mx-auto w-full max-w-[920px] px-5 pt-28 sm:px-8 sm:pt-44">
       <header className="text-center">
         <p data-rise className={kick}>
-          {copy.faq.kicker}
+          {f.kicker}
         </p>
         <h2 data-rise className={`${h2} mt-4`}>
-          {faq.title}
+          {f.title}
         </h2>
       </header>
       <ul className="mt-12 grid gap-3 sm:mt-16">
-        {faq.items.map((it, i) => {
+        {f.items.map((it, i) => {
           const on = open === i;
           return (
             <li key={it.q} data-rise className={`overflow-hidden !rounded-[28px] transition-shadow duration-500 ${tile} ${on ? "shadow-[0_24px_60px_-34px_var(--shadow-strong)]" : ""}`}>
@@ -816,11 +739,11 @@ function Faq({ copy, faq }: { copy: GeoCopy; faq: ServiceStory["faq"] }) {
   );
 }
 
-/* ───────────── L'invito: di nuovo la riga firma, poi una frase grande e un solo tasto ───────────── */
+/* ───────────── Chiusura approvata ───────────── */
 
 function Close({ copy, t }: Pick<GeoPageProps, "copy" | "t">) {
   return (
-    <section className="mx-auto mt-28 w-full max-w-[1400px] px-3 sm:mt-48 sm:px-5">
+    <section className="mx-auto mt-28 w-full max-w-[1400px] px-3 sm:mt-44 sm:px-5">
       <div className="theme-dark relative overflow-hidden rounded-[32px] bg-[#05070a] px-6 py-20 text-center sm:rounded-[44px] sm:px-12 sm:py-32">
         <ServiceBg k={K} v={2} live />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_70%_at_50%_50%,rgba(3,6,10,.6),rgba(3,6,10,.18))]" />
@@ -850,7 +773,6 @@ export function GeoPage(p: GeoPageProps) {
   useGSAP(
     () => {
       if (prefersReducedMotion()) return;
-      // tutto quello che è segnato sale e si accende quando arriva sullo schermo, a gruppi
       const els = gsap.utils.toArray<HTMLElement>("[data-rise]");
       gsap.set(els, { autoAlpha: 0, y: 36 });
       ScrollTrigger.batch(els, {
@@ -864,14 +786,13 @@ export function GeoPage(p: GeoPageProps) {
   return (
     <div ref={root}>
       <Hero copy={copy} t={t} />
-      <Shift copy={copy} facts={tale.facts} />
+      <Shift copy={copy} />
       <Scene copy={copy} />
-      <Changes changes={tale.changes} labels={{ before: t.before, after: t.after }} />
-      <How copy={copy} how={tale.how} />
+      <Compare copy={copy} />
+      <How copy={copy} />
       <Gets copy={copy} gets={tale.gets} />
-      <Steps timeline={tale.timeline} />
-      <Promise copy={copy} promise={tale.promise} />
-      <Faq copy={copy} faq={tale.faq} />
+      <Promise copy={copy} />
+      <Faq copy={copy} />
       <Close copy={copy} t={t} />
       <Next next={p.next} others={p.others} t={t} />
     </div>
