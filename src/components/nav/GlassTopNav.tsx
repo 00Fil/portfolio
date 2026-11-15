@@ -47,7 +47,6 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
     { id: "approach", label: t("approach"), menu: "services" },
     { id: "work", label: t("work"), menu: "work" },
     { id: "path", label: t("path") },
-    { id: "stack", label: t("stack") },
   ];
 
   const wrap = useRef<HTMLDivElement>(null);

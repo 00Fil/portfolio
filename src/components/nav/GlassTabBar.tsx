@@ -277,7 +277,7 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
             const near = Math.round((1 - Math.min(1, Math.abs(i - pill))) * 20) / 20;
             if (!themeChanged && lastNear[i] === near) continue;
             lastNear[i] = near;
-            const col = lerpColor(lt ? [0x7b, 0x7c, 0x82] : INK_2, lt ? [0x1f, 0x8f, 0xd0] : ACCENT, near);
+            const col = lerpColor(lt ? [0x7b, 0x7c, 0x82] : INK_2, lt ? [0x14, 0x6f, 0xa6] : ACCENT, near);
             const el = iconRefs.current[i];
             if (el) el.style.color = col;
             const c = cloneIconRefs.current[i];
@@ -652,7 +652,7 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
                 </div>
               </div>
             </div>
-            <div ref={bubbleDropRef} className="drop absolute inset-0" style={{ borderRadius: pillH / 2 }} />
+            <div ref={bubbleDropRef} className="drop absolute inset-0" style={{ borderRadius: pillH / 2, ["--drop-veil" as string]: "rgba(255,255,255,.1)" }} />
           </div>
         </div>
       </div>

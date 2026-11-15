@@ -120,7 +120,7 @@ html[data-theme="light"] {
   --hover: rgba(15, 20, 30, 0.05);
   --chip: rgba(15, 20, 30, 0.04);
   --card: #ffffff;
-  --bar-tint: rgba(255, 255, 255, 0.72);
+  --bar-tint: rgba(255, 255, 255, 0.84);
   --panel-tint: rgba(255, 255, 255, 0.95);
   --pill: rgba(255, 255, 255, 0.7);
   --shadow-strong: rgba(20, 30, 50, 0.18);
@@ -279,6 +279,21 @@ body {
 /* vetro più quieto per le superfici grandi (bolle della chat, righe): smusso appena accennato */
 .drop.drop-soft::after { opacity: 0.2; }
 .drop-accent { --drop-tint: color-mix(in srgb, var(--accent) 38%, transparent); }
+
+/* Tema chiaro: il vetro è luce, non fumo. Il velo è più bianco (sopra una sezione scura non diventa grigio),
+   la frangia colorata dello smusso si sbianca (su chiaro si leggeva come un contorno marrone) e il bordo
+   ha un riflesso interno che piega la luce come una lente: chiaro in alto, un filo di ombra azzurra in basso. */
+html[data-theme="light"] .drop:not(.drop-accent) { --drop-veil: rgba(255, 255, 255, 0.8); }
+html[data-theme="light"] .drop::after { filter: saturate(0.15) brightness(1.15); }
+html[data-theme="light"] .drop:not(.theme-dark *) {
+  box-shadow:
+    inset 0 0 0 1px rgba(15, 20, 30, 0.07),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+    inset 0 -7px 12px -6px rgba(94, 196, 255, 0.28),
+    inset 0 7px 12px -8px rgba(255, 255, 255, 0.9),
+    0 6px 18px -10px rgba(20, 50, 80, 0.28);
+}
+html[data-theme="light"] .float-glass { -webkit-backdrop-filter: blur(16px) saturate(1.7) brightness(1.08); backdrop-filter: blur(16px) saturate(1.7) brightness(1.08); }
 
 /* Superficie piatta (Modifier.glass): piano pieno, nessun riflesso */
 .plate { background: var(--bg-surface); border-radius: 28px; }
