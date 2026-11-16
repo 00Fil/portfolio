@@ -66,6 +66,7 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
   const bo = useRef(new Spring(0));
   const lastMenu = useRef<string | null>(null);
   const closeT = useRef<number | undefined>(undefined);
+  const inRow = useRef(false);
 
   // vetro della barra: smusso cotto per misura
   useLayoutEffect(() => {
@@ -150,7 +151,8 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
     window.clearTimeout(closeT.current);
     closeT.current = window.setTimeout(() => {
       setMenu(null);
-      setHover(null);
+      // se il puntatore è ancora su una voce, la bolla resta lì: chiudere il menu non la deve spegnere
+      if (!inRow.current) setHover(null);
     }, 140);
   };
 
@@ -170,6 +172,11 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
     const d = reduce ? 0 : 1;
     gsap.killTweensOf(p);
     if (!menu) {
+      Object.values(panes.current).forEach((el) => {
+        if (!el) return;
+        gsap.killTweensOf(el);
+        el.style.pointerEvents = "none";
+      });
       p.style.pointerEvents = "none";
       gsap.to(p, { opacity: 0, y: -6, scale: 0.97, duration: 0.2 * d, ease: "power2.in", onComplete: () => (p.style.visibility = "hidden") });
       lastMenu.current = null;
@@ -196,6 +203,9 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
     const dir = lastMenu.current ? Math.sign(order.indexOf(menu) - order.indexOf(lastMenu.current)) : 0;
     Object.entries(panes.current).forEach(([k, el]) => {
       if (!el) return;
+      // un solo movimento per volta: se un menu sta ancora entrando o uscendo lo fermo, altrimenti si sommano e i pannelli si sovrappongono
+      gsap.killTweensOf(el);
+      gsap.killTweensOf(el.querySelectorAll("[data-mi]"));
       if (k === menu) {
         el.style.pointerEvents = "auto";
         gsap.fromTo(el, { opacity: 0, x: dir * 48, filter: "blur(6px)" }, { opacity: 1, x: 0, filter: "blur(0px)", duration: 0.45 * d, ease: "power3.out", delay: first ? 0.05 : 0 });
@@ -255,7 +265,17 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
             <Wordmark />
           </a>
           <nav aria-label={t("label")} className="mx-auto">
-            <div ref={row} className="relative flex items-center" onMouseLeave={() => !menu && setHover(null)}>
+            <div
+              ref={row}
+              className="relative flex items-center"
+              onMouseEnter={() => {
+                inRow.current = true;
+              }}
+              onMouseLeave={() => {
+                inRow.current = false;
+                if (!menu) setHover(null);
+              }}
+            >
               <span ref={bubble} aria-hidden className="drop pointer-events-none absolute inset-y-0 left-0 origin-center opacity-0" style={{ borderRadius: 999 }} />
               {items.map((it, i) => (
                 <button
