@@ -1172,5 +1172,10 @@
     "whatsapp": "WhatsApp",
     "github": "GitHub",
     "cv": "CV"
+  },
+  "maintenance": {
+    "status": "Under maintenance",
+    "title": "Back soon",
+    "lead": "Restricted access"
   }
 }
