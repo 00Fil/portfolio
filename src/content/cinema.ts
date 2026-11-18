@@ -7,6 +7,8 @@ import type { Locale } from "@/i18n/routing";
 export type Cinema = {
   cue: string;
   end: { t: string; more: string };
+  cap: string[];
+  title: string[];
   ctl: { play: string; pause: string; replay: string; on: string; off: string };
   find: { q: string; typed: string; loading: string; a: string };
   listen: { q: string; asks: string[]; a: string };
@@ -23,6 +25,8 @@ export type Cinema = {
 const IT: Cinema = {
   cue: "Scorri",
   end: { t: "Il tuo sito, fatto bene.", more: "Scopri i dettagli" },
+  cap: ["Un cliente ti cerca.", "Se è lento, se ne va.", "Il tuo parte in 0,8 secondi.", "Prima lo disegniamo.", "Poi lo costruiamo.", "Su ogni schermo.", "Arrivano i clienti.", "Online, al sicuro.", "Lo cambi tu.", "Tutto compreso.", "Senza sorprese."],
+  title: ["Il tuo lavoro,", "sempre aggiornato"],
   ctl: { play: "Riproduci", pause: "Pausa", replay: "Rivedi", on: "Audio attivo", off: "Audio spento" },
   find: { q: "Un nuovo cliente ti cerca. Cosa trova?", typed: "chi può aiutarmi qui vicino", loading: "Sta caricando…", a: "Se il sito è lento o confuso, ne sceglie un altro." },
   listen: { q: "Da dove si parte?", asks: ["Chi sono i tuoi clienti?", "Cosa vogliono sapere?", "Cosa devono fare sul sito?"], a: "Da te. Prima di tutto ti ascoltiamo." },
@@ -65,6 +69,8 @@ const IT: Cinema = {
 const EN: Cinema = {
   cue: "Scroll",
   end: { t: "Your site, done right.", more: "See the details" },
+  cap: ["A customer is looking for you.", "If it’s slow, they leave.", "Yours loads in 0.8 seconds.", "First, we design it.", "Then, we build it.", "On every screen.", "Customers arrive.", "Online, and safe.", "You change it.", "Everything included.", "No surprises."],
+  title: ["Your work,", "always current"],
   ctl: { play: "Play", pause: "Pause", replay: "Replay", on: "Sound on", off: "Sound off" },
   find: { q: "A new customer is looking for you. What do they find?", typed: "who can help me nearby", loading: "Loading…", a: "If the site is slow or confusing, they pick another one." },
   listen: { q: "Where do we start?", asks: ["Who are your customers?", "What do they want to know?", "What should they do on the site?"], a: "With you. First of all, we listen." },

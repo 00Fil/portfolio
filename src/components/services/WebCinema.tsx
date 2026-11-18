@@ -10,7 +10,8 @@ import { ArrowDown, Bell, Check, Pause, Play, RotateCcw, Volume2, VolumeX, FileT
 import type { Locale } from "@/i18n/routing";
 import { prefersReducedMotion } from "@/lib/env";
 import { onIntroLift } from "@/lib/intro";
-import { play as sfx, soundOn, onSound, setSound } from "@/lib/sound";
+import { soundOn, onSound, setSound } from "@/lib/sound";
+import { fx } from "@/lib/filmsound";
 import { Bead } from "@/components/glass/Bead";
 import { getCinema, type Cinema } from "@/content/cinema";
 
@@ -21,11 +22,12 @@ const ACC = "#8fd8ff";
 const DISP = { fontFamily: "var(--font-anton), Impact, sans-serif", textTransform: "uppercase" as const };
 const cin = (n: string) => `/visual/cinema/${n}.webp`;
 
-/** Scrive un testo lettera per lettera, con il suono dei tasti. */
-const typeTo = (tl: gsap.core.Timeline, el: Element, text: string, at: number, dur: number) => {
+/** Scrive un testo lettera per lettera; ogni due lettere suona una nota che sale nella scala. */
+const typeTo = (tl: gsap.core.Timeline, el: Element, text: string, at: number, dur: number, deg = 0) => {
   const o = { n: 0 };
   tl.to(o, { n: text.length, duration: dur, ease: "none", onUpdate: () => void (el.textContent = text.slice(0, Math.round(o.n))) }, at);
-  for (let t = 0; t < dur; t += 0.085) tl.call(() => sfx("key", 0.9 + Math.random() * 0.3), undefined, at + t);
+  const steps = Math.max(1, Math.floor(text.length / 2));
+  for (let k = 0; k < steps; k++) tl.call(() => fx.pluck(deg + (k % 7), 0.55, 0.22), undefined, at + (k / steps) * dur);
 };
 const num = (tl: gsap.core.Timeline, el: Element, from: number, to: number, at: number, dur: number, fmt: (n: number) => string) => {
   const o = { n: from };
@@ -57,11 +59,14 @@ function MiniSite({ c }: { c: Cinema }) {
           </span>
         </span>
       </Bead>
-      <div className="absolute bottom-[clamp(54px,10cqw,96px)] left-[4cqw] text-white" style={{ ...DISP, fontSize: "clamp(34px,11.5cqw,128px)", lineHeight: 0.98 }}>
-        {c.site.title[0]}
-        <br />
-        {c.site.title[1].replace(".", "")}
-        <span style={{ color: ACC }}>.</span>
+      <div data-title className="absolute bottom-[clamp(54px,10cqw,96px)] left-[4cqw] text-white" style={{ ...DISP, fontSize: "clamp(34px,11.5cqw,128px)", lineHeight: 0.98 }}>
+        <span data-focus className="pointer-events-none absolute -inset-x-[2.2cqw] -inset-y-[1cqw] rounded-[1.6cqw] border-2 border-[#8fd8ff] opacity-0" />
+        <span data-sel className="pointer-events-none absolute -inset-x-[1.4cqw] bottom-[-.4cqw] top-[50%] origin-left rounded-[1cqw] bg-[#8fd8ff]/35 opacity-0" />
+        <span className="relative block">{c.site.title[0]}</span>
+        <span className="relative block">
+          <span data-l2>{c.site.title[1].replace(".", "")}</span>
+          <span style={{ color: ACC }}>.</span>
+        </span>
       </div>
       <Bead as="div" tint="rgba(10,14,18,.6)" radius={999} className="absolute right-[4cqw] top-[clamp(64px,15cqw,120px)] hidden h-[clamp(64px,13cqw,120px)] w-[clamp(64px,13cqw,120px)] items-center justify-center @min-[440px]:flex">
         <svg viewBox="0 0 100 100" className="absolute inset-0" aria-hidden>
@@ -103,322 +108,35 @@ function Wire() {
 }
 
 
-/* ───────────── Il video: una timeline sola, regolata da noi, con i suoni. Domanda → visual → risposta, una scena dopo l'altra. ───────────── */
+
+/* ───────────── Il video ─────────────
+   Un solo oggetto che si trasforma da un'inquadratura all'altra, sul ritmo della colonna sonora (112 battiti al minuto).
+   Ogni cosa che si muove ha il suo suono; le didascalie sono brevi e cambiano sul tempo. */
 
 type Q = (s: string) => HTMLElement[];
-type Def = { id: string; q: string; a?: string; v: number; node: React.ReactNode; build: (tl: gsap.core.Timeline, $: Q, t: number) => void };
-
-const QH = 1.25; // quanto resta la domanda
-const AH = 1.5; // quanto resta la risposta
-const BIG = "text-center font-medium leading-[1.06] tracking-[-0.05em] cine-fg";
-
-function scenes(c: Cinema): Def[] {
-  const find: Def = {
-    id: "cerca",
-    q: c.find.q,
-    a: c.find.a,
-    v: 3.7,
-    node: (
-      <div className="absolute inset-0 flex items-center justify-center px-5">
-        <div className="relative h-[min(62svh,520px)] w-full max-w-[700px]">
-          <Bead as="div" data-search radius={999} className="cine-fg absolute inset-x-0 top-[6%] flex h-[clamp(56px,9svh,76px)] items-center gap-4 px-7 text-[clamp(18px,2.4vw,26px)]">
-            <Search size={22} strokeWidth={1.8} className="cine-fg2 shrink-0" />
-            <span data-typed />
-            <span className="h-[1.1em] w-[2px] animate-pulse bg-[var(--label-primary)]" />
-          </Bead>
-          <Bead as="div" data-res1 radius={34} className="cine-fg absolute inset-x-0 top-[34%] block px-8 py-7">
-            <span className="block text-[clamp(20px,2.6vw,30px)] font-medium tracking-[-0.02em]">La tua attività</span>
-            <span className="cine-fg2 mt-1 block text-[clamp(14px,1.6vw,18px)]">latuaattivita.it</span>
-          </Bead>
-          <div data-load className="cine-fg absolute inset-0 flex flex-col items-center justify-center gap-6">
-            <span className="relative block h-[clamp(120px,22svh,190px)] w-[clamp(120px,22svh,190px)]">
-              <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
-                <circle cx="20" cy="20" r="17" fill="none" stroke="var(--hair-strong)" strokeWidth="1.6" />
-                <circle data-ring cx="20" cy="20" r="17" fill="none" stroke="#f5c46b" strokeWidth="1.6" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
-              </svg>
-              <span data-count className="absolute inset-0 flex items-center justify-center font-mono text-[clamp(26px,4.4svh,40px)] tabular-nums">
-                0,0 s
-              </span>
-            </span>
-            <span className="cine-fg2 text-[clamp(16px,1.9vw,22px)]">{c.find.loading}</span>
-          </div>
-          <div data-res2 className="cine-fg absolute inset-0 flex flex-col items-center justify-center gap-3">
-            <span className="text-[clamp(68px,13svh,150px)] font-medium leading-none tracking-[-0.05em]" style={{ color: "var(--accent)" }}>
-              0,8 s
-            </span>
-            <span className="cine-fg2 text-[clamp(18px,2.2vw,26px)]">latuaattivita.it</span>
-          </div>
-        </div>
-      </div>
-    ),
-    build: (tl, $, t) => {
-      const [search, typed, res1, load, ring, count, res2] = ["[data-search]", "[data-typed]", "[data-res1]", "[data-load]", "[data-ring]", "[data-count]", "[data-res2]"].map((x) => $(x)[0]);
-      tl.fromTo(search, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, t);
-      typeTo(tl, typed, c.find.typed, t + 0.35, 0.8);
-      tl.fromTo(res1, { autoAlpha: 0, y: 28 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, t + 1.2)
-        .call(() => sfx("press"), undefined, t + 1.5)
-        .to([search, res1], { autoAlpha: 0, y: -20, duration: 0.3, ease: "power2.in" }, t + 1.65)
-        .fromTo(load, { autoAlpha: 0, scale: 0.96 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "power2.out" }, t + 1.8)
-        .fromTo(ring, { strokeDashoffset: 100 }, { strokeDashoffset: 80, duration: 1.0, ease: "power1.out" }, t + 1.9);
-      num(tl, count, 0, 8.4, t + 1.9, 1.0, (n) => n.toFixed(1).replace(".", ",") + " s");
-      for (let k = 0; k < 4; k++) tl.call(() => sfx("tick", 0.8 + k * 0.05), undefined, t + 1.95 + k * 0.25);
-      tl.to(load, { autoAlpha: 0, scale: 1.04, duration: 0.25, ease: "power2.in" }, t + 3.0)
-        .fromTo(res2, { autoAlpha: 0, scale: 0.94 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "expo.out" }, t + 3.15)
-        .call(() => sfx("success", 1.1), undefined, t + 3.2);
-    },
-  };
-
-  const listen: Def = {
-    id: "ascolto",
-    q: c.listen.q,
-    a: c.listen.a,
-    v: 3.4,
-    node: (
-      <div className="absolute inset-0 flex items-center justify-center px-5">
-        <div className="relative overflow-hidden rounded-[clamp(22px,3.4vw,40px)] bg-[#0d1115] shadow-[0_40px_120px_-40px_rgba(0,0,0,.55)]" style={{ width: "min(900px,92vw)", height: "min(58svh,560px)" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img data-photo src={cin("ascolto")} alt="" draggable={false} className="absolute inset-0 h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,7,10,.25),rgba(5,7,10,.78))]" />
-          <div className="absolute inset-x-0 bottom-0 flex h-[52%] items-center justify-center px-6">
-            {c.listen.asks.map((x) => (
-              <p key={x} data-ask className="absolute max-w-[18ch] text-center text-[clamp(28px,4.6vw,64px)] font-medium leading-[1.08] tracking-[-0.045em] text-white">
-                {x}
-              </p>
-            ))}
-          </div>
-        </div>
-      </div>
-    ),
-    build: (tl, $, t) => {
-      tl.fromTo($("[data-photo]"), { scale: 1.22 }, { scale: 1.02, duration: 3.6, ease: "none" }, t);
-      $("[data-ask]").forEach((el, i) => {
-        const at = t + i * 1.1;
-        tl.fromTo(el, { autoAlpha: 0, y: 36 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: "expo.out" }, at).call(() => sfx("tick", 1 + i * 0.12), undefined, at);
-        if (i < 2) tl.to(el, { autoAlpha: 0, y: -36, duration: 0.3, ease: "power2.in" }, at + 0.8);
-      });
-    },
-  };
-
-  const draw: Def = {
-    id: "disegno",
-    q: c.draw.q,
-    a: c.draw.a,
-    v: 3.3,
-    node: (
-      <div className="absolute inset-0 flex items-center justify-center px-4">
-        <div data-frame className="relative overflow-hidden rounded-[clamp(18px,3vw,36px)] bg-[#0d1115] shadow-[0_40px_120px_-40px_rgba(0,0,0,.55)]" style={{ width: "min(1100px,92vw)", height: "min(64svh,640px)" }}>
-          <MiniSite c={c} />
-          <Wire />
-          <span data-scan className="pointer-events-none absolute inset-x-0 z-10 block h-[2px] bg-[#8fd8ff] opacity-0 shadow-[0_0_24px_4px_rgba(143,216,255,.55)]" />
-        </div>
-      </div>
-    ),
-    build: (tl, $, t) => {
-      tl.fromTo($("[data-frame]"), { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" }, t)
-        .fromTo($("[data-wire] > div"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25, stagger: 0.09 }, t + 0.15)
-        .call(() => sfx("open", 0.9), undefined, t + 1.05)
-        .fromTo($("[data-wire]"), { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(100% 0% 0% 0%)", duration: 1.6, ease: "power2.inOut" }, t + 1.1)
-        .fromTo($("[data-scan]"), { top: "0%", autoAlpha: 1 }, { top: "100%", duration: 1.6, ease: "power2.inOut" }, t + 1.1)
-        .to($("[data-scan]"), { autoAlpha: 0, duration: 0.2 }, t + 2.7)
-        .fromTo($("[data-simg]"), { scale: 1.2 }, { scale: 1, duration: 2, ease: "power2.out" }, t + 1.1)
-        .call(() => sfx("success", 1), undefined, t + 2.7);
-    },
-  };
-
-  const screens: Def = {
-    id: "schermi",
-    q: c.screens.q,
-    a: c.screens.a,
-    v: 3.2,
-    node: (
-      <div data-fr className="absolute left-1/2 top-1/2 overflow-hidden bg-[#0d1115] shadow-[0_40px_120px_-40px_rgba(0,0,0,.55)] ring-1 ring-[color:var(--hair-strong)]" style={{ width: 1100, height: 640 }}>
-        <MiniSite c={c} />
-      </div>
-    ),
-    build: (tl, $, t) => {
-      const fr = $("[data-fr]")[0];
-      const wide = () => (innerWidth > 760 ? 1100 : 760);
-      const mid = () => (innerWidth > 760 ? 640 : 520);
-      const phone = () => 340;
-      const fit = (w: () => number) => () => Math.min(1, (innerWidth * 0.92) / w(), (innerHeight * 0.66) / 640);
-      tl.set(fr, { width: wide, scale: fit(wide), borderRadius: 28, xPercent: -50, yPercent: -50 }, t - 0.5)
-        .fromTo(fr, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" }, t)
-        .call(() => sfx("toggle", 0.9), undefined, t + 1.0)
-        .to(fr, { width: mid, scale: fit(mid), borderRadius: 38, duration: 0.8, ease: "power2.inOut" }, t + 1.0)
-        .call(() => sfx("toggle", 1.15), undefined, t + 2.0)
-        .to(fr, { width: phone, scale: fit(phone), borderRadius: 52, duration: 0.8, ease: "power2.inOut" }, t + 2.0);
-    },
-  };
-
-  const online: Def = {
-    id: "online",
-    q: c.online.q,
-    a: c.online.a,
-    v: 3.7,
-    node: (
-      <>
-        <div data-open className="absolute inset-0 opacity-0">
-          <MiniSite c={c} />
-        </div>
-        <div className="absolute inset-0 flex items-center justify-center px-5">
-          <Bead as="div" data-bar2 radius={999} className="cine-fg relative z-10 flex h-[clamp(60px,9svh,84px)] w-[min(720px,90vw)] items-center gap-4 overflow-hidden px-7 text-[clamp(18px,2.4vw,28px)]">
-            <span className="relative block h-6 w-6 shrink-0">
-              <Lock data-lock1 size={22} strokeWidth={1.8} className="cine-fg2 absolute inset-0" />
-              <ShieldCheck data-lock2 size={24} strokeWidth={1.8} className="absolute inset-0 text-[#1fa35b] opacity-0" />
-            </span>
-            <span data-url className="tracking-[-0.01em]" />
-            <span data-live className="ml-auto flex items-center gap-2 text-[0.72em] opacity-0">
-              <span className="h-2 w-2 rounded-full bg-[#30d158] shadow-[0_0_0_4px_rgba(48,209,88,.25)]" />
-              {c.online.live}
-            </span>
-            <span data-load2 className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[var(--accent)]" style={{ transform: "scaleX(0)" }} />
-          </Bead>
-        </div>
-      </>
-    ),
-    build: (tl, $, t) => {
-      const bar = $("[data-bar2]")[0];
-      tl.fromTo(bar, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, t);
-      typeTo(tl, $("[data-url]")[0], "latuaattivita.it", t + 0.4, 0.9);
-      tl.fromTo($("[data-load2]"), { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power1.inOut" }, t + 1.4)
-        .to($("[data-lock1]"), { autoAlpha: 0, duration: 0.1 }, t + 2.2)
-        .fromTo($("[data-lock2]"), { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, t + 2.2)
-        .call(() => sfx("success", 1.05), undefined, t + 2.2)
-        .fromTo($("[data-live]"), { autoAlpha: 0, x: 10 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: "expo.out" }, t + 2.3)
-        .call(() => sfx("open", 1), undefined, t + 2.35)
-        .fromTo($("[data-open]"), { autoAlpha: 0, scale: 1.14 }, { autoAlpha: 1, scale: 1, duration: 0.8, ease: "power3.out" }, t + 2.35)
-        .to(bar, { y: () => -(innerHeight / 2 - 76), duration: 0.8, ease: "power3.inOut" }, t + 2.7);
-    },
-  };
-
-  const clients: Def = {
-    id: "clienti",
-    q: c.clients.q,
-    a: c.clients.a,
-    v: 3.3,
-    node: (
-      <div className="absolute inset-0 flex items-center justify-center px-5">
-        <div className="relative h-[min(50svh,420px)] w-full max-w-[560px]">
-          {c.clients.items.map(([x, y]) => (
-            <Bead as="div" key={y} data-n radius={34} className="cine-fg absolute inset-x-0 top-[18%] flex items-center gap-5 px-6 py-5">
-              <span className="flex h-[clamp(46px,6vw,62px)] w-[clamp(46px,6vw,62px)] shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--bg-canvas)]">
-                <Bell size={24} strokeWidth={1.8} />
-              </span>
-              <span className="block leading-tight">
-                <span className="block text-[clamp(18px,2.2vw,26px)] font-semibold tracking-[-0.015em]">{x}</span>
-                <span className="cine-fg2 mt-1 block text-[clamp(15px,1.8vw,21px)]">{y}</span>
-              </span>
-            </Bead>
-          ))}
-        </div>
-      </div>
-    ),
-    build: (tl, $, t) => {
-      const n = $("[data-n]");
-      n.forEach((el, i) => {
-        const at = t + 0.1 + i * 0.9;
-        tl.fromTo(el, { autoAlpha: 0, y: -150, scale: 0.92 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.6, ease: "expo.out" }, at).call(() => sfx("notify", 1 + i * 0.08), undefined, at);
-        for (let j = 0; j < i; j++) tl.to(n[j], { y: "+=104", scale: "-=0.03", opacity: "-=0.16", duration: 0.5, ease: "expo.out" }, at);
-      });
-    },
-  };
-
-  const edit: Def = {
-    id: "modifiche",
-    q: c.edit.q,
-    a: c.edit.a,
-    v: 3.5,
-    node: (
-      <div className="absolute inset-0 flex items-center justify-center px-5">
-        <Bead as="div" data-card radius={40} className="cine-fg relative block w-[min(640px,90vw)] px-[clamp(24px,4vw,48px)] py-[clamp(28px,5vw,56px)]">
-          <span className="cine-fg2 flex items-center gap-2 text-[clamp(13px,1.5vw,17px)] uppercase tracking-[0.16em]">
-            <PencilLine size={16} strokeWidth={1.8} />
-            {c.edit.label}
-          </span>
-          <span className="relative mt-5 block">
-            <span data-focus className="absolute -inset-x-4 -inset-y-2 rounded-2xl border-2 border-[var(--accent)]" />
-            <span data-sel className="absolute -inset-x-3 -inset-y-1 origin-left rounded-xl bg-[color:color-mix(in_srgb,var(--accent)_30%,transparent)]" />
-            <span data-line className="relative block min-h-[1.2em] text-[clamp(30px,5vw,60px)] font-medium leading-[1.15] tracking-[-0.04em]">
-              {c.edit.from}
-            </span>
-          </span>
-          <span data-saved className="mt-8 flex w-fit items-center gap-2 rounded-full bg-[var(--label-primary)] px-5 py-2 text-[clamp(14px,1.7vw,19px)] font-semibold text-[var(--bg-canvas)] opacity-0">
-            <Check size={18} strokeWidth={2.4} />
-            {c.edit.saved}
-          </span>
-        </Bead>
-      </div>
-    ),
-    build: (tl, $, t) => {
-      const line = $("[data-line]")[0];
-      tl.fromTo($("[data-card]"), { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: "expo.out" }, t)
-        .fromTo($("[data-focus]"), { autoAlpha: 0, scale: 0.96 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "expo.out" }, t + 0.6)
-        .call(() => sfx("click"), undefined, t + 0.65)
-        .fromTo($("[data-sel]"), { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power2.inOut" }, t + 1.0)
-        .set(line, { textContent: "" }, t + 1.5)
-        .set($("[data-sel]"), { autoAlpha: 0 }, t + 1.5);
-      typeTo(tl, line, c.edit.to, t + 1.6, 0.8);
-      tl.to($("[data-focus]"), { autoAlpha: 0, duration: 0.25 }, t + 2.5)
-        .fromTo($("[data-saved]"), { autoAlpha: 0, scale: 0.8, y: 10 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.45, ease: "back.out(2)" }, t + 2.6)
-        .call(() => sfx("success", 1.1), undefined, t + 2.6);
-    },
-  };
-
-  const reel = (id: string, q: string, items: [string, string][], icons: typeof ICONS_GETS): Def => {
-    const per = 0.9;
-    return {
-      id,
-      q,
-      v: items.length * per + 0.1,
-      node: (
-        <div className="absolute inset-0 flex items-center justify-center px-6">
-          {items.map(([x, y], i) => {
-            const Icon = icons[i];
-            return (
-              <div key={x} data-it className="cine-fg absolute flex max-w-[1100px] flex-col items-center text-center">
-                <Bead as="div" data-ico radius={999} className="flex h-[clamp(72px,11svh,104px)] w-[clamp(72px,11svh,104px)] items-center justify-center" style={{ color: "var(--accent)" }}>
-                  <Icon size={36} strokeWidth={1.5} />
-                </Bead>
-                <p className="mt-7 text-[clamp(44px,9vw,150px)] font-medium leading-[1] tracking-[-0.055em]">{x}</p>
-                <p className="cine-fg2 mt-6 max-w-[24ch] text-[clamp(19px,2.4vw,34px)] leading-[1.3] tracking-[-0.02em]">{y}</p>
-              </div>
-            );
-          })}
-        </div>
-      ),
-      build: (tl, $, t) => {
-        $("[data-it]").forEach((el, i) => {
-          const at = t + i * per;
-          tl.fromTo(el, { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: "expo.out" }, at)
-            .fromTo($("[data-ico]")[i], { scale: 0.5, rotate: -20 }, { scale: 1, rotate: 0, duration: 0.5, ease: "back.out(1.8)" }, at)
-            .call(() => sfx("tick", 1 + i * 0.07), undefined, at);
-          if (i < items.length - 1) tl.to(el, { autoAlpha: 0, y: -60, duration: 0.3, ease: "power2.in" }, at + per - 0.3);
-        });
-      },
-    };
-  };
-
-  return [find, listen, draw, screens, online, clients, edit, reel("ricevi", c.gets.q, c.gets.items, ICONS_GETS), reel("garanzie", c.promise.q, c.promise.items, ICONS_PROMISE)];
-}
-
+const B = 60 / 112;
+const T = (n: number) => n * B;
+const HID = { visibility: "hidden" as const, opacity: 0 };
 const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
-const ICONS_PROMISE = [FileText, UserRound, KeyRound, LockOpen];
+const CAP = "pointer-events-none absolute inset-x-0 top-[max(9svh,84px)] mx-auto md:top-[max(14svh,140px)] max-w-[19ch] px-6 text-center text-[clamp(32px,5.4vw,88px)] font-medium leading-[1.06] tracking-[-0.05em] cine-fg md:max-w-none";
 
 export function WebCinema({ title }: { title: string }) {
   const locale = useLocale() as Locale;
   const c = getCinema(locale);
-  const defs = scenes(c);
   const root = useRef<HTMLElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const bar = useRef<HTMLSpanElement>(null);
-  const flags = useRef({ visible: false, paused: false, ended: false, started: false, lifted: false });
+  const flags = useRef({ visible: false, paused: false, ended: false, lifted: false, playing: false });
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
   const [snd, setSnd] = useState(false);
 
   useEffect(() => {
     setSnd(soundOn());
-    const off = onSound(setSnd);
+    const off = onSound((on) => {
+      setSnd(on);
+      if (on && flags.current.playing) fx.padOn();
+    });
     return () => void off();
   }, []);
 
@@ -426,11 +144,22 @@ export function WebCinema({ title }: { title: string }) {
     () => {
       const el = root.current!;
       const $ = gsap.utils.selector(el) as Q;
-      const endCard = $("[data-end]")[0];
+      const one = (s: string) => $(s)[0];
+      const endCard = one("[data-end]");
       if (prefersReducedMotion()) {
         gsap.set(endCard, { autoAlpha: 1 });
         return;
       }
+      const world = one("[data-world]");
+      const dev = one("[data-dev]");
+      const wide = () => (innerWidth > 760 ? 1100 : 760);
+      const mid = () => (innerWidth > 760 ? 640 : 520);
+      const phone = () => 340;
+      const fit = (w: () => number) => () => Math.min(1, (innerWidth * 0.92) / w(), (innerHeight * (innerWidth > 760 ? 0.6 : 0.5)) / 640);
+      const devRect = () => dev.getBoundingClientRect();
+      gsap.set($("[data-it]"), { xPercent: -50, yPercent: -50 });
+      gsap.set(dev, { width: wide, scale: fit(wide), borderRadius: 28 });
+
       const tl = gsap.timeline({
         paused: true,
         defaults: { ease: "none" },
@@ -439,125 +168,312 @@ export function WebCinema({ title }: { title: string }) {
         },
         onComplete: () => {
           flags.current.ended = true;
+          flags.current.playing = false;
           setEnded(true);
           setPlaying(false);
         },
       });
       tlRef.current = tl;
-      // apertura: titolo del servizio
-      const oh = SplitText.create($("[data-oh]")[0], { type: "words", mask: "words" });
-      let t = 0;
-      tl.set($("[data-open]"), { autoAlpha: 1 }, 0)
-        .call(() => sfx("whoosh", 0.9), undefined, 0.1)
-        .from(oh.words, { yPercent: 115, duration: 0.9, stagger: 0.07, ease: "expo.out" }, 0.1)
-        .to(oh.words, { yPercent: -115, duration: 0.4, stagger: 0.03, ease: "power2.in" }, 2.1)
-        .set($("[data-open]"), { autoAlpha: 0 }, 2.7);
-      t = 2.6;
-      defs.forEach((d) => {
-        const sc = $(`[data-scene="${d.id}"]`)[0];
-        const sq = SplitText.create(sc.querySelector("[data-q]") as HTMLElement, { type: "words", mask: "words" });
-        const $s = gsap.utils.selector(sc) as Q;
-        const vis = sc.querySelector("[data-vis]") as HTMLElement;
-        tl.set(sc, { autoAlpha: 1 }, t)
-          .call(() => sfx("whoosh", 1.1), undefined, t)
-          .fromTo($s("[data-q]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.01 }, t)
-          .from(sq.words, { yPercent: 115, duration: 0.6, stagger: 0.06, ease: "expo.out" }, t + 0.02)
-          .to(sq.words, { yPercent: -115, duration: 0.35, stagger: 0.03, ease: "power2.in" }, t + QH)
-          .set($s("[data-q]"), { autoAlpha: 0 }, t + QH + 0.5);
-        const vs = t + QH + 0.2;
-        tl.fromTo(vis, { autoAlpha: 0, scale: 0.96 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "power2.out" }, vs);
-        const v0 = vs + 0.3;
-        d.build(tl, $s, v0);
-        const ve = v0 + d.v;
-        let e = ve + 0.35;
-        if (d.a) {
-          const sa = SplitText.create(sc.querySelector("[data-a]") as HTMLElement, { type: "words", mask: "words" });
-          tl.to(vis, { autoAlpha: 0, scale: 1.03, duration: 0.4, ease: "power2.inOut" }, ve)
-            .fromTo($s("[data-a]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.01 }, ve + 0.3)
-            .call(() => sfx("tick", 1.25), undefined, ve + 0.32)
-            .from(sa.words, { yPercent: 115, duration: 0.6, stagger: 0.06, ease: "expo.out" }, ve + 0.32)
-            .to($s("[data-a]"), { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, ve + 0.32 + AH + 0.5);
-          e = ve + 0.32 + AH + 0.8;
-        } else {
-          tl.to(vis, { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, ve);
-        }
-        tl.set(sc, { autoAlpha: 0 }, e);
-        t = e + 0.05;
+
+      // didascalie: una per volta, ognuna esce con la parola che sale
+      const caps = c.cap.map((_, i) => one(`[data-cap="${i}"]`));
+      const splits = caps.map((e) => SplitText.create(e, { type: "words", mask: "words" }));
+      const cap = (i: number, b0: number, b1: number) =>
+        tl
+          .set(caps[i], { autoAlpha: 1 }, T(b0))
+          .from(splits[i].words, { yPercent: 115, duration: 0.5, stagger: 0.05, ease: "expo.out" }, T(b0))
+          .to(splits[i].words, { yPercent: -115, duration: 0.3, stagger: 0.025, ease: "power2.in" }, T(b1) - 0.34)
+          .set(caps[i], { autoAlpha: 0 }, T(b1));
+      const punch = (b: number, k = 1.018) => tl.fromTo(world, { scale: k }, { scale: 1, duration: 0.5, ease: "expo.out" }, T(b));
+
+      /* 0 · Un cliente ti cerca */
+      const pill = one("[data-pill]");
+      const r1 = one("[data-r1]");
+      tl.call(() => fx.padOn(), undefined, 0)
+        .call(() => (fx.kick(0.6), fx.whoosh(0.5, true, 0.7)), undefined, 0)
+        .fromTo(pill, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, 0);
+      cap(0, 0.5, 4.6);
+      typeTo(tl, one("[data-typed]"), c.find.typed, T(1), T(2.4), 0);
+      tl.fromTo(r1, { autoAlpha: 0, y: 95 }, { autoAlpha: 1, y: 55, duration: 0.45, ease: "expo.out" }, T(3.7))
+        .call(() => fx.pluck(12, 0.8), undefined, T(3.7))
+        .to(r1, { scale: 0.97, duration: 0.12 }, T(4.4))
+        .to(r1, { scale: 1, duration: 0.18, ease: "back.out(3)" }, T(4.4) + 0.12)
+        .call(() => fx.tick(1), undefined, T(4.4));
+
+      /* 1 · Se è lento, se ne va */
+      const load = one("[data-load]");
+      const ring = one("[data-ring]");
+      tl.to([pill, r1], { autoAlpha: 0, scale: 0.9, duration: 0.3, ease: "power2.in" }, T(4.75))
+        .call(() => (fx.whoosh(0.45, false, 0.8), fx.riser(T(3.7))), undefined, T(4.8))
+        .fromTo(load, { autoAlpha: 0, scale: 0.7 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(1.8)" }, T(4.8))
+        .fromTo(ring, { strokeDashoffset: 100 }, { strokeDashoffset: 72, duration: T(3.6), ease: "power1.out" }, T(4.9));
+      num(tl, one("[data-count]"), 0, 8.4, T(4.9), T(3.6), (n) => n.toFixed(1).replace(".", ",") + " s");
+      for (let k = 0; k < 8; k++) tl.call(() => fx.tick(0.5 + k * 0.06), undefined, T(5 + k * 0.45));
+      cap(1, 5, 8.8);
+
+      /* 2 · Il tuo parte in 0,8 secondi */
+      const fast = one("[data-fast]");
+      tl.to(load, { autoAlpha: 0, scale: 1.2, duration: 0.2, ease: "power2.in" }, T(8.55))
+        .call(() => (fx.chord([0, 2, 4, 5], 1), fx.whoosh(0.3, true, 0.5)), undefined, T(8.6))
+        .fromTo(fast, { autoAlpha: 0, scale: 0.7 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "expo.out" }, T(8.6))
+        .fromTo(one("[data-fring]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.7, ease: "expo.out" }, T(8.6));
+      punch(8.6, 1.025);
+      cap(2, 8.8, 10.9);
+
+      /* 3 · Prima lo disegniamo: l'anello diventa la pagina */
+      const wire = one("[data-wire]");
+      tl.call(() => fx.whoosh(0.6, true, 1), undefined, T(10.8))
+        .to(fast, { autoAlpha: 0, scale: 2.6, duration: 0.55, ease: "power3.in" }, T(10.8))
+        .fromTo(dev, { autoAlpha: 0, scale: () => Number(gsap.getProperty(dev, "scale")) * 0.55 }, { autoAlpha: 1, scale: fit(wide), duration: 0.75, ease: "expo.out" }, T(10.95))
+        .fromTo($("[data-wire] > div"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, stagger: T(0.32) }, T(11.3));
+      $("[data-wire] > div").forEach((_, i) => tl.call(() => fx.pluck(i * 2, 0.7, 0.3), undefined, T(11.3) + i * T(0.32)));
+      cap(3, 10.9, 14.6);
+
+      /* 4 · Poi lo costruiamo: la linea di luce lo trasforma in sito vero */
+      tl.call(() => fx.riser(T(1.4)), undefined, T(13.1))
+        .call(() => (fx.kick(1), fx.whoosh(0.9, true, 1)), undefined, T(14.5))
+        .fromTo(wire, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(100% 0% 0% 0%)", duration: T(2), ease: "power2.inOut" }, T(14.5))
+        .fromTo($("[data-scan]"), { top: "0%", autoAlpha: 1 }, { top: "100%", duration: T(2), ease: "power2.inOut" }, T(14.5))
+        .to($("[data-scan]"), { autoAlpha: 0, duration: 0.15 }, T(16.5))
+        .fromTo($("[data-simg]"), { scale: 1.22 }, { scale: 1, duration: T(3), ease: "power2.out" }, T(14.5))
+        .call(() => fx.chord([2, 4, 7], 0.8), undefined, T(16.5));
+      punch(14.5);
+      cap(4, 14.6, 16.9);
+
+      /* 5 · Su ogni schermo: la stessa pagina si riordina */
+      tl.call(() => (fx.whoosh(0.55, false, 0.9), fx.tick(1)), undefined, T(16.8))
+        .to(dev, { width: mid, scale: fit(mid), borderRadius: 38, duration: T(1.3), ease: "power3.inOut" }, T(16.8))
+        .call(() => (fx.whoosh(0.55, false, 0.9), fx.tick(1.2)), undefined, T(18.6))
+        .to(dev, { width: phone, scale: fit(phone), borderRadius: 52, duration: T(1.3), ease: "power3.inOut" }, T(18.6))
+        .call(() => fx.pluck(9, 0.9, 0.6), undefined, T(19.9));
+      cap(5, 16.9, 20.7);
+
+      /* 6 · Arrivano i clienti: le notifiche cadono sul telefono */
+      const ns = $("[data-n]");
+      const slots = [-170, -74, 22];
+      ns.forEach((n, i) => {
+        const at = T(20.7 + i * 1.15);
+        tl.fromTo(n, { autoAlpha: 0, y: slots[i] - 90, scale: 0.92 }, { autoAlpha: 1, y: slots[i], scale: 1, duration: 0.55, ease: "expo.out" }, at).call(() => fx.bell(7 + i * 2, 1), undefined, at);
       });
-      // chiusura: il titolo e l'invito a scorrere restano
+      punch(23.1, 1.012);
+      cap(6, 20.7, 24.6);
+
+      /* 7 · Online, al sicuro: la barra dell'indirizzo, il lucchetto */
+      const urlBar = one("[data-bar2]");
+      const insidePhone = () => -devRect().height / 2 + 46;
+      tl.to(ns, { autoAlpha: 0, y: "-=50", duration: 0.35, stagger: 0.06, ease: "power2.in" }, T(24.4))
+        .call(() => fx.whoosh(0.4, true, 0.7), undefined, T(24.5))
+        .fromTo(urlBar, { autoAlpha: 0, y: () => insidePhone() - 40, width: () => devRect().width * 0.93 }, { autoAlpha: 1, y: insidePhone, duration: 0.45, ease: "expo.out" }, T(24.55));
+      typeTo(tl, one("[data-url]"), "latuaattivita.it", T(24.9), T(1.7), 3);
+      tl.fromTo(one("[data-load2]"), { scaleX: 0 }, { scaleX: 1, duration: T(0.9), ease: "power1.inOut" }, T(26.7))
+        .to(one("[data-lock1]"), { autoAlpha: 0, duration: 0.1 }, T(27.7))
+        .fromTo(one("[data-lock2]"), { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "back.out(2.4)" }, T(27.7))
+        .call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(27.7))
+        .fromTo(one("[data-live]"), { autoAlpha: 0, x: 10 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: "expo.out" }, T(27.8))
+        .fromTo(dev, { boxShadow: "0 0 0 0 rgba(143,216,255,0)" }, { boxShadow: "0 0 0 14px rgba(143,216,255,0.28)", duration: 0.35, ease: "expo.out", yoyo: true, repeat: 1 }, T(27.7));
+      punch(27.7, 1.02);
+      cap(7, 24.6, 28.5);
+
+      /* 8 · Lo cambi tu: il titolo si riscrive sul posto */
+      const l2 = one("[data-l2]");
+      const saved = one("[data-saved]");
+      tl.to(urlBar, { autoAlpha: 0, y: "-=20", duration: 0.3, ease: "power2.in" }, T(28.4))
+        .call(() => fx.whoosh(0.55, true, 0.8), undefined, T(28.5))
+        .to(dev, { width: mid, scale: fit(mid), borderRadius: 38, duration: T(1.3), ease: "power3.inOut" }, T(28.5))
+        .fromTo($("[data-focus]"), { autoAlpha: 0, scale: 0.97 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: "expo.out" }, T(30))
+        .call(() => fx.tick(1.3), undefined, T(30))
+        .fromTo($("[data-sel]"), { autoAlpha: 1, scaleX: 0 }, { scaleX: 1, duration: T(0.9), ease: "power2.inOut" }, T(30.5))
+        .call(() => fx.whoosh(0.4, true, 0.5), undefined, T(30.5))
+        .set(l2, { textContent: "" }, T(31.5))
+        .set($("[data-sel]"), { autoAlpha: 0 }, T(31.5));
+      typeTo(tl, l2, c.title[1].toUpperCase(), T(31.6), T(1.8), 0);
+      tl.to($("[data-focus]"), { autoAlpha: 0, duration: 0.25 }, T(33.5))
+        .fromTo(saved, { autoAlpha: 0, y: () => insidePhone() - 20, scale: 0.8 }, { autoAlpha: 1, y: insidePhone, scale: 1, duration: 0.45, ease: "back.out(2.4)" }, T(33.6))
+        .call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(33.6))
+        .to(saved, { autoAlpha: 0, duration: 0.3 }, T(34.6));
+      cap(8, 28.5, 34.7);
+
+      /* 9 · Tutto compreso: il sito si rimpicciolisce e arrivano le sei cose che ricevi */
+      const gs = $("[data-g]");
+      tl.call(() => (fx.kick(1), fx.whoosh(0.7, false, 1)), undefined, T(34.7))
+        .to(dev, { scale: () => Number(gsap.getProperty(dev, "scale")) * 0.5, autoAlpha: 0, duration: 0.7, ease: "power3.in" }, T(34.7))
+        .fromTo(gs, { autoAlpha: 0, scale: 0.6, y: 36 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.8)", stagger: T(0.5) }, T(35.2));
+      gs.forEach((_, i) => tl.call(() => fx.pluck(i + 2, 0.9, 0.4), undefined, T(35.2) + i * T(0.5)));
+      tl.call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(38.4));
+      punch(38.4, 1.015);
+      cap(9, 34.8, 40.7);
+
+      /* 10 · Senza sorprese: le quattro garanzie */
+      const ps = $("[data-pr]");
+      tl.to(gs, { autoAlpha: 0, y: -30, scale: 0.9, duration: 0.3, stagger: 0.03, ease: "power2.in" }, T(40.3))
+        .call(() => fx.whoosh(0.45, true, 0.7), undefined, T(40.4))
+        .fromTo(ps, { autoAlpha: 0, scale: 0.6, y: 36 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.8)", stagger: T(0.75) }, T(40.9));
+      ps.forEach((_, i) => tl.call(() => fx.bell(7 + i * 2, 0.9), undefined, T(40.9) + i * T(0.75)));
+      cap(10, 40.8, 45.8);
+
+      /* chiusura */
       const es = gsap.utils.selector(endCard) as Q;
       const eh = SplitText.create(es("[data-eh]")[0], { type: "words", mask: "words" });
-      tl.set(endCard, { autoAlpha: 1 }, t)
-        .call(() => sfx("success", 1), undefined, t + 0.1)
-        .from(eh.words, { yPercent: 115, duration: 0.8, stagger: 0.07, ease: "expo.out" }, t + 0.05)
-        .from(es("[data-more]"), { autoAlpha: 0, y: 14, duration: 0.7, ease: "power2.out" }, t + 0.9);
-      tl.set({}, {}, t + 1.8);
+      tl.to(ps, { autoAlpha: 0, y: -30, scale: 0.9, duration: 0.3, stagger: 0.03, ease: "power2.in" }, T(45.4))
+        .call(() => (fx.kick(1.2), fx.whoosh(0.8, true, 1)), undefined, T(45.9))
+        .set(endCard, { autoAlpha: 1 }, T(45.9))
+        .from(eh.words, { yPercent: 115, duration: 0.8, stagger: 0.07, ease: "expo.out" }, T(45.9))
+        .call(() => (fx.chord([0, 2, 4, 7], 1.2), fx.padOff(3)), undefined, T(46))
+        .from(es("[data-more]"), { autoAlpha: 0, y: 14, duration: 0.7, ease: "power2.out" }, T(47));
+      punch(45.9, 1.03);
+      tl.set({}, {}, T(49));
 
       const go = () => {
         const f = flags.current;
-        if (f.visible && f.lifted && !f.paused && !f.ended) {
+        const run = f.visible && f.lifted && !f.paused && !f.ended;
+        f.playing = run;
+        if (run) {
           tl.play();
-          setPlaying(true);
+          fx.duck(false);
         } else {
           tl.pause();
-          setPlaying(false);
+          fx.duck(true);
         }
+        setPlaying(run);
       };
-      const io = new IntersectionObserver(([en]) => {
-        flags.current.visible = en.isIntersecting;
-        go();
-      }, { threshold: 0.55 });
+      const io = new IntersectionObserver(
+        ([en]) => {
+          flags.current.visible = en.isIntersecting;
+          go();
+        },
+        { threshold: 0.55 },
+      );
       io.observe(el);
       onIntroLift(() => {
         flags.current.lifted = true;
         go();
       });
       (el as unknown as { __go: () => void }).__go = go;
-      return () => io.disconnect();
+      return () => {
+        io.disconnect();
+        fx.padOff(0.2);
+      };
     },
     { scope: root, dependencies: [locale] },
   );
 
   const toggle = () => {
-    const tl = tlRef.current;
-    if (!tl) return;
     if (flags.current.ended) return;
-    flags.current.paused = tl.isActive();
+    flags.current.paused = flags.current.playing;
     (root.current as unknown as { __go: () => void }).__go();
   };
   const replay = () => {
     const tl = tlRef.current;
     if (!tl) return;
-    flags.current = { ...flags.current, ended: false, paused: false };
+    flags.current = { ...flags.current, ended: false, paused: false, playing: true };
     setEnded(false);
-    tl.restart();
     setPlaying(true);
+    tl.restart();
   };
 
+  const pillCls = "cine-fg absolute left-1/2 top-0 flex items-center gap-3";
   return (
     <section ref={root} className="cine-acr relative h-svh min-h-[560px] overflow-hidden" aria-label={title}>
-      <div data-open className="absolute inset-0 flex items-center justify-center" style={{ visibility: "hidden", opacity: 0 }}>
-        <h1 data-oh className={`max-w-[14ch] px-6 text-[clamp(44px,8.4vw,140px)] leading-[1.02] ${BIG}`}>
-          {title}
-        </h1>
-      </div>
-      {defs.map((d) => (
-        <div key={d.id} data-scene={d.id} className="absolute inset-0" style={{ visibility: "hidden", opacity: 0 }}>
-          <div data-vis className="absolute inset-x-0 top-0 bottom-0 max-md:bottom-[22svh]" style={{ visibility: "hidden", opacity: 0 }}>
-            {d.node}
-          </div>
-          <p data-q className={`pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[17ch] -translate-y-1/2 px-6 text-[clamp(36px,6.6vw,112px)] ${BIG}`}>
-            {d.q}
+      <h1 className="sr-only">{title}</h1>
+      <div data-world className="absolute inset-x-0 top-0 bottom-0 max-md:bottom-[22svh]">
+        {c.cap.map((t, i) => (
+          <p key={t} data-cap={i} className={CAP} style={HID}>
+            {t}
           </p>
-          {d.a && (
-            <p data-a className={`pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[20ch] -translate-y-1/2 px-6 text-[clamp(34px,5.8vw,98px)] ${BIG}`} style={{ visibility: "hidden", opacity: 0 }}>
-              {d.a}
-            </p>
-          )}
+        ))}
+        <div className="absolute inset-x-0 top-[57%] h-0">
+          {/* ricerca */}
+          <Bead as="div" data-it data-pill radius={999} className={`${pillCls} h-[clamp(56px,9svh,76px)] w-[min(680px,88vw)] px-7 text-[clamp(18px,2.4vw,26px)]`} style={{ ...HID, marginTop: -60 }}>
+            <Search size={22} strokeWidth={1.8} className="cine-fg2 shrink-0" />
+            <span data-typed />
+            <span className="h-[1.1em] w-[2px] animate-pulse bg-[var(--label-primary)]" />
+          </Bead>
+          <Bead as="div" data-it data-r1 radius={34} className={`${pillCls} block w-[min(680px,88vw)] px-8 py-6`} style={HID}>
+            <span className="block text-[clamp(20px,2.6vw,30px)] font-medium tracking-[-0.02em]">La tua attività</span>
+            <span className="cine-fg2 mt-1 block text-[clamp(14px,1.6vw,18px)]">latuaattivita.it</span>
+          </Bead>
+          {/* caricamento lento, poi veloce */}
+          <div data-it data-load className="cine-fg absolute left-1/2 top-0 flex flex-col items-center gap-5" style={HID}>
+            <span className="relative block h-[clamp(130px,24svh,210px)] w-[clamp(130px,24svh,210px)]">
+              <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
+                <circle cx="20" cy="20" r="17" fill="none" stroke="var(--hair-strong)" strokeWidth="1.6" />
+                <circle data-ring cx="20" cy="20" r="17" fill="none" stroke="#f5c46b" strokeWidth="1.6" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+              </svg>
+              <span data-count className="absolute inset-0 flex items-center justify-center font-mono text-[clamp(26px,4.6svh,42px)] tabular-nums">
+                0,0 s
+              </span>
+            </span>
+            <span className="cine-fg2 text-[clamp(15px,1.8vw,21px)]">{c.find.loading}</span>
+          </div>
+          <div data-it data-fast className="absolute left-1/2 top-0" style={HID}>
+            <span className="relative block h-[clamp(130px,24svh,210px)] w-[clamp(130px,24svh,210px)]">
+              <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
+                <circle data-fring cx="20" cy="20" r="17" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+              </svg>
+              <span className="absolute inset-0 flex items-center justify-center text-[clamp(34px,6svh,56px)] font-medium tracking-[-0.04em]" style={{ color: "var(--accent)" }}>
+                0,8 s
+              </span>
+            </span>
+          </div>
+          {/* il sito */}
+          <div data-it data-dev className="absolute left-1/2 top-0 overflow-hidden bg-[#0d1115] shadow-[0_40px_120px_-40px_rgba(0,0,0,.55)] ring-1 ring-[color:var(--hair-strong)]" style={{ ...HID, width: 1100, height: 640 }}>
+            <MiniSite c={c} />
+            <Wire />
+            <span data-scan className="pointer-events-none absolute inset-x-0 z-10 block h-[2px] bg-[#8fd8ff] opacity-0 shadow-[0_0_24px_4px_rgba(143,216,255,.55)]" />
+          </div>
+          {/* notifiche */}
+          {c.clients.items.map(([t, b]) => (
+            <Bead as="div" key={b} data-it data-n radius={34} className="cine-fg absolute left-1/2 top-0 flex w-[min(440px,86vw)] items-center gap-4 px-5 py-4" style={HID}>
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--bg-canvas)]">
+                <Bell size={22} strokeWidth={1.8} />
+              </span>
+              <span className="block leading-tight">
+                <span className="block text-[clamp(16px,1.9vw,21px)] font-semibold tracking-[-0.015em]">{t}</span>
+                <span className="cine-fg2 mt-0.5 block text-[clamp(14px,1.6vw,18px)]">{b}</span>
+              </span>
+            </Bead>
+          ))}
+          {/* indirizzo */}
+          <Bead as="div" data-it data-bar2 radius={999} className="cine-fg absolute left-1/2 top-0 z-20 flex h-12 items-center gap-3 overflow-hidden px-4 text-[15px]" style={{ ...HID, width: 300 }}>
+            <span className="relative block h-5 w-5 shrink-0">
+              <Lock data-lock1 size={18} strokeWidth={1.8} className="cine-fg2 absolute inset-0" />
+              <ShieldCheck data-lock2 size={20} strokeWidth={1.8} className="absolute inset-0 text-[#1fa35b] opacity-0" />
+            </span>
+            <span data-url className="tracking-[-0.01em]" />
+            <span data-live className="ml-auto flex items-center gap-1.5 text-[12px] opacity-0">
+              <span className="h-2 w-2 rounded-full bg-[#30d158] shadow-[0_0_0_3px_rgba(48,209,88,.25)]" />
+              {c.online.live}
+            </span>
+            <span data-load2 className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[var(--accent)]" style={{ transform: "scaleX(0)" }} />
+          </Bead>
+          <Bead as="div" data-it data-saved radius={999} className="cine-fg absolute left-1/2 top-0 z-20 flex h-11 items-center gap-2 px-5 text-[15px] font-semibold" style={HID}>
+            <Check size={18} strokeWidth={2.4} style={{ color: "#1fa35b" }} />
+            {c.edit.saved}
+          </Bead>
+          {/* cosa ricevi e cosa garantisci */}
+          <div className="absolute left-1/2 top-0 flex w-[min(880px,92vw)] -translate-x-1/2 -translate-y-1/2 flex-wrap justify-center gap-3">
+            {c.gets.items.map(([t], i) => {
+              const Icon = ICONS_GETS[i];
+              return (
+                <Bead as="div" key={t} data-g radius={999} className="cine-fg flex h-14 items-center gap-3 px-6 text-[clamp(16px,2vw,22px)] font-medium" style={HID}>
+                  <Icon size={22} strokeWidth={1.7} style={{ color: "var(--accent)" }} />
+                  {t}
+                </Bead>
+              );
+            })}
+          </div>
+          <div className="absolute left-1/2 top-0 flex w-[min(880px,92vw)] -translate-x-1/2 -translate-y-1/2 flex-wrap justify-center gap-3">
+            {c.promise.items.map(([t]) => (
+              <Bead as="div" key={t} data-pr radius={999} className="cine-fg flex h-14 items-center gap-3 px-6 text-[clamp(16px,2vw,22px)] font-medium" style={HID}>
+                <Check size={20} strokeWidth={2.2} style={{ color: "var(--accent)" }} />
+                {t}
+              </Bead>
+            ))}
+          </div>
         </div>
-      ))}
-      <div data-end className="absolute inset-0 flex flex-col items-center justify-center" style={{ visibility: "hidden", opacity: 0 }}>
-        <p data-eh className={`max-w-[14ch] px-6 text-[clamp(44px,8.4vw,140px)] leading-[1.02] ${BIG}`}>
+      </div>
+      <div data-end className="absolute inset-0 flex flex-col items-center justify-center" style={HID}>
+        <p data-eh className="mx-auto max-w-[14ch] px-6 text-center text-[clamp(44px,8.4vw,140px)] font-medium leading-[1.02] tracking-[-0.055em] cine-fg">
           {c.end.t}
         </p>
         <span data-more className="cine-fg2 absolute bottom-[clamp(150px,22svh,200px)] flex flex-col items-center gap-2 text-[13px] uppercase tracking-[0.18em] md:bottom-24">
