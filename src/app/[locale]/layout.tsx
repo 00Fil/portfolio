@@ -18,6 +18,7 @@ import { profile } from "@/content/profile";
 import "../globals.css";
 
 const anton = localFont({ src: "../../fonts/anton.woff2", variable: "--font-anton", display: "swap" });
+const logo = localFont({ src: "../../fonts/macintosh-skeletal.woff2", variable: "--font-logo", display: "swap" });
 const serif = localFont({
   src: [
     { path: "../../fonts/instrument-serif-latin-400-italic.woff2", style: "italic", weight: "400" },
@@ -51,7 +52,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "nav" });
   return (
-    <html lang={locale} suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable} ${serif.variable} ${anton.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable} ${serif.variable} ${anton.variable} ${logo.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>

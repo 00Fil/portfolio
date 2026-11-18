@@ -262,7 +262,7 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
             }}
             className="shrink-0 rounded-full py-2 pr-3 text-ink"
           >
-            <Wordmark />
+            <Wordmark className="[--logo-size:25px]" />
           </a>
           <nav aria-label={t("label")} className="mx-auto">
             <div

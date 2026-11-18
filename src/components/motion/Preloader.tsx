@@ -77,7 +77,7 @@ export function Preloader({ label }: { label: string }) {
           <div className="pre-flow" />
         </div>
         <div aria-hidden className="giant-mask pointer-events-none relative flex justify-center">
-          <p className="whitespace-nowrap text-[16.2vw] font-medium leading-[0.86] tracking-[-0.06em]">
+          <p className="whitespace-nowrap text-[13vw] font-medium leading-[0.9] tracking-[-0.02em]" style={{ fontFamily: "var(--font-logo), var(--font-sans)" }}>
             <span className="inline-block pb-[0.2em] pt-[0.04em] align-bottom">
               {chars(first)} {chars(last, true)}
             </span>

@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { loginGate } from "@/app/[locale]/accedi/actions";
+import { Wordmark } from "@/components/nav/Wordmark";
 import { Bead } from "@/components/glass/Bead";
 import GradientWaves from "@/components/reactbits/GradientWaves";
 import { onIntroLift } from "@/lib/intro";
@@ -148,7 +149,9 @@ export function GateScreen({ t }: { t: Txt }) {
         <Waves />
       </div>
       <div className="relative w-full max-w-[380px]">
-        <h1 className="sr-only">{t.status}</h1>
+        <h1 className="mb-9 flex justify-center" style={{ ...rise(1), ["--logo-size" as string]: "clamp(40px,12vw,56px)" }} aria-label={t.status}>
+          <Wordmark />
+        </h1>
         <form action={action} noValidate style={rise(4)}>
           <MorphField id="g-email" name="email" label={t.email} invalid={!!state?.error} defaultValue={state?.email} autoComplete="username" />
           <MorphField

@@ -60,7 +60,7 @@ export function TopBar() {
         style={{ ["--drop-tint" as string]: "var(--bar-tint)" }}
         aria-label={profile.name}
       >
-        <Wordmark />
+        <Wordmark className="[--logo-size:25px]" />
       </a>
       <div className="pointer-events-auto flex items-center gap-2">
         <GlassSegmented id="lens-lang" options={options} selected={routing.locales.indexOf(locale)} onSelect={onSelect} label={t("language")} />

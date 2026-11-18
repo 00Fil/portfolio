@@ -1,11 +1,15 @@
 import { profile } from "@/content/profile";
+import { GradientText } from "@/components/ui/GradientText";
 
-/** Il nome nella barra: nome pieno, cognome più leggero. */
-export function Wordmark() {
-  const [first, ...rest] = profile.name.split(" ");
+export const LOGO_COLORS = ["#1f8fd0", "#5ec4ff", "#2f6fe0", "#8fd8ff"];
+
+/** Il nome come logo: font del marchio, sempre con lo stesso gradiente. La dimensione la decide chi lo usa (font-size). */
+export function Wordmark({ className = "" }: { className?: string }) {
   return (
-    <span className="whitespace-nowrap text-[17px] font-medium normal-case leading-none tracking-[-0.02em]">
-      {first} <span className="font-normal text-ink-2">{rest.join(" ")}</span>
+    <span className={`whitespace-nowrap normal-case leading-[1.1] ${className}`} style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontSize: "var(--logo-size, 26px)" }}>
+      <GradientText colors={LOGO_COLORS} animationSpeed={10} variant="flow" glow={0.6}>
+        {profile.name}
+      </GradientText>
     </span>
   );
 }
