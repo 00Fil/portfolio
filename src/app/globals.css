@@ -558,11 +558,11 @@ html[data-perf="low"] .drop > .drop-glow { display: none; }
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); pointer-events: none;
 }
 .gradient-text__inner { position: relative; display: inline-block; }
-.gradient-text__content { display: inline-block; padding-block: 0.06em; padding-inline: 0.18em; margin-inline: -0.18em; background-image: var(--gt-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.gradient-text__content { display: inline-block; padding-block: 0.32em; margin-block: -0.26em; padding-inline: 0.18em; margin-inline: -0.18em; background-image: var(--gt-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 /* bagliore: lo stesso testo in tinta piena, sfocato. Niente ritaglio del fondo sul livello sfocato (era quello a mostrare il riquadro) */
 .gradient-text__glow {
-  position: absolute; inset: 0 -0.18em; z-index: -1; color: var(--gt-glow-color, #5ec4ff); -webkit-text-fill-color: currentColor;
-  padding-block: 0.06em; padding-inline: 0.18em; margin-inline: 0; filter: blur(0.22em); opacity: calc(var(--gt-glow) * 0.55); pointer-events: none; user-select: none;
+  position: absolute; inset: -0.26em -0.18em; z-index: -1; color: var(--gt-glow-color, #5ec4ff); -webkit-text-fill-color: currentColor;
+  padding-block: 0.32em; margin-block: 0; padding-inline: 0.18em; margin-inline: 0; filter: blur(0.22em); opacity: calc(var(--gt-glow) * 0.55); pointer-events: none; user-select: none;
 }
 
 /* Video del servizio: vetro opaco (il fondo non traspare mai), e nel sito d'esempio superfici piene e scure */
