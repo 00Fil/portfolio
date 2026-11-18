@@ -257,8 +257,8 @@ function step(c: AudioContext, m: { out: GainNode; verb: ConvolverNode; echo: De
   const s = n % 16;
   const bar = Math.floor(n / 16);
   const ch = bar % 4;
-  const lvl = bar < 1 ? 0 : bar < 2 ? 1 : bar < 14 ? 2 : 1;
-  const ended = bar >= 15;
+  const lvl = bar < 1 ? 0 : bar < 2 ? 1 : bar < 15 ? 2 : 1;
+  const ended = bar >= 16;
   if (ended && s) return;
   const tone = (fr: number, type: OscillatorType, peak: number, atk: number, dec: number, lp: number, wet = 0.3) => {
     const o = c.createOscillator();
@@ -311,7 +311,7 @@ function step(c: AudioContext, m: { out: GainNode; verb: ConvolverNode; echo: De
   // arpeggio sottile sui controtempi
   if (lvl >= 1 && bar >= 1 && s % 4 === 2) tone(CH[ch][(s / 4 + bar) % CH[ch].length] * 2, "sine", 0.02, 0.004, 0.3, 3000, 0.45);
   // melodia: sinusoide con una nota armonica sopra, mandata anche all'eco
-  const mn = bar >= 2 && bar < 15 ? MEL[(bar - 2) % 8][s] : undefined;
+  const mn = bar >= 2 && bar < 16 ? MEL[(bar - 2) % 8][s] : undefined;
   if (mn !== undefined) {
     const fr = 440 * 2 ** (mn / 12);
     for (const [k, ty, pk] of [[1, "sine", 0.07], [2, "triangle", 0.012]] as const) {

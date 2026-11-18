@@ -5,7 +5,7 @@ import { useLocale } from "next-intl";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
-import { ArrowDown, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, RotateCcw, Search, ShieldCheck, UserRound, Volume2, VolumeX } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { prefersReducedMotion } from "@/lib/env";
 import { onIntroLift } from "@/lib/intro";
@@ -30,7 +30,7 @@ function Kw({ text }: { text: string }) {
     <>
       {text.split("*").map((p, i) =>
         i % 2 ? (
-          <span key={i} data-kw className="inline-block">
+          <span key={i} data-kw className="inline-block" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1 }}>
             <GradientText colors={GT} animationSpeed={8} variant="flow" glow={1}>
               {p}
             </GradientText>
@@ -142,7 +142,9 @@ function Wire() {
    Nessun movimento lineare: ogni passaggio ha la sua curva. */
 
 const B = 0.5;
-const T = (n: number) => n * B;
+/* dalla battuta 9.2 in poi tutto scorre di 3.4 battute: il caricamento lento ha bisogno di tempo per essere visto */
+const T = (n: number) => (n >= 9.2 ? n + 3.4 : n) * B;
+const U = (n: number) => n * B;
 const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
 const ICONS_PROMISE = [FileText, UserRound, KeyRound, LockOpen];
 const CAP = "pointer-events-none absolute inset-x-0 top-[5%] mx-auto max-w-[19ch] px-6 text-center text-[clamp(30px,4.6vw,76px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg md:top-[7%] md:max-w-[24ch]";
@@ -157,7 +159,6 @@ export function WebCinema({ title }: { title: string }) {
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
   const [snd, setSnd] = useState(false);
-  const fast = locale === "en" ? "0.8 s" : "0,8 s";
 
   useEffect(() => {
     setSnd(soundOn());
@@ -218,6 +219,8 @@ export function WebCinema({ title }: { title: string }) {
         gsap.set(endCard, { autoAlpha: 1 });
         return;
       }
+      // il sito dentro la finestra del browser è solo una copia da guardare: non deve rispondere ai selettori del resto del video
+      el.querySelectorAll<HTMLElement>("[data-chrome] [data-site], [data-chrome] [data-site] *").forEach((n) => Array.from(n.attributes).filter((a) => a.name.startsWith("data-")).forEach((a) => n.removeAttribute(a.name)));
       const cam = one("[data-cam]");
       const dev = one("[data-dev]");
       const small = () => innerWidth <= 760;
@@ -268,8 +271,8 @@ export function WebCinema({ title }: { title: string }) {
       };
       const cap = (i: number, b0: number, b1: number) => {
         const u = units[i];
-        const t0 = T(Math.round(b0));
-        const t1 = T(Math.round(b1));
+        const t0 = Math.round(T(b0) / B) * B;
+        const t1 = Math.round(T(b1) / B) * B;
         tl.set(caps[i], { autoAlpha: 1 }, t0);
         slam(u, t0, i % 5);
         tl.to([...u.a, ...u.b], { scale: 0.94, autoAlpha: 0, filter: "blur(8px)", duration: 0.28, ease: "power3.in" }, t1 - 0.28);
@@ -296,35 +299,55 @@ export function WebCinema({ title }: { title: string }) {
         .call(() => fx.tick(1.2), undefined, T(4.6));
       cap(0, 0.4, 5.5);
 
-      /* 1 · Se è lento, se ne va: un anello enorme che si blocca */
-      const load = one("[data-load]");
+      /* 1 · Se è lento, se ne va: una finestra del browser che carica un pezzo alla volta, sempre in caricamento */
+      const chrome = one("[data-chrome]");
+      const bands = $("[data-band]");
+      const cnt = one("[data-count]");
+      const spin = one("[data-spin]");
+      const fav = one("[data-fav]");
+      const stop = one("[data-stop]");
+      const rl = one("[data-rl]");
+      const ok = one("[data-ok]");
+      const tt1 = one("[data-tt1]");
+      const tt2 = one("[data-tt2]");
+      const num = (n: number) => n.toFixed(1).replace(".", locale === "en" ? "." : ",") + " s";
+      gsap.set([fav, rl, tt2, ok], { autoAlpha: 0 });
       tl.to([pill, ...res], { autoAlpha: 0, y: "-=40", filter: "blur(8px)", duration: 0.45, stagger: 0.03, ease: "power2.in" }, T(5.1))
-        .call(() => (fx.whoosh(0.5, false, 0.8), fx.riser(T(3.6))), undefined, T(5.5))
-        .fromTo(load, { autoAlpha: 0, scale: 0.5, rotation: -50 }, { autoAlpha: 1, scale: 1, rotation: 0, duration: 1.1, ease: "expo.out" }, T(5.8))
-        .fromTo(one("[data-ring]"), { strokeDashoffset: 100 }, { strokeDashoffset: 68, duration: T(3.6), ease: "power4.out" }, T(5.6))
-        .fromTo(one("[data-spin]"), { rotation: 0 }, { rotation: 140, duration: T(3.6), ease: "sine.inOut" }, T(5.6))
-        .fromTo(cam, { scale: 1, transformOrigin: aim(() => load) }, { scale: 1.1, duration: T(3.6), ease: "sine.inOut" }, T(5.6));
+        .call(() => (fx.whoosh(0.5, false, 0.8), fx.riser(U(6.5))), undefined, U(5.5))
+        .fromTo(chrome, { autoAlpha: 0, scale: 0.9, y: 30 }, { autoAlpha: 1, scale: 1, y: 0, duration: 1.1, ease: "expo.out" }, U(5.7))
+        .fromTo(cam, { scale: 1, transformOrigin: aim(() => chrome) }, { scale: small() ? 1.04 : 1.08, duration: U(7), ease: "sine.inOut" }, U(5.7));
+      // un pezzo alla volta, a scatti, a intervalli irregolari; l'ultimo non arriva mai
+      [7.2, 8.8, 9.6, 11.2].forEach((b, i) => {
+        tl.set(bands[i], { autoAlpha: 0 }, U(b)).call(() => fx.tick(0.7 + i * 0.08), undefined, U(b));
+      });
       {
         const o = { n: 0 };
-        const cnt = one("[data-count]");
-        tl.fromTo(o, { n: 0 }, { n: 8.4, duration: T(3.6), ease: "sine.in", onUpdate: () => void (cnt.textContent = o.n.toFixed(1).replace(".", locale === "en" ? "." : ",") + " s") }, T(5.6));
+        tl.fromTo(o, { n: 0 }, { n: 8.4, duration: U(6.5), ease: "none", onUpdate: () => void (cnt.textContent = num(o.n)) }, U(5.9));
       }
-      for (let i = 0; i < 7; i++) tl.call(() => fx.tick(0.4 + i * 0.07), undefined, T(5.8 + i * 0.5));
-      cap(1, 5.6, 9.3);
+      cap(1, 5.6, 9.2);
 
-      /* 2 · Il tuo si apre in 0,8 secondi */
-      const fst = one("[data-fast]");
-      tl.to(load, { autoAlpha: 0, scale: 1.3, filter: "blur(10px)", duration: 0.3, ease: "power2.in" }, T(9))
-        .call(() => (fx.chord([0, 2, 4, 5], 1), fx.whoosh(0.35, true, 0.6)), undefined, T(9.3))
-        .fromTo(fst, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.9, ease: "expo.out" }, T(9.3))
-        .fromTo(one("[data-fring]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 1.1, ease: "expo.out" }, T(9.3))
-        .to(cam, { scale: 1, duration: 0.9, ease: "expo.out" }, T(9.3));
+      /* 2 · Il tuo si apre in 0,8 secondi: stessa pagina, un nuovo caricamento, tutto insieme */
+      const at2 = T(9.3);
+      {
+        const o = { n: 0 };
+        tl.set(bands, { autoAlpha: 1 }, at2 - 0.05)
+          .call(() => (cnt.textContent = num(0)), undefined, at2 - 0.05)
+          .fromTo(o, { n: 0 }, { n: 0.8, duration: 0.34, ease: "power1.out", onUpdate: () => void (cnt.textContent = num(o.n)) }, at2)
+          .call(() => (fx.chord([0, 2, 4, 5], 1), fx.whoosh(0.35, true, 0.6)), undefined, at2 + 0.38)
+          .set(bands, { autoAlpha: 0 }, at2 + 0.38)
+          .fromTo(chrome, { scale: 1.018 }, { scale: 1, duration: 0.7, ease: "expo.out" }, at2 + 0.38)
+          .to(cam, { scale: 1, duration: 0.9, ease: "expo.out" }, at2 + 0.38)
+          .to([spin, stop, tt1], { autoAlpha: 0, duration: 0.12 }, at2 + 0.38)
+          .fromTo([fav, rl, tt2], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2.2)" }, at2 + 0.4)
+          .fromTo(ok, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2.4)" }, at2 + 0.42)
+          .to(cnt, { color: "var(--accent)", duration: 0.3 }, at2 + 0.4);
+      }
       cap(2, 9.5, 11.7);
 
       /* 3 · Prima lo disegniamo: la camera entra nell'anello, dal fondo emerge la pagina inclinata */
       const wireBits = $("[data-wire] > div");
       tl.call(() => fx.whoosh(0.8, true, 1), undefined, T(11.5))
-        .to(fst, { scale: 7, autoAlpha: 0, duration: 0.8, ease: "power3.in" }, T(11.4))
+        .to(chrome, { scale: 1.5, autoAlpha: 0, filter: "blur(8px)", duration: 0.8, ease: "power3.in" }, T(11.4))
         .fromTo(dev, { autoAlpha: 0, rotationX: 40, y: 160, scale: () => fit(wide)() * 0.7 }, { autoAlpha: 1, rotationX: 0, y: 0, scale: fit(wide), duration: 1.5, ease: "expo.out" }, T(11.9))
         .fromTo(wireBits, { autoAlpha: 0, scale: 0.86, y: 16 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.7)", stagger: T(0.4) }, T(12.6));
       wireBits.forEach((_, i) => tl.call(() => fx.pluck(i * 2, 0.7, 0.3), undefined, T(12.6) + i * T(0.4)));
@@ -413,10 +436,10 @@ export function WebCinema({ title }: { title: string }) {
           const w = g.offsetWidth;
           const cx = ((w - h) / 2) * (1 - v);
           const clip = `inset(0px ${(w - h) * (1 - v)}px 0px 0px round ${h / 2}px)`;
-          if (small()) gsap.set(g, { x: cx, y: (i - 2.7) * 56 * r, clipPath: clip });
+          if (small()) gsap.set(g, { x: cx, y: (i - 2.55) * 64 * r, clipPath: clip });
           else {
             const t = orb.a + (i / gs.length) * Math.PI * 2;
-            gsap.set(g, { x: cx + Math.cos(t) * Math.min(innerWidth * 0.33, 480) * r, y: Math.sin(t) * Math.min(innerHeight * 0.22, 210) * r, clipPath: clip });
+            gsap.set(g, { x: cx + Math.cos(t) * Math.min(cam.offsetWidth * 0.37, 540) * r, y: Math.sin(t) * Math.min(cam.offsetHeight * 0.3, 210) * r, clipPath: clip });
           }
         });
       const draws = gs.map((g) => {
@@ -559,33 +582,6 @@ export function WebCinema({ title }: { title: string }) {
                 <span className="cine-fg2 text-[clamp(13px,1.5vw,17px)]">{u}</span>
               </Bead>
             ))}
-            {/* il caricamento lento, poi quello veloce */}
-            <div data-it data-load className={`cine-fg ${center}`} style={HID}>
-              <span className="relative block aspect-square w-[min(52svh,72vw,480px)]">
-                <svg data-spin viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
-                  <circle cx="20" cy="20" r="18" fill="none" stroke="var(--hair-strong)" strokeWidth="0.9" />
-                  <circle data-ring cx="20" cy="20" r="18" fill="none" stroke="#f5b84b" strokeWidth="0.9" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
-                </svg>
-                <span className="absolute inset-0 flex flex-col items-center justify-center gap-[1.5svh]">
-                  <span data-count className="font-mono text-[clamp(40px,9svh,88px)] leading-none tabular-nums tracking-[-0.04em]">
-                    0,0 s
-                  </span>
-                  <span className="cine-fg2 text-[clamp(14px,1.8svh,19px)]">{c.find.loading}</span>
-                </span>
-              </span>
-            </div>
-            <div data-it data-fast className={center} style={HID}>
-              <span className="relative block aspect-square w-[min(52svh,72vw,480px)]">
-                <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
-                  <circle data-fring cx="20" cy="20" r="18" fill="none" stroke="var(--accent)" strokeWidth="1.1" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
-                </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-[clamp(48px,11svh,110px)] font-medium tracking-[-0.05em]">
-                  <GradientText colors={GT} animationSpeed={8} variant="flow" glow={1} className="leading-[1.2]">
-                    {fast}
-                  </GradientText>
-                </span>
-              </span>
-            </div>
             {/* il sito, con dentro la barra dell'indirizzo, le notifiche e la conferma */}
             <div data-it data-dev className={`${center} overflow-hidden bg-[#0d1115] shadow-[0_50px_140px_-40px_rgba(0,0,0,.6)]`} style={{ ...HID, width: 1100, height: 640, borderRadius: "var(--r)" }}>
               <MiniSite c={c}>
@@ -620,11 +616,65 @@ export function WebCinema({ title }: { title: string }) {
                 <span data-scan className="pointer-events-none absolute inset-x-0 z-30 block h-[2px] bg-[#8fd8ff] shadow-[0_0_28px_6px_rgba(143,216,255,.6)]" style={HID} />
               </MiniSite>
             </div>
+            {/* il browser: prima carica lento, poi tutto insieme */}
+            <div data-it data-chrome className={`${center} w-[min(92vw,calc(min(58svh,440px)*1.58))] aspect-[1.58] max-md:aspect-[.82] flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
+              <div className="flex h-[38px] shrink-0 items-end gap-3 bg-[color-mix(in_srgb,var(--label-primary)_9%,var(--bg-canvas))] px-3">
+                <span className="mb-[13px] flex gap-[7px]">
+                  {["#ff5f57", "#febc2e", "#28c840"].map((k) => (
+                    <span key={k} className="h-[11px] w-[11px] rounded-full" style={{ background: k }} />
+                  ))}
+                </span>
+                <span className="cine-fg relative flex h-[31px] w-[min(210px,58%)] items-center gap-2 rounded-t-[11px] bg-[var(--bg-surface)] px-3 text-[12px]">
+                  <span className="relative block h-4 w-4 shrink-0">
+                    <svg data-spin viewBox="0 0 16 16" className="absolute inset-0 animate-spin" fill="none" aria-hidden>
+                      <circle cx="8" cy="8" r="6" stroke="var(--hair-strong)" strokeWidth="2" />
+                      <path d="M8 2a6 6 0 0 1 6 6" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    <Globe data-fav size={16} strokeWidth={1.8} className="absolute inset-0" style={{ color: "var(--accent)" }} />
+                  </span>
+                  <span className="relative block min-w-0 flex-1 truncate">
+                    <span data-tt1 className="block truncate">{c.find.me[1]}</span>
+                    <span data-tt2 className="absolute inset-0 block truncate font-medium">Marchio</span>
+                  </span>
+                  <X size={13} strokeWidth={1.8} className="cine-fg2 shrink-0" />
+                </span>
+                <Plus size={15} strokeWidth={1.8} className="cine-fg2 mb-[10px]" />
+              </div>
+              <div className="cine-fg flex h-[44px] shrink-0 items-center gap-2 bg-[var(--bg-surface)] px-3">
+                <ArrowLeft size={17} strokeWidth={1.7} className="cine-fg2 opacity-60" />
+                <ArrowRight size={17} strokeWidth={1.7} className="cine-fg2 opacity-60" />
+                <span className="relative block h-[18px] w-[18px] shrink-0">
+                  <X data-stop size={17} strokeWidth={1.8} className="absolute inset-0" />
+                  <RotateCw data-rl size={17} strokeWidth={1.8} className="absolute inset-0" />
+                </span>
+                <span className="flex h-[30px] min-w-0 flex-1 items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--label-primary)_7%,var(--bg-surface))] px-3 text-[13px]">
+                  <Lock size={13} strokeWidth={1.9} className="cine-fg2 shrink-0" />
+                  <span className="truncate">{c.find.me[1]}</span>
+                </span>
+                <EllipsisVertical size={17} strokeWidth={1.7} className="cine-fg2" />
+              </div>
+              <div className="relative min-h-0 flex-1 bg-[var(--bg-surface)]">
+                <div className="absolute inset-0">
+                  <MiniSite c={c} />
+                </div>
+                {Array.from({ length: 7 }).map((_, i) => (
+                  <span key={i} data-band className="absolute inset-x-0 bg-[var(--bg-surface)]" style={{ top: `${(i * 100) / 7}%`, height: "calc(100% / 7 + 1px)" }} />
+                ))}
+                <span className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center">
+                  <Bead as="span" radius={999} className="cine-fg flex h-10 items-center gap-2 px-4">
+                    <span data-count className="font-mono text-[15px] tabular-nums">
+                      0,0 s
+                    </span>
+                    <Check data-ok size={16} strokeWidth={2.4} style={{ color: "var(--accent)" }} />
+                  </Bead>
+                </span>
+              </div>
+            </div>
             {/* cosa ricevi */}
             {c.gets.items.map(([t], i) => {
               const Icon = ICONS_GETS[i];
               return (
-                <Bead as="div" key={t} data-it data-g radius={32} className={`cine-fg ${center} flex h-[clamp(52px,7.5svh,64px)] items-center gap-3 whitespace-nowrap px-[clamp(18px,2.2vw,26px)] text-[clamp(16px,1.9vw,22px)] font-medium tracking-[-0.015em]`} style={HID}>
+                <Bead as="div" key={t} data-it data-g radius={32} className={`cine-fg ${center} flex h-[clamp(52px,7.5svh,64px)] max-md:h-12 items-center gap-3 whitespace-nowrap px-[clamp(18px,2.2vw,26px)] text-[clamp(16px,1.9vw,22px)] font-medium tracking-[-0.015em]`} style={HID}>
                   <Icon size={22} strokeWidth={1.7} style={{ color: "var(--accent)" }} />
                   {t}
                 </Bead>
