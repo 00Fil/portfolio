@@ -566,7 +566,7 @@ html[data-perf="low"] .drop > .drop-glow { display: none; }
 }
 
 /* Video del servizio: vetro opaco (il fondo non traspare mai), e nel sito d'esempio superfici piene e scure */
-.cine-film .drop { --drop-tint: #151a21 !important; }
+.cine-film .drop { --drop-tint: var(--acrylic-solid) !important; }
 .cine-film .drop::after { opacity: 0.55; }
 /* dispositivi del video: in orizzontale stanno in fila, in verticale il desktop sopra e gli altri sotto */
 .cine-devs { display: flex; align-items: flex-end; justify-content: center; gap: 3cqw; }
