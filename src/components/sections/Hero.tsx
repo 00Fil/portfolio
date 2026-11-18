@@ -73,7 +73,6 @@ function Cycler({ items, at, kind }: { items: ReactNode[]; at: number; kind: Kin
 export function Hero() {
   const t = useTranslations("hero");
   const m = (useMessages() as unknown as { hero: { lines: string[][]; words: string[]; sectors: string[]; proof: [string, string][] } }).hero;
-  const proof = m.proof;
   const root = useRef<HTMLElement>(null);
   const [at, setAt] = useState(0);
 
@@ -210,15 +209,6 @@ export function Hero() {
               <ArrowDown size={18} strokeWidth={1.6} aria-hidden />
             </Drop>
           </div>
-          {/* prove subito sotto l'invito: numeri veri, niente loghi inventati */}
-          <ul className="mt-12 grid w-full max-w-[760px] grid-cols-3 gap-4 border-t border-[var(--hair)] pt-6" data-hero-rest>
-            {proof.map(([v, l]) => (
-              <li key={v} className="text-center">
-                <p className="t-fig text-[clamp(22px,2.4vw,30px)] font-medium tracking-[-0.03em] text-ink">{v}</p>
-                <p className="mt-1 text-[12px] leading-snug text-ink-3 sm:text-[13px]">{l}</p>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </section>
