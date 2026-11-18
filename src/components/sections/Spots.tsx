@@ -548,8 +548,8 @@ function DayPills() {
   return (
     <span className="flex gap-[1.4cqmin]">
       {d.map((x, i) => (
-        <span key={x} data-day={i} className="flex flex-1 flex-col items-center justify-center rounded-[2.4cqmin] text-white" style={{ height: "11cqmin", background: "rgba(255,255,255,.1)" }}>
-          <span style={{ fontSize: "1.9cqmin", opacity: 0.65 }}>{x}</span>
+        <span key={x} data-day={i} className="flex flex-1 flex-col items-center justify-center rounded-[2.4cqmin] text-white" style={{ height: "11cqmin", background: "rgba(255,255,255,.18)" }}>
+          <span style={{ fontSize: "2.1cqmin", opacity: 0.85 }}>{x}</span>
           <span style={{ fontSize: "3.3cqmin", fontWeight: 600, lineHeight: 1.1 }}>{9 + i}</span>
         </span>
       ))}
@@ -563,7 +563,7 @@ const TRACK: [string, number, number][] = [
   ["LF", 88.9, 11.1],
 ];
 const RING = (v: number | string, l: string) => (
-  <Bead tint="rgba(255,255,255,.12)" radius={26} className="flex flex-1 flex-col items-center justify-center gap-[1cqmin]" style={{ paddingTop: "2.4cqmin", paddingBottom: "2.2cqmin" }}>
+  <Bead tint="rgba(10,14,18,.6)" radius={26} className="flex flex-1 flex-col items-center justify-center gap-[1cqmin]" style={{ paddingTop: "2.4cqmin", paddingBottom: "2.2cqmin" }}>
     <span className="relative block" style={{ width: "9cqmin", height: "9cqmin" }}>
       <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
         <circle cx="20" cy="20" r="17" fill="none" stroke="rgba(255,255,255,.16)" strokeWidth="3.2" />
@@ -573,7 +573,7 @@ const RING = (v: number | string, l: string) => (
         0
       </span>
     </span>
-    <span className="text-white/75" style={{ fontSize: "1.9cqmin" }}>
+    <span className="text-white" style={{ fontSize: "2.2cqmin" }}>
       <Tx>{l}</Tx>
     </span>
   </Bead>
@@ -594,13 +594,13 @@ export const WEB: Shot[] = [
         {/* apertura */}
         <span data-scr="0" className="absolute inset-0 block overflow-hidden">
           <Ph n="hero" pos="50% 60%" data-himg="" />
-          <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.5) 0%, rgba(8,12,16,0) 26%, rgba(8,12,16,.1) 46%, rgba(8,12,16,.86) 100%)" }} />
-          <Bead data-nav="" tint="rgba(10,14,18,.34)" radius={999} className="absolute flex items-center justify-between" style={{ left: "3cqw", right: "3cqw", top: "3cqw", height: "9cqmin", paddingLeft: "3.4cqmin", paddingRight: "1.5cqmin" }}>
+          <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.62) 0%, rgba(8,12,16,.12) 26%, rgba(8,12,16,.3) 46%, rgba(8,12,16,.9) 100%)" }} />
+          <Bead data-nav="" tint="rgba(10,14,18,.62)" radius={999} className="absolute flex items-center justify-between" style={{ left: "3cqw", right: "3cqw", top: "3cqw", height: "9cqmin", paddingLeft: "3.4cqmin", paddingRight: "1.5cqmin" }}>
             <span className="flex items-center gap-[1.4cqmin] font-semibold tracking-[-0.01em]" style={{ fontSize: "2.8cqmin" }}>
               <span className="rounded-full" style={{ width: "1.6cqmin", height: "1.6cqmin", background: ACC }} />
               Bianchi
             </span>
-            <span className="flex items-center text-white/80" style={{ gap: "3cqmin", fontSize: "2cqmin" }}>
+            <span className="flex items-center text-white" style={{ gap: "3cqmin", fontSize: "2.3cqmin" }}>
               <span><Tx>Servizi</Tx></span>
               <span><Tx>Lo studio</Tx></span>
               <span className="flex items-center rounded-full bg-white font-semibold text-black" style={{ height: "6cqmin", paddingInline: "3cqmin" }}>
@@ -620,7 +620,7 @@ export const WEB: Shot[] = [
               </span>
             </span>
           </span>
-          <Bead data-badge="" tint="rgba(255,255,255,.16)" radius={999} className="absolute flex items-center justify-center" style={{ right: "4cqw", top: "16cqmin", width: "19cqmin", height: "19cqmin" }}>
+          <Bead data-badge="" tint="rgba(10,14,18,.6)" radius={999} className="absolute flex items-center justify-center" style={{ right: "4cqw", top: "16cqmin", width: "19cqmin", height: "19cqmin" }}>
             <svg data-spin2="" viewBox="0 0 100 100" className="absolute inset-0" aria-hidden>
               <defs>
                 <path id="wcirc" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0" />
@@ -636,11 +636,11 @@ export const WEB: Shot[] = [
             </span>
           </Bead>
           <span className="absolute flex" style={{ left: "4cqw", bottom: "4.4cqmin", gap: "1.6cqmin" }}>
-            <Bead data-chip="" tint="rgba(255,255,255,.14)" radius={999} className="flex items-center" style={{ height: "6cqmin", paddingInline: "2.6cqmin", gap: "1cqmin", fontSize: "2cqmin" }}>
+            <Bead data-chip="" tint="rgba(10,14,18,.62)" radius={999} className="flex items-center" style={{ height: "6.6cqmin", paddingInline: "2.8cqmin", gap: "1cqmin", fontSize: "2.3cqmin" }}>
               <Ico i={StarIcon} s={12} c="text-[#ffd479]" />
               4,9 · 312 <Tx>recensioni</Tx>
             </Bead>
-            <Bead data-chip="" tint="rgba(255,255,255,.14)" radius={999} className="flex items-center" style={{ height: "6cqmin", paddingInline: "2.6cqmin", fontSize: "2cqmin" }}>
+            <Bead data-chip="" tint="rgba(10,14,18,.62)" radius={999} className="flex items-center" style={{ height: "6.6cqmin", paddingInline: "2.8cqmin", fontSize: "2.3cqmin" }}>
               <Tx>Brescia · dal 2009</Tx>
             </Bead>
           </span>
@@ -648,7 +648,7 @@ export const WEB: Shot[] = [
         {/* servizi: pannelli che si aprono */}
         <span data-scr="1" className="absolute inset-0 block" style={{ background: INK, clipPath: "inset(100% 0 0 0)" }}>
           <span className="absolute flex flex-col" style={{ inset: "2.4cqmin", gap: "1.6cqmin" }}>
-            <span className="flex items-center justify-between px-[1cqmin] uppercase text-white/55" style={{ fontSize: "1.9cqmin", letterSpacing: "0.2em" }}>
+            <span className="flex items-center justify-between px-[1cqmin] uppercase text-white/80" style={{ fontSize: "2.2cqmin", letterSpacing: "0.2em" }}>
               <Tx>Cosa facciamo</Tx>
               <span>03</span>
             </span>
@@ -656,17 +656,17 @@ export const WEB: Shot[] = [
               {SVC.map(([n, t, d, pos], i) => (
                 <span key={n} data-pn={i} className="relative block min-h-0 min-w-0 overflow-hidden" style={{ flex: i === 0 ? "3.4 1 0" : "1 1 0", borderRadius: "3cqmin", containerType: "size" }}>
                   <Ph n={n} pos={pos} data-pimg="" />
-                  <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.05) 30%, rgba(8,12,16,.82) 100%)" }} />
-                  <span data-pshade="" className="absolute inset-0 block" style={{ background: "rgba(8,12,16,.38)", opacity: i === 0 ? 0 : 1 }} />
+                  <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.08) 25%, rgba(8,12,16,.9) 100%)" }} />
+                  <span data-pshade="" className="absolute inset-0 block" style={{ background: "rgba(8,12,16,.3)", opacity: i === 0 ? 0 : 1 }} />
                   <span className="absolute inset-x-0 bottom-0 flex flex-col" style={{ padding: "min(4cqi, 3.2cqb)", gap: "min(1.4cqi, 1cqb)" }}>
-                    <span className="font-mono text-white/70" style={{ fontSize: "min(3.4cqi, 7cqb)" }}>
+                    <span className="font-mono text-white/85" style={{ fontSize: "min(3.6cqi, 7.5cqb)" }}>
                       0{i + 1}
                     </span>
                     <span className="block text-white" style={{ ...DISP, fontSize: "min(10cqi, 26cqb)", lineHeight: 1 }}>
                       <Tx>{t}</Tx>
                     </span>
                     <span data-pd="" className="flex items-end justify-between" style={{ opacity: i === 0 ? 1 : 0 }}>
-                      <span className="text-white/80" style={{ fontSize: "min(3.6cqi, 8cqb)" }}>
+                      <span className="text-white" style={{ fontSize: "min(3.8cqi, 8.5cqb)" }}>
                         <Tx>{d}</Tx>
                       </span>
                       <span className="flex items-center justify-center rounded-full bg-white text-black" style={{ width: "min(8cqi, 16cqb)", height: "min(8cqi, 16cqb)" }}>
@@ -682,10 +682,10 @@ export const WEB: Shot[] = [
         {/* prenotazione */}
         <span data-scr="2" className="absolute inset-0 block overflow-hidden" style={{ clipPath: "circle(0% at 50% 100%)" }}>
           <Ph n="visita" pos="50% 40%" data-cimg="" />
-          <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(6,10,14,.55), rgba(6,10,14,.72))" }} />
+          <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(6,10,14,.66), rgba(6,10,14,.8))" }} />
           {[0, 1].map((r) => (
             <span key={r} className="absolute left-0 block overflow-hidden whitespace-nowrap" style={{ top: r ? "47%" : "17%", width: "100%" }}>
-              <span data-mq={r} className="inline-flex" style={{ ...DISP, fontSize: "min(17cqw, 22cqh)", lineHeight: 1.02, color: r ? "transparent" : "#fff", WebkitTextStroke: r ? "1.5px rgba(255,255,255,.85)" : undefined }}>
+              <span data-mq={r} className="inline-flex" style={{ ...DISP, fontSize: "min(17cqw, 22cqh)", lineHeight: 1.02, color: r ? "transparent" : "#fff", WebkitTextStroke: r ? "2px #fff" : undefined }}>
                 {[0, 1, 2, 3, 4, 5].map((k) => (
                   <span key={k} className="px-[2.4cqmin]">
                     <Tx>{r ? "In un minuto" : "Prenota una visita"}</Tx> ·
@@ -701,7 +701,7 @@ export const WEB: Shot[] = [
                 <Ico i={ArrowUp01Icon} s={20} c="rotate-45" />
               </span>
             </span>
-            <Bead tint="rgba(255,255,255,.14)" radius={999} className="flex items-center text-white/85" style={{ height: "6cqmin", paddingInline: "3cqmin", fontSize: "2cqmin" }}>
+            <Bead tint="rgba(10,14,18,.62)" radius={999} className="flex items-center text-white" style={{ height: "6.6cqmin", paddingInline: "3cqmin", fontSize: "2.3cqmin" }}>
               <Tx>Lun–Ven 9–19 · Sab 9–13</Tx>
             </Bead>
           </span>
@@ -741,9 +741,7 @@ export const WEB: Shot[] = [
       // camera: prima il titolo, poi il disco, che si preme
       const h1 = $("[data-h1]")[0];
       const badge = $("[data-badge]")[0];
-      zoomTo(run, shot, h1, 1.22, at + 2.1, 1.1, 0.35, 0.55);
       const c = cursorIn(run, $, badge, at + 3.0);
-      zoomTo(run, shot, badge, 1.55, at + 3.1, 1.0, 0.5, 0.5);
       let t = human(run, c.cur, () => spot(shot, badge, 0.5, 0.5), at + 3.2, 0.75);
       run.to(badge, { scale: 1.12, duration: 0.4, ease: "expo.out" }, t - 0.25);
       press(run, c.cur, badge, t);
@@ -751,7 +749,6 @@ export const WEB: Shot[] = [
       run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.25);
       // transizione: la foto avanza, i servizi salgono a tendina
       const tA = t + 0.45;
-      wideTo(run, shot, tA, 1.1);
       run.to($("[data-himg]"), { scale: 1.16, duration: 1.3, ease: "power3.in" }, tA);
       run.to([$("[data-nav]")[0], $("[data-h1]")[0], badge], { autoAlpha: 0, y: -18, duration: 0.6, ease: "power2.in" }, tA);
       run.to(s1, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.2, ease: "power4.inOut" }, tA + 0.1);
@@ -765,14 +762,11 @@ export const WEB: Shot[] = [
       gsap.set(c.cur, { x: shot.offsetWidth * 0.5, y: shot.offsetHeight * 0.3 });
       t = human(run, c.cur, () => spot(shot, pn[1], 0.5, 0.45), t, 0.8);
       focus(1, t - 0.2);
-      zoomTo(run, shot, pn[1], 1.1, t, 1.0, 0.5, 0.5);
       t = human(run, c.cur, () => spot(shot, pn[2], 0.5, 0.45), t + 1.2, 0.8);
       focus(2, t - 0.2);
-      zoomTo(run, shot, pn[2], 1.1, t, 1.0, 0.5, 0.5);
       run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.9);
       // ultima schermata: il cerchio si apre dal basso, le parole scorrono
       const tB = t + 1.3;
-      wideTo(run, shot, tB, 0.9);
       run.to(s2, { clipPath: "circle(150% at 50% 100%)", duration: 1.3, ease: "power3.inOut" }, tB);
       run.fromTo($("[data-cimg]"), { scale: 1.3 }, { scale: 1.04, duration: 2.4, ease: "expo.out" }, tB);
       snd(run, "whoosh", tB, 0.9);
@@ -784,7 +778,6 @@ export const WEB: Shot[] = [
       gsap.set(c.cur, { x: shot.offsetWidth * 0.2, y: shot.offsetHeight * 0.55 });
       run.to(c.cur, { opacity: 1, duration: 0.2 }, t - 0.2);
       t = human(run, c.cur, () => spot(shot, cta, 0.8, 0.5), t, 0.8);
-      zoomTo(run, shot, cta, 1.25, t - 0.8, 1.0, 0.5, 0.5);
       press(run, c.cur, cta, t);
       run.to($("[data-carr]"), { rotation: 45, x: 2, duration: 0.45, ease: "expo.out" }, t);
       run.to(cta, { scale: 1.05, duration: 0.3, yoyo: true, repeat: 1, ease: "power2.inOut" }, t + 0.05);
@@ -797,16 +790,16 @@ export const WEB: Shot[] = [
     dur: 8,
     node: (
       <Bead data-full="" tint={INK} radius={0} className="wsx relative block h-full w-full overflow-hidden text-white">
-        <Ph n="sala" data-bg2="" style={{ filter: "brightness(.28) saturate(.8)" }} />
+        <Ph n="sala" data-bg2="" style={{ filter: "brightness(.22) saturate(.8)" }} />
         <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.2), rgba(8,12,16,.7))" }} />
         <span className="absolute flex items-center justify-between" style={{ left: "3cqw", right: "3cqw", top: "3cqw" }}>
-          <Bead tint="rgba(255,255,255,.12)" radius={999} className="flex items-center" style={{ height: "7cqmin", paddingInline: "3cqmin", gap: "1.4cqmin", fontSize: "2.1cqmin" }}>
-            <Ico i={LockKeyIcon} s={12} c="text-white/70" />
+          <Bead tint="rgba(255,255,255,.16)" radius={999} className="flex items-center" style={{ height: "7cqmin", paddingInline: "3cqmin", gap: "1.4cqmin", fontSize: "2.3cqmin" }}>
+            <Ico i={LockKeyIcon} s={12} c="text-white/80" />
             studiobianchi.it
           </Bead>
           <span className="flex items-center" style={{ gap: "2cqmin", fontSize: "2.1cqmin" }}>
             <span className="relative flex items-center">
-              <span data-building="" className="flex items-center gap-[1cqmin] whitespace-nowrap text-white/70">
+              <span data-building="" className="flex items-center gap-[1cqmin] whitespace-nowrap text-white">
                 <span className="rounded-full bg-[#f5c46b]" style={{ width: "1.3cqmin", height: "1.3cqmin" }} />
                 <Tx>Bozza</Tx>
               </span>
@@ -823,7 +816,7 @@ export const WEB: Shot[] = [
         <span data-reel="" className="absolute flex flex-col justify-center" style={{ left: "4cqw", right: "4cqw", top: "14cqmin", bottom: "22cqmin" }}>
           {LOG.map(([t]) => (
             <span key={t} data-wd="" className="relative flex items-center justify-between">
-              <span data-wt="" className="block" style={{ ...DISP, fontSize: "min(12cqw, 13.5cqh)", lineHeight: 0.98, color: "rgba(255,255,255,.14)" }}>
+              <span data-wt="" className="block" style={{ ...DISP, fontSize: "min(12cqw, 13.5cqh)", lineHeight: 0.98, color: "rgba(255,255,255,.3)" }}>
                 <Tx>{t}</Tx>
               </span>
               <span className="flex shrink-0 items-center" style={{ gap: "2cqmin" }}>
@@ -847,7 +840,7 @@ export const WEB: Shot[] = [
         {/* il sito, online */}
         <span data-open="" className="absolute inset-0 block overflow-hidden" style={{ clipPath: "circle(0% at 50% 62%)" }}>
           <Ph n="hero" pos="50% 60%" data-oimg="" />
-          <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.55) 0%, rgba(8,12,16,.05) 34%, rgba(8,12,16,.2) 55%, rgba(8,12,16,.88) 100%)" }} />
+          <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.6) 0%, rgba(8,12,16,.1) 34%, rgba(8,12,16,.3) 55%, rgba(8,12,16,.92) 100%)" }} />
           <span className="absolute flex items-center text-white" style={{ ...DISP, left: "4cqw", top: "4cqmin", fontSize: "min(20cqw, 22cqh)", lineHeight: 0.95, gap: "2cqmin" }}>
             <span data-ow="" className="block overflow-hidden">
               <span data-ow2="" className="block">
@@ -857,10 +850,10 @@ export const WEB: Shot[] = [
             <span className="rounded-full bg-[#30d158]" style={{ width: "2.6cqmin", height: "2.6cqmin", boxShadow: "0 0 0 1.2cqmin rgba(48,209,88,.28)" }} />
           </span>
           <span className="absolute flex flex-col items-center" style={{ left: "3cqw", right: "3cqw", bottom: "3cqw", gap: "2cqmin" }}>
-            <Bead data-url="" tint="rgba(255,255,255,.16)" radius={999} className="flex items-center text-white" style={{ height: "9cqmin", paddingInline: "4cqmin", gap: "1.6cqmin", fontSize: "3cqmin", fontWeight: 500 }}>
+            <Bead data-url="" tint="rgba(10,14,18,.6)" radius={999} className="flex items-center text-white" style={{ height: "9cqmin", paddingInline: "4cqmin", gap: "1.6cqmin", fontSize: "3cqmin", fontWeight: 500 }}>
               <Ico i={LockKeyIcon} s={15} c="text-[#6ee7a8]" />
               studiobianchi.it
-              <span className="font-mono text-white/60" style={{ fontSize: "2cqmin", paddingLeft: "1cqmin" }}>0,8 s</span>
+              <span className="font-mono text-white/80" style={{ fontSize: "2.3cqmin", paddingLeft: "1cqmin" }}>0,8 s</span>
             </Bead>
             <span data-scores="" className="flex w-full" style={{ gap: "1.6cqmin" }}>
               {RING(100, "Prestazioni")}
@@ -889,19 +882,17 @@ export const WEB: Shot[] = [
       LOG.forEach((_, i) => {
         const dur = [0.6, 0.85, 0.75, 0.45][i];
         // la camera segue la parola attiva: più vicina, mai un salto
-        zoomTo(run, shot, words[i], 1.18, a - 0.15, 0.7, 0.3, 0.5);
         run.to(words[i], { color: "#ffffff", duration: 0.3 }, a);
         run.set(spins[i], { opacity: 1 }, a);
         run.fromTo(spins[i], { rotation: 0 }, { rotation: 360 * (1 + dur), duration: dur, ease: "none", transformOrigin: "50% 50%" }, a);
         run.to(pct, { v: (i + 1) * 25, duration: dur, ease: "power1.inOut", onUpdate: () => void (pn2.textContent = String(Math.round(pct.v))) }, a);
         run.set(spins[i], { opacity: 0 }, a + dur);
         run.fromTo(ticks[i], { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, a + dur);
-        run.to(words[i], { color: "rgba(255,255,255,.34)", duration: 0.5 }, a + dur);
+        run.to(words[i], { color: "rgba(255,255,255,.55)", duration: 0.5 }, a + dur);
         snd(run, "tick", a + dur, 1 + i * 0.16);
         a += dur + 0.1;
       });
       const done = a + 0.1;
-      wideTo(run, shot, done, 0.7);
       run
         .to($("[data-building]"), { opacity: 0, duration: 0.2 }, done)
         .to($("[data-live]"), { opacity: 1, duration: 0.3 }, done + 0.05);
@@ -912,7 +903,6 @@ export const WEB: Shot[] = [
       run.fromTo($("[data-ow2]"), { yPercent: 110 }, { yPercent: 0, duration: 1.0, ease: "expo.out" }, done + 0.9);
       run.fromTo($("[data-url]"), { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "expo.out" }, done + 1.1);
       run.fromTo($("[data-scores]"), { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "expo.out" }, done + 1.25);
-      zoomTo(run, shot, $("[data-scores]")[0], 1.08, done + 1.6, 1.0, 0.5, 0.5);
       $("[data-ring]").forEach((r, i) => {
         run.fromTo(r, { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.9, ease: "power2.out" }, done + 1.5 + i * 0.12);
         count(run, $("[data-score]")[i], 0, 100, done + 1.5 + i * 0.12, 0.9, (n) => String(Math.round(n)));
@@ -924,16 +914,16 @@ export const WEB: Shot[] = [
     dur: 7.5,
     node: (
       <Bead data-full="" tint={INK} radius={0} className="wsx relative block h-full w-full overflow-hidden text-white">
-        <Ph n="visita" pos="50% 35%" data-bg3="" style={{ filter: "brightness(.5)" }} />
+        <Ph n="visita" pos="50% 35%" data-bg3="" style={{ filter: "brightness(.42)" }} />
         <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.35), rgba(8,12,16,.78))" }} />
         {/* la giornata dello studio */}
-        <Bead data-trk="" tint="rgba(255,255,255,.1)" radius={34} className="w-tr absolute block" style={{ padding: "3cqmin" }}>
+        <Bead data-trk="" tint="rgba(10,14,18,.66)" radius={34} className="w-tr absolute block" style={{ padding: "3cqmin" }}>
           <span className="flex items-end justify-between">
-            <span className="text-white/70" style={{ fontSize: "2cqmin" }}>
+            <span className="text-white" style={{ fontSize: "2.3cqmin" }}>
               <Tx>Agenda</Tx> · <Tx>Giovedì 12 novembre</Tx>
             </span>
             <span className="flex items-end gap-[1.2cqmin]">
-              <span className="text-white/60" style={{ fontSize: "1.9cqmin", paddingBottom: "0.8cqmin" }}>
+              <span className="text-white/90" style={{ fontSize: "2.2cqmin", paddingBottom: "0.8cqmin" }}>
                 <Tx>Visite di oggi</Tx>
               </span>
               <span data-cnt="" style={{ ...DISP, fontSize: "9cqmin", lineHeight: 0.9 }}>
@@ -943,23 +933,23 @@ export const WEB: Shot[] = [
           </span>
           <span className="relative mt-[2.4cqmin] block" style={{ height: "10cqmin" }}>
             {TRACK.map(([n, l, w]) => (
-              <span key={n} className="absolute top-0 flex items-center justify-center rounded-[1.6cqmin] font-medium text-white/85" style={{ left: `${l}%`, width: `${w}%`, height: "100%", background: "rgba(255,255,255,.16)", fontSize: "2cqmin" }}>
+              <span key={n} className="absolute top-0 flex items-center justify-center rounded-[1.6cqmin] font-medium text-white/85" style={{ left: `${l}%`, width: `${w}%`, height: "100%", background: "rgba(255,255,255,.3)", fontSize: "2.3cqmin" }}>
                 {n}
               </span>
             ))}
-            <span className="absolute top-0 rounded-[1.6cqmin]" style={{ left: "61.1%", width: "11.1%", height: "100%", border: "1.5px dashed rgba(255,255,255,.35)" }} />
+            <span className="absolute top-0 rounded-[1.6cqmin]" style={{ left: "61.1%", width: "11.1%", height: "100%", border: "1.5px dashed rgba(255,255,255,.7)" }} />
             <span data-new="" className="absolute top-0 flex items-center justify-center rounded-[1.6cqmin] font-semibold opacity-0" style={{ left: "61.1%", width: "11.1%", height: "100%", background: ACC, color: "#04121c", fontSize: "2cqmin", boxShadow: "0 0 0 0 rgba(143,216,255,.6)" }}>
               GR
             </span>
           </span>
-          <span className="mt-[1.2cqmin] flex justify-between font-mono text-white/45" style={{ fontSize: "1.6cqmin" }}>
+          <span className="mt-[1.2cqmin] flex justify-between font-mono text-white/80" style={{ fontSize: "2cqmin" }}>
             {["9", "11", "13", "15", "17"].map((h) => (
               <span key={h}>{h}:00</span>
             ))}
           </span>
         </Bead>
         {/* la notifica */}
-        <Bead data-toast="" tint="rgba(255,255,255,.2)" radius={999} className="w-ts absolute flex items-center opacity-0" style={{ height: "11cqmin", paddingLeft: "1.6cqmin", paddingRight: "4cqmin", gap: "2.2cqmin" }}>
+        <Bead data-toast="" tint="rgba(10,14,18,.78)" radius={999} className="w-ts absolute flex items-center opacity-0" style={{ height: "11cqmin", paddingLeft: "1.6cqmin", paddingRight: "4cqmin", gap: "2.2cqmin" }}>
           <span className="flex items-center justify-center rounded-full" style={{ width: "8cqmin", height: "8cqmin", background: ACC, color: "#04121c" }}>
             <Ico i={Notification01Icon} s={16} />
           </span>
@@ -967,15 +957,15 @@ export const WEB: Shot[] = [
             <span className="font-semibold" style={{ fontSize: "2.4cqmin" }}>
               <Tx>Nuova prenotazione</Tx>
             </span>
-            <span className="text-white/75" style={{ fontSize: "2cqmin" }}>
+            <span className="text-white/90" style={{ fontSize: "2.2cqmin" }}>
               <Tx>Giulia R. · giovedì alle 14:30</Tx>
             </span>
           </span>
         </Bead>
         {/* la prenotazione */}
-        <Bead data-book="" tint="rgba(10,14,18,.5)" radius={40} className="w-bk absolute flex flex-col justify-between" style={{ padding: "3.4cqmin" }}>
+        <Bead data-book="" tint="rgba(10,14,18,.72)" radius={40} className="w-bk absolute flex flex-col justify-between" style={{ padding: "3.4cqmin" }}>
           <span className="block">
-            <span className="flex items-center text-white/65" style={{ gap: "1.2cqmin", fontSize: "1.9cqmin" }}>
+            <span className="flex items-center text-white/85" style={{ gap: "1.2cqmin", fontSize: "2.2cqmin" }}>
               <span className="rounded-full" style={{ width: "1.2cqmin", height: "1.2cqmin", background: ACC }} />
               Studio Bianchi
             </span>
@@ -987,13 +977,13 @@ export const WEB: Shot[] = [
             <DayPills />
             <span className="mt-[1.6cqmin] grid grid-cols-4" style={{ gap: "1.4cqmin" }}>
               {["9:00", "11:30", "14:30", "17:00"].map((h) => (
-                <span key={h} data-slot={h} className="flex items-center justify-center rounded-full opacity-0" style={{ height: "8cqmin", fontSize: "2.3cqmin", border: "1.5px solid rgba(255,255,255,.28)" }}>
+                <span key={h} data-slot={h} className="flex items-center justify-center rounded-full opacity-0" style={{ height: "8cqmin", fontSize: "2.3cqmin", border: "1.5px solid rgba(255,255,255,.6)" }}>
                   {h}
                 </span>
               ))}
             </span>
           </span>
-          <span data-confirm="" className="relative block overflow-hidden rounded-full bg-white font-semibold text-black opacity-40" style={{ height: "11cqmin", fontSize: "2.8cqmin" }}>
+          <span data-confirm="" className="relative block overflow-hidden rounded-full bg-white font-semibold text-black opacity-70" style={{ height: "11cqmin", fontSize: "2.8cqmin" }}>
             <span data-ct="" className="flex h-full items-center justify-center">
               <Tx>Conferma</Tx>
             </span>
@@ -1014,7 +1004,6 @@ export const WEB: Shot[] = [
       run.fromTo($("[data-bg3]"), { scale: 1.2 }, { scale: 1.04, duration: 5.5, ease: "power2.out" }, at);
       run.fromTo($("[data-trk]"), { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 1, ease: "expo.out" }, at + 0.1);
       run.fromTo(book, { autoAlpha: 0, y: 80 }, { autoAlpha: 1, y: 0, duration: 1.1, ease: "expo.out" }, at + 0.25);
-      zoomTo(run, shot, book, 1.07, at + 0.9, 1.0, 0.5, 0.5);
       let t = human(run, c.cur, () => spot(shot, day), at + 1.1, 0.7);
       press(run, c.cur, day, t);
       run
@@ -1034,7 +1023,6 @@ export const WEB: Shot[] = [
       // nello stesso istante: la camera passa alla giornata, il blocco si accende, arriva la notifica
       const a = t + 0.4;
       const trk = $("[data-trk]")[0];
-      wideTo(run, shot, a, 0.9);
       run
         .fromTo($("[data-new]"), { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2.2)" }, a + 0.3)
         .fromTo($("[data-new]"), { boxShadow: "0 0 0 0 rgba(143,216,255,.7)" }, { boxShadow: "0 0 0 2.4cqmin rgba(143,216,255,0)", duration: 1.0, ease: "power2.out" }, a + 0.35)
