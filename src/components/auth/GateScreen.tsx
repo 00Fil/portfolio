@@ -35,7 +35,7 @@ function MorphField({ id, name, type = "text", masked = false, label, invalid, d
   });
   return (
     <>
-      <label htmlFor={id} className="mt-5 block pl-2 text-[13px] font-medium text-ink-2 first:mt-8">
+      <label htmlFor={id} className="mt-5 block pl-2 text-[13px] font-medium text-ink-2 first:mt-0">
         {label}
       </label>
       <Bead as="div" radius={27} className={`relative mt-2 block h-[54px] transition-shadow ${invalid ? "shadow-[0_0_0_2px_#e5484d]" : ""}`}>
@@ -148,19 +148,7 @@ export function GateScreen({ t }: { t: Txt }) {
         <Waves />
       </div>
       <div className="relative w-full max-w-[380px]">
-        <span className="flex items-center gap-2.5 text-[13px] font-medium text-ink-2" style={rise(1)}>
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inset-0 animate-ping rounded-full bg-[#f5b84b] opacity-60" />
-            <span className="relative h-2 w-2 rounded-full bg-[#f5b84b]" />
-          </span>
-          {t.status}
-        </span>
-        <h1 className="mt-5 text-[30px] font-semibold leading-tight tracking-[-0.04em] text-ink" style={rise(2)}>
-          {t.title}
-        </h1>
-        <p className="mt-1.5 text-[14.5px] text-ink-2" style={rise(3)}>
-          {t.lead}
-        </p>
+        <h1 className="sr-only">{t.status}</h1>
         <form action={action} noValidate style={rise(4)}>
           <MorphField id="g-email" name="email" label={t.email} invalid={!!state?.error} defaultValue={state?.email} autoComplete="username" />
           <MorphField
