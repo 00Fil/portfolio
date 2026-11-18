@@ -6,6 +6,8 @@ import type { Locale } from "@/i18n/routing";
  */
 export type Cinema = {
   cue: string;
+  end: { t: string; more: string };
+  ctl: { play: string; pause: string; replay: string; on: string; off: string };
   find: { q: string; typed: string; loading: string; a: string };
   listen: { q: string; asks: string[]; a: string };
   draw: { q: string; a: string };
@@ -20,6 +22,8 @@ export type Cinema = {
 
 const IT: Cinema = {
   cue: "Scorri",
+  end: { t: "Il tuo sito, fatto bene.", more: "Scopri i dettagli" },
+  ctl: { play: "Riproduci", pause: "Pausa", replay: "Rivedi", on: "Audio attivo", off: "Audio spento" },
   find: { q: "Un nuovo cliente ti cerca. Cosa trova?", typed: "chi può aiutarmi qui vicino", loading: "Sta caricando…", a: "Se il sito è lento o confuso, ne sceglie un altro." },
   listen: { q: "Da dove si parte?", asks: ["Chi sono i tuoi clienti?", "Cosa vogliono sapere?", "Cosa devono fare sul sito?"], a: "Da te. Prima di tutto ti ascoltiamo." },
   draw: { q: "Come sai cosa stai comprando?", a: "Vedi le pagine vere, prima che esistano." },
@@ -60,6 +64,8 @@ const IT: Cinema = {
 
 const EN: Cinema = {
   cue: "Scroll",
+  end: { t: "Your site, done right.", more: "See the details" },
+  ctl: { play: "Play", pause: "Pause", replay: "Replay", on: "Sound on", off: "Sound off" },
   find: { q: "A new customer is looking for you. What do they find?", typed: "who can help me nearby", loading: "Loading…", a: "If the site is slow or confusing, they pick another one." },
   listen: { q: "Where do we start?", asks: ["Who are your customers?", "What do they want to know?", "What should they do on the site?"], a: "With you. First of all, we listen." },
   draw: { q: "How do you know what you’re buying?", a: "You see the real pages before they exist." },

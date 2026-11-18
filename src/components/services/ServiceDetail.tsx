@@ -313,7 +313,10 @@ export function ServiceDetail(p: ServiceDetailProps) {
       {k === "web" && tale ? (
         <>
           <WebCinema title={tale.hero.title || p.title} />
+          <Bento k={k} title={tale.gets.title} items={tale.gets.items.map((x) => ({ title: x.t, body: x.b }))} />
           <Proof proof={tale.proof} items={p.proof ?? []} />
+          <Timeline timeline={tale.timeline} />
+          <Promise promise={tale.promise} github={p.github} />
           <Faq faq={tale.faq} />
           <Close {...p} />
         </>
