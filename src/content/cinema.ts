@@ -6,7 +6,7 @@ import type { Locale } from "@/i18n/routing";
  */
 export type Cinema = {
   cue: string;
-  end: { t: string; more: string };
+  end: { t: string; more: string; cta: string };
   cap: string[];
   title: string[];
   ctl: { play: string; pause: string; replay: string; on: string; off: string };
@@ -24,7 +24,7 @@ export type Cinema = {
 
 const IT: Cinema = {
   cue: "Scorri",
-  end: { t: "Il tuo sito, *fatto bene*.", more: "Scopri i dettagli" },
+  end: { t: "Il tuo sito, *fatto bene*.", more: "Scopri i dettagli", cta: "Parliamone" },
   cap: ["Un cliente ti *cerca*.", "Se è *lento*, se ne va.", "Il tuo si apre in *0,8 secondi*.", "Prima lo *disegniamo*.", "Poi lo *costruiamo*.", "Perfetto su *ogni schermo*.", "Arrivano i *clienti*.", "Online, *al sicuro*.", "Lo *cambi tu*.", "Tutto *compreso*.", "Senza *sorprese*."],
   title: ["Il tuo lavoro,", "sempre aggiornato"],
   ctl: { play: "Riproduci", pause: "Pausa", replay: "Rivedi", on: "Audio attivo", off: "Audio spento" },
@@ -68,7 +68,7 @@ const IT: Cinema = {
 
 const EN: Cinema = {
   cue: "Scroll",
-  end: { t: "Your site, *done right*.", more: "See the details" },
+  end: { t: "Your site, *done right*.", more: "See the details", cta: "Let’s talk" },
   cap: ["A customer is *looking* for you.", "If it’s *slow*, they leave.", "Yours opens in *0.8 seconds*.", "First, we *design* it.", "Then, we *build* it.", "Perfect on *every screen*.", "*Customers* arrive.", "Online, and *safe*.", "*You* change it.", "Everything *included*.", "No *surprises*."],
   title: ["Your work,", "always current"],
   ctl: { play: "Play", pause: "Pause", replay: "Replay", on: "Sound on", off: "Sound off" },

@@ -559,10 +559,23 @@ html[data-perf="low"] .drop > .drop-glow { display: none; }
 }
 .gradient-text__inner { position: relative; display: inline-block; }
 .gradient-text__content { display: inline-block; padding-block: 0.06em; background-image: var(--gt-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+/* bagliore: lo stesso testo in tinta piena, sfocato. Niente ritaglio del fondo sul livello sfocato (era quello a mostrare il riquadro) */
 .gradient-text__glow {
-  position: absolute; inset: 0; z-index: -1; padding-block: 0.06em; background-image: var(--gt-gradient); -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; filter: blur(0.3em) saturate(1.4); opacity: var(--gt-glow); pointer-events: none; user-select: none;
+  position: absolute; inset: 0; z-index: -1; color: var(--gt-glow-color, #5ec4ff); -webkit-text-fill-color: currentColor;
+  padding-block: 0.06em; filter: blur(0.22em); opacity: calc(var(--gt-glow) * 0.55); pointer-events: none; user-select: none;
 }
 
 /* Video del servizio: vetro opaco (il fondo non traspare mai), e nel sito d'esempio superfici piene e scure */
-.cine-film .drop { --drop-tint: var(--acrylic-solid) !important; }
+.cine-film .drop { --drop-tint: #151a21 !important; }
+.cine-film .drop::after { opacity: 0.55; }
+/* dispositivi del video: in orizzontale stanno in fila, in verticale il desktop sopra e gli altri sotto */
+.cine-devs { display: flex; align-items: flex-end; justify-content: center; gap: 3cqw; }
+.cine-devs > [data-dv="0"] { width: 50cqw; aspect-ratio: 16 / 10; }
+.cine-devs > [data-dv="1"] { width: 21cqw; aspect-ratio: 3 / 4; }
+.cine-devs > [data-dv="2"] { width: 11cqw; aspect-ratio: 9 / 19; }
+@container film (max-aspect-ratio: 1 / 1) {
+  .cine-devs { flex-wrap: wrap; row-gap: 4cqw; }
+  .cine-devs > [data-dv="0"] { width: 86cqw; }
+  .cine-devs > [data-dv="1"] { width: 44cqw; }
+  .cine-devs > [data-dv="2"] { width: 24cqw; }
+}

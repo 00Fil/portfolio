@@ -68,6 +68,8 @@ export function GradientText({
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     const st = { time: 0, inside: false, visible: true, x: 0.5, y: 0.5, px: 0.5, py: 0.5, vx: 0, vy: 0, pull: 0 };
     let raf = 0;
+    let poll = 0;
+    let frames = 0;
     let last = 0;
     let alive = true;
 
@@ -128,6 +130,11 @@ export function GradientText({
       paint();
       const settling = Math.abs(st.pull - target) > 0.001 || Math.abs(st.vx) + Math.abs(st.vy) > 0.001;
       if (!st.visible || (paused && !settling)) return;
+      // nascosto (visibility o opacità a zero) non si ridipinge: si riprova più tardi
+      if (++frames % 20 === 0 && root.checkVisibility && !root.checkVisibility({ visibilityProperty: true, opacityProperty: true })) {
+        poll = window.setTimeout(wake, 300);
+        return;
+      }
       raf = requestAnimationFrame(tick);
     };
     const wake = () => {
@@ -174,6 +181,7 @@ export function GradientText({
     return () => {
       alive = false;
       cancelAnimationFrame(raf);
+      window.clearTimeout(poll);
       io.disconnect();
       root.removeEventListener("pointerenter", onEnter);
       root.removeEventListener("pointermove", onMove);
