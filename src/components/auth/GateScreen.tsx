@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { loginGate } from "@/app/[locale]/accedi/actions";
 import { Bead } from "@/components/glass/Bead";
@@ -121,7 +120,6 @@ function Waves() {
 
 /** Manutenzione: dopo il nome compaiono, uno dopo l'altro, lo stato, il titolo e l'accesso riservato. */
 export function GateScreen({ t }: { t: Txt }) {
-  const router = useRouter();
   const [state, action, pending] = useActionState(loginGate, undefined);
   const [on, setOn] = useState(false);
   const [show, setShow] = useState(false);
@@ -132,9 +130,9 @@ export function GateScreen({ t }: { t: Txt }) {
     return onIntroLift(() => setOn(true));
   }, []);
   useEffect(() => {
-    if (state?.ok) router.refresh();
+    if (state?.ok) window.location.reload();
     else if (state?.error) pw.current?.focus();
-  }, [state, router]);
+  }, [state]);
 
   const rise = (i: number) => ({
     opacity: on ? 1 : 0,
@@ -164,7 +162,7 @@ export function GateScreen({ t }: { t: Txt }) {
           {t.lead}
         </p>
         <form action={action} noValidate style={rise(4)}>
-          <MorphField id="g-email" name="email" type="email" label={t.email} invalid={!!state?.error} defaultValue={state?.email} autoComplete="username" />
+          <MorphField id="g-email" name="email" label={t.email} invalid={!!state?.error} defaultValue={state?.email} autoComplete="username" />
           <MorphField
             id="g-pw"
             name="password"

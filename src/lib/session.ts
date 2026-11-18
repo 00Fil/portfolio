@@ -104,3 +104,33 @@ export function rateLimited(key: string) {
   tries.set(key, list);
   return list.length > 5;
 }
+
+/**
+ * Credenziali della schermata di manutenzione, dall'ambiente: GATE_USER e GATE_PASSWORD (testo semplice)
+ * oppure GATE_USER e GATE_HASH (scrypt, generato con scripts/hash-password.mjs).
+ * Se non ci sono, valgono gli account di CLIENT_USERS.
+ */
+export function gateConfigured() {
+  return !!secret() && (!!process.env.GATE_USER && !!(process.env.GATE_PASSWORD || process.env.GATE_HASH) || clients().length > 0);
+}
+
+export async function checkGate(user: string, password: string): Promise<{ id: string; name: string } | null> {
+  const u = process.env.GATE_USER;
+  const plain = process.env.GATE_PASSWORD;
+  const hash = process.env.GATE_HASH;
+  if (u && (plain || hash)) {
+    const same = u.toLowerCase() === user.toLowerCase();
+    let ok = false;
+    if (hash) ok = await verifyPassword(password, same ? hash : "scrypt:00:00");
+    else {
+      const a = Buffer.from(password);
+      const b = Buffer.from(plain!);
+      ok = a.length === b.length && timingSafeEqual(a, b);
+    }
+    if (same && ok) return { id: u, name: u };
+    if (same || !clients().length) return null;
+  }
+  const c = findClient(user);
+  const ok = c ? await verifyPassword(password, c.hash) : await verifyPassword(password, "scrypt:00:00").then(() => false);
+  return c && ok ? { id: c.email, name: c.name } : null;
+}
