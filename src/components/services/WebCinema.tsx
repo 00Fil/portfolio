@@ -1,74 +1,103 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useLocale } from "next-intl";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
-import { ArrowDown, Bell, Check, Pause, Play, RotateCcw, Volume2, VolumeX, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, PencilLine, Search, ShieldCheck, UserRound } from "lucide-react";
+import { ArrowDown, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, RotateCcw, Search, ShieldCheck, UserRound, Volume2, VolumeX } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { prefersReducedMotion } from "@/lib/env";
 import { onIntroLift } from "@/lib/intro";
 import { soundOn, onSound, setSound } from "@/lib/sound";
 import { fx } from "@/lib/filmsound";
 import { Bead } from "@/components/glass/Bead";
+import { GradientText } from "@/components/ui/GradientText";
 import { getCinema, type Cinema } from "@/content/cinema";
 
-gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
+gsap.registerPlugin(SplitText, useGSAP);
 
 const ACC = "#8fd8ff";
-
 const DISP = { fontFamily: "var(--font-anton), Impact, sans-serif", textTransform: "uppercase" as const };
+const GT = ["#5227FF", "#FF9FFC", "#B497CF"];
 const cin = (n: string) => `/visual/cinema/${n}.webp`;
+const HID = { visibility: "hidden" as const, opacity: 0 };
+type Q = (s: string) => HTMLElement[];
 
-/** Scrive un testo lettera per lettera; ogni due lettere suona una nota che sale nella scala. */
+/** Le parole tra asterischi diventano parole chiave, riempite dal gradiente animato. */
+function Kw({ text }: { text: string }) {
+  return (
+    <>
+      {text.split("*").map((p, i) =>
+        i % 2 ? (
+          <span key={i} data-kw className="inline-block">
+            <GradientText colors={GT} animationSpeed={8} variant="flow" glow={1}>
+              {p}
+            </GradientText>
+          </span>
+        ) : (
+          <Fragment key={i}>{p}</Fragment>
+        ),
+      )}
+    </>
+  );
+}
+
+/** Scrive lettera per lettera; ogni due lettere una nota che sale nella scala. */
 const typeTo = (tl: gsap.core.Timeline, el: Element, text: string, at: number, dur: number, deg = 0) => {
   const o = { n: 0 };
-  tl.to(o, { n: text.length, duration: dur, ease: "none", onUpdate: () => void (el.textContent = text.slice(0, Math.round(o.n))) }, at);
+  tl.fromTo(o, { n: 0 }, { n: text.length, duration: dur, ease: "sine.inOut", onUpdate: () => void (el.textContent = text.slice(0, Math.round(o.n))) }, at);
   const steps = Math.max(1, Math.floor(text.length / 2));
-  for (let k = 0; k < steps; k++) tl.call(() => fx.pluck(deg + (k % 7), 0.55, 0.22), undefined, at + (k / steps) * dur);
+  for (let k = 0; k < steps; k++) tl.call(() => fx.pluck(deg + (k % 7), 0.5, 0.2), undefined, at + dur * (0.5 - Math.cos((Math.PI * k) / steps) / 2));
 };
-const num = (tl: gsap.core.Timeline, el: Element, from: number, to: number, at: number, dur: number, fmt: (n: number) => string) => {
-  const o = { n: from };
-  tl.to(o, { n: to, duration: dur, ease: "none", onUpdate: () => void (el.textContent = fmt(o.n)) }, at);
+/** Cancella all'indietro, una lettera alla volta. */
+const eraseTo = (tl: gsap.core.Timeline, el: Element, text: string, at: number, dur: number) => {
+  const o = { n: text.length };
+  tl.fromTo(o, { n: text.length }, { n: 0, duration: dur, ease: "power1.in", onUpdate: () => void (el.textContent = text.slice(0, Math.round(o.n))) }, at);
+  for (let k = 0; k < 5; k++) tl.call(() => fx.tick(0.5), undefined, at + (dur * k) / 5);
 };
 
-/* ───────────── Il sito che consegniamo, vero e adattabile: lo stesso disegno a ogni larghezza ───────────── */
+/* ───────────── Il sito d'esempio: superfici piene, angoli interni = angolo esterno − margine ───────────── */
 
-function MiniSite({ c }: { c: Cinema }) {
+const SOLID = "bg-[#151a21] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08),inset_0_1px_0_rgba(255,255,255,.14)]";
+const R_IN = "calc(var(--r) - var(--i))";
+const R_IN2 = "calc(var(--r) - var(--i) - 6px)";
+
+function MiniSite({ c, children }: { c: Cinema; children?: ReactNode }) {
   return (
-    <div data-site className="@container relative h-full w-full overflow-hidden bg-[#0d1115] text-white">
+    <div data-site className="@container relative h-full w-full overflow-hidden bg-[#0d1115] text-white" style={{ "--i": "12px" } as CSSProperties}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img data-simg src={cin("lavoro")} alt="" draggable={false} className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: "50% 50%" }} />
-      <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.62) 0%, rgba(8,12,16,.12) 28%, rgba(8,12,16,.3) 48%, rgba(8,12,16,.9) 100%)" }} />
-      <Bead as="div" tint="rgba(10,14,18,.62)" radius={999} className="absolute inset-x-[3cqw] top-[3cqw] flex h-[clamp(40px,8cqw,64px)] items-center justify-between pl-[clamp(14px,3cqw,26px)] pr-[clamp(6px,1.4cqw,12px)]">
-        <span className="flex items-center gap-2 text-[clamp(14px,2.4cqw,20px)] font-semibold tracking-[-0.01em]">
+      <img data-simg src={cin("lavoro")} alt="" draggable={false} className="absolute inset-0 h-full w-full object-cover" />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.6) 0%, rgba(8,12,16,.1) 28%, rgba(8,12,16,.3) 50%, rgba(8,12,16,.92) 100%)" }} />
+      <div data-nav className={`absolute left-[var(--i)] right-[var(--i)] top-[var(--i)] flex h-[clamp(44px,6cqw,60px)] items-center justify-between pl-[clamp(14px,2.4cqw,22px)] pr-[6px] ${SOLID}`} style={{ borderRadius: R_IN }}>
+        <span className="flex items-center gap-2 text-[clamp(14px,2.2cqw,19px)] font-semibold tracking-[-0.01em]">
           <span className="h-[7px] w-[7px] rounded-full" style={{ background: ACC }} />
           Marchio
         </span>
-        <span className="flex items-center gap-[clamp(14px,3cqw,28px)] text-[clamp(12px,1.8cqw,16px)] text-white">
-          <span className="hidden @min-[560px]:flex gap-[clamp(14px,3cqw,28px)]">
+        <span className="flex h-full items-center gap-[clamp(14px,3cqw,28px)] py-[6px] text-[clamp(12px,1.6cqw,15px)]">
+          <span className="hidden gap-[clamp(14px,3cqw,28px)] @min-[560px]:flex">
             {c.site.nav.map((n) => (
               <span key={n}>{n}</span>
             ))}
           </span>
-          <span className="hidden @min-[560px]:flex h-[clamp(28px,5cqw,40px)] items-center rounded-full bg-white px-[clamp(14px,2.6cqw,22px)] font-semibold text-black">{c.site.book}</span>
-          <span className="flex @min-[560px]:hidden h-8 w-8 items-center justify-center rounded-full bg-white text-black">
+          <span className="hidden h-full items-center bg-white px-[clamp(14px,2.4cqw,20px)] font-semibold text-black @min-[560px]:flex" style={{ borderRadius: R_IN2 }}>
+            {c.site.book}
+          </span>
+          <span className="flex aspect-square h-full items-center justify-center bg-white text-black @min-[560px]:hidden" style={{ borderRadius: R_IN2 }}>
             <Menu size={16} strokeWidth={2} />
           </span>
         </span>
-      </Bead>
-      <div data-title className="absolute bottom-[clamp(54px,10cqw,96px)] left-[4cqw] text-white" style={{ ...DISP, fontSize: "clamp(34px,11.5cqw,128px)", lineHeight: 0.98 }}>
-        <span data-focus className="pointer-events-none absolute -inset-x-[2.2cqw] -inset-y-[1cqw] rounded-[1.6cqw] border-2 border-[#8fd8ff] opacity-0" />
-        <span data-sel className="pointer-events-none absolute -inset-x-[1.4cqw] bottom-[-.4cqw] top-[50%] origin-left rounded-[1cqw] bg-[#8fd8ff]/35 opacity-0" />
+      </div>
+      <div data-title className="absolute bottom-[clamp(62px,10cqw,100px)] left-[calc(var(--i)+2cqw)] text-white" style={{ ...DISP, fontSize: "clamp(34px,10.5cqw,120px)", lineHeight: 0.98 }}>
+        <span data-focus className="pointer-events-none absolute -inset-x-[14px] -inset-y-[8px] rounded-[18px] border-2 border-[#8fd8ff]" style={HID} />
+        <span data-sel className="pointer-events-none absolute -inset-x-[8px] bottom-[-4px] top-[50%] origin-left rounded-[10px] bg-[#8fd8ff]/35" style={HID} />
         <span className="relative block">{c.site.title[0]}</span>
-        <span className="relative block">
+        <span className="relative block whitespace-nowrap">
           <span data-l2>{c.site.title[1].replace(".", "")}</span>
           <span style={{ color: ACC }}>.</span>
         </span>
       </div>
-      <Bead as="div" tint="rgba(10,14,18,.6)" radius={999} className="absolute right-[4cqw] top-[clamp(64px,15cqw,120px)] hidden h-[clamp(64px,13cqw,120px)] w-[clamp(64px,13cqw,120px)] items-center justify-center @min-[440px]:flex">
+      <div className={`absolute right-[calc(var(--i)+2cqw)] top-[clamp(72px,12cqw,120px)] hidden aspect-square w-[clamp(64px,12cqw,116px)] items-center justify-center rounded-full @min-[440px]:flex ${SOLID}`}>
         <svg viewBox="0 0 100 100" className="absolute inset-0" aria-hidden>
           <defs>
             <path id="wcc" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0" />
@@ -80,45 +109,43 @@ function MiniSite({ c }: { c: Cinema }) {
         <span className="flex h-[38%] w-[38%] items-center justify-center rounded-full bg-white text-black">
           <ArrowDown size={16} strokeWidth={2} className="-rotate-[135deg]" />
         </span>
-      </Bead>
-      <div className="absolute bottom-[3cqw] left-[4cqw] hidden gap-2 text-[clamp(11px,1.7cqw,15px)] @min-[480px]:flex">
+      </div>
+      <div className="absolute bottom-[var(--i)] left-[var(--i)] flex gap-2 text-[clamp(11px,1.6cqw,14px)]">
         {[c.site.stars, c.site.since].map((s) => (
-          <Bead key={s} as="div" tint="rgba(10,14,18,.62)" radius={999} className="flex h-[clamp(28px,5cqw,40px)] items-center px-[clamp(12px,2.4cqw,20px)]">
+          <span key={s} className={`flex h-[clamp(32px,4.6cqw,42px)] items-center px-[clamp(12px,2cqw,18px)] ${SOLID}`} style={{ borderRadius: R_IN }}>
             {s}
-          </Bead>
+          </span>
         ))}
       </div>
+      {children}
     </div>
   );
 }
 
-/** Lo stesso disegno, prima di essere finito: solo le forme, nelle stesse posizioni. */
+/** Lo stesso disegno prima di essere finito: solo le forme, nelle stesse posizioni. */
 function Wire() {
+  const blk = "absolute cine-blk";
   return (
-    <div data-wire className="@container absolute inset-0 overflow-hidden bg-[var(--bg-sunken)]">
-      <div className="absolute inset-[3cqw] rounded-[2.4cqw] border border-dashed border-[color:color-mix(in_srgb,var(--accent)_45%,transparent)]" />
-      <div className="absolute inset-x-[3cqw] top-[3cqw] h-[clamp(40px,8cqw,64px)] rounded-full cine-blk" />
-      <div className="absolute left-[4cqw] top-[clamp(64px,15cqw,120px)] h-[clamp(64px,13cqw,120px)] w-[clamp(64px,13cqw,120px)] rounded-full cine-blk max-[440px]:hidden" style={{ left: "auto", right: "4cqw" }} />
-      <div className="absolute bottom-[clamp(54px,10cqw,96px)] left-[4cqw] h-[11.5cqw] w-[58cqw] rounded-[1cqw] cine-blk" style={{ minHeight: 34 }} />
-      <div className="absolute bottom-[calc(clamp(54px,10cqw,96px)+12cqw)] left-[4cqw] h-[11.5cqw] w-[44cqw] rounded-[1cqw] cine-blk" style={{ minHeight: 34 }} />
-      <div className="absolute bottom-[3cqw] left-[4cqw] h-[clamp(28px,5cqw,40px)] w-[22cqw] rounded-full cine-blk" />
-      <div className="absolute bottom-[3cqw] left-[calc(4cqw+24cqw)] h-[clamp(28px,5cqw,40px)] w-[20cqw] rounded-full cine-blk" />
+    <div data-wire className="@container absolute inset-0 z-10 overflow-hidden bg-[var(--bg-sunken)]">
+      <div className={`${blk} left-[var(--i)] right-[var(--i)] top-[var(--i)] h-[clamp(44px,6cqw,60px)]`} style={{ borderRadius: R_IN }} />
+      <div className={`${blk} right-[calc(var(--i)+2cqw)] top-[clamp(72px,12cqw,120px)] hidden aspect-square w-[clamp(64px,12cqw,116px)] rounded-full @min-[440px]:block`} />
+      <div className={`${blk} bottom-[calc(clamp(62px,10cqw,100px)+10.6cqw)] left-[calc(var(--i)+2cqw)] h-[9.6cqw] min-h-[30px] w-[50cqw] rounded-[10px]`} />
+      <div className={`${blk} bottom-[clamp(62px,10cqw,100px)] left-[calc(var(--i)+2cqw)] h-[9.6cqw] min-h-[30px] w-[66cqw] rounded-[10px]`} />
+      <div className={`${blk} bottom-[var(--i)] left-[var(--i)] h-[clamp(32px,4.6cqw,42px)] w-[22cqw]`} style={{ borderRadius: R_IN }} />
+      <div className={`${blk} bottom-[var(--i)] left-[calc(var(--i)+22cqw+8px)] h-[clamp(32px,4.6cqw,42px)] w-[16cqw]`} style={{ borderRadius: R_IN }} />
     </div>
   );
 }
-
-
 
 /* ───────────── Il video ─────────────
-   Un solo oggetto che si trasforma da un'inquadratura all'altra, sul ritmo della colonna sonora (112 battiti al minuto).
-   Ogni cosa che si muove ha il suo suono; le didascalie sono brevi e cambiano sul tempo. */
+   Un oggetto solo che cambia forma, una camera che si avvicina e si allontana, una colonna sonora a 120 battiti.
+   Nessun movimento lineare: ogni passaggio ha la sua curva. */
 
-type Q = (s: string) => HTMLElement[];
-const B = 60 / 112;
+const B = 0.5;
 const T = (n: number) => n * B;
-const HID = { visibility: "hidden" as const, opacity: 0 };
 const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
-const CAP = "pointer-events-none absolute inset-x-0 top-[max(9svh,84px)] mx-auto md:top-[max(14svh,140px)] max-w-[19ch] px-6 text-center text-[clamp(32px,5.4vw,88px)] font-medium leading-[1.06] tracking-[-0.05em] cine-fg md:max-w-none";
+const ICONS_PROMISE = [FileText, UserRound, KeyRound, LockOpen];
+const CAP = "pointer-events-none absolute inset-x-0 top-[max(9svh,84px)] mx-auto max-w-[19ch] px-6 text-center text-[clamp(32px,4.8vw,80px)] font-medium leading-[1.08] tracking-[-0.045em] cine-fg md:top-[max(13svh,128px)] md:max-w-[24ch]";
 
 export function WebCinema({ title }: { title: string }) {
   const locale = useLocale() as Locale;
@@ -130,6 +157,7 @@ export function WebCinema({ title }: { title: string }) {
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
   const [snd, setSnd] = useState(false);
+  const fast = locale === "en" ? "0.8 s" : "0,8 s";
 
   useEffect(() => {
     setSnd(soundOn());
@@ -150,190 +178,258 @@ export function WebCinema({ title }: { title: string }) {
         gsap.set(endCard, { autoAlpha: 1 });
         return;
       }
-      const world = one("[data-world]");
+      const cam = one("[data-cam]");
       const dev = one("[data-dev]");
-      const wide = () => (innerWidth > 760 ? 1100 : 760);
-      const mid = () => (innerWidth > 760 ? 640 : 520);
+      const small = () => innerWidth <= 760;
+      const k = () => (small() ? 0.7 : 1);
+      const wide = () => (small() ? 760 : 1100);
+      const mid = () => (small() ? 520 : 640);
       const phone = () => 340;
-      const fit = (w: () => number) => () => Math.min(1, (innerWidth * 0.92) / w(), (innerHeight * (innerWidth > 760 ? 0.6 : 0.5)) / 640);
-      const devRect = () => dev.getBoundingClientRect();
+      const fit = (w: () => number) => () => Math.min(1, (innerWidth * 0.92) / w(), (innerHeight * (small() ? 0.55 : 0.58)) / 640);
+      // punto di mira della camera: il centro di un elemento, nelle coordinate della scena
+      const aim = (t: () => HTMLElement) => () => {
+        const w = cam.getBoundingClientRect();
+        const r = t().getBoundingClientRect();
+        return `${r.left + r.width / 2 - w.left}px ${r.top + r.height / 2 - w.top}px`;
+      };
+
       gsap.set($("[data-it]"), { xPercent: -50, yPercent: -50 });
-      gsap.set(dev, { width: wide, scale: fit(wide), borderRadius: 28 });
+      gsap.set(dev, { width: wide, scale: fit(wide), "--r": "26px", transformPerspective: 1600 });
 
       const tl = gsap.timeline({
         paused: true,
-        defaults: { ease: "none" },
+        defaults: { ease: "power3.inOut" },
         onUpdate: () => {
           if (bar.current) bar.current.style.transform = `scaleX(${tl.progress()})`;
-        },
-        onComplete: () => {
-          flags.current.ended = true;
-          flags.current.playing = false;
-          setEnded(true);
-          setPlaying(false);
         },
       });
       tlRef.current = tl;
 
-      // didascalie: una per volta, ognuna esce con la parola che sale
+      /* didascalie: le parole salgono dalla loro maschera, la parola chiave arriva sfocata e si mette a fuoco */
       const caps = c.cap.map((_, i) => one(`[data-cap="${i}"]`));
-      const splits = caps.map((e) => SplitText.create(e, { type: "words", mask: "words" }));
-      const cap = (i: number, b0: number, b1: number) =>
-        tl
-          .set(caps[i], { autoAlpha: 1 }, T(b0))
-          .from(splits[i].words, { yPercent: 115, duration: 0.5, stagger: 0.05, ease: "expo.out" }, T(b0))
-          .to(splits[i].words, { yPercent: -115, duration: 0.3, stagger: 0.025, ease: "power2.in" }, T(b1) - 0.34)
-          .set(caps[i], { autoAlpha: 0 }, T(b1));
-      const punch = (b: number, k = 1.018) => tl.fromTo(world, { scale: k }, { scale: 1, duration: 0.5, ease: "expo.out" }, T(b));
-
-      /* 0 · Un cliente ti cerca */
-      const pill = one("[data-pill]");
-      const r1 = one("[data-r1]");
-      tl.call(() => fx.padOn(), undefined, 0)
-        .call(() => (fx.kick(0.6), fx.whoosh(0.5, true, 0.7)), undefined, 0)
-        .fromTo(pill, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, 0);
-      cap(0, 0.5, 4.6);
-      typeTo(tl, one("[data-typed]"), c.find.typed, T(1), T(2.4), 0);
-      tl.fromTo(r1, { autoAlpha: 0, y: 95 }, { autoAlpha: 1, y: 55, duration: 0.45, ease: "expo.out" }, T(3.7))
-        .call(() => fx.pluck(12, 0.8), undefined, T(3.7))
-        .to(r1, { scale: 0.97, duration: 0.12 }, T(4.4))
-        .to(r1, { scale: 1, duration: 0.18, ease: "back.out(3)" }, T(4.4) + 0.12)
-        .call(() => fx.tick(1), undefined, T(4.4));
-
-      /* 1 · Se è lento, se ne va */
-      const load = one("[data-load]");
-      const ring = one("[data-ring]");
-      tl.to([pill, r1], { autoAlpha: 0, scale: 0.9, duration: 0.3, ease: "power2.in" }, T(4.75))
-        .call(() => (fx.whoosh(0.45, false, 0.8), fx.riser(T(3.7))), undefined, T(4.8))
-        .fromTo(load, { autoAlpha: 0, scale: 0.7 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(1.8)" }, T(4.8))
-        .fromTo(ring, { strokeDashoffset: 100 }, { strokeDashoffset: 72, duration: T(3.6), ease: "power1.out" }, T(4.9));
-      num(tl, one("[data-count]"), 0, 8.4, T(4.9), T(3.6), (n) => n.toFixed(1).replace(".", ",") + " s");
-      for (let k = 0; k < 8; k++) tl.call(() => fx.tick(0.5 + k * 0.06), undefined, T(5 + k * 0.45));
-      cap(1, 5, 8.8);
-
-      /* 2 · Il tuo parte in 0,8 secondi */
-      const fast = one("[data-fast]");
-      tl.to(load, { autoAlpha: 0, scale: 1.2, duration: 0.2, ease: "power2.in" }, T(8.55))
-        .call(() => (fx.chord([0, 2, 4, 5], 1), fx.whoosh(0.3, true, 0.5)), undefined, T(8.6))
-        .fromTo(fast, { autoAlpha: 0, scale: 0.7 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "expo.out" }, T(8.6))
-        .fromTo(one("[data-fring]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.7, ease: "expo.out" }, T(8.6));
-      punch(8.6, 1.025);
-      cap(2, 8.8, 10.9);
-
-      /* 3 · Prima lo disegniamo: l'anello diventa la pagina */
-      const wire = one("[data-wire]");
-      tl.call(() => fx.whoosh(0.6, true, 1), undefined, T(10.8))
-        .to(fast, { autoAlpha: 0, scale: 2.6, duration: 0.55, ease: "power3.in" }, T(10.8))
-        .fromTo(dev, { autoAlpha: 0, scale: () => Number(gsap.getProperty(dev, "scale")) * 0.55 }, { autoAlpha: 1, scale: fit(wide), duration: 0.75, ease: "expo.out" }, T(10.95))
-        .fromTo($("[data-wire] > div"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, stagger: T(0.32) }, T(11.3));
-      $("[data-wire] > div").forEach((_, i) => tl.call(() => fx.pluck(i * 2, 0.7, 0.3), undefined, T(11.3) + i * T(0.32)));
-      cap(3, 10.9, 14.6);
-
-      /* 4 · Poi lo costruiamo: la linea di luce lo trasforma in sito vero */
-      tl.call(() => fx.riser(T(1.4)), undefined, T(13.1))
-        .call(() => (fx.kick(1), fx.whoosh(0.9, true, 1)), undefined, T(14.5))
-        .fromTo(wire, { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(100% 0% 0% 0%)", duration: T(2), ease: "power2.inOut" }, T(14.5))
-        .fromTo($("[data-scan]"), { top: "0%", autoAlpha: 1 }, { top: "100%", duration: T(2), ease: "power2.inOut" }, T(14.5))
-        .to($("[data-scan]"), { autoAlpha: 0, duration: 0.15 }, T(16.5))
-        .fromTo($("[data-simg]"), { scale: 1.22 }, { scale: 1, duration: T(3), ease: "power2.out" }, T(14.5))
-        .call(() => fx.chord([2, 4, 7], 0.8), undefined, T(16.5));
-      punch(14.5);
-      cap(4, 14.6, 16.9);
-
-      /* 5 · Su ogni schermo: la stessa pagina si riordina */
-      tl.call(() => (fx.whoosh(0.55, false, 0.9), fx.tick(1)), undefined, T(16.8))
-        .to(dev, { width: mid, scale: fit(mid), borderRadius: 38, duration: T(1.3), ease: "power3.inOut" }, T(16.8))
-        .call(() => (fx.whoosh(0.55, false, 0.9), fx.tick(1.2)), undefined, T(18.6))
-        .to(dev, { width: phone, scale: fit(phone), borderRadius: 52, duration: T(1.3), ease: "power3.inOut" }, T(18.6))
-        .call(() => fx.pluck(9, 0.9, 0.6), undefined, T(19.9));
-      cap(5, 16.9, 20.7);
-
-      /* 6 · Arrivano i clienti: le notifiche cadono sul telefono */
-      const ns = $("[data-n]");
-      const slots = [-170, -74, 22];
-      ns.forEach((n, i) => {
-        const at = T(20.7 + i * 1.15);
-        tl.fromTo(n, { autoAlpha: 0, y: slots[i] - 90, scale: 0.92 }, { autoAlpha: 1, y: slots[i], scale: 1, duration: 0.55, ease: "expo.out" }, at).call(() => fx.bell(7 + i * 2, 1), undefined, at);
+      const units = caps.map((e) => {
+        SplitText.create(e, { type: "words", mask: "words", wordsClass: "cw", ignore: "[data-kw]" });
+        return Array.from(e.querySelectorAll<HTMLElement>(".cw, [data-kw]"));
       });
-      punch(23.1, 1.012);
-      cap(6, 20.7, 24.6);
+      const cap = (i: number, b0: number, b1: number) => {
+        const u = units[i];
+        tl.set(caps[i], { autoAlpha: 1 }, T(b0));
+        u.forEach((w, j) => {
+          const kw = w.hasAttribute("data-kw");
+          tl.fromTo(
+            w,
+            kw ? { yPercent: 40, autoAlpha: 0, filter: "blur(12px)" } : { yPercent: 110 },
+            kw ? { yPercent: 0, autoAlpha: 1, filter: "blur(0px)", duration: 0.9, ease: "expo.out" } : { yPercent: 0, duration: 0.75, ease: "expo.out" },
+            T(b0) + j * 0.055,
+          );
+          tl.to(w, kw ? { yPercent: -40, autoAlpha: 0, filter: "blur(10px)", duration: 0.4, ease: "power2.in" } : { yPercent: -110, duration: 0.4, ease: "power2.in" }, T(b1) - 0.45 + j * 0.025);
+        });
+        tl.set(caps[i], { autoAlpha: 0 }, T(b1));
+      };
+      const punch = (b: number, s = 1.02) => tl.fromTo(cam, { scale: s }, { scale: 1, duration: 0.6, ease: "expo.out" }, T(b));
 
-      /* 7 · Online, al sicuro: la barra dell'indirizzo, il lucchetto */
-      const urlBar = one("[data-bar2]");
-      const insidePhone = () => -devRect().height / 2 + 46;
-      tl.to(ns, { autoAlpha: 0, y: "-=50", duration: 0.35, stagger: 0.06, ease: "power2.in" }, T(24.4))
-        .call(() => fx.whoosh(0.4, true, 0.7), undefined, T(24.5))
-        .fromTo(urlBar, { autoAlpha: 0, y: () => insidePhone() - 40, width: () => devRect().width * 0.93 }, { autoAlpha: 1, y: insidePhone, duration: 0.45, ease: "expo.out" }, T(24.55));
-      typeTo(tl, one("[data-url]"), "latuaattivita.it", T(24.9), T(1.7), 3);
-      tl.fromTo(one("[data-load2]"), { scaleX: 0 }, { scaleX: 1, duration: T(0.9), ease: "power1.inOut" }, T(26.7))
-        .to(one("[data-lock1]"), { autoAlpha: 0, duration: 0.1 }, T(27.7))
-        .fromTo(one("[data-lock2]"), { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "back.out(2.4)" }, T(27.7))
-        .call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(27.7))
-        .fromTo(one("[data-live]"), { autoAlpha: 0, x: 10 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: "expo.out" }, T(27.8))
-        .fromTo(dev, { boxShadow: "0 0 0 0 rgba(143,216,255,0)" }, { boxShadow: "0 0 0 14px rgba(143,216,255,0.28)", duration: 0.35, ease: "expo.out", yoyo: true, repeat: 1 }, T(27.7));
-      punch(27.7, 1.02);
-      cap(7, 24.6, 28.5);
+      /* 0 · Un cliente ti cerca: la camera parte vicina alla barra e si allontana mentre arrivano i risultati */
+      const pill = one("[data-pill]");
+      const res = $("[data-res]");
+      const py = () => -150 * k();
+      const ry = (i: number) => () => (-40 + i * 92) * k();
+      gsap.set(pill, { y: py });
+      tl.call(() => (fx.padOn(), fx.kick(0.6), fx.whoosh(0.6, true, 0.7)), undefined, 0)
+        .fromTo(cam, { scale: () => (small() ? 1.2 : 1.5), transformOrigin: aim(() => pill) }, { scale: () => (small() ? 1.2 : 1.5), duration: 0.01 }, 0)
+        .fromTo(pill, { autoAlpha: 0, scale: 0.86 }, { autoAlpha: 1, scale: 1, duration: 0.8, ease: "back.out(1.4)" }, 0.05);
+      typeTo(tl, one("[data-typed]"), c.find.typed, T(0.9), T(2.4), 0);
+      tl.to(cam, { scale: 1, duration: 1.2, ease: "expo.inOut" }, T(3));
+      res.forEach((r, i) => {
+        tl.fromTo(r, { autoAlpha: 0, y: () => ry(i)() + 50, scale: 0.94 }, { autoAlpha: 1, y: ry(i), scale: 1, duration: 0.8, ease: "expo.out" }, T(3.3) + i * 0.13).call(() => fx.pluck(10 + i, 0.6), undefined, T(3.3) + i * 0.13);
+      });
+      tl.to(res[0], { scale: 0.96, duration: 0.14, ease: "power2.out" }, T(4.6))
+        .to(res[0], { scale: 1, boxShadow: "0 0 0 3px var(--accent)", duration: 0.45, ease: "back.out(2.5)" }, T(4.6) + 0.14)
+        .call(() => fx.tick(1.2), undefined, T(4.6));
+      cap(0, 0.4, 5.5);
 
-      /* 8 · Lo cambi tu: il titolo si riscrive sul posto */
+      /* 1 · Se è lento, se ne va: un anello enorme che si blocca */
+      const load = one("[data-load]");
+      tl.to([pill, ...res], { autoAlpha: 0, y: "-=40", filter: "blur(8px)", duration: 0.45, stagger: 0.03, ease: "power2.in" }, T(5.1))
+        .call(() => (fx.whoosh(0.5, false, 0.8), fx.riser(T(3.6))), undefined, T(5.5))
+        .fromTo(load, { autoAlpha: 0, scale: 0.5, rotation: -50 }, { autoAlpha: 1, scale: 1, rotation: 0, duration: 1.1, ease: "expo.out" }, T(5.8))
+        .fromTo(one("[data-ring]"), { strokeDashoffset: 100 }, { strokeDashoffset: 68, duration: T(3.6), ease: "power4.out" }, T(5.6))
+        .fromTo(one("[data-spin]"), { rotation: 0 }, { rotation: 140, duration: T(3.6), ease: "sine.inOut" }, T(5.6))
+        .fromTo(cam, { scale: 1, transformOrigin: aim(() => load) }, { scale: 1.1, duration: T(3.6), ease: "sine.inOut" }, T(5.6));
+      {
+        const o = { n: 0 };
+        const cnt = one("[data-count]");
+        tl.fromTo(o, { n: 0 }, { n: 8.4, duration: T(3.6), ease: "sine.in", onUpdate: () => void (cnt.textContent = o.n.toFixed(1).replace(".", locale === "en" ? "." : ",") + " s") }, T(5.6));
+      }
+      for (let i = 0; i < 7; i++) tl.call(() => fx.tick(0.4 + i * 0.07), undefined, T(5.8 + i * 0.5));
+      cap(1, 5.6, 9.3);
+
+      /* 2 · Il tuo si apre in 0,8 secondi */
+      const fst = one("[data-fast]");
+      tl.to(load, { autoAlpha: 0, scale: 1.3, filter: "blur(10px)", duration: 0.3, ease: "power2.in" }, T(9))
+        .call(() => (fx.chord([0, 2, 4, 5], 1), fx.whoosh(0.35, true, 0.6)), undefined, T(9.3))
+        .fromTo(fst, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.9, ease: "expo.out" }, T(9.3))
+        .fromTo(one("[data-fring]"), { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 1.1, ease: "expo.out" }, T(9.3))
+        .to(cam, { scale: 1, duration: 0.9, ease: "expo.out" }, T(9.3));
+      cap(2, 9.5, 11.7);
+
+      /* 3 · Prima lo disegniamo: la camera entra nell'anello, dal fondo emerge la pagina inclinata */
+      const wireBits = $("[data-wire] > div");
+      tl.call(() => fx.whoosh(0.8, true, 1), undefined, T(11.5))
+        .to(fst, { scale: 7, autoAlpha: 0, duration: 0.8, ease: "power3.in" }, T(11.4))
+        .fromTo(dev, { autoAlpha: 0, rotationX: 40, y: 160, scale: () => fit(wide)() * 0.7 }, { autoAlpha: 1, rotationX: 0, y: 0, scale: fit(wide), duration: 1.5, ease: "expo.out" }, T(11.9))
+        .fromTo(wireBits, { autoAlpha: 0, scale: 0.86, y: 16 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.7)", stagger: T(0.4) }, T(12.6));
+      wireBits.forEach((_, i) => tl.call(() => fx.pluck(i * 2, 0.7, 0.3), undefined, T(12.6) + i * T(0.4)));
+      cap(3, 11.9, 15.6);
+
+      /* 4 · Poi lo costruiamo: una linea di luce lo trasforma nel sito vero */
+      tl.call(() => fx.riser(T(1.5)), undefined, T(14.1))
+        .call(() => (fx.kick(1), fx.whoosh(1, true, 1)), undefined, T(15.6))
+        .fromTo(one("[data-wire]"), { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(100% 0% 0% 0%)", duration: 1.3, ease: "expo.inOut" }, T(15.6))
+        .fromTo(one("[data-scan]"), { top: "0%", autoAlpha: 1 }, { top: "100%", duration: 1.3, ease: "expo.inOut" }, T(15.6))
+        .to(one("[data-scan]"), { autoAlpha: 0, duration: 0.2, ease: "power1.out" }, T(15.6) + 1.25)
+        .fromTo(one("[data-simg]"), { scale: 1.3 }, { scale: 1, duration: 2.2, ease: "expo.out" }, T(15.8))
+        .call(() => fx.chord([2, 4, 7], 0.8), undefined, T(17.6));
+      punch(15.6);
+      cap(4, 15.8, 18);
+
+      /* 5 · Perfetto su ogni schermo: la pagina ruota e si stringe, e si riordina davvero */
+      const shape = (b: number, w: () => number, r: string, turn: number) => {
+        tl.call(() => (fx.whoosh(0.6, false, 0.9), fx.tick(1)), undefined, T(b))
+          .to(dev, { width: w, scale: fit(w), "--r": r, duration: 1.1, ease: "expo.inOut" }, T(b))
+          .to(dev, { rotationY: turn, duration: 0.55, ease: "power2.out" }, T(b))
+          .to(dev, { rotationY: 0, duration: 0.8, ease: "power3.inOut" }, T(b) + 0.55);
+      };
+      shape(18, mid, "34px", -16);
+      shape(19.9, phone, "48px", 16);
+      tl.call(() => fx.pluck(9, 0.9, 0.6), undefined, T(21.2));
+      cap(5, 18.2, 21.8);
+
+      /* 6 · Arrivano i clienti: il telefono si inclina, le notifiche scendono dall'alto */
+      const ns = $("[data-n]");
+      tl.to(dev, { rotationX: 10, rotationY: -14, duration: 1.4, ease: "sine.inOut" }, T(21.6));
+      ns.forEach((n, i) => {
+        const at = T(22.2 + i * 1);
+        tl.fromTo(n, { autoAlpha: 0, y: -50, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "back.out(1.4)" }, at).call(() => fx.bell(7 + i * 2, 1), undefined, at);
+      });
+      cap(6, 21.8, 25.8);
+
+      /* 7 · Online, al sicuro: la barra dell'indirizzo prende il posto del menù, la camera la segue */
+      const nav = one("[data-nav]");
+      const ub = one("[data-ub]");
+      tl.to(ns, { x: 140, autoAlpha: 0, duration: 0.45, stagger: 0.05, ease: "power2.in" }, T(25.4))
+        .to(dev, { rotationX: 0, rotationY: 0, duration: 0.9, ease: "expo.inOut" }, T(25.5))
+        .to(nav, { autoAlpha: 0, scale: 0.96, duration: 0.3, ease: "power2.in" }, T(25.9))
+        .fromTo(ub, { autoAlpha: 0, scaleX: 0.7 }, { autoAlpha: 1, scaleX: 1, duration: 0.6, ease: "back.out(1.6)" }, T(26.2))
+        .call(() => fx.whoosh(0.5, true, 0.7), undefined, T(26.2))
+        .fromTo(cam, { scale: 1, transformOrigin: aim(() => ub) }, { scale: () => (small() ? 1.3 : 1.6), duration: 1.1, ease: "expo.inOut" }, T(26.4));
+      typeTo(tl, one("[data-url]"), c.find.me[1], T(27), T(1.8), 3);
+      tl.fromTo(one("[data-load2]"), { scaleX: 0 }, { scaleX: 1, duration: T(1), ease: "power2.inOut" }, T(28.9))
+        .to(one("[data-lock1]"), { autoAlpha: 0, scale: 0.6, duration: 0.15, ease: "power2.in" }, T(29.9))
+        .fromTo(one("[data-lock2]"), { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(2.4)" }, T(29.9))
+        .call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(29.9))
+        .fromTo(one("[data-live]"), { autoAlpha: 0, x: 8 }, { autoAlpha: 1, x: 0, duration: 0.45, ease: "expo.out" }, T(30))
+        .to(cam, { scale: 1, duration: 1, ease: "expo.inOut" }, T(30.6));
+      cap(7, 26, 31.2);
+
+      /* 8 · Lo cambi tu: la camera va sul titolo, si cancella e si riscrive */
       const l2 = one("[data-l2]");
+      const ttl = one("[data-title]");
       const saved = one("[data-saved]");
-      tl.to(urlBar, { autoAlpha: 0, y: "-=20", duration: 0.3, ease: "power2.in" }, T(28.4))
-        .call(() => fx.whoosh(0.55, true, 0.8), undefined, T(28.5))
-        .to(dev, { width: mid, scale: fit(mid), borderRadius: 38, duration: T(1.3), ease: "power3.inOut" }, T(28.5))
-        .fromTo($("[data-focus]"), { autoAlpha: 0, scale: 0.97 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: "expo.out" }, T(30))
-        .call(() => fx.tick(1.3), undefined, T(30))
-        .fromTo($("[data-sel]"), { autoAlpha: 1, scaleX: 0 }, { scaleX: 1, duration: T(0.9), ease: "power2.inOut" }, T(30.5))
-        .call(() => fx.whoosh(0.4, true, 0.5), undefined, T(30.5))
-        .set(l2, { textContent: "" }, T(31.5))
-        .set($("[data-sel]"), { autoAlpha: 0 }, T(31.5));
-      typeTo(tl, l2, c.title[1].toUpperCase(), T(31.6), T(1.8), 0);
-      tl.to($("[data-focus]"), { autoAlpha: 0, duration: 0.25 }, T(33.5))
-        .fromTo(saved, { autoAlpha: 0, y: () => insidePhone() - 20, scale: 0.8 }, { autoAlpha: 1, y: insidePhone, scale: 1, duration: 0.45, ease: "back.out(2.4)" }, T(33.6))
-        .call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(33.6))
-        .to(saved, { autoAlpha: 0, duration: 0.3 }, T(34.6));
-      cap(8, 28.5, 34.7);
+      const oldT = c.site.title[1].replace(".", "").toUpperCase();
+      tl.to(ub, { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, T(31))
+        .to(nav, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "power2.out" }, T(31.2))
+        .call(() => fx.whoosh(0.6, true, 0.8), undefined, T(31.2))
+        .to(dev, { width: mid, scale: fit(mid), "--r": "34px", duration: 0.9, ease: "expo.inOut" }, T(31.2))
+        .fromTo(cam, { scale: 1, transformOrigin: aim(() => (small() ? dev : ttl)) }, { scale: () => (small() ? 1.15 : 1.5), duration: 1, ease: "expo.inOut" }, T(33))
+        .fromTo($("[data-focus]"), { autoAlpha: 0, scale: 0.94 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, T(34.2))
+        .call(() => fx.tick(1.3), undefined, T(34.2))
+        .fromTo($("[data-sel]"), { autoAlpha: 1, scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.inOut" }, T(34.8))
+        .to($("[data-sel]"), { autoAlpha: 0, duration: 0.2, ease: "power1.out" }, T(35.8));
+      eraseTo(tl, l2, oldT, T(35.8), 0.45);
+      typeTo(tl, l2, c.title[1].toUpperCase(), T(36.8), T(2.2), 0);
+      tl.to($("[data-focus]"), { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, T(39.2))
+        .fromTo(saved, { autoAlpha: 0, y: -16, scale: 0.85 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(2.2)" }, T(39.2))
+        .call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(39.2))
+        .to(cam, { scale: 1, duration: 1, ease: "expo.inOut" }, T(39.6));
+      cap(8, 31.4, 40.8);
 
-      /* 9 · Tutto compreso: il sito si rimpicciolisce e arrivano le sei cose che ricevi */
+      /* 9 · Tutto compreso: il sito si allontana, le sei cose che ricevi gli orbitano intorno */
       const gs = $("[data-g]");
-      tl.call(() => (fx.kick(1), fx.whoosh(0.7, false, 1)), undefined, T(34.7))
-        .to(dev, { scale: () => Number(gsap.getProperty(dev, "scale")) * 0.5, autoAlpha: 0, duration: 0.7, ease: "power3.in" }, T(34.7))
-        .fromTo(gs, { autoAlpha: 0, scale: 0.6, y: 36 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.8)", stagger: T(0.5) }, T(35.2));
-      gs.forEach((_, i) => tl.call(() => fx.pluck(i + 2, 0.9, 0.4), undefined, T(35.2) + i * T(0.5)));
-      tl.call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(38.4));
-      punch(38.4, 1.015);
-      cap(9, 34.8, 40.7);
+      const orb = { r: 0, a: -0.5 };
+      const place = () =>
+        gs.forEach((g, i) => {
+          if (small()) gsap.set(g, { x: 0, y: (i - 2.5) * 62 * orb.r });
+          else {
+            const t = orb.a + (i / gs.length) * Math.PI * 2;
+            gsap.set(g, { x: Math.cos(t) * Math.min(innerWidth * 0.33, 480) * orb.r, y: Math.sin(t) * Math.min(innerHeight * 0.22, 210) * orb.r });
+          }
+        });
+      tl.to(saved, { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, T(40.6))
+        .call(() => (fx.kick(1), fx.whoosh(0.8, false, 1)), undefined, T(40.8))
+        .to(dev, { scale: () => fit(mid)() * 0.22, rotationY: 30, autoAlpha: 0, duration: 0.9, ease: "power3.in" }, T(40.6))
+        .fromTo(orb, { r: 0 }, { r: 1, duration: 1.4, ease: "expo.out", onUpdate: place }, T(41.2))
+        .fromTo(orb, { a: -0.5 }, { a: 0.6, duration: T(5.4), ease: "sine.inOut", onUpdate: place }, T(41.2))
+        .fromTo(gs, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "back.out(1.8)", stagger: T(0.4) }, T(41.2));
+      gs.forEach((_, i) => tl.call(() => fx.pluck(i + 2, 0.9, 0.4), undefined, T(41.2) + i * T(0.4)));
+      tl.call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(44.4));
+      punch(44.4, 1.015);
+      cap(9, 41, 46.6);
 
-      /* 10 · Senza sorprese: le quattro garanzie */
+      /* 10 · Senza sorprese */
       const ps = $("[data-pr]");
-      tl.to(gs, { autoAlpha: 0, y: -30, scale: 0.9, duration: 0.3, stagger: 0.03, ease: "power2.in" }, T(40.3))
-        .call(() => fx.whoosh(0.45, true, 0.7), undefined, T(40.4))
-        .fromTo(ps, { autoAlpha: 0, scale: 0.6, y: 36 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.8)", stagger: T(0.75) }, T(40.9));
-      ps.forEach((_, i) => tl.call(() => fx.bell(7 + i * 2, 0.9), undefined, T(40.9) + i * T(0.75)));
-      cap(10, 40.8, 45.8);
+      const pp = (i: number) => (small() ? { x: 0, y: (i - 1.5) * 70 } : { x: (i % 2 ? 1 : -1) * Math.min(innerWidth * 0.19, 270), y: (i < 2 ? -1 : 1) * 52 });
+      tl.to(orb, { r: 0, duration: 0.7, ease: "power3.in", onUpdate: place }, T(46.2))
+        .to(gs, { autoAlpha: 0, scale: 0.7, duration: 0.5, ease: "power2.in" }, T(46.3))
+        .call(() => fx.whoosh(0.5, true, 0.7), undefined, T(46.8));
+      ps.forEach((p, i) => {
+        const at = T(46.8 + i * 0.75);
+        tl.fromTo(p, { autoAlpha: 0, scale: 0.7, x: () => pp(i).x, y: () => pp(i).y + 40 }, { autoAlpha: 1, scale: 1, y: () => pp(i).y, duration: 0.8, ease: "back.out(1.5)" }, at).call(() => fx.bell(7 + i * 2, 0.9), undefined, at);
+      });
+      cap(10, 46.8, 51.6);
 
       /* chiusura */
-      const es = gsap.utils.selector(endCard) as Q;
-      const eh = SplitText.create(es("[data-eh]")[0], { type: "words", mask: "words" });
-      tl.to(ps, { autoAlpha: 0, y: -30, scale: 0.9, duration: 0.3, stagger: 0.03, ease: "power2.in" }, T(45.4))
-        .call(() => (fx.kick(1.2), fx.whoosh(0.8, true, 1)), undefined, T(45.9))
-        .set(endCard, { autoAlpha: 1 }, T(45.9))
-        .from(eh.words, { yPercent: 115, duration: 0.8, stagger: 0.07, ease: "expo.out" }, T(45.9))
-        .call(() => (fx.chord([0, 2, 4, 7], 1.2), fx.padOff(3)), undefined, T(46))
-        .from(es("[data-more]"), { autoAlpha: 0, y: 14, duration: 0.7, ease: "power2.out" }, T(47));
-      punch(45.9, 1.03);
-      tl.set({}, {}, T(49));
+      const eu = (() => {
+        const e = one("[data-eh]");
+        SplitText.create(e, { type: "words", mask: "words", wordsClass: "cw", ignore: "[data-kw]" });
+        return Array.from(e.querySelectorAll<HTMLElement>(".cw, [data-kw]"));
+      })();
+      tl.to(ps, { autoAlpha: 0, y: "-=30", filter: "blur(8px)", duration: 0.45, stagger: 0.04, ease: "power2.in" }, T(51.2))
+        .call(() => (fx.kick(1.2), fx.whoosh(0.9, true, 1)), undefined, T(51.8))
+        .set(endCard, { autoAlpha: 1 }, T(51.8));
+      eu.forEach((w, j) => {
+        const kw = w.hasAttribute("data-kw");
+        tl.fromTo(w, kw ? { yPercent: 40, autoAlpha: 0, filter: "blur(14px)" } : { yPercent: 110 }, kw ? { yPercent: 0, autoAlpha: 1, filter: "blur(0px)", duration: 1.1, ease: "expo.out" } : { yPercent: 0, duration: 0.9, ease: "expo.out" }, T(51.8) + j * 0.07);
+      });
+      tl.call(() => (fx.chord([0, 2, 4, 7], 1.2), fx.padOff(3)), undefined, T(52))
+        .fromTo(one("[data-more]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, T(53.4));
+      punch(51.8, 1.03);
+      tl.set({}, {}, T(56));
 
+      /* Il tempo del video lo muoviamo noi, un fotogramma alla volta e con un passo massimo:
+         se il dispositivo rallenta (pagina che carica, telefono sotto sforzo) il video rallenta con lui invece di saltare le scene. */
+      const drive = (_t: number, dt: number) => {
+        if (!flags.current.playing) return;
+        const next = Math.min(tl.duration(), tl.time() + Math.min(dt, 34) / 1000);
+        tl.time(next);
+        if (next >= tl.duration()) {
+          flags.current.ended = true;
+          flags.current.playing = false;
+          setEnded(true);
+          setPlaying(false);
+        }
+      };
+      gsap.ticker.add(drive);
+      let ready = document.readyState === "complete";
+      const onReady = () => {
+        ready = true;
+        go();
+      };
+      if (!ready) window.addEventListener("load", onReady, { once: true });
       const go = () => {
         const f = flags.current;
-        const run = f.visible && f.lifted && !f.paused && !f.ended;
+        const run = ready && f.visible && f.lifted && !f.paused && !f.ended;
+        if (run !== f.playing) fx.duck(!run);
         f.playing = run;
-        if (run) {
-          tl.play();
-          fx.duck(false);
-        } else {
-          tl.pause();
-          fx.duck(true);
-        }
         setPlaying(run);
       };
       const io = new IntersectionObserver(
@@ -351,6 +447,8 @@ export function WebCinema({ title }: { title: string }) {
       (el as unknown as { __go: () => void }).__go = go;
       return () => {
         io.disconnect();
+        gsap.ticker.remove(drive);
+        window.removeEventListener("load", onReady);
         fx.padOff(0.2);
       };
     },
@@ -368,104 +466,109 @@ export function WebCinema({ title }: { title: string }) {
     flags.current = { ...flags.current, ended: false, paused: false, playing: true };
     setEnded(false);
     setPlaying(true);
-    tl.restart();
+    fx.duck(false);
+    tl.time(0);
   };
 
-  const pillCls = "cine-fg absolute left-1/2 top-0 flex items-center gap-3";
+  const center = "absolute left-1/2 top-0";
   return (
-    <section ref={root} className="cine-acr relative h-svh min-h-[560px] overflow-hidden" aria-label={title}>
+    <section ref={root} className="cine-film cine-acr relative h-svh min-h-[560px] overflow-hidden" aria-label={title}>
       <h1 className="sr-only">{title}</h1>
-      <div data-world className="absolute inset-x-0 top-0 bottom-0 max-md:bottom-[22svh]">
+      <div className="absolute inset-x-0 top-0 bottom-0 max-md:bottom-[22svh]">
         {c.cap.map((t, i) => (
           <p key={t} data-cap={i} className={CAP} style={HID}>
-            {t}
+            <Kw text={t} />
           </p>
         ))}
-        <div className="absolute inset-x-0 top-[57%] h-0">
-          {/* ricerca */}
-          <Bead as="div" data-it data-pill radius={999} className={`${pillCls} h-[clamp(56px,9svh,76px)] w-[min(680px,88vw)] px-7 text-[clamp(18px,2.4vw,26px)]`} style={{ ...HID, marginTop: -60 }}>
-            <Search size={22} strokeWidth={1.8} className="cine-fg2 shrink-0" />
-            <span data-typed />
-            <span className="h-[1.1em] w-[2px] animate-pulse bg-[var(--label-primary)]" />
-          </Bead>
-          <Bead as="div" data-it data-r1 radius={34} className={`${pillCls} block w-[min(680px,88vw)] px-8 py-6`} style={HID}>
-            <span className="block text-[clamp(20px,2.6vw,30px)] font-medium tracking-[-0.02em]">La tua attività</span>
-            <span className="cine-fg2 mt-1 block text-[clamp(14px,1.6vw,18px)]">latuaattivita.it</span>
-          </Bead>
-          {/* caricamento lento, poi veloce */}
-          <div data-it data-load className="cine-fg absolute left-1/2 top-0 flex flex-col items-center gap-5" style={HID}>
-            <span className="relative block h-[clamp(130px,24svh,210px)] w-[clamp(130px,24svh,210px)]">
-              <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
-                <circle cx="20" cy="20" r="17" fill="none" stroke="var(--hair-strong)" strokeWidth="1.6" />
-                <circle data-ring cx="20" cy="20" r="17" fill="none" stroke="#f5c46b" strokeWidth="1.6" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
-              </svg>
-              <span data-count className="absolute inset-0 flex items-center justify-center font-mono text-[clamp(26px,4.6svh,42px)] tabular-nums">
-                0,0 s
-              </span>
-            </span>
-            <span className="cine-fg2 text-[clamp(15px,1.8vw,21px)]">{c.find.loading}</span>
-          </div>
-          <div data-it data-fast className="absolute left-1/2 top-0" style={HID}>
-            <span className="relative block h-[clamp(130px,24svh,210px)] w-[clamp(130px,24svh,210px)]">
-              <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
-                <circle data-fring cx="20" cy="20" r="17" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
-              </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-[clamp(34px,6svh,56px)] font-medium tracking-[-0.04em]" style={{ color: "var(--accent)" }}>
-                0,8 s
-              </span>
-            </span>
-          </div>
-          {/* il sito */}
-          <div data-it data-dev className="absolute left-1/2 top-0 overflow-hidden bg-[#0d1115] shadow-[0_40px_120px_-40px_rgba(0,0,0,.55)] ring-1 ring-[color:var(--hair-strong)]" style={{ ...HID, width: 1100, height: 640 }}>
-            <MiniSite c={c} />
-            <Wire />
-            <span data-scan className="pointer-events-none absolute inset-x-0 z-10 block h-[2px] bg-[#8fd8ff] opacity-0 shadow-[0_0_24px_4px_rgba(143,216,255,.55)]" />
-          </div>
-          {/* notifiche */}
-          {c.clients.items.map(([t, b]) => (
-            <Bead as="div" key={b} data-it data-n radius={34} className="cine-fg absolute left-1/2 top-0 flex w-[min(440px,86vw)] items-center gap-4 px-5 py-4" style={HID}>
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--bg-canvas)]">
-                <Bell size={22} strokeWidth={1.8} />
-              </span>
-              <span className="block leading-tight">
-                <span className="block text-[clamp(16px,1.9vw,21px)] font-semibold tracking-[-0.015em]">{t}</span>
-                <span className="cine-fg2 mt-0.5 block text-[clamp(14px,1.6vw,18px)]">{b}</span>
-              </span>
+        <div data-cam className="absolute inset-0 will-change-transform">
+          <div className="absolute inset-x-0 top-[60%] h-0">
+            {/* ricerca e risultati */}
+            <Bead as="div" data-it data-pill radius={42} className={`cine-fg ${center} flex h-[clamp(60px,10svh,84px)] w-[min(860px,88vw)] items-center gap-4 px-[clamp(20px,3vw,34px)] text-[clamp(18px,2.6vw,30px)]`} style={HID}>
+              <Search size={26} strokeWidth={1.8} className="cine-fg2 shrink-0" />
+              <span data-typed className="tracking-[-0.015em]" />
+              <span className="h-[1.1em] w-[2px] animate-pulse bg-[var(--label-primary)]" />
             </Bead>
-          ))}
-          {/* indirizzo */}
-          <Bead as="div" data-it data-bar2 radius={999} className="cine-fg absolute left-1/2 top-0 z-20 flex h-12 items-center gap-3 overflow-hidden px-4 text-[15px]" style={{ ...HID, width: 300 }}>
-            <span className="relative block h-5 w-5 shrink-0">
-              <Lock data-lock1 size={18} strokeWidth={1.8} className="cine-fg2 absolute inset-0" />
-              <ShieldCheck data-lock2 size={20} strokeWidth={1.8} className="absolute inset-0 text-[#1fa35b] opacity-0" />
-            </span>
-            <span data-url className="tracking-[-0.01em]" />
-            <span data-live className="ml-auto flex items-center gap-1.5 text-[12px] opacity-0">
-              <span className="h-2 w-2 rounded-full bg-[#30d158] shadow-[0_0_0_3px_rgba(48,209,88,.25)]" />
-              {c.online.live}
-            </span>
-            <span data-load2 className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[var(--accent)]" style={{ transform: "scaleX(0)" }} />
-          </Bead>
-          <Bead as="div" data-it data-saved radius={999} className="cine-fg absolute left-1/2 top-0 z-20 flex h-11 items-center gap-2 px-5 text-[15px] font-semibold" style={HID}>
-            <Check size={18} strokeWidth={2.4} style={{ color: "#1fa35b" }} />
-            {c.edit.saved}
-          </Bead>
-          {/* cosa ricevi e cosa garantisci */}
-          <div className="absolute left-1/2 top-0 flex w-[min(880px,92vw)] -translate-x-1/2 -translate-y-1/2 flex-wrap justify-center gap-3">
+            {[c.find.me, ...c.find.others].map(([t, u], i) => (
+              <Bead as="div" key={u} data-it data-res radius={34} className={`cine-fg ${center} flex h-[clamp(56px,9svh,74px)] w-[min(860px,88vw)] items-center justify-between gap-4 px-[clamp(20px,3vw,34px)]`} style={HID}>
+                <span className={`text-[clamp(17px,2.2vw,26px)] tracking-[-0.02em] ${i ? "cine-fg2" : "font-semibold"}`}>{t}</span>
+                <span className="cine-fg2 text-[clamp(13px,1.5vw,17px)]">{u}</span>
+              </Bead>
+            ))}
+            {/* il caricamento lento, poi quello veloce */}
+            <div data-it data-load className={`cine-fg ${center}`} style={HID}>
+              <span className="relative block aspect-square w-[min(52svh,72vw,480px)]">
+                <svg data-spin viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
+                  <circle cx="20" cy="20" r="18" fill="none" stroke="var(--hair-strong)" strokeWidth="0.9" />
+                  <circle data-ring cx="20" cy="20" r="18" fill="none" stroke="#f5b84b" strokeWidth="0.9" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+                </svg>
+                <span className="absolute inset-0 flex flex-col items-center justify-center gap-[1.5svh]">
+                  <span data-count className="font-mono text-[clamp(40px,9svh,88px)] leading-none tabular-nums tracking-[-0.04em]">
+                    0,0 s
+                  </span>
+                  <span className="cine-fg2 text-[clamp(14px,1.8svh,19px)]">{c.find.loading}</span>
+                </span>
+              </span>
+            </div>
+            <div data-it data-fast className={center} style={HID}>
+              <span className="relative block aspect-square w-[min(52svh,72vw,480px)]">
+                <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
+                  <circle data-fring cx="20" cy="20" r="18" fill="none" stroke="var(--accent)" strokeWidth="1.1" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-[clamp(48px,11svh,110px)] font-medium tracking-[-0.05em]">
+                  <GradientText colors={GT} animationSpeed={8} variant="flow" glow={1} className="leading-[1.2]">
+                    {fast}
+                  </GradientText>
+                </span>
+              </span>
+            </div>
+            {/* il sito, con dentro la barra dell'indirizzo, le notifiche e la conferma */}
+            <div data-it data-dev className={`${center} overflow-hidden bg-[#0d1115] shadow-[0_50px_140px_-40px_rgba(0,0,0,.6)]`} style={{ ...HID, width: 1100, height: 640, borderRadius: "var(--r)" }}>
+              <MiniSite c={c}>
+                <div data-ub className="absolute left-[var(--i)] right-[var(--i)] top-[var(--i)] z-20 flex h-[clamp(44px,6cqw,60px)] items-center gap-2.5 overflow-hidden bg-[#f3f4f6] px-[clamp(14px,2.4cqw,22px)] text-[clamp(14px,2cqw,18px)] text-[#111316]" style={{ ...HID, borderRadius: R_IN }}>
+                  <span className="relative block h-[18px] w-[18px] shrink-0">
+                    <Lock data-lock1 size={17} strokeWidth={2} className="absolute inset-0 text-[#6b6f76]" />
+                    <ShieldCheck data-lock2 size={18} strokeWidth={2} className="absolute inset-0 text-[#1a9e55]" style={HID} />
+                  </span>
+                  <span data-url className="tracking-[-0.01em]" />
+                  <span data-live className="ml-auto flex items-center gap-1.5 text-[0.78em] font-medium text-[#1a9e55]" style={HID}>
+                    <span className="h-2 w-2 rounded-full bg-[#30d158]" />
+                    {c.online.live}
+                  </span>
+                  <span data-load2 className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[var(--accent)]" style={{ transform: "scaleX(0)" }} />
+                </div>
+                {c.clients.items.map(([t, b], i) => (
+                  <div key={b} data-n className="absolute left-[var(--i)] right-[var(--i)] z-20 flex h-[66px] items-center gap-3 bg-[#f3f4f6] p-[10px] text-[#111316] shadow-[0_10px_30px_-12px_rgba(0,0,0,.5)]" style={{ ...HID, top: `calc(var(--i) + ${i * 74}px)`, borderRadius: R_IN }}>
+                    <span className="flex aspect-square h-full shrink-0 items-center justify-center bg-[var(--accent)] text-white" style={{ borderRadius: "calc(var(--r) - var(--i) - 10px)" }}>
+                      <Bell size={20} strokeWidth={2} />
+                    </span>
+                    <span className="block min-w-0 leading-tight">
+                      <span className="block truncate text-[15px] font-semibold tracking-[-0.01em]">{t}</span>
+                      <span className="block truncate text-[13px] text-[#5b5f66]">{b}</span>
+                    </span>
+                  </div>
+                ))}
+                <div data-saved className="absolute left-1/2 top-[var(--i)] z-20 -ml-[70px] flex h-[clamp(44px,6cqw,60px)] w-[140px] items-center justify-center gap-2 bg-[#f3f4f6] text-[15px] font-semibold text-[#111316]" style={{ ...HID, borderRadius: R_IN }}>
+                  <Check size={18} strokeWidth={2.6} className="text-[#1a9e55]" />
+                  {c.edit.saved}
+                </div>
+                <Wire />
+                <span data-scan className="pointer-events-none absolute inset-x-0 z-30 block h-[2px] bg-[#8fd8ff] shadow-[0_0_28px_6px_rgba(143,216,255,.6)]" style={HID} />
+              </MiniSite>
+            </div>
+            {/* cosa ricevi */}
             {c.gets.items.map(([t], i) => {
               const Icon = ICONS_GETS[i];
               return (
-                <Bead as="div" key={t} data-g radius={999} className="cine-fg flex h-14 items-center gap-3 px-6 text-[clamp(16px,2vw,22px)] font-medium" style={HID}>
+                <Bead as="div" key={t} data-it data-g radius={32} className={`cine-fg ${center} flex h-[clamp(52px,7.5svh,64px)] items-center gap-3 whitespace-nowrap px-[clamp(18px,2.2vw,26px)] text-[clamp(16px,1.9vw,22px)] font-medium tracking-[-0.015em]`} style={HID}>
                   <Icon size={22} strokeWidth={1.7} style={{ color: "var(--accent)" }} />
                   {t}
                 </Bead>
               );
             })}
-          </div>
-          <div className="absolute left-1/2 top-0 flex w-[min(880px,92vw)] -translate-x-1/2 -translate-y-1/2 flex-wrap justify-center gap-3">
+            {/* cosa garantisco */}
             {c.promise.items.map(([t]) => (
-              <Bead as="div" key={t} data-pr radius={999} className="cine-fg flex h-14 items-center gap-3 px-6 text-[clamp(16px,2vw,22px)] font-medium" style={HID}>
-                <Check size={20} strokeWidth={2.2} style={{ color: "var(--accent)" }} />
+              <Bead as="div" key={t} data-it data-pr radius={36} className={`cine-fg ${center} flex h-[clamp(56px,8.5svh,72px)] items-center gap-3 whitespace-nowrap px-[clamp(20px,2.6vw,30px)] text-[clamp(17px,2.3vw,28px)] font-medium tracking-[-0.02em]`} style={HID}>
+                <Check size={24} strokeWidth={2.2} style={{ color: "var(--accent)" }} />
                 {t}
               </Bead>
             ))}
@@ -473,17 +576,17 @@ export function WebCinema({ title }: { title: string }) {
         </div>
       </div>
       <div data-end className="absolute inset-0 flex flex-col items-center justify-center" style={HID}>
-        <p data-eh className="mx-auto max-w-[14ch] px-6 text-center text-[clamp(44px,8.4vw,140px)] font-medium leading-[1.02] tracking-[-0.055em] cine-fg">
-          {c.end.t}
+        <p data-eh className="mx-auto max-w-[14ch] px-6 text-center text-[clamp(44px,8.4vw,140px)] font-medium leading-[1.04] tracking-[-0.05em] cine-fg">
+          <Kw text={c.end.t} />
         </p>
-        <span data-more className="cine-fg2 absolute bottom-[clamp(150px,22svh,200px)] flex flex-col items-center gap-2 text-[13px] uppercase tracking-[0.18em] md:bottom-24">
+        <span data-more className="cine-fg2 absolute bottom-[clamp(150px,22svh,200px)] flex flex-col items-center gap-2 text-[13px] uppercase tracking-[0.18em] md:bottom-24" style={HID}>
           {c.end.more}
           <ArrowDown size={16} strokeWidth={1.8} className="animate-bounce" />
         </span>
       </div>
       {!prefersReducedMotion() && (
         <div className="absolute inset-x-0 bottom-[clamp(158px,24svh,210px)] z-10 flex justify-center px-5 md:bottom-7">
-          <Bead as="div" radius={999} className="cine-fg relative flex h-12 items-center gap-1 overflow-hidden pl-2 pr-2">
+          <Bead as="div" radius={24} className="cine-fg relative flex h-12 items-center gap-1 overflow-hidden px-1.5">
             <button type="button" onClick={ended ? replay : toggle} aria-label={ended ? c.ctl.replay : playing ? c.ctl.pause : c.ctl.play} className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--hover)]">
               {ended ? <RotateCcw size={18} strokeWidth={1.9} /> : playing ? <Pause size={18} strokeWidth={1.9} /> : <Play size={18} strokeWidth={1.9} />}
             </button>

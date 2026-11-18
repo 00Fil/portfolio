@@ -548,3 +548,21 @@ html[data-perf="low"] .drop > .drop-glow { display: none; }
 .cine-fg { color: var(--label-primary); }
 .cine-fg2 { color: var(--label-secondary); }
 .cine-blk { background: color-mix(in srgb, var(--label-primary) 12%, transparent); }
+
+/* ------------------------------------------------------------ Testo a gradiente animato (parole chiave) */
+.gradient-text { position: relative; display: inline-flex; align-items: center; justify-content: center; max-width: 100%; isolation: isolate; }
+.gradient-text--border { padding: 0.35em 0.75em; border-radius: 999px; }
+.gradient-text--border::before {
+  content: ""; position: absolute; inset: 0; padding: var(--gt-border); border-radius: inherit; background-image: var(--gt-gradient);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); pointer-events: none;
+}
+.gradient-text__inner { position: relative; display: inline-block; }
+.gradient-text__content { display: inline-block; padding-block: 0.06em; background-image: var(--gt-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.gradient-text__glow {
+  position: absolute; inset: 0; z-index: -1; padding-block: 0.06em; background-image: var(--gt-gradient); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; filter: blur(0.3em) saturate(1.4); opacity: var(--gt-glow); pointer-events: none; user-select: none;
+}
+
+/* Video del servizio: vetro opaco (il fondo non traspare mai), e nel sito d'esempio superfici piene e scure */
+.cine-film .drop { --drop-tint: var(--acrylic-solid) !important; }
