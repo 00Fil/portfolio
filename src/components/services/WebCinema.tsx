@@ -245,26 +245,35 @@ export function WebCinema({ title }: { title: string }) {
       });
       tlRef.current = tl;
 
-      /* didascalie: le parole salgono dalla loro maschera, la parola chiave arriva sfocata e si mette a fuoco */
+      /* didascalie a ritmo: la prima parte colpisce sul battito, la parola chiave arriva subito dopo (un ottavo),
+         e tutto esce insieme sul battito successivo */
       const caps = c.cap.map((_, i) => one(`[data-cap="${i}"]`));
-      const units = caps.map((e) => {
-        SplitText.create(e, { type: "words", mask: "words", wordsClass: "cw", ignore: "[data-kw]" });
-        return Array.from(e.querySelectorAll<HTMLElement>(".cw, [data-kw]"));
-      });
+      const split = (e: HTMLElement) => {
+        SplitText.create(e, { type: "words", wordsClass: "cw", ignore: "[data-kw]" });
+        const all = Array.from(e.querySelectorAll<HTMLElement>(".cw, [data-kw]"));
+        const k = all.findIndex((w) => w.hasAttribute("data-kw"));
+        return k < 0 ? { a: all, b: [] as HTMLElement[] } : { a: all.slice(0, k), b: all.slice(k) };
+      };
+      const units = caps.map(split);
+      const slam = (g: { a: HTMLElement[]; b: HTMLElement[] }, at: number, deg: number) => {
+        if (g.a.length) {
+          tl.fromTo(g.a, { scale: 1.22, autoAlpha: 0, filter: "blur(10px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 0.42, ease: "expo.out" }, at);
+          tl.call(() => (fx.kick(0.9), fx.tick(1)), undefined, at);
+        }
+        if (g.b.length) {
+          const at2 = at + (g.a.length ? 0.25 : 0);
+          tl.fromTo(g.b, { scale: 1.3, autoAlpha: 0, filter: "blur(12px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 0.5, ease: "expo.out" }, at2);
+          tl.call(() => fx.pluck(deg + 7, 0.9, 0.5), undefined, at2);
+        }
+      };
       const cap = (i: number, b0: number, b1: number) => {
         const u = units[i];
-        tl.set(caps[i], { autoAlpha: 1 }, T(b0));
-        u.forEach((w, j) => {
-          const kw = w.hasAttribute("data-kw");
-          tl.fromTo(
-            w,
-            kw ? { yPercent: 40, autoAlpha: 0, filter: "blur(12px)" } : { yPercent: 110 },
-            kw ? { yPercent: 0, autoAlpha: 1, filter: "blur(0px)", duration: 0.9, ease: "expo.out" } : { yPercent: 0, duration: 0.75, ease: "expo.out" },
-            T(b0) + j * 0.055,
-          );
-          tl.to(w, kw ? { yPercent: -40, autoAlpha: 0, filter: "blur(10px)", duration: 0.4, ease: "power2.in" } : { yPercent: -110, duration: 0.4, ease: "power2.in" }, T(b1) - 0.45 + j * 0.025);
-        });
-        tl.set(caps[i], { autoAlpha: 0 }, T(b1));
+        const t0 = T(Math.round(b0));
+        const t1 = T(Math.round(b1));
+        tl.set(caps[i], { autoAlpha: 1 }, t0);
+        slam(u, t0, i % 5);
+        tl.to([...u.a, ...u.b], { scale: 0.94, autoAlpha: 0, filter: "blur(8px)", duration: 0.28, ease: "power3.in" }, t1 - 0.28);
+        tl.set(caps[i], { autoAlpha: 0 }, t1);
       };
       const punch = (b: number, s = 1.02) => tl.fromTo(cam, { scale: s }, { scale: 1, duration: 0.6, ease: "expo.out" }, T(b));
 
@@ -393,57 +402,72 @@ export function WebCinema({ title }: { title: string }) {
         .to(cam, { scale: 1, duration: 1, ease: "expo.inOut" }, T(39.6));
       cap(8, 31.4, 40.8);
 
-      /* 9 · Tutto compreso: il sito si allontana, le sei cose che ricevi gli orbitano intorno */
+      /* 9 · Tutto compreso: ogni cosa nasce come icona che si disegna al centro, diventa card e si unisce al cerchio */
       const gs = $("[data-g]");
-      const orb = { r: 0, a: -0.5 };
+      const orb = { a: -0.5 };
+      const rr = gs.map(() => ({ r: 0, v: 0 }));
       const place = () =>
         gs.forEach((g, i) => {
-          if (small()) gsap.set(g, { x: 0, y: (i - 2.7) * 56 * orb.r });
+          const { r, v } = rr[i];
+          const h = g.offsetHeight;
+          const w = g.offsetWidth;
+          const cx = ((w - h) / 2) * (1 - v);
+          const clip = `inset(0px ${(w - h) * (1 - v)}px 0px 0px round ${h / 2}px)`;
+          if (small()) gsap.set(g, { x: cx, y: (i - 2.7) * 56 * r, clipPath: clip });
           else {
             const t = orb.a + (i / gs.length) * Math.PI * 2;
-            gsap.set(g, { x: Math.cos(t) * Math.min(innerWidth * 0.33, 480) * orb.r, y: Math.sin(t) * Math.min(innerHeight * 0.22, 210) * orb.r });
+            gsap.set(g, { x: cx + Math.cos(t) * Math.min(innerWidth * 0.33, 480) * r, y: Math.sin(t) * Math.min(innerHeight * 0.22, 210) * r, clipPath: clip });
           }
         });
+      const draws = gs.map((g) => {
+        const ps = Array.from(g.querySelectorAll<SVGElement>("svg *"));
+        ps.forEach((x) => x.setAttribute("pathLength", "1"));
+        gsap.set(ps, { strokeDasharray: 1, strokeDashoffset: 1 });
+        return ps;
+      });
+      place();
       tl.to(saved, { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, T(40.6))
         .call(() => (fx.kick(1), fx.whoosh(0.8, false, 1)), undefined, T(40.8))
         .to(dev, { scale: () => fit(mid)() * 0.22, rotationY: 30, autoAlpha: 0, duration: 0.9, ease: "power3.in" }, T(40.6))
-        .fromTo(orb, { r: 0 }, { r: 1, duration: 1.4, ease: "expo.out", onUpdate: place }, T(41.2))
-        .fromTo(orb, { a: -0.5 }, { a: 0.6, duration: T(5.4), ease: "sine.inOut", onUpdate: place }, T(41.2))
-        .fromTo(gs, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "back.out(1.8)", stagger: T(0.4) }, T(41.2));
-      gs.forEach((_, i) => tl.call(() => fx.pluck(i + 2, 0.9, 0.4), undefined, T(41.2) + i * T(0.4)));
-      tl.call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(44.4));
-      punch(44.4, 1.015);
-      cap(9, 41, 46.6);
+        .fromTo(orb, { a: -0.5 }, { a: 0.7, duration: T(7.4), ease: "sine.inOut", onUpdate: place }, T(41.2));
+      gs.forEach((g, i) => {
+        const at = T(41.2 + i * 1);
+        tl.fromTo(g, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2)" }, at)
+          .to(draws[i], { strokeDashoffset: 0, duration: 0.55, ease: "power2.inOut", stagger: 0.06 }, at + 0.1)
+          .to(rr[i], { v: 1, duration: 0.7, ease: "expo.inOut", onUpdate: place }, at + 0.65)
+          .to(rr[i], { r: 1, duration: 1.1, ease: "expo.out", onUpdate: place }, at + 0.7)
+          .call(() => fx.pluck(i + 2, 0.9, 0.5), undefined, at + 0.1)
+          .call(() => fx.tick(1.2), undefined, at + 0.7);
+      });
+      tl.call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(48.6));
+      punch(48.6, 1.015);
+      cap(9, 41, 49);
 
       /* 10 · Senza sorprese */
       const ps = $("[data-pr]");
       const pp = (i: number) => (small() ? { x: 0, y: (i - 1.5) * 70 } : { x: (i % 2 ? 1 : -1) * Math.min(innerWidth * 0.19, 270), y: (i < 2 ? -1 : 1) * 52 });
-      tl.to(orb, { r: 0, duration: 0.7, ease: "power3.in", onUpdate: place }, T(46.2))
-        .to(gs, { autoAlpha: 0, scale: 0.7, duration: 0.5, ease: "power2.in" }, T(46.3))
-        .call(() => fx.whoosh(0.5, true, 0.7), undefined, T(46.8));
+      tl.to(rr, { r: 0, duration: 0.7, ease: "power3.in", onUpdate: place }, T(49.2))
+        .to(gs, { autoAlpha: 0, scale: 0.7, duration: 0.5, ease: "power2.in" }, T(49.3))
+        .call(() => fx.whoosh(0.5, true, 0.7), undefined, T(49.8));
       ps.forEach((p, i) => {
-        const at = T(46.8 + i * 0.75);
+        const at = T(49.8 + i * 0.75);
         tl.fromTo(p, { autoAlpha: 0, scale: 0.7, x: () => pp(i).x, y: () => pp(i).y + 40 }, { autoAlpha: 1, scale: 1, y: () => pp(i).y, duration: 0.8, ease: "back.out(1.5)" }, at).call(() => fx.bell(7 + i * 2, 0.9), undefined, at);
       });
-      cap(10, 46.8, 51.6);
+      cap(10, 50, 54.6);
 
       /* chiusura */
-      const eu = (() => {
+      const eg = (() => {
         const e = one("[data-eh]");
-        SplitText.create(e, { type: "words", mask: "words", wordsClass: "cw", ignore: "[data-kw]" });
-        return Array.from(e.querySelectorAll<HTMLElement>(".cw, [data-kw]"));
+        return split(e);
       })();
-      tl.to(ps, { autoAlpha: 0, y: "-=30", filter: "blur(8px)", duration: 0.45, stagger: 0.04, ease: "power2.in" }, T(51.2))
-        .call(() => (fx.kick(1.2), fx.whoosh(0.9, true, 1)), undefined, T(51.8))
-        .set(endCard, { autoAlpha: 1 }, T(51.8));
-      eu.forEach((w, j) => {
-        const kw = w.hasAttribute("data-kw");
-        tl.fromTo(w, kw ? { yPercent: 40, autoAlpha: 0, filter: "blur(14px)" } : { yPercent: 110 }, kw ? { yPercent: 0, autoAlpha: 1, filter: "blur(0px)", duration: 1.1, ease: "expo.out" } : { yPercent: 0, duration: 0.9, ease: "expo.out" }, T(51.8) + j * 0.07);
-      });
-      tl.call(() => (fx.chord([0, 2, 4, 7], 1.2)), undefined, T(52))
-        .fromTo(one("[data-more]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, T(53.4));
+      tl.to(ps, { autoAlpha: 0, y: "-=30", filter: "blur(8px)", duration: 0.45, stagger: 0.04, ease: "power2.in" }, T(54.2))
+        .call(() => (fx.kick(1.2), fx.whoosh(0.9, true, 1)), undefined, T(54.8))
+        .set(endCard, { autoAlpha: 1 }, T(54.8));
+      slam(eg, T(55.0), 0);
+      tl.call(() => (fx.chord([0, 2, 4, 7], 1.2)), undefined, T(55.0))
+        .fromTo(one("[data-more]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, T(56.4));
       punch(51.8, 1.03);
-      tl.set({}, {}, T(56));
+      tl.set({}, {}, T(59));
 
       /* Il tempo del video lo muoviamo noi, un fotogramma alla volta e con un passo massimo:
          se il dispositivo rallenta (pagina che carica, telefono sotto sforzo) il video rallenta con lui invece di saltare le scene. */
