@@ -62,13 +62,13 @@ export function Preloader({ label }: { label: string }) {
     return () => void (alive = false);
   }, [total]);
 
+  /* la parola intera in un solo pezzo: il font del marchio collega le lettere, separarle le sfalserebbe */
   let k = 0;
-  const chars = (s: string, light = false) =>
-    Array.from(s).map((c, i) => (
-      <span key={i} className={`pre-ch inline-block ${light ? "font-normal" : ""}`} style={{ ["--i" as string]: k++ }}>
-        {c === " " ? " " : c}
-      </span>
-    ));
+  const chars = (s: string, light = false) => (
+    <span className={`pre-ch inline-block ${light ? "font-normal" : ""}`} style={{ ["--i" as string]: (k += 5) }}>
+      {s}
+    </span>
+  );
 
   return (
     <div ref={root} role="img" aria-label={label} className="preloader fixed inset-0 z-[200] items-center bg-[var(--bg-canvas)]">
