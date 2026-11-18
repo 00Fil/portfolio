@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Wrench } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { loginGate } from "@/app/[locale]/accedi/actions";
 import { onIntroLift } from "@/lib/intro";
 import { prefersReducedMotion } from "@/lib/env";
@@ -43,12 +43,11 @@ export function GateScreen({ t }: { t: Txt }) {
     <main id="main" className="relative flex min-h-[100svh] items-center justify-center px-4 pb-36 pt-[calc(var(--bar-h)+32px)] lg:pb-16">
       <div aria-hidden className="pointer-events-none absolute inset-0 [background-image:radial-gradient(circle,var(--hair)_1px,transparent_1.4px)] [background-size:24px_24px] [mask-image:radial-gradient(50%_50%_at_50%_50%,#000,transparent)]" />
       <div className="relative w-full max-w-[400px] rounded-[24px] bg-[var(--card)] p-7 shadow-[inset_0_0_0_1px_var(--hair),0_40px_80px_-50px_var(--shadow-strong)] sm:p-9" style={rise(0)}>
-        <span className="inline-flex h-8 items-center gap-2 rounded-full bg-[color-mix(in_srgb,#f5b84b_16%,transparent)] pl-2.5 pr-3.5 text-[13px] font-medium text-ink shadow-[inset_0_0_0_1px_color-mix(in_srgb,#f5b84b_45%,transparent)]" style={rise(1)}>
+        <span className="flex items-center gap-2.5 text-[13px] font-medium text-ink-2" style={rise(1)}>
           <span className="relative flex h-2 w-2">
             <span className="absolute inset-0 animate-ping rounded-full bg-[#f5b84b] opacity-60" />
             <span className="relative h-2 w-2 rounded-full bg-[#f5b84b]" />
           </span>
-          <Wrench size={14} strokeWidth={1.8} className="text-ink-2" />
           {t.status}
         </span>
         <h1 className="mt-5 text-[30px] font-semibold leading-tight tracking-[-0.04em] text-ink" style={rise(2)}>
