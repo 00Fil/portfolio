@@ -34,7 +34,7 @@ function Kw({ text }: { text: string }) {
         if (i % 2) {
           const m = /^[.,!?;:]+/.exec(parts[i + 1] ?? "");
           return (
-            <span key={i} data-kw className="inline-block" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.12em 0.2em 0.3em", margin: "-0.12em -0.2em -0.3em" }}>
+            <span key={i} data-kw className="inline-block" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.2em 0.34em 0.5em", margin: "-0.2em -0.34em -0.5em" }}>
               <GradientText colors={GT} animationSpeed={8} variant="flow" glow={1}>
                 {p + (m ? m[0] : "")}
               </GradientText>
@@ -45,6 +45,23 @@ function Kw({ text }: { text: string }) {
         return <Fragment key={i}>{i > 0 && prev ? p.slice(prev[0].length) : p}</Fragment>;
       })}
     </>
+  );
+}
+
+/** Illustrazioni tracciate a linea per le garanzie: si disegnano da sole durante il film. */
+const ART: string[][] = [
+  ["M16 8h24l9 9v39H16z", "M40 8v9h9", "M24 28h18", "M24 36h18", "M24 44h9", "M34 52c3-5 5 3 8-2s4 2 7-1"],
+  ["M32 8a9 9 0 1 0 0.01 0", "M14 56c0-11 8-18 18-18s18 7 18 18", "M8 30a24 24 0 0 1 8-14", "M56 30a24 24 0 0 0-8-14"],
+  ["M8 34 34 8h22v22L30 56z", "M46 18a3.5 3.5 0 1 0 0.01 0", "M24 36l12-12", "M28 44l16-16"],
+  ["M14 30h36v26H14z", "M22 30V20a10 10 0 0 1 19-4", "M32 40v8", "M32 40a2 2 0 1 0 0.01 0"],
+];
+function PromiseArt({ i }: { i: number }) {
+  return (
+    <svg viewBox="0 0 64 64" className="h-full w-full" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      {ART[i % ART.length].map((d, k) => (
+        <path key={k} d={d} />
+      ))}
+    </svg>
   );
 }
 
@@ -422,7 +439,8 @@ export function WebCinema({ title }: { title: string }) {
       eraseTo(tl, l2, oldT, T(35.8), 0.45);
       typeTo(tl, l2, c.title[1], T(36.8), T(2.2), 0);
       tl.to($("[data-focus]"), { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, T(39.2))
-        .fromTo(saved, { autoAlpha: 0, y: -16, scale: 0.85 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(2.2)" }, T(39.2))
+        .fromTo(saved, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, T(39.2))
+        .fromTo(one("[data-saved-t]"), { y: 70, scale: 0.9, filter: "blur(10px)" }, { y: 0, scale: 1, filter: "blur(0px)", duration: 0.9, ease: "expo.out" }, T(39.2) + 0.1)
         .call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(39.2))
         .to(cam, { scale: 1, duration: 1, ease: "expo.inOut" }, T(39.6));
       cap(8, 31.4, 40.8);
@@ -437,7 +455,7 @@ export function WebCinema({ title }: { title: string }) {
           const h = g.offsetHeight;
           const w = g.offsetWidth;
           const cx = ((w - h) / 2) * (1 - v);
-          const clip = `inset(0px ${(w - h) * (1 - v)}px 0px 0px round ${h / 2}px)`;
+          const clip = `inset(0px ${(w - h) * (1 - v)}px 0px 0px round ${h * (0.3 + 0.2 * v)}px)`;
           if (small()) gsap.set(g, { x: cx, y: (i - 2.55) * 64 * r, clipPath: clip });
           else {
             const t = orb.a + (i / gs.length) * Math.PI * 2;
@@ -451,13 +469,14 @@ export function WebCinema({ title }: { title: string }) {
         return ps;
       });
       place();
-      tl.to(saved, { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, T(40.6))
+      tl.to(saved, { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, T(40.6))
         .call(() => (fx.kick(1), fx.whoosh(0.8, false, 1)), undefined, T(40.8))
         .to(dev, { scale: () => fit(mid)() * 0.22, rotationY: 30, autoAlpha: 0, duration: 0.9, ease: "power3.in" }, T(40.6))
         .fromTo(orb, { a: -0.5 }, { a: 0.7, duration: T(7.4), ease: "sine.inOut", onUpdate: place }, T(41.2));
       gs.forEach((g, i) => {
         const at = T(41.2 + i * 1);
         tl.fromTo(g, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2)" }, at)
+          .fromTo(g.querySelector("[data-tile]"), { rotationY: -80, rotationX: 25 }, { rotationY: 0, rotationX: 0, duration: 0.9, ease: "expo.out" }, at + 0.1)
           .to(draws[i], { strokeDashoffset: 0, duration: 0.55, ease: "power2.inOut", stagger: 0.06 }, at + 0.1)
           .to(rr[i], { v: 1, duration: 0.7, ease: "expo.inOut", onUpdate: place }, at + 0.65)
           .to(rr[i], { r: 1, duration: 1.1, ease: "expo.out", onUpdate: place }, at + 0.7)
@@ -470,13 +489,28 @@ export function WebCinema({ title }: { title: string }) {
 
       /* 10 · Senza sorprese */
       const ps = $("[data-pr]");
-      const pp = (i: number) => (small() ? { x: 0, y: (i - 1.5) * 70 } : { x: (i % 2 ? 1 : -1) * Math.min(innerWidth * 0.19, 270), y: (i < 2 ? -1 : 1) * 52 });
+      const pp = (i: number) => {
+        const w = ps[i].offsetWidth;
+        const h = ps[i].offsetHeight;
+        return small() ? { x: (i % 2 ? 0.5 : -0.5) * (w + 12), y: (i < 2 ? -0.5 : 0.5) * (h + 12) } : { x: (i - 1.5) * (w + 16), y: 0 };
+      };
+      const pdraw = ps.map((p) => {
+        const sh = Array.from(p.querySelectorAll<SVGElement>("svg *"));
+        sh.forEach((x) => x.setAttribute("pathLength", "1"));
+        gsap.set(sh, { strokeDasharray: 1, strokeDashoffset: 1 });
+        return sh;
+      });
       tl.to(rr, { r: 0, duration: 0.7, ease: "power3.in", onUpdate: place }, T(49.2))
         .to(gs, { autoAlpha: 0, scale: 0.7, duration: 0.5, ease: "power2.in" }, T(49.3))
         .call(() => fx.whoosh(0.5, true, 0.7), undefined, T(49.8));
       ps.forEach((p, i) => {
         const at = T(49.8 + i * 0.75);
-        tl.fromTo(p, { autoAlpha: 0, scale: 0.7, x: () => pp(i).x, y: () => pp(i).y + 40 }, { autoAlpha: 1, scale: 1, y: () => pp(i).y, duration: 0.8, ease: "back.out(1.5)" }, at).call(() => fx.bell(7 + i * 2, 0.9), undefined, at);
+        const l = p.querySelector("[data-pl]");
+        tl.fromTo(p, { autoAlpha: 0, scale: 0.9, x: () => pp(i).x, y: () => pp(i).y + 90 }, { autoAlpha: 1, scale: 1, x: () => pp(i).x, y: () => pp(i).y, duration: 0.9, ease: "expo.out" }, at)
+          .to(pdraw[i], { strokeDashoffset: 0, duration: 0.8, ease: "power2.inOut", stagger: 0.12 }, at + 0.25)
+          .fromTo(l, { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "expo.out" }, at + 0.6)
+          .fromTo(p, { rotationX: 0 }, { rotationX: 0, duration: 0.01 }, at)
+          .call(() => fx.bell(7 + i * 2, 0.9), undefined, at + 0.25);
       });
       cap(10, 50, 54.6);
 
@@ -490,10 +524,10 @@ export function WebCinema({ title }: { title: string }) {
         .set(endCard, { autoAlpha: 1 }, T(54.8));
       slam(eg, T(55.0), 0);
       tl.call(() => (fx.chord([0, 2, 4, 7], 1.2)), undefined, T(55.0))
-        .fromTo(one("[data-logo]"), { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 1.1, ease: "expo.out" }, T(55.8))
-        .fromTo(one("[data-more]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, T(56.4));
+        .fromTo(one("[data-logo]"), { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 1.1, ease: "expo.out" }, T(55.0) + 1.7)
+        .fromTo(one("[data-more]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, T(55.0) + 2.3);
       punch(51.8, 1.03);
-      tl.set({}, {}, T(59));
+      tl.set({}, {}, T(55.0) + 3.4);
 
       /* Il tempo del video lo muoviamo noi, un fotogramma alla volta e con un passo massimo:
          se il dispositivo rallenta (pagina che carica, telefono sotto sforzo) il video rallenta con lui invece di saltare le scene. */
@@ -611,10 +645,6 @@ export function WebCinema({ title }: { title: string }) {
                     </span>
                   </div>
                 ))}
-                <div data-saved className="absolute left-1/2 top-[var(--i)] z-20 -ml-[70px] flex h-[clamp(44px,6cqw,60px)] w-[140px] items-center justify-center gap-2 bg-[#f3f4f6] text-[15px] font-semibold text-[#111316]" style={{ ...HID, borderRadius: R_IN }}>
-                  <Check size={18} strokeWidth={2.6} className="text-[#1a9e55]" />
-                  {c.edit.saved}
-                </div>
                 <Wire />
                 <span data-scan className="pointer-events-none absolute inset-x-0 z-30 block h-[2px] bg-[#8fd8ff] shadow-[0_0_28px_6px_rgba(143,216,255,.6)]" style={HID} />
               </MiniSite>
@@ -677,21 +707,35 @@ export function WebCinema({ title }: { title: string }) {
             {c.gets.items.map(([t], i) => {
               const Icon = ICONS_GETS[i];
               return (
-                <Bead as="div" key={t} data-it data-g radius={32} className={`cine-fg ${center} flex h-[clamp(52px,7.5svh,64px)] max-md:h-12 items-center gap-3 whitespace-nowrap px-[clamp(18px,2.2vw,26px)] text-[clamp(16px,1.9vw,22px)] font-medium tracking-[-0.015em]`} style={HID}>
-                  <Icon size={22} strokeWidth={1.7} style={{ color: "var(--accent)" }} />
-                  {t}
+                <Bead as="div" key={t} data-it data-g radius={32} className={`cine-fg ${center} flex h-[clamp(52px,7.5svh,64px)] max-md:h-12 items-center whitespace-nowrap pr-[clamp(18px,2.2vw,26px)] text-[clamp(16px,1.9vw,22px)] font-medium tracking-[-0.015em] [--gp:clamp(18px,2.2vw,26px)]`} style={HID}>
+                  <span className="flex aspect-square h-full shrink-0 items-center justify-center [perspective:240px]">
+                    <span data-tile className="flex h-[68%] w-[68%] items-center justify-center rounded-[30%] text-white" style={{ background: "linear-gradient(155deg,#9fe0ff 0%,#4aa8f0 45%,#2f6fe0 100%)", boxShadow: "inset 0 1.5px 0 rgba(255,255,255,.75), inset 0 -4px 8px rgba(10,50,140,.35), 0 8px 14px -4px rgba(47,111,224,.6)", transformStyle: "preserve-3d" }}>
+                      <Icon size={20} strokeWidth={2} style={{ filter: "drop-shadow(0 2px 1.5px rgba(10,50,140,.55))" }} />
+                    </span>
+                  </span>
+                  <span className="pl-1">{t}</span>
                 </Bead>
               );
             })}
             {/* cosa garantisco */}
-            {c.promise.items.map(([t]) => (
-              <Bead as="div" key={t} data-it data-pr radius={36} className={`cine-fg ${center} flex h-[clamp(56px,8.5svh,72px)] items-center gap-3 whitespace-nowrap px-[clamp(20px,2.6vw,30px)] text-[clamp(17px,2.3vw,28px)] font-medium tracking-[-0.02em]`} style={HID}>
-                <Check size={24} strokeWidth={2.2} style={{ color: "var(--accent)" }} />
-                {t}
+            {c.promise.items.map(([t], i) => (
+              <Bead as="div" key={t} data-it data-pr radius={30} className={`cine-fg ${center} flex aspect-[.86] w-[clamp(140px,19vw,250px)] flex-col items-center justify-center gap-4 px-3`} style={HID}>
+                <span className="relative block aspect-square w-[52%] text-[var(--accent)]">
+                  <PromiseArt i={i} />
+                </span>
+                <span className="text-center text-[clamp(14px,1.6vw,21px)] font-medium leading-tight tracking-[-0.015em]">{t}</span>
+                <span data-pl className="absolute bottom-3 h-[3px] w-[34%] origin-left rounded-full" style={{ background: "linear-gradient(90deg,#5ec4ff,#2f6fe0)" }} />
               </Bead>
             ))}
           </div>
         </div>
+      <div data-saved className="absolute inset-0 z-[5] flex items-center justify-center backdrop-blur-2xl [backdrop-filter:blur(28px)_saturate(1.4)]" style={{ ...HID, background: "color-mix(in srgb, var(--bg-surface) 52%, transparent)" }}>
+        <span data-saved-t className="text-[clamp(64px,13vw,180px)]" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1 }}>
+          <GradientText colors={["#119a52", "#3ddc84", "#0e8a48", "#8cf0b4"]} animationSpeed={8} variant="flow" glow={1}>
+            {c.edit.saved + "!"}
+          </GradientText>
+        </span>
+      </div>
       <div data-end className="absolute inset-0 flex flex-col items-center justify-center" style={HID}>
         <p data-eh className="mx-auto max-w-[14ch] px-6 text-center text-[clamp(38px,6.6vw,108px)] font-medium leading-[1.04] tracking-[-0.05em] cine-fg">
           <Kw text={c.end.t} />
