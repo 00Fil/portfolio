@@ -20,7 +20,7 @@ export type Cinema = {
 
 const IT: Cinema = {
   cue: "Scorri",
-  find: { q: "Un nuovo cliente ti cerca. Cosa trova?", typed: "dentista a Brescia", loading: "Sta caricando…", a: "Se il sito è lento o confuso, ne sceglie un altro." },
+  find: { q: "Un nuovo cliente ti cerca. Cosa trova?", typed: "chi può aiutarmi qui vicino", loading: "Sta caricando…", a: "Se il sito è lento o confuso, ne sceglie un altro." },
   listen: { q: "Da dove si parte?", asks: ["Chi sono i tuoi clienti?", "Cosa vogliono sapere?", "Cosa devono fare sul sito?"], a: "Da te. Prima di tutto ti ascoltiamo." },
   draw: { q: "Come sai cosa stai comprando?", a: "Vedi le pagine vere, prima che esistano." },
   screens: { q: "E se lo apro dal telefono?", a: "Si adatta da solo a ogni schermo." },
@@ -29,9 +29,9 @@ const IT: Cinema = {
     q: "E i clienti?",
     a: "Chi ti cerca ti trova e prenota da solo.",
     items: [
-      ["Nuova prenotazione", "Giulia R. · giovedì alle 14:30"],
-      ["Nuova richiesta", "Marco B. · preventivo ortodonzia"],
-      ["Nuova prenotazione", "Elena T. · venerdì alle 9:00"],
+      ["Nuova richiesta", "Giulia R. · preventivo"],
+      ["Nuovo messaggio", "Marco B. · informazioni"],
+      ["Nuova prenotazione", "Elena T. · giovedì alle 14:30"],
     ],
   },
   edit: { q: "E se poi qualcosa cambia?", a: "I testi li cambi tu. Per tutto il resto ci siamo noi.", label: "Orari di apertura", from: "Lun–Ven 9–18", to: "Lun–Sab 9–19", saved: "Salvato" },
@@ -55,12 +55,12 @@ const IT: Cinema = {
       ["Nessun vincolo", "Se un giorno vuoi cambiare, ti passo tutto."],
     ],
   },
-  site: { nav: ["Servizi", "Lo studio"], book: "Prenota", title: ["Il tuo sorriso,", "in buone mani."], badge: "PRENOTA ORA · PRENOTA ORA · ", stars: "4,9 · 312 recensioni", since: "Brescia · dal 2009" },
+  site: { nav: ["Servizi", "Progetti"], book: "Contattaci", title: ["Il tuo lavoro,", "ben visibile."], badge: "SCOPRI DI PIÙ · SCOPRI DI PIÙ · ", stars: "4,9 · recensioni", since: "Dal 2009" },
 };
 
 const EN: Cinema = {
   cue: "Scroll",
-  find: { q: "A new customer is looking for you. What do they find?", typed: "dentist in Brescia", loading: "Loading…", a: "If the site is slow or confusing, they pick another one." },
+  find: { q: "A new customer is looking for you. What do they find?", typed: "who can help me nearby", loading: "Loading…", a: "If the site is slow or confusing, they pick another one." },
   listen: { q: "Where do we start?", asks: ["Who are your customers?", "What do they want to know?", "What should they do on the site?"], a: "With you. First of all, we listen." },
   draw: { q: "How do you know what you’re buying?", a: "You see the real pages before they exist." },
   screens: { q: "What if I open it on my phone?", a: "It adapts to every screen on its own." },
@@ -69,9 +69,9 @@ const EN: Cinema = {
     q: "And the customers?",
     a: "Whoever looks for you finds you, and books alone.",
     items: [
-      ["New booking", "Giulia R. · Thursday at 2:30 pm"],
-      ["New request", "Marco B. · orthodontics quote"],
-      ["New booking", "Elena T. · Friday at 9:00 am"],
+      ["New request", "Giulia R. · quote"],
+      ["New message", "Marco B. · information"],
+      ["New booking", "Elena T. · Thursday at 2:30 pm"],
     ],
   },
   edit: { q: "And if something changes later?", a: "You change the text. For everything else, we’re here.", label: "Opening hours", from: "Mon–Fri 9–6", to: "Mon–Sat 9–7", saved: "Saved" },
@@ -95,7 +95,7 @@ const EN: Cinema = {
       ["No lock-in", "If you ever want to switch, I hand everything over."],
     ],
   },
-  site: { nav: ["Services", "The practice"], book: "Book", title: ["Your smile,", "in good hands."], badge: "BOOK NOW · BOOK NOW · ", stars: "4.9 · 312 reviews", since: "Brescia · since 2009" },
+  site: { nav: ["Services", "Projects"], book: "Contact us", title: ["Your work,", "well seen."], badge: "DISCOVER MORE · DISCOVER MORE · ", stars: "4.9 · reviews", since: "Since 2009" },
 };
 
 export const getCinema = (l: Locale): Cinema => (l === "en" ? EN : IT);
