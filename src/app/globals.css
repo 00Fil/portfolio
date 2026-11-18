@@ -508,3 +508,16 @@ html[data-perf="low"] .spot-scrim { background: rgba(5, 10, 16, 0.86); }
 html[data-perf="low"] .spot-scrim::after { display: none; }
 html[data-perf="low"] .sky-drift { animation: none; }
 html[data-perf="low"] .drop > .drop-glow { display: none; }
+
+/* Spot dei servizi: ogni schermata si struttura sul rapporto reale della card (container query). */
+.wsx { container-type: size; }
+.wsx .w-acc { display: flex; flex-direction: column; }
+.wsx .w-tr { left: 3cqw; right: 3cqw; top: 3cqw; }
+.wsx .w-bk { left: 3cqw; right: 3cqw; bottom: 3cqw; height: 52cqh; }
+.wsx .w-ts { left: 3cqw; right: 3cqw; top: calc(3cqw + 33cqmin); width: fit-content; margin-inline: auto; }
+@container (min-aspect-ratio: 1.1) {
+  .wsx .w-acc { flex-direction: row; }
+  .wsx .w-tr { right: auto; width: 44cqw; }
+  .wsx .w-bk { left: auto; right: 3cqw; top: 3cqw; bottom: 3cqw; height: auto; width: 46cqw; }
+  .wsx .w-ts { left: 3cqw; right: auto; top: auto; bottom: 3cqw; margin-inline: 0; }
+}

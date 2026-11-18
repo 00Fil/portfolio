@@ -28,6 +28,7 @@ import {
   Notification01Icon,
   Package01Icon,
   Search01Icon,
+  StarIcon,
   Shield01Icon,
   ShoppingCart01Icon,
   SparklesIcon,
@@ -45,7 +46,7 @@ export type Shot = { node: ReactNode; play?: (run: gsap.core.Timeline, $: Q, at:
 const snd = (run: gsap.core.Timeline, name: Sfx, at: number, pitch = 1) => run.call(() => sfx(name, pitch), undefined, at);
 
 const W = 620;
-const EN: Record<string, string> = {"Pagine": "Pages", "Sezioni": "Sections", "Lo studio": "The practice", "Studio dentistico · Brescia": "Dental practice · Brescia", "Il tuo sorriso,": "Your smile,", "in buone": "in good", "mani.": "hands.", "Igiene, ortodonzia e sbiancamento nel centro di Brescia. Prenoti online in un minuto.": "Hygiene, orthodontics and whitening in central Brescia. Book online in a minute.", "valutazione su 312 recensioni": "rating from 312 reviews", "anni nel centro di Brescia": "years in central Brescia", "per prenotare online": "to book online", "Cosa facciamo": "What we do", "Pulizia e prevenzione": "Cleaning and prevention", "Allineatori invisibili": "Invisible aligners", "Un tono, in un’ora": "A shade lighter, in an hour", "Una visita,": "One visit,", "in un minuto.": "in a minute.", "Lun–Ven 9–19 · Sab 9–13": "Mon–Fri 9–7 · Sat 9–1", "42 pagine · 0 errori": "42 pages · 0 errors", "Immagini da 4,8 a 0,6 MB": "Images from 4.8 to 0.6 MB", "Europa · certificato attivo": "Europe · certificate active", "Home": "Home", "Intestazione": "Header", "Prenotazione": "Booking", "Igiene": "Hygiene", "Ortodonzia": "Orthodontics", "Sbiancamento": "Whitening", "Bozza": "Draft", "Ottimizzazione": "Optimisation", "Agenda": "Agenda", "Visite di oggi": "Today’s visits", "Libero": "Free", "Nuova": "New", "Prima visita": "First visit", "Controllo": "Check-up", "Pubblicazione": "Going live", "Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too.", "Livelli": "Layers", "Desktop": "Desktop", "Hero": "Hero", "Titolo": "Title", "Servizi": "Services", "Prenota una visita": "Book a visit", "Perfetto così!": "Love it!", "Riempimento": "Fill", "Angoli": "Corners", "Il tuo sorriso, in buone mani": "Your smile, in good hands", "Pubblica": "Deploy", "Compilato in 9 s": "Built in 9 s", "24 pagine generate": "24 pages generated", "Immagini ottimizzate": "Images optimised", "Online su studiobianchi.it": "Live on studiobianchi.it", "Online": "Live", "Chi siamo": "About", "Contatti": "Contact", "Giovedì 14 novembre": "Thursday 14 November", "Conferma": "Confirm", "Nuova prenotazione": "New booking", "Giulia R. · giovedì alle 14:30": "Giulia R. · Thursday at 2:30 pm", "ora": "now", "Buonasera, Marco": "Good evening, Marco", "Come posso aiutarti oggi?": "How can I help you today?", "Mi consigli un buon dentista a Brescia?": "Can you recommend a good dentist in Brescia?", ", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive.": ", in central Brescia: online booking, long hours and excellent reviews.", "e": "and", "Sei la loro": "You’re their", "prima scelta,": "first choice,", "quando si parla del tuo settore.": "whenever your field comes up.", "Nuova attività": "New task", "Recenti": "Recent", "Report vendite": "Sales report", "Fatture ottobre": "October invoices", "Listino 2026": "2026 price list", "Cosa facciamo oggi?": "What shall we do today?", "Smista le email di oggi, inserisci gli ordini e prepara le risposte": "Sort today’s emails, enter the orders and draft the replies", "Al lavoro sulle email di oggi": "Working on today’s emails", "Lette 24 email": "Read 24 emails", "12 ordini inseriti nel gestionale": "12 orders entered in the ERP", "9 risposte preparate": "9 replies drafted", "3 da controllare a mano": "3 to check by hand", "File": "Files", "ordini.xlsx": "orders.xlsx", "risposte (9)": "replies (9)", "Fatto. 9 risposte pronte": "Done. 9 replies ready", "12 ordini già nel gestionale · 3 da guardare tu": "12 orders already in the ERP · 3 for you to check", "Approva e invia": "Approve and send", "Prenotazione — Prototipo": "Booking — Prototype", "Presenta": "Present", "Scegli l'orario": "Pick a time", "Confermato": "Confirmed", "Ci vediamo giovedì": "See you Thursday", "Test con 5 persone vere": "Tested with 5 real people", "prenotare una visita": "book a visit", "Tempo medio": "Average time", "Completano la prenotazione": "Complete the booking", "Prima": "Before", "Dopo": "After", "2,5 volte più prenotazioni": "2.5× more bookings", "Il tuo gestionale": "Your ERP", "Nuovo ordine #1042 · 89,00 €": "New order #1042 · €89.00", "Pagamento ricevuto": "Payment received", "Fattura FT-1042 creata e scorte aggiornate": "Invoice FT-1042 created, stock updated", "Conferma inviata al cliente": "Confirmation sent to the customer", "Richiesta del cliente chiusa": "Customer request closed", "Prenota e gestisci le visite": "Book and manage visits", "Ottieni": "Get", "Apri": "Open", "Salute": "Health", "Età": "Age", "Attacchi fermati oggi": "Attacks stopped today", "Pagine già pronte": "Pages served ready", "Connessione protetta": "Secure connection", "Server": "Server", "Europa · Francia": "Europe · France", "Certificato": "Certificate", "Si rinnova da solo": "Renews itself", "Dominio": "Domain", "Intestato a te": "In your name", "Versione online": "Live version", "Torna alla precedente": "Roll back", "Modifica": "Change", "Controlli": "Checks", "Prova": "Staging", "Ripristinata in 4 secondi": "Restored in 4 seconds", "Copie di sicurezza · ultime due settimane": "Backups · last two weeks", "Il sito non risponde": "The site is down", "Di nuovo online in 41 secondi": "Back online in 41 seconds", "studiobianchi.it non risponde": "studiobianchi.it is down", "Avviso a Filippo · 03:12": "Filippo alerted · 3:12 am", "Online negli ultimi 90 giorni": "Uptime, last 90 days", "1 avviso": "1 alert", "Porta chiusa · temperatura in discesa": "Door closed · temperature falling", "Sbiancamento e igiene, prima visita gratuita.": "Whitening and hygiene, free first visit.", "Punteggio": "Score", "Tempo di apertura": "Load time", "Peso delle immagini": "Image weight", "Titoli delle pagine": "Page titles", "Scheda Google": "Google profile", "incompleta": "incomplete", "completa": "complete", "3 su 24": "3 of 24", "24 su 24": "24 of 24", "6,2 s": "6.2 s", "0,9 s": "0.9 s", "4,8 MB": "4.8 MB", "Senza rete": "Offline", "In attesa": "Queued", "Consegna alle 15": "Delivery at 3 pm", "Avvisa": "Notify", "Avvisato": "Notified", "In compilazione": "Building", "Codice scaricato": "Code fetched", "Dipendenze installate": "Dependencies installed", "Novembre 2026": "November 2026", "Giovedì 12 novembre": "Thursday 12 November"};
+const EN: Record<string, string> = {"PRENOTA ORA · PRENOTA ORA · ": "BOOK NOW · BOOK NOW · ", "recensioni": "reviews", "Brescia · dal 2009": "Brescia · since 2009", "Pulizia profonda, senza fastidio": "Deep cleaning, no discomfort", "Allineatori quasi invisibili": "Almost invisible aligners", "Un tono più chiaro in un’ora": "A shade lighter in an hour", "In un minuto": "In a minute", "Risposta in giornata": "Same-day reply", "Pagine": "Pages", "Sezioni": "Sections", "Lo studio": "The practice", "Studio dentistico · Brescia": "Dental practice · Brescia", "Il tuo sorriso,": "Your smile,", "in buone": "in good", "mani.": "hands.", "Igiene, ortodonzia e sbiancamento nel centro di Brescia. Prenoti online in un minuto.": "Hygiene, orthodontics and whitening in central Brescia. Book online in a minute.", "valutazione su 312 recensioni": "rating from 312 reviews", "anni nel centro di Brescia": "years in central Brescia", "per prenotare online": "to book online", "Cosa facciamo": "What we do", "Pulizia e prevenzione": "Cleaning and prevention", "Allineatori invisibili": "Invisible aligners", "Un tono, in un’ora": "A shade lighter, in an hour", "Una visita,": "One visit,", "in un minuto.": "in a minute.", "Lun–Ven 9–19 · Sab 9–13": "Mon–Fri 9–7 · Sat 9–1", "42 pagine · 0 errori": "42 pages · 0 errors", "Immagini da 4,8 a 0,6 MB": "Images from 4.8 to 0.6 MB", "Europa · certificato attivo": "Europe · certificate active", "Home": "Home", "Intestazione": "Header", "Prenotazione": "Booking", "Igiene": "Hygiene", "Ortodonzia": "Orthodontics", "Sbiancamento": "Whitening", "Bozza": "Draft", "Ottimizzazione": "Optimisation", "Agenda": "Agenda", "Visite di oggi": "Today’s visits", "Libero": "Free", "Nuova": "New", "Prima visita": "First visit", "Controllo": "Check-up", "Pubblicazione": "Going live", "Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too.", "Livelli": "Layers", "Desktop": "Desktop", "Hero": "Hero", "Titolo": "Title", "Servizi": "Services", "Prenota una visita": "Book a visit", "Perfetto così!": "Love it!", "Riempimento": "Fill", "Angoli": "Corners", "Il tuo sorriso, in buone mani": "Your smile, in good hands", "Pubblica": "Deploy", "Compilato in 9 s": "Built in 9 s", "24 pagine generate": "24 pages generated", "Immagini ottimizzate": "Images optimised", "Online su studiobianchi.it": "Live on studiobianchi.it", "Online": "Live", "Chi siamo": "About", "Contatti": "Contact", "Giovedì 14 novembre": "Thursday 14 November", "Conferma": "Confirm", "Nuova prenotazione": "New booking", "Giulia R. · giovedì alle 14:30": "Giulia R. · Thursday at 2:30 pm", "ora": "now", "Buonasera, Marco": "Good evening, Marco", "Come posso aiutarti oggi?": "How can I help you today?", "Mi consigli un buon dentista a Brescia?": "Can you recommend a good dentist in Brescia?", ", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive.": ", in central Brescia: online booking, long hours and excellent reviews.", "e": "and", "Sei la loro": "You’re their", "prima scelta,": "first choice,", "quando si parla del tuo settore.": "whenever your field comes up.", "Nuova attività": "New task", "Recenti": "Recent", "Report vendite": "Sales report", "Fatture ottobre": "October invoices", "Listino 2026": "2026 price list", "Cosa facciamo oggi?": "What shall we do today?", "Smista le email di oggi, inserisci gli ordini e prepara le risposte": "Sort today’s emails, enter the orders and draft the replies", "Al lavoro sulle email di oggi": "Working on today’s emails", "Lette 24 email": "Read 24 emails", "12 ordini inseriti nel gestionale": "12 orders entered in the ERP", "9 risposte preparate": "9 replies drafted", "3 da controllare a mano": "3 to check by hand", "File": "Files", "ordini.xlsx": "orders.xlsx", "risposte (9)": "replies (9)", "Fatto. 9 risposte pronte": "Done. 9 replies ready", "12 ordini già nel gestionale · 3 da guardare tu": "12 orders already in the ERP · 3 for you to check", "Approva e invia": "Approve and send", "Prenotazione — Prototipo": "Booking — Prototype", "Presenta": "Present", "Scegli l'orario": "Pick a time", "Confermato": "Confirmed", "Ci vediamo giovedì": "See you Thursday", "Test con 5 persone vere": "Tested with 5 real people", "prenotare una visita": "book a visit", "Tempo medio": "Average time", "Completano la prenotazione": "Complete the booking", "Prima": "Before", "Dopo": "After", "2,5 volte più prenotazioni": "2.5× more bookings", "Il tuo gestionale": "Your ERP", "Nuovo ordine #1042 · 89,00 €": "New order #1042 · €89.00", "Pagamento ricevuto": "Payment received", "Fattura FT-1042 creata e scorte aggiornate": "Invoice FT-1042 created, stock updated", "Conferma inviata al cliente": "Confirmation sent to the customer", "Richiesta del cliente chiusa": "Customer request closed", "Prenota e gestisci le visite": "Book and manage visits", "Ottieni": "Get", "Apri": "Open", "Salute": "Health", "Età": "Age", "Attacchi fermati oggi": "Attacks stopped today", "Pagine già pronte": "Pages served ready", "Connessione protetta": "Secure connection", "Server": "Server", "Europa · Francia": "Europe · France", "Certificato": "Certificate", "Si rinnova da solo": "Renews itself", "Dominio": "Domain", "Intestato a te": "In your name", "Versione online": "Live version", "Torna alla precedente": "Roll back", "Modifica": "Change", "Controlli": "Checks", "Prova": "Staging", "Ripristinata in 4 secondi": "Restored in 4 seconds", "Copie di sicurezza · ultime due settimane": "Backups · last two weeks", "Il sito non risponde": "The site is down", "Di nuovo online in 41 secondi": "Back online in 41 seconds", "studiobianchi.it non risponde": "studiobianchi.it is down", "Avviso a Filippo · 03:12": "Filippo alerted · 3:12 am", "Online negli ultimi 90 giorni": "Uptime, last 90 days", "1 avviso": "1 alert", "Porta chiusa · temperatura in discesa": "Door closed · temperature falling", "Sbiancamento e igiene, prima visita gratuita.": "Whitening and hygiene, free first visit.", "Punteggio": "Score", "Tempo di apertura": "Load time", "Peso delle immagini": "Image weight", "Titoli delle pagine": "Page titles", "Scheda Google": "Google profile", "incompleta": "incomplete", "completa": "complete", "3 su 24": "3 of 24", "24 su 24": "24 of 24", "6,2 s": "6.2 s", "0,9 s": "0.9 s", "4,8 MB": "4.8 MB", "Senza rete": "Offline", "In attesa": "Queued", "Consegna alle 15": "Delivery at 3 pm", "Avvisa": "Notify", "Avvisato": "Notified", "In compilazione": "Building", "Codice scaricato": "Code fetched", "Dipendenze installate": "Dependencies installed", "Novembre 2026": "November 2026", "Giovedì 12 novembre": "Thursday 12 November"};
 /** Le scritte dentro le inquadrature: italiano, oppure inglese quando il sito è in inglese. */
 function Tx({ children }: { children: string }) {
   return <>{useLocale() === "en" ? (EN[children] ?? children) : children}</>;
@@ -528,485 +529,517 @@ const Shell = ({ title, right, children }: { title: ReactNode; right?: ReactNode
     <span className="relative block min-h-0 flex-1">{children}</span>
   </Bead>
 );
-const INK = "#14120f";
-const PAPER = "#f3f0ea";
-const SITE = "#0b6e99";
-const SERIF = { fontFamily: "var(--font-serif), Georgia, serif" } as const;
-const SVC: [string, string, string][] = [
-  ["01", "Igiene", "Pulizia e prevenzione"],
-  ["02", "Ortodonzia", "Allineatori invisibili"],
-  ["03", "Sbiancamento", "Un tono, in un’ora"],
-];
-const Appt = ({ h, n, s }: { h: string; n: string; s: string }) => (
-  <span className="grid h-[52px] grid-cols-[54px_1fr_auto] items-center border-t border-white/[.08]">
-    <span className="font-mono text-[12px] text-white/45">{h}</span>
-    <span className="leading-tight">
-      <span className="block text-[13px] font-medium">{n}</span>
-      <span className="block text-[11px] text-white/50">
-        <Tx>{s}</Tx>
-      </span>
-    </span>
-    <span className="h-1.5 w-1.5 rounded-full bg-white/25" />
-  </span>
+const INK = "#0d1115";
+const ACC = "#8fd8ff";
+const DISP = { fontFamily: "var(--font-anton), Impact, sans-serif", textTransform: "uppercase" as const, letterSpacing: "0.005em" };
+const stock = (n: string) => `/visual/studio/${n}.webp`;
+/** Fotografia a tutto campo: riempie sempre il riquadro, qualunque sia il rapporto della card. */
+const Ph = ({ n, pos = "50% 50%", ...r }: { n: string; pos?: string; [k: string]: unknown }) => (
+  // eslint-disable-next-line @next/next/no-img-element
+  <img src={stock(n)} alt="" draggable={false} decoding="async" className="absolute inset-0 block h-full w-full object-cover" style={{ objectPosition: pos }} {...r} />
 );
-function DayChips() {
+const SVC: [string, string, string, string][] = [
+  ["igiene", "Igiene", "Pulizia profonda, senza fastidio", "50% 40%"],
+  ["orto", "Ortodonzia", "Allineatori quasi invisibili", "50% 50%"],
+  ["bianco", "Sbiancamento", "Un tono più chiaro in un’ora", "50% 30%"],
+];
+function DayPills() {
   const d = useLocale() === "en" ? ["Mon", "Tue", "Wed", "Thu", "Fri"] : ["Lun", "Mar", "Mer", "Gio", "Ven"];
   return (
-    <span className="mt-3 flex justify-between">
+    <span className="flex gap-[1.4cqmin]">
       {d.map((x, i) => (
-        <span key={x} data-day={i} className="flex h-10 w-[28px] flex-col items-center justify-center rounded-[10px] text-[8px] leading-tight" style={{ background: "rgba(20,18,15,.06)", color: "rgba(20,18,15,.6)" }}>
-          <span>{x}</span>
-          <span className="text-[11px] font-semibold">{9 + i}</span>
+        <span key={x} data-day={i} className="flex flex-1 flex-col items-center justify-center rounded-[2.4cqmin] text-white" style={{ height: "11cqmin", background: "rgba(255,255,255,.1)" }}>
+          <span style={{ fontSize: "1.9cqmin", opacity: 0.65 }}>{x}</span>
+          <span style={{ fontSize: "3.3cqmin", fontWeight: 600, lineHeight: 1.1 }}>{9 + i}</span>
         </span>
       ))}
     </span>
   );
 }
-/** Il sito che consegniamo, a misura reale: tipografia editoriale, una sola luce, niente riempitivi. */
-const Site = () => (
-  <span data-site className="relative block h-full w-full overflow-hidden" style={{ background: PAPER, color: INK, containerType: "size" }}>
-    <span data-page className="block will-change-transform">
-      {/* 1 · apertura */}
-      <span className="relative block h-[100cqh] overflow-hidden px-8">
-        <span className="flex h-12 items-center justify-between">
-          <span data-nv className="flex items-center gap-1.5 text-[17px] leading-none" style={SERIF}>
-            <span className="h-[7px] w-[7px] rounded-full" style={{ background: SITE }} />
-            Bianchi
-          </span>
-          <span className="flex items-center gap-5 text-[8.5px] font-medium">
-            {["Servizi", "Lo studio", "Contatti"].map((x) => (
-              <span key={x} data-nv className="opacity-60">
-                <Tx>{x}</Tx>
-              </span>
-            ))}
-            <span data-nv className="flex h-6 items-center rounded-full px-3 text-[8.5px] font-semibold" style={{ background: INK, color: PAPER }}>
-              <Tx>Prenota</Tx>
-            </span>
-          </span>
-        </span>
-        <span className="absolute inset-x-8 top-[19%] block">
-          <span data-fade className="mb-3 block text-[7.5px] font-medium uppercase tracking-[0.18em] opacity-50">
-            Studio dentistico · Brescia
-          </span>
-          <span data-h1 className="block text-[58px] leading-[0.98] tracking-[-0.035em]" style={SERIF}>
-            <span className="block overflow-hidden pb-1.5">
-              <span data-ln className="block">
-                <Tx>Il tuo sorriso,</Tx>
-              </span>
-            </span>
-            <span className="block overflow-hidden pb-1.5">
-              <span data-ln className="block">
-                <Tx>in buone</Tx>{" "}
-                <span data-mani className="relative inline-block italic" style={{ color: SITE }}>
-                  <Tx>mani.</Tx>
-                  <span data-ul className="absolute inset-x-0 bottom-[3px] block h-[2px] origin-left rounded-full" style={{ background: SITE, transform: "scaleX(0)" }} />
-                </span>
-              </span>
-            </span>
-          </span>
-          <span data-fade className="mt-5 block max-w-[210px] text-[9.5px] leading-[1.5] opacity-60">
-            <Tx>Igiene, ortodonzia e sbiancamento nel centro di Brescia. Prenoti online in un minuto.</Tx>
-          </span>
-        </span>
-        <span data-orb className="absolute right-9 top-[21%] block h-[190px] w-[190px]">
-          <span data-float className="block h-full w-full">
-            <span className="absolute -inset-5 rounded-full border border-[#14120f]/15" />
-            <span className="absolute -inset-11 rounded-full border border-[#14120f]/[.08]" />
-            <span
-              className="absolute inset-0 rounded-full"
-              style={{
-                background: "radial-gradient(circle at 32% 26%, #fff 0, #fbf6ee 20%, #e3d9cb 46%, #b3a595 76%, #7a6e60 100%)",
-                boxShadow: "0 34px 46px -22px rgba(20,18,15,.5), inset -12px -16px 30px rgba(70,56,40,.35), inset 8px 10px 22px rgba(255,255,255,.7)",
-              }}
-            />
-            <span className="absolute left-[22%] top-[14%] block h-[26px] w-[52px] -rotate-[28deg] rounded-full bg-white/80 blur-[6px]" />
-          </span>
-        </span>
-        <span data-fade className="absolute inset-x-8 bottom-6 flex items-end justify-between border-t border-[#14120f]/15 pt-3 text-[8px]">
-          {[
-            ["4,9", "valutazione su 312 recensioni"],
-            ["15", "anni nel centro di Brescia"],
-            ["1 min", "per prenotare online"],
-          ].map(([n, l]) => (
-            <span key={n} className="flex items-baseline gap-2">
-              <span className="text-[17px] leading-none" style={SERIF}>
-                {n}
-              </span>
-              <span className="opacity-55">
-                <Tx>{l}</Tx>
-              </span>
-            </span>
-          ))}
-        </span>
-      </span>
-      {/* 2 · servizi */}
-      <span className="relative flex h-[100cqh] flex-col justify-center px-8">
-        <span className="absolute inset-x-8 top-8 flex items-center justify-between text-[7.5px] font-medium uppercase tracking-[0.18em] opacity-50">
-          <Tx>Cosa facciamo</Tx>
-          <span>03</span>
-        </span>
-        <span className="block">
-          {SVC.map(([n, t, d], i) => (
-            <span key={n} data-srow={i} className="relative flex h-[84px] items-center overflow-hidden border-t border-[#14120f]/15">
-              <span data-sbg className="absolute inset-0 block origin-bottom" style={{ background: INK, transform: "scaleY(0)" }} />
-              <span data-stt className="relative flex w-full items-center px-1" style={{ color: INK }}>
-                <span className="w-10 font-mono text-[9px] opacity-50">{n}</span>
-                <span className="text-[36px] leading-none tracking-[-0.03em]" style={SERIF}>
-                  <Tx>{t}</Tx>
-                </span>
-                <span className="ml-auto mr-5 text-[9.5px] opacity-60">
-                  <Tx>{d}</Tx>
-                </span>
-                <span data-sar className="flex h-7 w-7 items-center justify-center rounded-full border border-current/30">
-                  <Ico i={ArrowUp01Icon} s={13} c="rotate-45" />
-                </span>
-              </span>
-            </span>
-          ))}
-          <span className="block border-t border-[#14120f]/15" />
-        </span>
-      </span>
-      {/* 3 · prenotazione */}
-      <span className="relative flex h-[100cqh] flex-col justify-between px-8 py-8" style={{ background: INK, color: PAPER }}>
-        <span className="text-[7.5px] font-medium uppercase tracking-[0.18em] opacity-50">
-          <Tx>Prenotazione</Tx>
-        </span>
-        <span className="block text-[54px] leading-[0.98] tracking-[-0.035em]" style={SERIF}>
-          <Tx>Una visita,</Tx>
-          <br />
-          <span className="italic" style={{ color: "#7fd0f2" }}>
-            <Tx>in un minuto.</Tx>
-          </span>
-        </span>
-        <span className="flex items-center justify-between">
-          <span data-cta className="flex h-11 items-center gap-3 rounded-full pl-6 pr-1.5 text-[11px] font-semibold" style={{ background: PAPER, color: INK }}>
-            <Tx>Prenota una visita</Tx>
-            <span data-carr className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: INK, color: PAPER }}>
-              <Ico i={ArrowUp01Icon} s={14} c="rotate-45" />
-            </span>
-          </span>
-          <span className="text-[8.5px] opacity-50">
-            <Tx>Lun–Ven 9–19 · Sab 9–13</Tx>
-          </span>
-        </span>
+/** La giornata come una pista: ogni visita è un blocco, e quello nuovo si accende dove era libero. */
+const TRACK: [string, number, number][] = [
+  ["MB", 0, 11.1],
+  ["ET", 27.8, 11.1],
+  ["LF", 88.9, 11.1],
+];
+const RING = (v: number | string, l: string) => (
+  <Bead tint="rgba(255,255,255,.12)" radius={26} className="flex flex-1 flex-col items-center justify-center gap-[1cqmin]" style={{ paddingTop: "2.4cqmin", paddingBottom: "2.2cqmin" }}>
+    <span className="relative block" style={{ width: "9cqmin", height: "9cqmin" }}>
+      <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
+        <circle cx="20" cy="20" r="17" fill="none" stroke="rgba(255,255,255,.16)" strokeWidth="3.2" />
+        <circle data-ring={v} cx="20" cy="20" r="17" fill="none" stroke={GREEN} strokeWidth="3.2" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+      </svg>
+      <span data-score className="absolute inset-0 flex items-center justify-center font-mono tabular-nums text-white" style={{ fontSize: "2.5cqmin" }}>
+        0
       </span>
     </span>
-  </span>
+    <span className="text-white/75" style={{ fontSize: "1.9cqmin" }}>
+      <Tx>{l}</Tx>
+    </span>
+  </Bead>
 );
-const LOG: [string, string, string][] = [
-  ["Controlli", "42 pagine · 0 errori", "0,6 s"],
-  ["Ottimizzazione", "Immagini da 4,8 a 0,6 MB", "1,1 s"],
-  ["Pubblicazione", "Europa · certificato attivo", "0,9 s"],
-  ["Online", "studiobianchi.it", "0,2 s"],
+const LOG: [string, string][] = [
+  ["Controlli", "42 pagine · 0 errori"],
+  ["Ottimizzazione", "Immagini da 4,8 a 0,6 MB"],
+  ["Pubblicazione", "Europa · certificato attivo"],
+  ["Online", "studiobianchi.it"],
 ];
 
 export const WEB: Shot[] = [
-  /* 1 · Il sito vero: si apre, si guarda da vicino, si scorre, si prova */
+  /* 1 · Il sito: apertura a tutto schermo, poi i servizi che si aprono come pannelli, poi la prenotazione */
   {
-    dur: 10,
+    dur: 12.5,
     node: (
-      <Bead data-full="" tint={GL} radius={0} className="relative flex h-full w-full flex-col overflow-hidden text-white">
-        <span className="flex h-7 shrink-0 items-center gap-1.5 px-3.5">
-          {[0, 1, 2].map((k) => (
-            <span key={k} className="h-2 w-2 rounded-full bg-white/20" />
-          ))}
-          <span className="mx-auto flex h-4 items-center gap-1 rounded-full bg-white/[.07] px-3 text-[9px] text-white/60">
-            <Ico i={LockKeyIcon} s={8} />
-            studiobianchi.it
+      <Bead data-full="" tint={INK} radius={0} className="wsx relative block h-full w-full overflow-hidden text-white">
+        {/* apertura */}
+        <span data-scr="0" className="absolute inset-0 block overflow-hidden">
+          <Ph n="hero" pos="50% 60%" data-himg="" />
+          <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.5) 0%, rgba(8,12,16,0) 26%, rgba(8,12,16,.1) 46%, rgba(8,12,16,.86) 100%)" }} />
+          <Bead data-nav="" tint="rgba(10,14,18,.34)" radius={999} className="absolute flex items-center justify-between" style={{ left: "3cqw", right: "3cqw", top: "3cqw", height: "9cqmin", paddingLeft: "3.4cqmin", paddingRight: "1.5cqmin" }}>
+            <span className="flex items-center gap-[1.4cqmin] font-semibold tracking-[-0.01em]" style={{ fontSize: "2.8cqmin" }}>
+              <span className="rounded-full" style={{ width: "1.6cqmin", height: "1.6cqmin", background: ACC }} />
+              Bianchi
+            </span>
+            <span className="flex items-center text-white/80" style={{ gap: "3cqmin", fontSize: "2cqmin" }}>
+              <span><Tx>Servizi</Tx></span>
+              <span><Tx>Lo studio</Tx></span>
+              <span className="flex items-center rounded-full bg-white font-semibold text-black" style={{ height: "6cqmin", paddingInline: "3cqmin" }}>
+                <Tx>Prenota</Tx>
+              </span>
+            </span>
+          </Bead>
+          <span data-h1="" className="absolute block text-white" style={{ ...DISP, left: "4cqw", bottom: "14cqmin", fontSize: "min(13cqw, 17cqh)", lineHeight: 0.98 }}>
+            <span className="block overflow-hidden" style={{ paddingTop: "0.06em" }}>
+              <span data-ln="" className="block">
+                <Tx>Il tuo sorriso,</Tx>
+              </span>
+            </span>
+            <span className="block overflow-hidden">
+              <span data-ln="" className="block">
+                <Tx>in buone</Tx> <span style={{ color: ACC }}><Tx>mani.</Tx></span>
+              </span>
+            </span>
           </span>
-          <span className="w-[34px]" />
-        </span>
-        <span className="relative block min-h-0 flex-1">
-          <Site />
-        </span>
-      </Bead>
-    ),
-    play: (run, $, at) => {
-      const shot = $("[data-cursor]")[0].parentElement as HTMLElement;
-      const page = $("[data-page]")[0];
-      const vh = () => (page.parentElement as HTMLElement).offsetHeight;
-      run.set(page, { y: 0 }, at).set($("[data-sbg]"), { scaleY: 0 }, at).set($("[data-ul]"), { scaleX: 0 }, at);
-      // apertura: la barra, poi le righe del titolo che salgono da sotto la maschera, poi la luce
-      run.fromTo($("[data-nv]"), { autoAlpha: 0, y: -8 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.05, ease: "expo.out" }, at + 0.1);
-      run.fromTo($("[data-ln]"), { yPercent: 108 }, { yPercent: 0, duration: 1.1, stagger: 0.12, ease: "expo.out" }, at + 0.25);
-      run.fromTo($("[data-orb]"), { autoAlpha: 0, scale: 0.84 }, { autoAlpha: 1, scale: 1, duration: 1.4, ease: "expo.out" }, at + 0.3);
-      run.fromTo($("[data-fade]"), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.12, ease: "expo.out" }, at + 0.8);
-      run.fromTo($("[data-float]"), { y: 0 }, { y: -8, duration: 3.6, ease: "sine.inOut", yoyo: true, repeat: 1 }, at + 0.4);
-      snd(run, "open", at + 0.35);
-      // camera sul titolo: il cursore sfiora "mani" e la sottolineatura si disegna
-      const mani = $("[data-mani]")[0];
-      const h1 = $("[data-h1]")[0];
-      const c = cursorIn(run, $, mani, at + 1.9);
-      zoomTo(run, shot, h1, 1.3, at + 1.9, 1.1, 0.4, 0.5);
-      let t = human(run, c.cur, () => spot(shot, mani, 0.7, 0.55), at + 2.0, 0.8);
-      run.to($("[data-ul]"), { scaleX: 1, duration: 0.7, ease: "power3.inOut" }, t - 0.1);
-      snd(run, "tick", t, 1.2);
-      run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.5);
-      // vista larga e scorrimento ai servizi
-      wideTo(run, shot, t + 0.9, 1);
-      run.to(page, { y: () => -vh(), duration: 1.1, ease: "power3.inOut" }, t + 1.5);
-      snd(run, "whoosh", t + 1.5);
-      // si prova: le righe dei servizi rispondono al cursore
-      const rows = $("[data-srow]");
-      const hover = (i: number, a: number) => {
-        run.to($("[data-sbg]")[i], { scaleY: 1, duration: 0.45, ease: "expo.out" }, a);
-        run.to($("[data-stt]")[i], { color: PAPER, duration: 0.3 }, a);
-        run.to($("[data-sar]")[i], { rotation: 45, duration: 0.45, ease: "expo.out" }, a);
-        snd(run, "tick", a, 1 + i * 0.1);
-      };
-      const leave = (i: number, a: number) => {
-        run.to($("[data-sbg]")[i], { scaleY: 0, duration: 0.4, ease: "power3.inOut" }, a);
-        run.to($("[data-stt]")[i], { color: INK, duration: 0.3 }, a + 0.05);
-        run.to($("[data-sar]")[i], { rotation: 0, duration: 0.4, ease: "power3.inOut" }, a);
-      };
-      t += 2.3;
-      run.to(c.cur, { opacity: 1, duration: 0.2 }, t - 0.2);
-      t = human(run, c.cur, () => spot(shot, rows[1], 0.5, 0.5), t, 0.7);
-      hover(1, t - 0.15);
-      t = human(run, c.cur, () => spot(shot, rows[2], 0.5, 0.5), t + 0.5, 0.5);
-      leave(1, t - 0.4);
-      hover(2, t - 0.15);
-      leave(2, t + 0.7);
-      // ultima sezione: la richiesta di prenotazione
-      run.to(page, { y: () => -2 * vh(), duration: 1.1, ease: "power3.inOut" }, t + 0.8);
-      snd(run, "whoosh", t + 0.8);
-      const cta = $("[data-cta]")[0];
-      t = human(run, c.cur, () => spot(shot, cta, 0.8, 0.5), t + 1.9, 0.7);
-      zoomTo(run, shot, cta, 1.5, t - 0.7, 1, 0.55, 0.5);
-      press(run, c.cur, cta, t);
-      run.to($("[data-carr]"), { x: 3, y: -3, duration: 0.35, ease: "expo.out" }, t).to($("[data-cta]"), { scale: 1.03, duration: 0.3, yoyo: true, repeat: 1, ease: "power2.inOut" }, t + 0.05);
-      run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.5);
-    },
-  },
-  /* 2 · Online, senza sorprese: ogni controllo si chiude davanti a te, poi il risultato misurabile */
-  {
-    dur: 7,
-    node: (
-      <Shell
-        title="studiobianchi.it"
-        right={
-          <>
-            <span className="relative mr-2 flex h-6 items-center text-[11.5px]">
-              <span data-building className="flex items-center gap-1.5 whitespace-nowrap text-white/65">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#f5c46b]" />
-                <Tx>Bozza</Tx>
-              </span>
-              <span data-live className="absolute right-0 flex items-center gap-1.5 whitespace-nowrap text-white opacity-0">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#30d158] shadow-[0_0_0_3px_rgba(48,209,88,.25)]" />
-                <Tx>Online</Tx>
-              </span>
+          <Bead data-badge="" tint="rgba(255,255,255,.16)" radius={999} className="absolute flex items-center justify-center" style={{ right: "4cqw", top: "16cqmin", width: "19cqmin", height: "19cqmin" }}>
+            <svg data-spin2="" viewBox="0 0 100 100" className="absolute inset-0" aria-hidden>
+              <defs>
+                <path id="wcirc" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0" />
+              </defs>
+              <text fontSize="9.4" fontWeight="600" letterSpacing="1.8" fill="#fff">
+                <textPath href="#wcirc">
+                  <Tx>PRENOTA ORA · PRENOTA ORA · </Tx>
+                </textPath>
+              </text>
+            </svg>
+            <span data-barr="" className="flex items-center justify-center rounded-full bg-white text-black" style={{ width: "7cqmin", height: "7cqmin" }}>
+              <Ico i={ArrowUp01Icon} s={16} c="rotate-45" />
             </span>
-            <span data-deploy className="rounded-full bg-white px-4 py-1.5 text-[12px] font-semibold text-black">
-              <Tx>Pubblica</Tx>
-            </span>
-          </>
-        }
-      >
-        <span className="absolute inset-0 flex flex-col justify-center px-10 pb-3">
-          <span data-steps className="block">
-            {LOG.map(([t, d, s]) => (
-              <span key={t} data-lrow className="grid h-[54px] grid-cols-[36px_170px_1fr_auto] items-center border-t border-white/[.08]">
-                <span className="relative block h-[20px] w-[20px]">
-                  <svg data-spin viewBox="0 0 24 24" className="absolute inset-0 opacity-0" aria-hidden>
-                    <circle cx="12" cy="12" r="9" fill="none" stroke="rgba(255,255,255,.15)" strokeWidth="2.4" />
-                    <path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="#5ec4ff" strokeWidth="2.4" strokeLinecap="round" />
-                  </svg>
-                  <span data-tk className="absolute inset-0 flex items-center justify-center rounded-full bg-[#5ec4ff] text-[#04121c] opacity-0">
-                    <Ico i={Tick02Icon} s={12} />
-                  </span>
-                </span>
-                <span data-lt className="text-[15px] font-medium text-white/40">
-                  <Tx>{t}</Tx>
-                </span>
-                <span data-ld className="font-mono text-[11.5px] text-white/50 opacity-0">
-                  <Tx>{d}</Tx>
-                </span>
-                <span data-ls className="font-mono text-[11.5px] text-white/35 opacity-0">
-                  {s}
-                </span>
-              </span>
-            ))}
-            <span className="block border-t border-white/[.08]" />
+          </Bead>
+          <span className="absolute flex" style={{ left: "4cqw", bottom: "4.4cqmin", gap: "1.6cqmin" }}>
+            <Bead data-chip="" tint="rgba(255,255,255,.14)" radius={999} className="flex items-center" style={{ height: "6cqmin", paddingInline: "2.6cqmin", gap: "1cqmin", fontSize: "2cqmin" }}>
+              <Ico i={StarIcon} s={12} c="text-[#ffd479]" />
+              4,9 · 312 <Tx>recensioni</Tx>
+            </Bead>
+            <Bead data-chip="" tint="rgba(255,255,255,.14)" radius={999} className="flex items-center" style={{ height: "6cqmin", paddingInline: "2.6cqmin", fontSize: "2cqmin" }}>
+              <Tx>Brescia · dal 2009</Tx>
+            </Bead>
           </span>
-          <span data-final className="mt-6 flex flex-col items-center gap-5">
-            <span data-url className="opacity-0">
-              <Bead tint="rgba(255,255,255,.1)" radius={999} className="flex h-11 items-center gap-2.5 px-6 text-[16px] font-medium tracking-[-0.01em]">
-                <Ico i={LockKeyIcon} s={15} c="text-[#6ee7a8]" />
-                studiobianchi.it
-                <span className="ml-3 font-mono text-[11px] font-normal text-white/45">0,8 s</span>
-              </Bead>
+        </span>
+        {/* servizi: pannelli che si aprono */}
+        <span data-scr="1" className="absolute inset-0 block" style={{ background: INK, clipPath: "inset(100% 0 0 0)" }}>
+          <span className="absolute flex flex-col" style={{ inset: "2.4cqmin", gap: "1.6cqmin" }}>
+            <span className="flex items-center justify-between px-[1cqmin] uppercase text-white/55" style={{ fontSize: "1.9cqmin", letterSpacing: "0.2em" }}>
+              <Tx>Cosa facciamo</Tx>
+              <span>03</span>
             </span>
-            <span data-scores className="flex justify-center gap-12 opacity-0">
-              {[
-                ["Prestazioni", 100],
-                ["SEO", 100],
-                ["Accessibilità", 100],
-              ].map(([l, v]) => (
-                <span key={l} className="flex flex-col items-center gap-1.5">
-                  <span className="relative h-12 w-12">
-                    <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
-                      <circle cx="20" cy="20" r="17" fill="none" stroke="rgba(255,255,255,.1)" strokeWidth="3.2" />
-                      <circle data-ring={v} cx="20" cy="20" r="17" fill="none" stroke={GREEN} strokeWidth="3.2" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
-                    </svg>
-                    <span data-score className="absolute inset-0 flex items-center justify-center font-mono text-[12px] tabular-nums">
-                      0
+            <span className="w-acc min-h-0 flex-1" style={{ gap: "1.6cqmin" }}>
+              {SVC.map(([n, t, d, pos], i) => (
+                <span key={n} data-pn={i} className="relative block min-h-0 min-w-0 overflow-hidden" style={{ flex: i === 0 ? "3.4 1 0" : "1 1 0", borderRadius: "3cqmin", containerType: "size" }}>
+                  <Ph n={n} pos={pos} data-pimg="" />
+                  <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.05) 30%, rgba(8,12,16,.82) 100%)" }} />
+                  <span data-pshade="" className="absolute inset-0 block" style={{ background: "rgba(8,12,16,.38)", opacity: i === 0 ? 0 : 1 }} />
+                  <span className="absolute inset-x-0 bottom-0 flex flex-col" style={{ padding: "min(4cqi, 3.2cqb)", gap: "min(1.4cqi, 1cqb)" }}>
+                    <span className="font-mono text-white/70" style={{ fontSize: "min(3.4cqi, 7cqb)" }}>
+                      0{i + 1}
                     </span>
-                  </span>
-                  <span className="text-[10.5px] text-white/55">
-                    <Tx>{l as string}</Tx>
+                    <span className="block text-white" style={{ ...DISP, fontSize: "min(10cqi, 26cqb)", lineHeight: 1 }}>
+                      <Tx>{t}</Tx>
+                    </span>
+                    <span data-pd="" className="flex items-end justify-between" style={{ opacity: i === 0 ? 1 : 0 }}>
+                      <span className="text-white/80" style={{ fontSize: "min(3.6cqi, 8cqb)" }}>
+                        <Tx>{d}</Tx>
+                      </span>
+                      <span className="flex items-center justify-center rounded-full bg-white text-black" style={{ width: "min(8cqi, 16cqb)", height: "min(8cqi, 16cqb)" }}>
+                        <Ico i={ArrowUp01Icon} s={14} c="rotate-45" />
+                      </span>
+                    </span>
                   </span>
                 </span>
               ))}
             </span>
           </span>
         </span>
-      </Shell>
+        {/* prenotazione */}
+        <span data-scr="2" className="absolute inset-0 block overflow-hidden" style={{ clipPath: "circle(0% at 50% 100%)" }}>
+          <Ph n="visita" pos="50% 40%" data-cimg="" />
+          <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(6,10,14,.55), rgba(6,10,14,.72))" }} />
+          {[0, 1].map((r) => (
+            <span key={r} className="absolute left-0 block overflow-hidden whitespace-nowrap" style={{ top: r ? "47%" : "17%", width: "100%" }}>
+              <span data-mq={r} className="inline-flex" style={{ ...DISP, fontSize: "min(17cqw, 22cqh)", lineHeight: 1.02, color: r ? "transparent" : "#fff", WebkitTextStroke: r ? "1.5px rgba(255,255,255,.85)" : undefined }}>
+                {[0, 1, 2, 3, 4, 5].map((k) => (
+                  <span key={k} className="px-[2.4cqmin]">
+                    <Tx>{r ? "In un minuto" : "Prenota una visita"}</Tx> ·
+                  </span>
+                ))}
+              </span>
+            </span>
+          ))}
+          <span className="absolute inset-x-0 flex flex-col items-center" style={{ bottom: "9cqmin", gap: "2.4cqmin" }}>
+            <span data-cta="" className="flex items-center rounded-full bg-white font-semibold text-black" style={{ height: "12cqmin", paddingLeft: "5cqmin", paddingRight: "1.4cqmin", gap: "3cqmin", fontSize: "3cqmin" }}>
+              <Tx>Prenota una visita</Tx>
+              <span data-carr="" className="flex items-center justify-center rounded-full bg-black text-white" style={{ width: "9.2cqmin", height: "9.2cqmin" }}>
+                <Ico i={ArrowUp01Icon} s={20} c="rotate-45" />
+              </span>
+            </span>
+            <Bead tint="rgba(255,255,255,.14)" radius={999} className="flex items-center text-white/85" style={{ height: "6cqmin", paddingInline: "3cqmin", fontSize: "2cqmin" }}>
+              <Tx>Lun–Ven 9–19 · Sab 9–13</Tx>
+            </Bead>
+          </span>
+        </span>
+      </Bead>
+    ),
+    play: (run, $, at) => {
+      const shot = $("[data-cursor]")[0].parentElement as HTMLElement;
+      const [s0, s1, s2] = $("[data-scr]");
+      const pn = $("[data-pn]");
+      const focus = (i: number, a: number) => {
+        pn.forEach((p, k) => {
+          run.to(p, { flexGrow: k === i ? 3.4 : 1, duration: 0.95, ease: "power3.inOut" }, a);
+          run.to($("[data-pd]")[k], { opacity: k === i ? 1 : 0, duration: 0.4 }, a + (k === i ? 0.35 : 0));
+          run.to($("[data-pshade]")[k], { opacity: k === i ? 0 : 1, duration: 0.6 }, a);
+          run.to($("[data-pimg]")[k], { scale: k === i ? 1.06 : 1.0, duration: 1.2, ease: "power3.out" }, a);
+        });
+        snd(run, "tick", a, 1 + i * 0.12);
+      };
+      run
+        .set(s1, { clipPath: "inset(100% 0 0 0)" }, at)
+        .set(s2, { clipPath: "circle(0% at 50% 100%)" }, at)
+        .set(s0, { autoAlpha: 1 }, at)
+        .set(pn[0], { flexGrow: 3.4 }, at)
+        .set([pn[1], pn[2]], { flexGrow: 1 }, at)
+        .set($("[data-pd]"), { opacity: (i: number) => (i === 0 ? 1 : 0) }, at)
+        .set($("[data-pshade]"), { opacity: (i: number) => (i === 0 ? 0 : 1) }, at);
+      // apertura: la foto si scopre e si assesta, le righe salgono da sotto la maschera, il disco si accende
+      run.fromTo(s0, { clipPath: "inset(7% 7% 7% 7% round 28px)" }, { clipPath: "inset(0% 0% 0% 0% round 0px)", duration: 1.5, ease: "expo.inOut" }, at);
+      run.fromTo($("[data-himg]"), { scale: 1.32 }, { scale: 1.03, duration: 2.8, ease: "expo.out" }, at);
+      run.fromTo($("[data-nav]"), { autoAlpha: 0, y: -24 }, { autoAlpha: 1, y: 0, duration: 0.9, ease: "expo.out" }, at + 0.7);
+      run.fromTo($("[data-ln]"), { yPercent: 112 }, { yPercent: 0, duration: 1.15, stagger: 0.12, ease: "expo.out" }, at + 0.65);
+      run.fromTo($("[data-badge]"), { autoAlpha: 0, scale: 0.55 }, { autoAlpha: 1, scale: 1, duration: 1.1, ease: "expo.out" }, at + 1.1);
+      run.fromTo($("[data-chip]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "expo.out" }, at + 1.3);
+      run.fromTo($("[data-spin2]"), { rotation: 0 }, { rotation: 360, duration: 9, ease: "none", transformOrigin: "50% 50%" }, at + 1.1);
+      snd(run, "open", at + 0.3);
+      // camera: prima il titolo, poi il disco, che si preme
+      const h1 = $("[data-h1]")[0];
+      const badge = $("[data-badge]")[0];
+      zoomTo(run, shot, h1, 1.22, at + 2.1, 1.1, 0.35, 0.55);
+      const c = cursorIn(run, $, badge, at + 3.0);
+      zoomTo(run, shot, badge, 1.55, at + 3.1, 1.0, 0.5, 0.5);
+      let t = human(run, c.cur, () => spot(shot, badge, 0.5, 0.5), at + 3.2, 0.75);
+      run.to(badge, { scale: 1.12, duration: 0.4, ease: "expo.out" }, t - 0.25);
+      press(run, c.cur, badge, t);
+      run.to($("[data-barr]"), { rotation: 45, duration: 0.5, ease: "expo.out" }, t);
+      run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.25);
+      // transizione: la foto avanza, i servizi salgono a tendina
+      const tA = t + 0.45;
+      wideTo(run, shot, tA, 1.1);
+      run.to($("[data-himg]"), { scale: 1.16, duration: 1.3, ease: "power3.in" }, tA);
+      run.to([$("[data-nav]")[0], $("[data-h1]")[0], badge], { autoAlpha: 0, y: -18, duration: 0.6, ease: "power2.in" }, tA);
+      run.to(s1, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.2, ease: "power4.inOut" }, tA + 0.1);
+      run.fromTo($("[data-pimg]"), { scale: 1.35 }, { scale: (i: number) => (i === 0 ? 1.06 : 1), duration: 1.8, ease: "expo.out" }, tA + 0.35);
+      run.fromTo(pn, { y: 70 }, { y: 0, duration: 1.1, stagger: 0.1, ease: "expo.out" }, tA + 0.3);
+      snd(run, "whoosh", tA + 0.1);
+      run.set(s0, { autoAlpha: 0 }, tA + 1.4);
+      // si provano i pannelli: il cursore passa e il pannello si apre
+      t = tA + 1.9;
+      run.to(c.cur, { opacity: 1, duration: 0.2 }, t - 0.2);
+      gsap.set(c.cur, { x: shot.offsetWidth * 0.5, y: shot.offsetHeight * 0.3 });
+      t = human(run, c.cur, () => spot(shot, pn[1], 0.5, 0.45), t, 0.8);
+      focus(1, t - 0.2);
+      zoomTo(run, shot, pn[1], 1.1, t, 1.0, 0.5, 0.5);
+      t = human(run, c.cur, () => spot(shot, pn[2], 0.5, 0.45), t + 1.2, 0.8);
+      focus(2, t - 0.2);
+      zoomTo(run, shot, pn[2], 1.1, t, 1.0, 0.5, 0.5);
+      run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.9);
+      // ultima schermata: il cerchio si apre dal basso, le parole scorrono
+      const tB = t + 1.3;
+      wideTo(run, shot, tB, 0.9);
+      run.to(s2, { clipPath: "circle(150% at 50% 100%)", duration: 1.3, ease: "power3.inOut" }, tB);
+      run.fromTo($("[data-cimg]"), { scale: 1.3 }, { scale: 1.04, duration: 2.4, ease: "expo.out" }, tB);
+      snd(run, "whoosh", tB, 0.9);
+      $("[data-mq]").forEach((m, r) => run.fromTo(m, { xPercent: r ? -33 : 0 }, { xPercent: r ? 0 : -33, duration: 6, ease: "none" }, tB));
+      run.fromTo($("[data-cta]"), { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.9, ease: "expo.out" }, tB + 0.9);
+      // il cursore raggiunge il pulsante, la camera lo stringe, si preme
+      const cta = $("[data-cta]")[0];
+      t = tB + 1.9;
+      gsap.set(c.cur, { x: shot.offsetWidth * 0.2, y: shot.offsetHeight * 0.55 });
+      run.to(c.cur, { opacity: 1, duration: 0.2 }, t - 0.2);
+      t = human(run, c.cur, () => spot(shot, cta, 0.8, 0.5), t, 0.8);
+      zoomTo(run, shot, cta, 1.25, t - 0.8, 1.0, 0.5, 0.5);
+      press(run, c.cur, cta, t);
+      run.to($("[data-carr]"), { rotation: 45, x: 2, duration: 0.45, ease: "expo.out" }, t);
+      run.to(cta, { scale: 1.05, duration: 0.3, yoyo: true, repeat: 1, ease: "power2.inOut" }, t + 0.05);
+      snd(run, "success", t + 0.1);
+      run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.5);
+    },
+  },
+  /* 2 · Online, senza sorprese: quattro parole a tutto schermo, una dopo l'altra, poi il sito si apre sul risultato */
+  {
+    dur: 8,
+    node: (
+      <Bead data-full="" tint={INK} radius={0} className="wsx relative block h-full w-full overflow-hidden text-white">
+        <Ph n="sala" data-bg2="" style={{ filter: "brightness(.28) saturate(.8)" }} />
+        <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.2), rgba(8,12,16,.7))" }} />
+        <span className="absolute flex items-center justify-between" style={{ left: "3cqw", right: "3cqw", top: "3cqw" }}>
+          <Bead tint="rgba(255,255,255,.12)" radius={999} className="flex items-center" style={{ height: "7cqmin", paddingInline: "3cqmin", gap: "1.4cqmin", fontSize: "2.1cqmin" }}>
+            <Ico i={LockKeyIcon} s={12} c="text-white/70" />
+            studiobianchi.it
+          </Bead>
+          <span className="flex items-center" style={{ gap: "2cqmin", fontSize: "2.1cqmin" }}>
+            <span className="relative flex items-center">
+              <span data-building="" className="flex items-center gap-[1cqmin] whitespace-nowrap text-white/70">
+                <span className="rounded-full bg-[#f5c46b]" style={{ width: "1.3cqmin", height: "1.3cqmin" }} />
+                <Tx>Bozza</Tx>
+              </span>
+              <span data-live="" className="absolute right-0 flex items-center gap-[1cqmin] whitespace-nowrap text-white opacity-0">
+                <span className="rounded-full bg-[#30d158]" style={{ width: "1.3cqmin", height: "1.3cqmin" }} />
+                <Tx>Online</Tx>
+              </span>
+            </span>
+            <span data-deploy="" className="flex items-center rounded-full bg-white font-semibold text-black" style={{ height: "7cqmin", paddingInline: "3.6cqmin", fontSize: "2.2cqmin" }}>
+              <Tx>Pubblica</Tx>
+            </span>
+          </span>
+        </span>
+        <span data-reel="" className="absolute flex flex-col justify-center" style={{ left: "4cqw", right: "4cqw", top: "14cqmin", bottom: "22cqmin" }}>
+          {LOG.map(([t]) => (
+            <span key={t} data-wd="" className="relative flex items-center justify-between">
+              <span data-wt="" className="block" style={{ ...DISP, fontSize: "min(12cqw, 13.5cqh)", lineHeight: 0.98, color: "rgba(255,255,255,.14)" }}>
+                <Tx>{t}</Tx>
+              </span>
+              <span className="flex shrink-0 items-center" style={{ gap: "2cqmin" }}>
+                <Bead tint="rgba(255,255,255,.1)" radius={999} className="relative flex shrink-0 items-center justify-center" style={{ width: "6.4cqmin", height: "6.4cqmin" }}>
+                  <svg data-spin="" viewBox="0 0 24 24" className="absolute opacity-0" style={{ width: "58%", height: "58%" }} aria-hidden>
+                    <circle cx="12" cy="12" r="9" fill="none" stroke="rgba(255,255,255,.2)" strokeWidth="2.4" />
+                    <path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke={ACC} strokeWidth="2.4" strokeLinecap="round" />
+                  </svg>
+                  <span data-tk="" className="absolute flex items-center justify-center rounded-full opacity-0" style={{ inset: "18%", background: ACC, color: "#04121c" }}>
+                    <Ico i={Tick02Icon} s={14} />
+                  </span>
+                </Bead>
+              </span>
+            </span>
+          ))}
+        </span>
+        <span data-pct="" className="absolute flex items-end text-white" style={{ ...DISP, left: "4cqw", bottom: "3.6cqmin", fontSize: "13cqmin", lineHeight: 0.9 }}>
+          <span data-pn2="">0</span>
+          <span style={{ fontSize: "5cqmin", paddingBottom: "1.2cqmin", paddingLeft: "0.8cqmin", opacity: 0.6 }}>%</span>
+        </span>
+        {/* il sito, online */}
+        <span data-open="" className="absolute inset-0 block overflow-hidden" style={{ clipPath: "circle(0% at 50% 62%)" }}>
+          <Ph n="hero" pos="50% 60%" data-oimg="" />
+          <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.55) 0%, rgba(8,12,16,.05) 34%, rgba(8,12,16,.2) 55%, rgba(8,12,16,.88) 100%)" }} />
+          <span className="absolute flex items-center text-white" style={{ ...DISP, left: "4cqw", top: "4cqmin", fontSize: "min(20cqw, 22cqh)", lineHeight: 0.95, gap: "2cqmin" }}>
+            <span data-ow="" className="block overflow-hidden">
+              <span data-ow2="" className="block">
+                <Tx>Online</Tx>.
+              </span>
+            </span>
+            <span className="rounded-full bg-[#30d158]" style={{ width: "2.6cqmin", height: "2.6cqmin", boxShadow: "0 0 0 1.2cqmin rgba(48,209,88,.28)" }} />
+          </span>
+          <span className="absolute flex flex-col items-center" style={{ left: "3cqw", right: "3cqw", bottom: "3cqw", gap: "2cqmin" }}>
+            <Bead data-url="" tint="rgba(255,255,255,.16)" radius={999} className="flex items-center text-white" style={{ height: "9cqmin", paddingInline: "4cqmin", gap: "1.6cqmin", fontSize: "3cqmin", fontWeight: 500 }}>
+              <Ico i={LockKeyIcon} s={15} c="text-[#6ee7a8]" />
+              studiobianchi.it
+              <span className="font-mono text-white/60" style={{ fontSize: "2cqmin", paddingLeft: "1cqmin" }}>0,8 s</span>
+            </Bead>
+            <span data-scores="" className="flex w-full" style={{ gap: "1.6cqmin" }}>
+              {RING(100, "Prestazioni")}
+              {RING(100, "SEO")}
+              {RING(100, "Accessibilità")}
+            </span>
+          </span>
+        </span>
+      </Bead>
     ),
     play: (run, $, at) => {
       const dep = $("[data-deploy]")[0];
       const c = cursorIn(run, $, dep, at);
       const shot = c.shot;
-      let t = human(run, c.cur, () => spot(shot, dep), at + 0.05, 0.55);
+      run.set($("[data-open]"), { clipPath: "circle(0% at 50% 62%)" }, at);
+      run.fromTo($("[data-bg2]"), { scale: 1.25 }, { scale: 1.05, duration: 6, ease: "power2.out" }, at);
+      let t = human(run, c.cur, () => spot(shot, dep), at + 0.05, 0.6);
       press(run, c.cur, dep, t);
       run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.3);
-      // ogni controllo: gira, poi si chiude con la spunta (mai le due icone insieme)
+      const words = $("[data-wt]");
       const spins = $("[data-spin]");
       const ticks = $("[data-tk]");
-      let a = t + 0.3;
+      const pct = { v: 0 };
+      const pn2 = $("[data-pn2]")[0];
+      let a = t + 0.35;
       LOG.forEach((_, i) => {
-        const dur = [0.5, 0.7, 0.6, 0.35][i];
-        run.set(spins[i], { opacity: 1 }, a).to($("[data-lt]")[i], { color: "#fff", duration: 0.25 }, a);
+        const dur = [0.6, 0.85, 0.75, 0.45][i];
+        // la camera segue la parola attiva: più vicina, mai un salto
+        zoomTo(run, shot, words[i], 1.18, a - 0.15, 0.7, 0.3, 0.5);
+        run.to(words[i], { color: "#ffffff", duration: 0.3 }, a);
+        run.set(spins[i], { opacity: 1 }, a);
         run.fromTo(spins[i], { rotation: 0 }, { rotation: 360 * (1 + dur), duration: dur, ease: "none", transformOrigin: "50% 50%" }, a);
+        run.to(pct, { v: (i + 1) * 25, duration: dur, ease: "power1.inOut", onUpdate: () => void (pn2.textContent = String(Math.round(pct.v))) }, a);
         run.set(spins[i], { opacity: 0 }, a + dur);
-        run.fromTo(ticks[i], { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, a + dur);
-        run.to([$("[data-ld]")[i], $("[data-ls]")[i]], { opacity: 1, duration: 0.3 }, a + dur);
+        run.fromTo(ticks[i], { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, a + dur);
+        run.to(words[i], { color: "rgba(255,255,255,.34)", duration: 0.5 }, a + dur);
         snd(run, "tick", a + dur, 1 + i * 0.16);
-        a += dur + 0.12;
+        a += dur + 0.1;
       });
       const done = a + 0.1;
+      wideTo(run, shot, done, 0.7);
       run
         .to($("[data-building]"), { opacity: 0, duration: 0.2 }, done)
-        .to($("[data-live]"), { opacity: 1, duration: 0.3 }, done + 0.05)
-        .fromTo($("[data-url]"), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, done + 0.1)
-        .fromTo($("[data-scores]"), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" }, done + 0.4);
-      snd(run, "success", done);
-      zoomTo(run, shot, $("[data-final]")[0], 1.35, done + 0.05, 1.1, 0.5, 0.5);
-      run.to($("[data-steps]"), { opacity: 0.2, duration: 0.8, ease: "power2.inOut" }, done + 0.1);
+        .to($("[data-live]"), { opacity: 1, duration: 0.3 }, done + 0.05);
+      snd(run, "success", done + 0.2);
+      // il sito si apre dal centro, a tutto schermo
+      run.to($("[data-open]"), { clipPath: "circle(95% at 50% 62%)", duration: 1.4, ease: "power3.inOut" }, done + 0.15);
+      run.fromTo($("[data-oimg]"), { scale: 1.3 }, { scale: 1.02, duration: 2.4, ease: "expo.out" }, done + 0.15);
+      run.fromTo($("[data-ow2]"), { yPercent: 110 }, { yPercent: 0, duration: 1.0, ease: "expo.out" }, done + 0.9);
+      run.fromTo($("[data-url]"), { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "expo.out" }, done + 1.1);
+      run.fromTo($("[data-scores]"), { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "expo.out" }, done + 1.25);
+      zoomTo(run, shot, $("[data-scores]")[0], 1.08, done + 1.6, 1.0, 0.5, 0.5);
       $("[data-ring]").forEach((r, i) => {
-        run.fromTo(r, { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.8, ease: "power2.out" }, done + 0.7 + i * 0.12);
-        count(run, $("[data-score]")[i], 0, 100, done + 0.7 + i * 0.12, 0.8, (n) => String(Math.round(n)));
+        run.fromTo(r, { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.9, ease: "power2.out" }, done + 1.5 + i * 0.12);
+        count(run, $("[data-score]")[i], 0, 100, done + 1.5 + i * 0.12, 0.9, (n) => String(Math.round(n)));
       });
     },
   },
-  /* 3 · Ti porta prenotazioni: la prenotazione sul telefono e, nello stesso istante, la riga nella tua agenda */
+  /* 3 · Ti porta prenotazioni: la prenotazione e, nello stesso istante, la giornata dello studio che si riempie */
   {
-    dur: 6,
+    dur: 7.5,
     node: (
-      <Shell
-        title={<Tx>Agenda</Tx>}
-        right={
-          <span className="flex items-center gap-2 text-[12px] text-white/60">
-            <Tx>Visite di oggi</Tx>
-            <span data-cnt className="font-mono text-[13px] text-white">3</span>
-          </span>
-        }
-      >
-        <span className="absolute inset-0 grid grid-cols-[184px_1fr] items-center gap-12 px-10 pb-4">
-          <span data-phone className="block">
-            <span className="relative block rounded-[34px] bg-[#0b0d10] p-[6px] shadow-[0_24px_50px_-18px_rgba(0,0,0,.7)] ring-1 ring-white/15" style={{ width: 184, height: 326 }}>
-              <span className="absolute left-1/2 top-[13px] z-10 h-[13px] w-[44px] -translate-x-1/2 rounded-full bg-black" />
-              <span className="relative block h-full overflow-hidden rounded-[28px] px-3.5 pt-9" style={{ background: PAPER, color: INK }}>
-                <span className="flex items-center gap-1 text-[12px] leading-none" style={SERIF}>
-                  <span className="h-[5px] w-[5px] rounded-full" style={{ background: SITE }} />
-                  Bianchi
-                </span>
-                <span className="mt-3 block text-[21px] leading-[1.02] tracking-[-0.03em]" style={SERIF}>
-                  <Tx>Prenota la visita</Tx>
-                </span>
-                <DayChips />
-                <span className="mt-2.5 grid grid-cols-2 gap-1.5 text-[10px]">
-                  {["9:00", "11:30", "14:30", "17:00"].map((h) => (
-                    <span key={h} data-slot={h} className="flex h-7 items-center justify-center rounded-full border opacity-0" style={{ borderColor: "rgba(20,18,15,.18)" }}>
-                      {h}
-                    </span>
-                  ))}
-                </span>
-                <span data-confirm className="absolute inset-x-3 bottom-3 block h-9 overflow-hidden rounded-full text-[11px] font-semibold opacity-35" style={{ background: INK, color: PAPER }}>
-                  <span data-ct className="flex h-full items-center justify-center">
-                    <Tx>Conferma</Tx>
-                  </span>
-                  <span data-cd className="absolute inset-0 flex items-center justify-center gap-1 opacity-0">
-                    <Ico i={Tick02Icon} s={14} />
-                    <Tx>Confermato</Tx>
-                  </span>
-                </span>
+      <Bead data-full="" tint={INK} radius={0} className="wsx relative block h-full w-full overflow-hidden text-white">
+        <Ph n="visita" pos="50% 35%" data-bg3="" style={{ filter: "brightness(.5)" }} />
+        <span className="absolute inset-0 block" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.35), rgba(8,12,16,.78))" }} />
+        {/* la giornata dello studio */}
+        <Bead data-trk="" tint="rgba(255,255,255,.1)" radius={34} className="w-tr absolute block" style={{ padding: "3cqmin" }}>
+          <span className="flex items-end justify-between">
+            <span className="text-white/70" style={{ fontSize: "2cqmin" }}>
+              <Tx>Agenda</Tx> · <Tx>Giovedì 12 novembre</Tx>
+            </span>
+            <span className="flex items-end gap-[1.2cqmin]">
+              <span className="text-white/60" style={{ fontSize: "1.9cqmin", paddingBottom: "0.8cqmin" }}>
+                <Tx>Visite di oggi</Tx>
+              </span>
+              <span data-cnt="" style={{ ...DISP, fontSize: "9cqmin", lineHeight: 0.9 }}>
+                3
               </span>
             </span>
           </span>
-          <span className="relative block">
-            <span className="mb-2 block text-[11px] uppercase tracking-[0.1em] text-white/35">
-              <Tx>Giovedì 12 novembre</Tx>
-            </span>
-            {[
-              ["9:00", "Marco B.", "Igiene"],
-              ["11:30", "Elena T.", "Controllo"],
-            ].map(([h, n, s]) => (
-              <Appt key={h} h={h} n={n} s={s} />
+          <span className="relative mt-[2.4cqmin] block" style={{ height: "10cqmin" }}>
+            {TRACK.map(([n, l, w]) => (
+              <span key={n} className="absolute top-0 flex items-center justify-center rounded-[1.6cqmin] font-medium text-white/85" style={{ left: `${l}%`, width: `${w}%`, height: "100%", background: "rgba(255,255,255,.16)", fontSize: "2cqmin" }}>
+                {n}
+              </span>
             ))}
-            <span data-new className="relative grid h-[52px] grid-cols-[54px_1fr_auto] items-center border-t border-white/[.08]">
-              <span data-hl className="absolute inset-x-0 inset-y-px block origin-left bg-[linear-gradient(90deg,rgba(94,196,255,.2),transparent)] opacity-0" />
-              <span className="relative font-mono text-[12px] text-white/45">14:30</span>
-              <span data-free className="relative text-[12.5px] text-white/30">
-                <Tx>Libero</Tx>
-              </span>
-              <span data-fill className="absolute inset-y-0 left-[54px] right-0 flex items-center justify-between opacity-0">
-                <span className="leading-tight">
-                  <span className="block text-[13px] font-medium">Giulia R.</span>
-                  <span className="block text-[11px] text-white/50">
-                    <Tx>Prima visita</Tx>
-                  </span>
-                </span>
-                <span className="rounded-full bg-[#5ec4ff]/20 px-2.5 py-0.5 text-[10.5px] font-medium text-[#8fd8ff]">
-                  <Tx>Nuova</Tx>
-                </span>
-              </span>
+            <span className="absolute top-0 rounded-[1.6cqmin]" style={{ left: "61.1%", width: "11.1%", height: "100%", border: "1.5px dashed rgba(255,255,255,.35)" }} />
+            <span data-new="" className="absolute top-0 flex items-center justify-center rounded-[1.6cqmin] font-semibold opacity-0" style={{ left: "61.1%", width: "11.1%", height: "100%", background: ACC, color: "#04121c", fontSize: "2cqmin", boxShadow: "0 0 0 0 rgba(143,216,255,.6)" }}>
+              GR
             </span>
-            <Appt h="17:00" n="Luca F." s="Sbiancamento" />
           </span>
-        </span>
-      </Shell>
+          <span className="mt-[1.2cqmin] flex justify-between font-mono text-white/45" style={{ fontSize: "1.6cqmin" }}>
+            {["9", "11", "13", "15", "17"].map((h) => (
+              <span key={h}>{h}:00</span>
+            ))}
+          </span>
+        </Bead>
+        {/* la notifica */}
+        <Bead data-toast="" tint="rgba(255,255,255,.2)" radius={999} className="w-ts absolute flex items-center opacity-0" style={{ height: "11cqmin", paddingLeft: "1.6cqmin", paddingRight: "4cqmin", gap: "2.2cqmin" }}>
+          <span className="flex items-center justify-center rounded-full" style={{ width: "8cqmin", height: "8cqmin", background: ACC, color: "#04121c" }}>
+            <Ico i={Notification01Icon} s={16} />
+          </span>
+          <span className="flex flex-col leading-tight">
+            <span className="font-semibold" style={{ fontSize: "2.4cqmin" }}>
+              <Tx>Nuova prenotazione</Tx>
+            </span>
+            <span className="text-white/75" style={{ fontSize: "2cqmin" }}>
+              <Tx>Giulia R. · giovedì alle 14:30</Tx>
+            </span>
+          </span>
+        </Bead>
+        {/* la prenotazione */}
+        <Bead data-book="" tint="rgba(10,14,18,.5)" radius={40} className="w-bk absolute flex flex-col justify-between" style={{ padding: "3.4cqmin" }}>
+          <span className="block">
+            <span className="flex items-center text-white/65" style={{ gap: "1.2cqmin", fontSize: "1.9cqmin" }}>
+              <span className="rounded-full" style={{ width: "1.2cqmin", height: "1.2cqmin", background: ACC }} />
+              Studio Bianchi
+            </span>
+            <span className="mt-[1cqmin] block" style={{ ...DISP, fontSize: "min(8.4cqw, 10cqh)", lineHeight: 1 }}>
+              <Tx>Prenota la visita</Tx>
+            </span>
+          </span>
+          <span className="block">
+            <DayPills />
+            <span className="mt-[1.6cqmin] grid grid-cols-4" style={{ gap: "1.4cqmin" }}>
+              {["9:00", "11:30", "14:30", "17:00"].map((h) => (
+                <span key={h} data-slot={h} className="flex items-center justify-center rounded-full opacity-0" style={{ height: "8cqmin", fontSize: "2.3cqmin", border: "1.5px solid rgba(255,255,255,.28)" }}>
+                  {h}
+                </span>
+              ))}
+            </span>
+          </span>
+          <span data-confirm="" className="relative block overflow-hidden rounded-full bg-white font-semibold text-black opacity-40" style={{ height: "11cqmin", fontSize: "2.8cqmin" }}>
+            <span data-ct="" className="flex h-full items-center justify-center">
+              <Tx>Conferma</Tx>
+            </span>
+            <span data-cd="" className="absolute inset-0 flex items-center justify-center gap-[1cqmin] opacity-0">
+              <Ico i={Tick02Icon} s={18} />
+              <Tx>Confermato</Tx>
+            </span>
+          </span>
+        </Bead>
+      </Bead>
     ),
     play: (run, $, at) => {
-      const phone = $("[data-phone]")[0];
+      const book = $("[data-book]")[0];
       const day = $('[data-day="3"]')[0];
       const c = cursorIn(run, $, day, at);
       const shot = c.shot;
-      zoomTo(run, shot, phone, 1.5, at, 1, 0.5, 0.5);
-      let t = human(run, c.cur, () => spot(shot, day), at + 0.05, 0.6);
+      run.set($("[data-toast]"), { autoAlpha: 0, y: -30 }, at).set($("[data-new]"), { opacity: 0 }, at);
+      run.fromTo($("[data-bg3]"), { scale: 1.2 }, { scale: 1.04, duration: 5.5, ease: "power2.out" }, at);
+      run.fromTo($("[data-trk]"), { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 1, ease: "expo.out" }, at + 0.1);
+      run.fromTo(book, { autoAlpha: 0, y: 80 }, { autoAlpha: 1, y: 0, duration: 1.1, ease: "expo.out" }, at + 0.25);
+      zoomTo(run, shot, book, 1.07, at + 0.9, 1.0, 0.5, 0.5);
+      let t = human(run, c.cur, () => spot(shot, day), at + 1.1, 0.7);
       press(run, c.cur, day, t);
       run
-        .to(day, { backgroundColor: INK, color: PAPER, duration: 0.2 }, t)
-        .fromTo($("[data-slot]"), { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.35, stagger: 0.05, ease: "expo.out" }, t + 0.1);
+        .to(day, { backgroundColor: "#ffffff", color: "#0d1115", duration: 0.25 }, t)
+        .fromTo($("[data-slot]"), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.06, ease: "expo.out" }, t + 0.12);
       const slot = $('[data-slot="14:30"]')[0];
-      t = human(run, c.cur, () => spot(shot, slot), t + 0.55, 0.5);
+      t = human(run, c.cur, () => spot(shot, slot), t + 0.7, 0.55);
       press(run, c.cur, slot, t);
-      run.to(slot, { backgroundColor: INK, color: PAPER, duration: 0.2 }, t).to($("[data-confirm]"), { opacity: 1, duration: 0.25 }, t);
+      run.to(slot, { backgroundColor: "#ffffff", color: "#0d1115", borderColor: "#ffffff", duration: 0.25 }, t).to($("[data-confirm]"), { opacity: 1, duration: 0.3 }, t);
       const conf = $("[data-confirm]")[0];
-      t = human(run, c.cur, () => spot(shot, conf), t + 0.4, 0.5);
+      t = human(run, c.cur, () => spot(shot, conf), t + 0.45, 0.55);
       press(run, c.cur, conf, t);
       run
         .to($("[data-ct]"), { opacity: 0, duration: 0.15 }, t)
         .to($("[data-cd]"), { opacity: 1, duration: 0.25 }, t + 0.05)
         .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.3);
-      // nello stesso istante la riga compare nell'agenda: la camera passa dal telefono alla riga
-      const a = t + 0.35;
-      const row = $("[data-new]")[0];
-      zoomTo(run, shot, row, 1.4, a, 1, 0.35, 0.5);
+      // nello stesso istante: la camera passa alla giornata, il blocco si accende, arriva la notifica
+      const a = t + 0.4;
+      const trk = $("[data-trk]")[0];
+      wideTo(run, shot, a, 0.9);
       run
-        .to($("[data-free]"), { opacity: 0, duration: 0.2 }, a + 0.3)
-        .fromTo($("[data-fill]"), { opacity: 0, x: 10 }, { opacity: 1, x: 0, duration: 0.5, ease: "expo.out" }, a + 0.35)
-        .fromTo($("[data-hl]"), { opacity: 1, scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.out" }, a + 0.2);
-      count(run, $("[data-cnt]")[0], 3, 4, a + 0.45, 0.3, (n) => String(Math.round(n)));
+        .fromTo($("[data-new]"), { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2.2)" }, a + 0.3)
+        .fromTo($("[data-new]"), { boxShadow: "0 0 0 0 rgba(143,216,255,.7)" }, { boxShadow: "0 0 0 2.4cqmin rgba(143,216,255,0)", duration: 1.0, ease: "power2.out" }, a + 0.35)
+        .to($("[data-toast]"), { autoAlpha: 1, y: 0, duration: 0.7, ease: "expo.out" }, a + 0.55);
+      count(run, $("[data-cnt]")[0], 3, 4, a + 0.45, 0.4, (n) => String(Math.round(n)));
       snd(run, "notify", a + 0.35);
     },
   },
