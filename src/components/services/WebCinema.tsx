@@ -12,6 +12,7 @@ import { onIntroLift } from "@/lib/intro";
 import { soundOn, onSound, setSound } from "@/lib/sound";
 import { fx } from "@/lib/filmsound";
 import { Bead } from "@/components/glass/Bead";
+import { Wordmark } from "@/components/nav/Wordmark";
 import { GradientText } from "@/components/ui/GradientText";
 import { getCinema, type Cinema } from "@/content/cinema";
 
@@ -26,19 +27,23 @@ type Q = (s: string) => HTMLElement[];
 
 /** Le parole tra asterischi diventano parole chiave, riempite dal gradiente animato. */
 function Kw({ text }: { text: string }) {
+  const parts = text.split("*");
   return (
     <>
-      {text.split("*").map((p, i) =>
-        i % 2 ? (
-          <span key={i} data-kw className="inline-block" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1 }}>
-            <GradientText colors={GT} animationSpeed={8} variant="flow" glow={1}>
-              {p}
-            </GradientText>
-          </span>
-        ) : (
-          <Fragment key={i}>{p}</Fragment>
-        ),
-      )}
+      {parts.map((p, i) => {
+        if (i % 2) {
+          const m = /^[.,!?;:]+/.exec(parts[i + 1] ?? "");
+          return (
+            <span key={i} data-kw className="inline-block" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.12em 0.2em 0.3em", margin: "-0.12em -0.2em -0.3em" }}>
+              <GradientText colors={GT} animationSpeed={8} variant="flow" glow={1}>
+                {p + (m ? m[0] : "")}
+              </GradientText>
+            </span>
+          );
+        }
+        const prev = /^[.,!?;:]+/.exec(p);
+        return <Fragment key={i}>{i > 0 && prev ? p.slice(prev[0].length) : p}</Fragment>;
+      })}
     </>
   );
 }
@@ -314,8 +319,8 @@ export function WebCinema({ title }: { title: string }) {
       gsap.set([fav, rl, tt2, ok], { autoAlpha: 0 });
       tl.to([pill, ...res], { autoAlpha: 0, y: "-=40", filter: "blur(8px)", duration: 0.45, stagger: 0.03, ease: "power2.in" }, T(5.1))
         .call(() => (fx.whoosh(0.5, false, 0.8), fx.riser(U(6.5))), undefined, U(5.5))
-        .fromTo(chrome, { autoAlpha: 0, scale: 0.9, y: 30 }, { autoAlpha: 1, scale: 1, y: 0, duration: 1.1, ease: "expo.out" }, U(5.7))
-        .fromTo(cam, { scale: 1, transformOrigin: aim(() => chrome) }, { scale: small() ? 1.04 : 1.08, duration: U(7), ease: "sine.inOut" }, U(5.7));
+        .fromTo(chrome, { autoAlpha: 0, y: 140 }, { autoAlpha: 1, y: 0, duration: 1.3, ease: "expo.out" }, U(5.7))
+        .set(cam, { scale: 1 }, U(5.7));
       // un pezzo alla volta, a scatti, a intervalli irregolari; l'ultimo non arriva mai
       [7.2, 8.8, 9.6, 11.2].forEach((b, i) => {
         tl.set(bands[i], { autoAlpha: 0 }, U(b)).call(() => fx.tick(0.7 + i * 0.08), undefined, U(b));
@@ -330,13 +335,10 @@ export function WebCinema({ title }: { title: string }) {
       const at2 = T(9.3);
       {
         const o = { n: 0 };
-        tl.set(bands, { autoAlpha: 1 }, at2 - 0.05)
-          .call(() => (cnt.textContent = num(0)), undefined, at2 - 0.05)
+        tl.call(() => (cnt.textContent = num(0)), undefined, at2)
           .fromTo(o, { n: 0 }, { n: 0.8, duration: 0.34, ease: "power1.out", onUpdate: () => void (cnt.textContent = num(o.n)) }, at2)
           .call(() => (fx.chord([0, 2, 4, 5], 1), fx.whoosh(0.35, true, 0.6)), undefined, at2 + 0.38)
-          .set(bands, { autoAlpha: 0 }, at2 + 0.38)
-          .fromTo(chrome, { scale: 1.018 }, { scale: 1, duration: 0.7, ease: "expo.out" }, at2 + 0.38)
-          .to(cam, { scale: 1, duration: 0.9, ease: "expo.out" }, at2 + 0.38)
+          .to(bands, { autoAlpha: 0, duration: 0.18, stagger: 0.03, ease: "none" }, at2 + 0.2)
           .to([spin, stop, tt1], { autoAlpha: 0, duration: 0.12 }, at2 + 0.38)
           .fromTo([fav, rl, tt2], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2.2)" }, at2 + 0.4)
           .fromTo(ok, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2.4)" }, at2 + 0.42)
@@ -347,7 +349,7 @@ export function WebCinema({ title }: { title: string }) {
       /* 3 · Prima lo disegniamo: la camera entra nell'anello, dal fondo emerge la pagina inclinata */
       const wireBits = $("[data-wire] > div");
       tl.call(() => fx.whoosh(0.8, true, 1), undefined, T(11.5))
-        .to(chrome, { scale: 1.5, autoAlpha: 0, filter: "blur(8px)", duration: 0.8, ease: "power3.in" }, T(11.4))
+        .to(chrome, { autoAlpha: 0, y: -50, duration: 0.8, ease: "power3.in" }, T(11.4))
         .fromTo(dev, { autoAlpha: 0, rotationX: 40, y: 160, scale: () => fit(wide)() * 0.7 }, { autoAlpha: 1, rotationX: 0, y: 0, scale: fit(wide), duration: 1.5, ease: "expo.out" }, T(11.9))
         .fromTo(wireBits, { autoAlpha: 0, scale: 0.86, y: 16 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.7)", stagger: T(0.4) }, T(12.6));
       wireBits.forEach((_, i) => tl.call(() => fx.pluck(i * 2, 0.7, 0.3), undefined, T(12.6) + i * T(0.4)));
@@ -488,6 +490,7 @@ export function WebCinema({ title }: { title: string }) {
         .set(endCard, { autoAlpha: 1 }, T(54.8));
       slam(eg, T(55.0), 0);
       tl.call(() => (fx.chord([0, 2, 4, 7], 1.2)), undefined, T(55.0))
+        .fromTo(one("[data-logo]"), { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 1.1, ease: "expo.out" }, T(55.8))
         .fromTo(one("[data-more]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, T(56.4));
       punch(51.8, 1.03);
       tl.set({}, {}, T(59));
@@ -690,10 +693,13 @@ export function WebCinema({ title }: { title: string }) {
           </div>
         </div>
       <div data-end className="absolute inset-0 flex flex-col items-center justify-center" style={HID}>
-        <p data-eh className="mx-auto max-w-[14ch] px-6 text-center text-[clamp(44px,8.4vw,140px)] font-medium leading-[1.04] tracking-[-0.05em] cine-fg">
+        <p data-eh className="mx-auto max-w-[14ch] px-6 text-center text-[clamp(38px,6.6vw,108px)] font-medium leading-[1.04] tracking-[-0.05em] cine-fg">
           <Kw text={c.end.t} />
         </p>
-        <span data-more className="cine-fg2 absolute bottom-24 flex flex-col items-center gap-2 text-[13px] uppercase tracking-[0.18em]" style={HID}>
+        <div data-logo className="mt-6 [--logo-size:clamp(38px,9vw,112px)]" style={HID}>
+          <Wordmark />
+        </div>
+        <span data-more className="cine-fg mt-10 flex flex-col items-center gap-1 text-[clamp(22px,3vw,32px)]" style={{ ...HID, fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSynthesis: "none" }}>
           {c.end.more}
           <ArrowDown size={16} strokeWidth={1.8} className="animate-bounce" />
         </span>
