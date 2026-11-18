@@ -120,9 +120,9 @@ const IT: Record<ServiceKey, Body> = {
     ],
     howLead: "Tre passaggi, sempre nello stesso ordine. In ognuno vedi qualcosa di concreto e decidi tu se va bene.",
     steps: [
-      ["Lo disegniamo insieme", "Prima di scrivere codice vedi le schermate e le commenti. Si cambia finché non ti convince: correggere un disegno costa minuti, non settimane."],
-      ["Va online in un clic", "Ogni versione passa da controlli automatici e arriva online senza fermare nulla. Se qualcosa non va, si torna indietro subito."],
-      ["Lavora per te", "Chi visita trova quello che cerca e prenota o ti scrive. A te arriva una notifica, con i dati già in ordine."],
+      ["Si parte da come lavori", "Prima decidiamo cosa deve fare il sito e per chi. Poi vedi le schermate vere, una pagina alla volta: correggere un disegno costa minuti, non settimane."],
+      ["Va online senza sorprese", "Ogni versione passa da controlli automatici e arriva online in pochi secondi, senza fermare nulla. Se qualcosa non va, si torna indietro subito."],
+      ["Poi lavora per te", "Chi visita trova quello che cerca e prenota da solo. Nella tua agenda compare subito la riga giusta, con i dati già in ordine."],
     ],
     gets: [
       ["Un sito che spiega bene cosa fai", "Pagine chiare, in più lingue se serve, pensate per chi deve capire in fretta cosa offri e come contattarti."],
@@ -484,9 +484,9 @@ const ENG: Record<ServiceKey, Body> = {
     ],
     howLead: "Three steps, always in the same order. At each one you see something concrete and decide if it’s right.",
     steps: [
-      ["We design it together", "Before any code is written you see the screens and comment on them. We change them until you’re convinced: fixing a drawing takes minutes, not weeks."],
-      ["It goes live in one click", "Every version passes automatic checks and goes live without stopping anything. If something is off, we roll back straight away."],
-      ["It works for you", "Visitors find what they’re looking for and book or write to you. You get a notification, with the details already in order."],
+      ["It starts from how you work", "First we decide what the site must do and for whom. Then you see the real screens, one page at a time: fixing a drawing takes minutes, not weeks."],
+      ["It goes live, no surprises", "Every version passes automatic checks and goes live in seconds without stopping anything. If something is off, we roll back straight away."],
+      ["Then it works for you", "Visitors find what they’re looking for and book on their own. The right row shows up in your agenda at once, details already in order."],
     ],
     gets: [
       ["A site that explains what you do", "Clear pages, in several languages if needed, built for people who need to understand quickly what you offer and how to reach you."],

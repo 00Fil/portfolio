@@ -21,6 +21,7 @@ import {
   CheckmarkCircle02Icon,
   CreditCardIcon,
   Edit02Icon,
+  Home01Icon,
   Invoice01Icon,
   LockKeyIcon,
   Mail01Icon,
@@ -31,6 +32,7 @@ import {
   ShoppingCart01Icon,
   SparklesIcon,
   ThermometerWarmIcon,
+  Tick02Icon,
   UserCheck01Icon,
 } from "@hugeicons/core-free-icons";
 import { Bead } from "@/components/glass/Bead";
@@ -43,7 +45,7 @@ export type Shot = { node: ReactNode; play?: (run: gsap.core.Timeline, $: Q, at:
 const snd = (run: gsap.core.Timeline, name: Sfx, at: number, pitch = 1) => run.call(() => sfx(name, pitch), undefined, at);
 
 const W = 620;
-const EN: Record<string, string> = {"Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too.", "Livelli": "Layers", "Desktop": "Desktop", "Hero": "Hero", "Titolo": "Title", "Servizi": "Services", "Prenota una visita": "Book a visit", "Perfetto così!": "Love it!", "Riempimento": "Fill", "Angoli": "Corners", "Il tuo sorriso, in buone mani": "Your smile, in good hands", "Pubblicazione": "Deployment", "Pubblica": "Deploy", "Compilato in 9 s": "Built in 9 s", "24 pagine generate": "24 pages generated", "Immagini ottimizzate": "Images optimised", "Online su studiobianchi.it": "Live on studiobianchi.it", "Online": "Live", "Chi siamo": "About", "Contatti": "Contact", "Giovedì 14 novembre": "Thursday 14 November", "Conferma": "Confirm", "Nuova prenotazione": "New booking", "Giulia R. · giovedì alle 14:30": "Giulia R. · Thursday at 2:30 pm", "ora": "now", "Buonasera, Marco": "Good evening, Marco", "Come posso aiutarti oggi?": "How can I help you today?", "Mi consigli un buon dentista a Brescia?": "Can you recommend a good dentist in Brescia?", ", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive.": ", in central Brescia: online booking, long hours and excellent reviews.", "e": "and", "Sei la loro": "You’re their", "prima scelta,": "first choice,", "quando si parla del tuo settore.": "whenever your field comes up.", "Nuova attività": "New task", "Recenti": "Recent", "Report vendite": "Sales report", "Fatture ottobre": "October invoices", "Listino 2026": "2026 price list", "Cosa facciamo oggi?": "What shall we do today?", "Smista le email di oggi, inserisci gli ordini e prepara le risposte": "Sort today’s emails, enter the orders and draft the replies", "Al lavoro sulle email di oggi": "Working on today’s emails", "Lette 24 email": "Read 24 emails", "12 ordini inseriti nel gestionale": "12 orders entered in the ERP", "9 risposte preparate": "9 replies drafted", "3 da controllare a mano": "3 to check by hand", "File": "Files", "ordini.xlsx": "orders.xlsx", "risposte (9)": "replies (9)", "Fatto. 9 risposte pronte": "Done. 9 replies ready", "12 ordini già nel gestionale · 3 da guardare tu": "12 orders already in the ERP · 3 for you to check", "Approva e invia": "Approve and send", "Prenotazione — Prototipo": "Booking — Prototype", "Presenta": "Present", "Scegli l'orario": "Pick a time", "Confermato": "Confirmed", "Ci vediamo giovedì": "See you Thursday", "Test con 5 persone vere": "Tested with 5 real people", "prenotare una visita": "book a visit", "Tempo medio": "Average time", "Completano la prenotazione": "Complete the booking", "Prima": "Before", "Dopo": "After", "2,5 volte più prenotazioni": "2.5× more bookings", "Il tuo gestionale": "Your ERP", "Nuovo ordine #1042 · 89,00 €": "New order #1042 · €89.00", "Pagamento ricevuto": "Payment received", "Fattura FT-1042 creata e scorte aggiornate": "Invoice FT-1042 created, stock updated", "Conferma inviata al cliente": "Confirmation sent to the customer", "Richiesta del cliente chiusa": "Customer request closed", "Prenota e gestisci le visite": "Book and manage visits", "Ottieni": "Get", "Apri": "Open", "Salute": "Health", "Età": "Age", "Attacchi fermati oggi": "Attacks stopped today", "Pagine già pronte": "Pages served ready", "Connessione protetta": "Secure connection", "Server": "Server", "Europa · Francia": "Europe · France", "Certificato": "Certificate", "Si rinnova da solo": "Renews itself", "Dominio": "Domain", "Intestato a te": "In your name", "Versione online": "Live version", "Torna alla precedente": "Roll back", "Modifica": "Change", "Controlli": "Checks", "Prova": "Staging", "Ripristinata in 4 secondi": "Restored in 4 seconds", "Copie di sicurezza · ultime due settimane": "Backups · last two weeks", "Il sito non risponde": "The site is down", "Di nuovo online in 41 secondi": "Back online in 41 seconds", "studiobianchi.it non risponde": "studiobianchi.it is down", "Avviso a Filippo · 03:12": "Filippo alerted · 3:12 am", "Online negli ultimi 90 giorni": "Uptime, last 90 days", "1 avviso": "1 alert", "Porta chiusa · temperatura in discesa": "Door closed · temperature falling", "Sbiancamento e igiene, prima visita gratuita.": "Whitening and hygiene, free first visit.", "Punteggio": "Score", "Tempo di apertura": "Load time", "Peso delle immagini": "Image weight", "Titoli delle pagine": "Page titles", "Scheda Google": "Google profile", "incompleta": "incomplete", "completa": "complete", "3 su 24": "3 of 24", "24 su 24": "24 of 24", "6,2 s": "6.2 s", "0,9 s": "0.9 s", "4,8 MB": "4.8 MB", "Senza rete": "Offline", "In attesa": "Queued", "Consegna alle 15": "Delivery at 3 pm", "Avvisa": "Notify", "Avvisato": "Notified", "In compilazione": "Building", "Codice scaricato": "Code fetched", "Dipendenze installate": "Dependencies installed", "Novembre 2026": "November 2026", "Giovedì 12 novembre": "Thursday 12 November"};
+const EN: Record<string, string> = {"Pagine": "Pages", "Home": "Home", "Intestazione": "Header", "Prenotazione": "Booking", "Igiene": "Hygiene", "Ortodonzia": "Orthodontics", "Sbiancamento": "Whitening", "Bozza": "Draft", "Ottimizzazione": "Optimisation", "Agenda": "Agenda", "Visite di oggi": "Today’s visits", "Libero": "Free", "Nuova": "New", "Prima visita": "First visit", "Controllo": "Check-up", "Pubblicazione": "Going live", "Prenota": "Book", "Caricamento": "Load time", "Avviso in homepage": "Homepage notice", "Modifica · bozza": "Edit · draft", "Chiusi il 25 e 26 dicembre": "Closed on 25 and 26 December", "Pubblica sul sito": "Publish on the site", "Online in tutto il sito": "Live across the site", "dentista a brescia": "dentist in brescia", "Prestazioni": "Performance", "Accessibilità": "Accessibility", "Visite dalla ricerca": "Visits from search", "Un buon dentista a Brescia?": "A good dentist in Brescia?", "Sto cercando le fonti migliori…": "Looking for the best sources…", "Risposta": "Answer", "Ti consiglio": "I’d recommend", ", in centro a Brescia:": ", in central Brescia:", "orari estesi, prenotazione online e recensioni molto positive.": "long opening hours, online booking and great reviews.", "Ti cita": "Cites you", "Ordine fornitore": "Supplier order", "da confermare": "to confirm", "Sincronizzato su tutti i dispositivi": "Synced on every device", "Prenota la visita": "Book a visit", "Scegli giorno e ora, ti confermiamo subito.": "Pick a day and time, confirmed instantly.", "Continua": "Continue", "Test con 5 persone": "Tested with 5 people", "Riescono a prenotare da sole?": "Can they book on their own?", "Trova il servizio": "Finds the service", "Sceglie giorno e ora": "Picks a day and time", "Conferma la visita": "Confirms the visit", "Colori": "Colour", "Testo": "Type", "Titolo · Corpo · Nota": "Title · Body · Note", "Componenti": "Components", "Annulla": "Cancel", "Posta in arrivo": "Inbox", "Ordine 40 pz. articolo 118": "Order: 40 pcs of item 118", "Fattura di ottobre": "October invoice", "Non riesco ad accedere": "I can’t log in", "Disponibilità per martedì?": "Available on Tuesday?", "Ordini": "Orders", "Fatture": "Invoices", "Assistenza": "Support", "Letto e smistato": "Read and sorted", "bozza pronta": "draft ready", "4 risposte pronte": "4 replies ready", "Le invio?": "Send them?", "Rivedi": "Review", "Approva": "Approve", "Inviate · 2 ore risparmiate oggi": "Sent · 2 hours saved today", "Cella frigo 2": "Cold room 2", "Laboratorio · dal vivo": "Kitchen · live", "Temperatura in aumento": "Temperature rising", "Cella frigo 2 · porta aperta da 6 min": "Cold room 2 · door open for 6 min", "Impianti": "Equipment", "Tutto regolare": "All normal", "Cella frigo 1": "Cold room 1", "Forno": "Oven", "Compressore": "Compressor", "Negozio": "Shop", "Gestionale": "ERP", "Pagato · 3 articoli": "Paid · 3 items", "Fattura FT-1042": "Invoice FT-1042", "Emessa e inviata": "Issued and sent", "Magazzino": "Stock", "Scorte aggiornate": "Stock updated", "Ordine #1042": "Order #1042", "Ore risparmiate ogni mese": "Hours saved every month", "Nessun dato ricopiato a mano": "No data retyped by hand", "Olio extravergine": "Extra virgin olive oil", "Aggiungi al carrello": "Add to cart", "Totale": "Total", "Spedizione inclusa · arriva giovedì": "Shipping included · arrives Thursday", "Paga": "Pay", "Pagamento protetto": "Secure payment", "Pagamento riuscito": "Payment successful", "Ordini di oggi": "Today’s orders", "disponibili": "in stock", "Giulia R. · 2 articoli": "Giulia R. · 2 items", "Spedito": "Shipped", "Consegnato": "Delivered", "Marco B. · 1 articolo": "Marco B. · 1 item", "Elena T. · 3 articoli": "Elena T. · 3 items", "Pagato": "Paid", "Olio extravergine ·": "Extra virgin olive oil ·", "Carta": "Card", "Igiene, ortodonzia e implantologia in centro città.": "Hygiene, orthodontics and implants in the city centre.", "Prenota online, orari estesi, anche il sabato.": "Book online, long hours, Saturdays too.", "Visite e preventivi su appuntamento.": "Visits and quotes by appointment.", "Cerca con Google": "Google Search", "Mi sento fortunato": "I'm Feeling Lucky", "dentista brescia": "dentist brescia", "Prenota online in 1 minuto. Orari estesi, anche il sabato.": "Book online in 1 minute. Long hours, Saturdays too.", "Livelli": "Layers", "Desktop": "Desktop", "Hero": "Hero", "Titolo": "Title", "Servizi": "Services", "Prenota una visita": "Book a visit", "Perfetto così!": "Love it!", "Riempimento": "Fill", "Angoli": "Corners", "Il tuo sorriso, in buone mani": "Your smile, in good hands", "Pubblica": "Deploy", "Compilato in 9 s": "Built in 9 s", "24 pagine generate": "24 pages generated", "Immagini ottimizzate": "Images optimised", "Online su studiobianchi.it": "Live on studiobianchi.it", "Online": "Live", "Chi siamo": "About", "Contatti": "Contact", "Giovedì 14 novembre": "Thursday 14 November", "Conferma": "Confirm", "Nuova prenotazione": "New booking", "Giulia R. · giovedì alle 14:30": "Giulia R. · Thursday at 2:30 pm", "ora": "now", "Buonasera, Marco": "Good evening, Marco", "Come posso aiutarti oggi?": "How can I help you today?", "Mi consigli un buon dentista a Brescia?": "Can you recommend a good dentist in Brescia?", ", in centro a Brescia: prenotazione online, orari estesi e recensioni molto positive.": ", in central Brescia: online booking, long hours and excellent reviews.", "e": "and", "Sei la loro": "You’re their", "prima scelta,": "first choice,", "quando si parla del tuo settore.": "whenever your field comes up.", "Nuova attività": "New task", "Recenti": "Recent", "Report vendite": "Sales report", "Fatture ottobre": "October invoices", "Listino 2026": "2026 price list", "Cosa facciamo oggi?": "What shall we do today?", "Smista le email di oggi, inserisci gli ordini e prepara le risposte": "Sort today’s emails, enter the orders and draft the replies", "Al lavoro sulle email di oggi": "Working on today’s emails", "Lette 24 email": "Read 24 emails", "12 ordini inseriti nel gestionale": "12 orders entered in the ERP", "9 risposte preparate": "9 replies drafted", "3 da controllare a mano": "3 to check by hand", "File": "Files", "ordini.xlsx": "orders.xlsx", "risposte (9)": "replies (9)", "Fatto. 9 risposte pronte": "Done. 9 replies ready", "12 ordini già nel gestionale · 3 da guardare tu": "12 orders already in the ERP · 3 for you to check", "Approva e invia": "Approve and send", "Prenotazione — Prototipo": "Booking — Prototype", "Presenta": "Present", "Scegli l'orario": "Pick a time", "Confermato": "Confirmed", "Ci vediamo giovedì": "See you Thursday", "Test con 5 persone vere": "Tested with 5 real people", "prenotare una visita": "book a visit", "Tempo medio": "Average time", "Completano la prenotazione": "Complete the booking", "Prima": "Before", "Dopo": "After", "2,5 volte più prenotazioni": "2.5× more bookings", "Il tuo gestionale": "Your ERP", "Nuovo ordine #1042 · 89,00 €": "New order #1042 · €89.00", "Pagamento ricevuto": "Payment received", "Fattura FT-1042 creata e scorte aggiornate": "Invoice FT-1042 created, stock updated", "Conferma inviata al cliente": "Confirmation sent to the customer", "Richiesta del cliente chiusa": "Customer request closed", "Prenota e gestisci le visite": "Book and manage visits", "Ottieni": "Get", "Apri": "Open", "Salute": "Health", "Età": "Age", "Attacchi fermati oggi": "Attacks stopped today", "Pagine già pronte": "Pages served ready", "Connessione protetta": "Secure connection", "Server": "Server", "Europa · Francia": "Europe · France", "Certificato": "Certificate", "Si rinnova da solo": "Renews itself", "Dominio": "Domain", "Intestato a te": "In your name", "Versione online": "Live version", "Torna alla precedente": "Roll back", "Modifica": "Change", "Controlli": "Checks", "Prova": "Staging", "Ripristinata in 4 secondi": "Restored in 4 seconds", "Copie di sicurezza · ultime due settimane": "Backups · last two weeks", "Il sito non risponde": "The site is down", "Di nuovo online in 41 secondi": "Back online in 41 seconds", "studiobianchi.it non risponde": "studiobianchi.it is down", "Avviso a Filippo · 03:12": "Filippo alerted · 3:12 am", "Online negli ultimi 90 giorni": "Uptime, last 90 days", "1 avviso": "1 alert", "Porta chiusa · temperatura in discesa": "Door closed · temperature falling", "Sbiancamento e igiene, prima visita gratuita.": "Whitening and hygiene, free first visit.", "Punteggio": "Score", "Tempo di apertura": "Load time", "Peso delle immagini": "Image weight", "Titoli delle pagine": "Page titles", "Scheda Google": "Google profile", "incompleta": "incomplete", "completa": "complete", "3 su 24": "3 of 24", "24 su 24": "24 of 24", "6,2 s": "6.2 s", "0,9 s": "0.9 s", "4,8 MB": "4.8 MB", "Senza rete": "Offline", "In attesa": "Queued", "Consegna alle 15": "Delivery at 3 pm", "Avvisa": "Notify", "Avvisato": "Notified", "In compilazione": "Building", "Codice scaricato": "Code fetched", "Dipendenze installate": "Dependencies installed", "Novembre 2026": "November 2026", "Giovedì 12 novembre": "Thursday 12 November"};
 /** Le scritte dentro le inquadrature: italiano, oppure inglese quando il sito è in inglese. */
 function Tx({ children }: { children: string }) {
   return <>{useLocale() === "en" ? (EN[children] ?? children) : children}</>;
@@ -72,7 +74,6 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
       framed={false}
       ownSpot
       stretch
-      bars={shots.length}
       w={W}
       h={H}
       max={max}
@@ -81,8 +82,6 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
         const zoom = q("[data-zoom]")[0];
         const says = q("[data-say]");
         const els = q("[data-shot]");
-        const bars = q("[data-bar]");
-        const barBox = q("[data-bars]")[0];
         const tl = gsap.timeline();
         const run = gsap.timeline({ repeat: -1 });
         let at = 0;
@@ -116,11 +115,8 @@ export function StoryV({ shots, max }: { shots: Shot[]; max?: number }) {
           run.to(el, { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, st + dur);
           if (full) run.to(inner, { x: -44, duration: 0.4, ease: "power2.in" }, st + dur);
           else run.to(inner, { y: -26, scale: 0.98, duration: 0.4, ease: "power2.in" }, st + dur);
-          // la barra in basso: un tratto per atto, si riempie mentre l'atto va avanti (commento compreso)
-          if (bars[i]) run.fromTo(bars[i], { scaleX: 0 }, { scaleX: 1, duration: st + dur - at, ease: "none" }, at);
           at = st + dur + 0.15;
         });
-        if (barBox) run.fromTo(barBox, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4 }, 0.1).to(barBox, { autoAlpha: 0, duration: 0.3 }, at - 0.1);
         const end = addEnd(run, q, at);
         run.to({}, { duration: 0.01 }, end + 0.4);
         return tl.add(run, 0.2);
@@ -505,417 +501,423 @@ const Ours = ({ size = 92 }: { size?: number }) => (
 const follow = (run: gsap.core.Timeline, c: { cur: Element; shot: HTMLElement }, el: Element, at: number, dur: number, fx = 1, fy = 1) =>
   run.to({}, { duration: dur, ease: "none", onUpdate: () => void gsap.set(c.cur, spot(c.shot, el, fx, fy)) }, at);
 
-const DOW_IT = ["L", "M", "M", "G", "V", "S", "D"];
-const DOW_EN = ["M", "T", "W", "T", "F", "S", "S"];
-const Tool = ({ d, on = false }: { d: string; on?: boolean }) => (
-  <span className={`flex h-6 w-6 items-center justify-center rounded-[6px] ${on ? "bg-[#0d99ff]" : ""}`}>
-    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 fill-none stroke-white/85" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d={d} />
-    </svg>
-  </span>
-);
-const SiteBlock = ({ cls = "" }: { cls?: string }) => <span className={`block rounded-[10px] bg-[linear-gradient(135deg,#9edcff,#3ea4dc_55%,#1f7fb8)] ${cls}`} />;
-const FIG_LAYERS: [string, number, boolean][] = [
-  ["Desktop", 0, true],
-  ["Nav", 1, true],
-  ["Hero", 1, false],
-  ["Titolo", 2, false],
-  ["Prenota", 2, false],
-  ["Servizi", 1, false],
-];
-const LOG = ["Codice scaricato", "Dipendenze installate", "Compilato in 9 s", "24 pagine generate", "Immagini ottimizzate", "Online su studiobianchi.it"];
+/** Camera: si stringe su un punto per dargli enfasi. Lo spostamento è limitato perché i bordi non si scoprano mai. */
+const zoomTo = (run: gsap.core.Timeline, shot: HTMLElement, el: Element, k: number, at: number, dur = 0.9, fx = 0.5, fy = 0.5) => {
+  const to = (axis: "x" | "y") => () => {
+    const p = spot(shot, el, fx, fy);
+    const half = axis === "x" ? shot.offsetWidth / 2 : shot.offsetHeight / 2;
+    const raw = k * (half - (axis === "x" ? p.x : p.y));
+    return Math.max(-(k - 1) * half, Math.min((k - 1) * half, raw));
+  };
+  return run.to(shot, { scale: k, x: to("x"), y: to("y"), duration: dur, ease: "power3.inOut" }, at);
+};
+/** Camera: torna alla vista ampia. */
+const wideTo = (run: gsap.core.Timeline, shot: HTMLElement, at: number, dur = 0.9) => run.to(shot, { scale: 1, x: 0, y: 0, duration: dur, ease: "power3.inOut" }, at);
 
-function Dow() {
-  const d = useLocale() === "en" ? DOW_EN : DOW_IT;
+/** L'ambiente di lavoro: vetro a tutto riquadro, con titolo e stato nella riga in alto, come la barra del sito. */
+const Shell = ({ title, right, children }: { title: ReactNode; right?: ReactNode; children: ReactNode }) => (
+  <Bead data-full="" tint={GL} radius={0} className="relative flex h-full w-full flex-col overflow-hidden text-white">
+    <span className="flex h-12 shrink-0 items-center gap-3 px-6">
+      <Bead tint="rgba(94,196,255,.22)" radius={9} className="flex h-6 w-6 items-center justify-center">
+        <span className="h-2 w-2 rounded-full bg-[#5ec4ff]" />
+      </Bead>
+      <span className="text-[13px] font-medium tracking-[-0.01em] text-white/90">{title}</span>
+      <span className="ml-auto flex items-center gap-2">{right}</span>
+    </span>
+    <span className="mx-6 block h-px shrink-0 bg-white/[.08]" />
+    <span className="relative block min-h-0 flex-1">{children}</span>
+  </Bead>
+);
+/** Contorno e nome di un blocco della pagina, mentre viene costruito. */
+const Mark = ({ tag }: { tag: string }) => (
+  <>
+    <span data-ol className="pointer-events-none absolute inset-x-1 inset-y-0.5 block rounded-[10px] border-[1.5px] border-[#5ec4ff] opacity-0" />
+    <span data-tag className="pointer-events-none absolute left-3 top-1 z-10 block rounded-[4px] bg-[#5ec4ff] px-1.5 py-px font-mono text-[8.5px] text-[#04121c] opacity-0">
+      <Tx>{tag}</Tx>
+    </span>
+  </>
+);
+const PAGES: [string, typeof Mail01Icon][] = [
+  ["Home", Home01Icon],
+  ["Servizi", SparklesIcon],
+  ["Chi siamo", UserCheck01Icon],
+  ["Prenota", Calendar03Icon],
+];
+const WEB_STEPS: [string, typeof Mail01Icon][] = [
+  ["Controlli", Shield01Icon],
+  ["Ottimizzazione", SparklesIcon],
+  ["Pubblicazione", ArrowUp01Icon],
+  ["Online", CheckmarkCircle02Icon],
+];
+function WebDays() {
+  const d = useLocale() === "en" ? ["Mon", "Tue", "Wed", "Thu", "Fri"] : ["Lun", "Mar", "Mer", "Gio", "Ven"];
   return (
-    <>
+    <span className="mt-3 flex justify-between">
       {d.map((x, i) => (
-        <span key={i} className="text-center text-[10px] text-black/35">
-          {x}
+        <span key={x} data-day={i} className="flex h-10 w-[27px] flex-col items-center justify-center rounded-[10px] bg-white/[.07] text-[8.5px] leading-tight text-white/60">
+          <span>{x}</span>
+          <span className="text-[11px] font-medium">{9 + i}</span>
         </span>
       ))}
-    </>
+    </span>
   );
 }
+const Appt = ({ h, n, s }: { h: string; n: string; s: string }) => (
+  <span className="grid h-[52px] grid-cols-[54px_1fr_auto] items-center border-t border-white/[.08]">
+    <span className="font-mono text-[12px] text-white/45">{h}</span>
+    <span className="leading-tight">
+      <span className="block text-[13px] font-medium">{n}</span>
+      <span className="block text-[11px] text-white/50">
+        <Tx>{s}</Tx>
+      </span>
+    </span>
+    <span className="h-1.5 w-1.5 rounded-full bg-white/25" />
+  </span>
+);
 
 export const WEB: Shot[] = [
+  /* 1 · Si parte dalla struttura: le pagine nascono a blocchi, poi la camera stringe sul titolo mentre si scrive */
   {
-    dur: 6,
+    dur: 7,
     node: (
-      <Win title={<span>Studio Bianchi — Home</span>} logo={<Img src="/visual/brands/figma.svg" s={14} />}>
-        <span className="absolute inset-0 flex flex-col">
-          {/* barra degli strumenti */}
-          <span className="flex h-9 shrink-0 items-center gap-1 border-b border-white/[.07] px-3">
-            <Tool on d="M3 2.5 13 7.2 8.6 8.6 7.2 13Z" />
-            <Tool d="M2.5 5.5h11M2.5 10.5h11M5.5 2.5v11M10.5 2.5v11" />
-            <Tool d="M2.5 3.5h11v9h-11Z" />
-            <Tool d="M8 2.5 13 12.5H3Z" />
-            <Tool d="M3 4V3h10v1M8 3v10M6 13h4" />
-            <span className="mx-auto flex items-center gap-1.5">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#a259ff] text-[9px] font-semibold">M</span>
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#0d99ff] text-[9px] font-semibold">F</span>
-            </span>
-            <span className="rounded-[6px] bg-[#0d99ff] px-2.5 py-1 text-[11px] font-medium"><Tx>Presenta</Tx></span>
+      <Shell
+        title="Studio Bianchi"
+        right={
+          <span className="flex items-center gap-1.5 font-mono text-[10.5px] text-white/45">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#f5c46b]" />
+            <Tx>Bozza</Tx>
           </span>
-          <span className="grid min-h-0 flex-1 grid-cols-[136px_1fr_136px]">
-            {/* livelli */}
-            <span className="block border-r border-white/[.07] p-2.5 text-[11px] text-white/65">
-              <span className="mb-2 block text-[10px] uppercase tracking-[0.08em] text-white/35"><Tx>Livelli</Tx></span>
-              {FIG_LAYERS.map(([l, depth, shown], i) => (
-                <span key={l} data-layer={i} className={`flex items-center gap-1.5 rounded-[6px] py-1 ${shown ? "" : "opacity-0"}`} style={{ paddingLeft: 6 + depth * 12 }}>
-                  <span className={`h-2 w-2 border border-white/45 ${i === 0 ? "rounded-none" : "rounded-[2px]"}`} />
+        }
+      >
+        <span className="absolute inset-0 flex gap-6 px-6 pb-5 pt-4">
+          <span className="relative block w-[120px] shrink-0">
+            <span className="mb-2 block px-3 text-[10px] uppercase tracking-[0.1em] text-white/35">
+              <Tx>Pagine</Tx>
+            </span>
+            <span className="relative block">
+              <span data-pill className="absolute inset-x-0 top-0 block h-9">
+                <Bead tint="rgba(94,196,255,.16)" radius={14} className="h-full w-full" />
+              </span>
+              {PAGES.map(([l, ic], i) => (
+                <span key={l} data-row={i} className={`relative flex h-9 items-center gap-2.5 px-3 text-[12.5px] ${i === 0 ? "text-white" : "text-white/50"}`}>
+                  <Ico i={ic} s={15} />
                   <Tx>{l}</Tx>
                 </span>
               ))}
             </span>
-            {/* tela */}
-            <span className="relative block overflow-hidden bg-[#1e1e1e]" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px)", backgroundSize: "16px 16px" }}>
-              <span className="absolute left-5 top-2.5 text-[10px] text-white/45">Desktop</span>
-              <span data-frame className="absolute inset-x-5 bottom-5 top-7 block max-h-[360px] overflow-hidden rounded-[3px] bg-[#f7f7f4] text-[#111827]">
-                <span className="flex items-center justify-between px-4 pt-3">
-                  <span className="flex items-center gap-1.5 text-[10.5px] font-semibold">
-                    <span className="h-3.5 w-3.5 rounded-[5px] bg-[#1f7fb8]" />
-                    Studio Bianchi
-                  </span>
-                  <span className="flex gap-3 text-[9.5px] text-[#111827]/50">
-                    <Tx>Servizi</Tx>
-                    <Tx>Chi siamo</Tx>
-                    <Tx>Contatti</Tx>
-                  </span>
-                </span>
-                <span data-tl className="absolute left-[6%] top-[17%] block h-0 w-0" />
-                <span data-hero className="absolute left-[6%] top-[17%] block rounded-[10px] bg-[linear-gradient(135deg,#9edcff,#3ea4dc_55%,#1f7fb8)]" style={{ width: 0, height: 0 }}>
-                  <span data-sel className="pointer-events-none absolute -inset-px block border border-[#0d99ff] opacity-0">
-                    {[0, 1, 2, 3].map((k) => (
-                      <span key={k} className="absolute h-1.5 w-1.5 border border-[#0d99ff] bg-white" style={{ left: k % 2 ? "auto" : -3, right: k % 2 ? -3 : "auto", top: k < 2 ? -3 : "auto", bottom: k < 2 ? "auto" : -3 }} />
-                    ))}
-                    <span data-dim className="absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-[4px] bg-[#0d99ff] px-1.5 py-0.5 font-mono text-[9px] text-white" />
-                  </span>
-                </span>
-                <span data-h1w className="absolute left-[11%] top-[26%] block h-6 w-[70%] text-white">
-                  <span data-h1 className="block whitespace-pre text-[17px] font-semibold leading-6 tracking-[-0.02em]" />
-                </span>
-                <span data-sub className="absolute left-[11%] top-[40%] block space-y-1.5 opacity-0">
-                  <span className="block h-1.5 w-[190px] rounded-full bg-white/55" />
-                  <span className="block h-1.5 w-[130px] rounded-full bg-white/40" />
-                </span>
-                <span data-cta className="absolute left-[11%] top-[49%] block h-[26px] w-[126px]">
-                  <span data-btn className="flex h-full w-full items-center justify-center rounded-full bg-white text-[10px] font-medium text-[#1f7fb8] opacity-0">
-                    <Tx>Prenota una visita</Tx>
-                  </span>
-                  <span data-pin className="absolute left-full top-0 ml-2 flex -translate-y-5 items-center gap-1.5 whitespace-nowrap rounded-full rounded-bl-[4px] bg-white py-1 pl-1 pr-2.5 text-[10px] text-[#111] opacity-0 shadow-[0_8px_20px_-6px_rgba(0,0,0,.5)]">
-                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#a259ff] text-[8px] font-semibold text-white">M</span>
-                    <Tx>Perfetto così!</Tx>
-                  </span>
-                </span>
-                <span className="absolute inset-x-[6%] top-[66%] grid grid-cols-3 gap-2.5">
-                  {[0, 1, 2].map((k) => (
-                    <span key={k} data-card className="block h-[56px] rounded-[8px] bg-white p-2 opacity-0 shadow-[0_4px_14px_-6px_rgba(0,0,0,.2)]">
-                      <span className="block h-4 w-4 rounded-[5px] bg-[#3ea4dc]/30" />
-                      <span className="mt-1.5 block h-1.5 w-12 rounded-full bg-[#111827]/50" />
-                    </span>
-                  ))}
-                </span>
-                {/* il cursore del cliente */}
-                <span data-mcur className="pointer-events-none absolute left-0 top-0 z-20 block opacity-0">
-                  <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
-                    <path d="M5 3.5 19 11l-6.2 1.7L10 19z" fill="#a259ff" stroke="#fff" strokeWidth="1.3" strokeLinejoin="round" />
-                  </svg>
-                  <span className="ml-3.5 -mt-1 inline-block rounded-full rounded-tl-[3px] bg-[#a259ff] px-2 py-0.5 text-[9px] font-medium text-white">Marco</span>
-                </span>
+          </span>
+          <span data-page className="relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-[#f7f7f4] text-[#111827]">
+            <span data-blk className="relative flex h-10 shrink-0 items-center justify-between px-4 opacity-0">
+              <span className="flex items-center gap-1.5 text-[10.5px] font-semibold">
+                <span className="h-4 w-4 rounded-[5px] bg-[#1f7fb8]" />
+                Studio Bianchi
               </span>
+              <span className="flex gap-3.5 text-[9.5px] text-[#111827]/50">
+                <Tx>Servizi</Tx>
+                <Tx>Chi siamo</Tx>
+                <Tx>Contatti</Tx>
+              </span>
+              <Mark tag="Intestazione" />
             </span>
-            {/* proprietà */}
-            <span className="block border-l border-white/[.07] p-2.5 text-[10.5px] text-white/60">
-              <span className="mb-2.5 flex gap-3 text-[10.5px]">
-                <span className="text-white">Design</span>
-                <span className="text-white/40">Prototype</span>
-              </span>
-              <span className="flex gap-3 font-mono text-[10px]">
-                <span>W <span data-w>0</span></span>
-                <span>H <span data-hh>0</span></span>
-              </span>
-              <span className="mb-2 mt-4 block text-[10px] uppercase tracking-[0.08em] text-white/35"><Tx>Riempimento</Tx></span>
-              <span className="flex items-center gap-2">
-                <span className="relative block h-4 w-4 overflow-hidden rounded-[4px] bg-white/25">
-                  <span data-swatch className="absolute inset-0 block bg-[linear-gradient(135deg,#9edcff,#1f7fb8)] opacity-0" />
+            <span data-blk className="relative grid min-h-0 flex-1 grid-cols-[1.2fr_1fr] items-center gap-4 px-4 opacity-0">
+              <span data-h1w className="relative block">
+                <span data-ph className="block space-y-2">
+                  <span className="block h-2.5 w-[88%] rounded-full bg-[#111827]/20" />
+                  <span className="block h-2.5 w-[62%] rounded-full bg-[#111827]/20" />
                 </span>
-                <span data-hex className="font-mono" />
+                <span data-h1 className="absolute inset-x-0 top-0 block text-[21px] font-semibold leading-[1.1] tracking-[-0.03em]" />
+                <span data-sub className="mt-3 block space-y-1.5 opacity-0">
+                  <span className="block h-1.5 w-[84%] rounded-full bg-[#111827]/25" />
+                  <span className="block h-1.5 w-[58%] rounded-full bg-[#111827]/20" />
+                </span>
               </span>
-              <span className="mb-2 mt-4 block text-[10px] uppercase tracking-[0.08em] text-white/35"><Tx>Angoli</Tx></span>
-              <span>12</span>
+              <span className="relative block h-[74%] overflow-hidden rounded-[12px] bg-[linear-gradient(135deg,#9edcff,#3ea4dc_55%,#1f7fb8)]">
+                <span className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/20" />
+                <span className="absolute -bottom-8 left-5 h-24 w-24 rounded-full bg-white/15" />
+              </span>
+              <Mark tag="Hero" />
+            </span>
+            <span data-blk className="relative grid shrink-0 grid-cols-3 gap-3 px-4 py-3 opacity-0">
+              {["Igiene", "Ortodonzia", "Sbiancamento"].map((s) => (
+                <span key={s} className="flex items-center gap-2">
+                  <span className="h-6 w-6 shrink-0 rounded-[8px] bg-[#3ea4dc]/25" />
+                  <span className="text-[10px] font-medium">
+                    <Tx>{s}</Tx>
+                  </span>
+                </span>
+              ))}
+              <Mark tag="Servizi" />
+            </span>
+            <span data-blk className="relative block shrink-0 px-4 pb-4 opacity-0">
+              <span data-cta className="flex h-9 items-center justify-between rounded-full bg-[#111827] pl-4 pr-1 text-[11px] font-medium text-white">
+                <Tx>Prenota una visita</Tx>
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#111827]">
+                  <Ico i={ArrowUp01Icon} s={13} c="rotate-45" />
+                </span>
+              </span>
+              <Mark tag="Prenotazione" />
             </span>
           </span>
         </span>
-      </Win>
+      </Shell>
     ),
     play: (run, $, at) => {
-      const c = cursorIn(run, $, $("[data-tl]")[0], at);
-      const hero = $("[data-hero]")[0] as HTMLElement;
-      const sel = $("[data-sel]")[0];
-      const layer = (i: number) => $(`[data-layer="${i}"]`)[0];
-      const light = (i: number, a: number, b: number) =>
-        run.to(layer(i), { autoAlpha: 1, duration: 0.25 }, a).to(layer(i), { backgroundColor: "rgba(13,153,255,.28)", duration: 0.15 }, a).to(layer(i), { backgroundColor: "rgba(13,153,255,0)", duration: 0.25 }, b);
-      const dims = () => {
-        $("[data-w]")[0].textContent = String(Math.round(hero.offsetWidth));
-        $("[data-hh]")[0].textContent = String(Math.round(hero.offsetHeight));
-        $("[data-dim]")[0].textContent = `${Math.round(hero.offsetWidth)} × ${Math.round(hero.offsetHeight)}`;
-      };
-      // 1 · trascina un rettangolo da un angolo all'altro: il cursore resta sul vertice mentre cresce
-      let t = human(run, c.cur, () => spot(c.shot, $("[data-tl]")[0]), at + 0.05, 0.5);
-      snd(run, "click", t);
+      const shot = $("[data-cursor]")[0].parentElement as HTMLElement;
+      const blocks = $("[data-blk]");
+      // le pagine nascono a blocchi, ognuno con la sua etichetta; nessun movimento dura più del necessario
+      blocks.forEach((b, i) => {
+        const a = at + 0.1 + i * 0.5;
+        run.fromTo(b, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.55, ease: "expo.out" }, a);
+        run.fromTo($("[data-ol]")[i], { opacity: 0 }, { opacity: 1, duration: 0.2 }, a + 0.15).to($("[data-ol]")[i], { opacity: 0, duration: 0.35 }, a + 0.7);
+        run.fromTo($("[data-tag]")[i], { opacity: 0, y: 3 }, { opacity: 1, y: 0, duration: 0.25 }, a + 0.15).to($("[data-tag]")[i], { opacity: 0, duration: 0.3 }, a + 0.7);
+        snd(run, "tick", a + 0.12, 1 + i * 0.12);
+      });
+      // il cursore va sul titolo, la camera lo raggiunge: si scrive in primo piano
+      const h1w = $("[data-h1w]")[0];
+      const c = cursorIn(run, $, h1w, at + 2.3);
+      let t = human(run, c.cur, () => spot(shot, h1w, 0.3, 0.3), at + 2.35, 0.6);
+      zoomTo(run, shot, h1w, 1.8, at + 2.3, 1, 0.55, 0.5);
+      press(run, c.cur, h1w, t);
+      run.to($("[data-ph]"), { autoAlpha: 0, duration: 0.15 }, t);
+      t = typeText(run, $("[data-h1]")[0], L("Il tuo sorriso, in buone mani"), t + 0.15, 2.1);
+      run.fromTo($("[data-sub]"), { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, t + 0.05);
+      run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.3);
+      // poi si torna larghi: la pagina completa, e la voce "Prenota" del menu si illumina
+      wideTo(run, shot, t + 0.7);
+      const row = $('[data-row="3"]')[0];
+      t = human(run, c.cur, () => spot(shot, row, 0.45, 0.5), t + 1.5, 0.5);
+      run.to(c.cur, { opacity: 1, duration: 0.2 }, t - 0.5);
+      press(run, c.cur, row, t);
       run
-        .set(hero, { width: 0, height: 0 }, t)
-        .set(sel, { opacity: 1 }, t)
-        .to(hero, { width: "88%", height: "44%", duration: 0.7, ease: "power2.inOut", onUpdate: dims }, t);
-      follow(run, c, hero, t, 0.7);
-      light(2, t + 0.1, t + 0.8);
-      run.to($("[data-swatch]"), { opacity: 1, duration: 0.3 }, t + 0.7).call(() => void ($("[data-hex]")[0].textContent = "#3EA4DC"), undefined, t + 0.75);
-      t += 0.8;
-      // 2 · il titolo: un clic nel riquadro e si scrive
-      run.to(sel, { opacity: 0, duration: 0.2 }, t);
-      t = human(run, c.cur, () => spot(c.shot, $("[data-h1w]")[0], 0.1, 0.5), t, 0.4);
-      press(run, c.cur, $("[data-h1w]")[0], t);
-      light(3, t, t + 0.9);
-      t = typeText(run, $("[data-h1]")[0], L("Il tuo sorriso, in buone mani"), t + 0.12, 2.2);
-      run.fromTo($("[data-sub]"), { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, t);
-      // 3 · il pulsante
-      t = human(run, c.cur, () => spot(c.shot, $("[data-cta]")[0], 0.5, 0.5), t + 0.1, 0.4);
-      press(run, c.cur, $("[data-cta]")[0], t);
-      run.fromTo($("[data-btn]"), { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.2)" }, t + 0.05);
-      light(4, t + 0.05, t + 0.7);
-      run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.4);
-      // 4 · la sezione dei servizi, mentre il cliente entra nel file e lascia un commento
-      run.fromTo($("[data-card]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.1, ease: "expo.out" }, t + 0.2);
-      light(5, t + 0.25, t + 1);
-      const cta = $("[data-cta]")[0] as HTMLElement;
-      const mc = $("[data-mcur]")[0];
-      run
-        .set(mc, { x: () => cta.offsetLeft + cta.offsetWidth + 140, y: () => cta.offsetTop + 120, opacity: 0 }, t)
-        .to(mc, { opacity: 1, duration: 0.2 }, t + 0.5)
-        .to(mc, { x: () => cta.offsetLeft + cta.offsetWidth * 0.8, y: () => cta.offsetTop + cta.offsetHeight * 0.6, duration: 0.7, ease: "power3.inOut" }, t + 0.5)
-        .fromTo($("[data-pin]"), { opacity: 0, scale: 0.5, y: -14 }, { opacity: 1, scale: 1, y: -20, duration: 0.45, ease: "back.out(2)" }, t + 1.25);
-      snd(run, "notify", t + 1.25);
+        .to($("[data-pill]"), { y: 3 * 36, duration: 0.6, ease: "expo.out" }, t)
+        .to($('[data-row="0"]'), { color: "rgba(255,255,255,.5)", duration: 0.3 }, t)
+        .to(row, { color: "#fff", duration: 0.3 }, t)
+        .fromTo($("[data-ol]")[3], { opacity: 0 }, { opacity: 1, duration: 0.2 }, t + 0.1)
+        .to($("[data-ol]")[3], { opacity: 0, duration: 0.5 }, t + 0.8)
+        .to($("[data-cta]"), { scale: 1.025, duration: 0.3, yoyo: true, repeat: 1, ease: "power2.inOut" }, t + 0.15)
+        .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.4);
     },
   },
-  {
-    dur: 5,
-    node: (
-      <Win title={<span>studiobianchi.it</span>} logo={<Brand p={si.siVercel} c="h-3 w-3" />}>
-        <span className="absolute inset-0 flex flex-col p-5">
-          <span className="flex items-center gap-3">
-            <span className="text-[18px] font-semibold tracking-[-0.02em]"><Tx>Pubblicazione</Tx></span>
-            <span className="relative ml-1 flex h-6 items-center text-[11.5px]">
-              <span data-building className="flex items-center gap-1.5 whitespace-nowrap text-white/70">
-                <span className="h-2 w-2 rounded-full bg-[#f5c46b]" />
-                <Tx>In compilazione</Tx>
-              </span>
-              <span data-live className="absolute left-0 flex items-center gap-1.5 whitespace-nowrap text-white opacity-0">
-                <span className="h-2 w-2 rounded-full bg-[#30d158] shadow-[0_0_0_3px_rgba(48,209,88,.25)]" />
-                <Tx>Online</Tx>
-              </span>
-            </span>
-            <span data-deploy className="ml-auto rounded-full bg-white px-4 py-1.5 text-[12px] font-semibold text-black">
-              <Tx>Pubblica</Tx>
-            </span>
-          </span>
-          <span className="mt-4 block h-1.5 shrink-0 overflow-hidden rounded-full bg-white/10">
-            <span data-prog className="block h-full w-full origin-left rounded-full bg-[linear-gradient(90deg,#5ec4ff,#9ee4ff)]" style={{ transform: "scaleX(0)" }} />
-          </span>
-          <span className="mt-4 flex shrink-0 flex-col gap-2 rounded-[12px] bg-black/40 p-4 font-mono text-[11.5px] text-white/80">
-            {LOG.map((l, i) => (
-              <span key={l} data-log className="flex items-center gap-2.5 opacity-0">
-                <span className="w-7 text-white/35">0:{String(i * 2 + 1).padStart(2, "0")}</span>
-                <span className="relative block h-3.5 w-3.5">
-                  <span data-spin className="absolute inset-0 block rounded-full border-[1.5px] border-white/25 border-t-white/80" />
-                  <span data-chk className="absolute inset-0 opacity-0">
-                    <Ico i={CheckmarkCircle02Icon} s={14} c="text-[#6ee7a8]" />
-                  </span>
-                </span>
-                <Tx>{l}</Tx>
-              </span>
-            ))}
-          </span>
-          <span className="mt-4 grid min-h-0 flex-1 grid-cols-[1.15fr_1fr] gap-4">
-            <span data-prev className="relative block overflow-hidden rounded-[10px] bg-[#f7f7f4]" style={{ clipPath: "inset(0 0 100% 0)" }}>
-              <span className="absolute inset-x-3 top-3 flex items-center justify-between">
-                <span className="h-1.5 w-10 rounded-full bg-[#1f2937]/60" />
-                <span className="flex gap-1.5">
-                  <span className="h-1.5 w-5 rounded-full bg-[#1f2937]/25" />
-                  <span className="h-1.5 w-5 rounded-full bg-[#1f2937]/25" />
-                </span>
-              </span>
-              <SiteBlock cls="absolute inset-x-3 top-8 h-[44%]" />
-              <span className="absolute left-3 top-[66%] h-2 w-24 rounded-full bg-[#111827]/75" />
-              <span className="absolute left-3 top-[78%] h-4 w-16 rounded-full bg-[#1f7fb8]" />
-            </span>
-            <span className="flex flex-col justify-between gap-3">
-              <span data-domain className="flex items-center gap-2 rounded-[10px] bg-white/[.06] px-3 py-2.5 text-[12px] opacity-0">
-                <Ico i={LockKeyIcon} s={12} c="text-[#6ee7a8]" />
-                studiobianchi.it
-                <span className="ml-auto font-mono text-[11px] text-white/45">0,8 s</span>
-              </span>
-              <span className="flex justify-between pb-1">
-                {[
-                  ["Prestazioni", 100],
-                  ["SEO", 100],
-                  ["Accessibilità", 100],
-                ].map(([l, v]) => (
-                  <span key={l} className="flex flex-col items-center gap-1">
-                    <span className="relative h-11 w-11">
-                      <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
-                        <circle cx="20" cy="20" r="17" fill="none" stroke="rgba(255,255,255,.1)" strokeWidth="3.5" />
-                        <circle data-ring={v} cx="20" cy="20" r="17" fill="none" stroke={GREEN} strokeWidth="3.5" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
-                      </svg>
-                      <span data-score className="absolute inset-0 flex items-center justify-center font-mono text-[11px] tabular-nums">
-                        0
-                      </span>
-                    </span>
-                    <span className="text-[9.5px] text-white/55"><Tx>{l as string}</Tx></span>
-                  </span>
-                ))}
-              </span>
-            </span>
-          </span>
-        </span>
-      </Win>
-    ),
-    play: (run, $, at) => {
-      const c = cursorIn(run, $, $("[data-deploy]")[0], at);
-      const t = click(run, c, $("[data-deploy]")[0], at + 0.05, 0.5);
-      const logs = $("[data-log]");
-      run.fromTo($("[data-prog]"), { scaleX: 0 }, { scaleX: 1, duration: 1.5, ease: "power1.inOut" }, t + 0.1).to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.45);
-      logs.forEach((l, i) => {
-        const a = t + 0.2 + i * 0.26;
-        run
-          .fromTo(l, { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.25, ease: "power2.out" }, a)
-          .to($("[data-spin]")[i], { rotation: 360, duration: 0.25, ease: "none" }, a)
-          .to($("[data-spin]")[i], { opacity: 0, duration: 0.1 }, a + 0.25)
-          .fromTo($("[data-chk]")[i], { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(2.5)" }, a + 0.25);
-        snd(run, "tick", a + 0.25);
-      });
-      const done = t + 0.2 + logs.length * 0.26 + 0.2;
-      run
-        .to($("[data-building]"), { opacity: 0, duration: 0.2 }, done)
-        .to($("[data-live]"), { opacity: 1, duration: 0.3 }, done + 0.1)
-        .to($("[data-prev]"), { clipPath: "inset(0 0 0% 0)", duration: 0.7, ease: "power3.inOut" }, done)
-        .fromTo($("[data-domain]"), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, done + 0.5);
-      snd(run, "success", done);
-      $("[data-ring]").forEach((r, i) => {
-        run.fromTo(r, { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.8, ease: "power2.out" }, done + 0.6 + i * 0.1);
-        count(run, $("[data-score]")[i], 0, 100, done + 0.6 + i * 0.1, 0.8, (n) => String(Math.round(n)));
-      });
-    },
-  },
+  /* 2 · Online, senza sorprese: i quattro passaggi si accendono in fila, poi la camera va sul risultato */
   {
     dur: 6,
     node: (
-      <Browser>
-        <span className="absolute inset-0 block overflow-hidden bg-[#f7f7f4] text-[#111827]">
-          <span className="flex items-center justify-between px-6 pt-4 text-[12px]">
-            <span className="flex items-center gap-2 font-semibold">
-              <span className="h-5 w-5 rounded-[7px] bg-[#1f7fb8]" />
-              Studio Bianchi
-            </span>
-            <span className="flex items-center gap-5 text-[#111827]/55">
-              <span data-nav className="relative">
-                <Tx>Servizi</Tx>
-                <span data-uline className="absolute inset-x-0 -bottom-1 block h-px origin-left bg-[#111827]/60" style={{ transform: "scaleX(0)" }} />
+      <Shell
+        title="studiobianchi.it"
+        right={
+          <>
+            <span className="relative mr-2 flex h-6 items-center text-[11.5px]">
+              <span data-building className="flex items-center gap-1.5 whitespace-nowrap text-white/65">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#f5c46b]" />
+                <Tx>Bozza</Tx>
               </span>
-              <Tx>Chi siamo</Tx>
-              <Tx>Contatti</Tx>
-              <span className="rounded-full bg-[#111827] px-3 py-1 text-[11px] text-white"><Tx>Prenota</Tx></span>
-            </span>
-          </span>
-          <span className="absolute inset-x-6 bottom-6 top-[68px] grid grid-cols-[1.1fr_1fr] items-center gap-6">
-            <span className="block">
-              <span className="block text-[26px] font-semibold leading-[1.05] tracking-[-0.03em]">
-                <Tx>Il tuo sorriso, in buone mani</Tx>
-              </span>
-              <span className="mt-3 block space-y-1.5">
-                <span className="block h-1.5 w-[84%] rounded-full bg-[#111827]/25" />
-                <span className="block h-1.5 w-[62%] rounded-full bg-[#111827]/20" />
-              </span>
-              <span data-book className="mt-5 inline-flex h-9 items-center rounded-full bg-[#1f7fb8] px-5 text-[12.5px] font-medium text-white">
-                <Tx>Prenota una visita</Tx>
+              <span data-live className="absolute right-0 flex items-center gap-1.5 whitespace-nowrap text-white opacity-0">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#30d158] shadow-[0_0_0_3px_rgba(48,209,88,.25)]" />
+                <Tx>Online</Tx>
               </span>
             </span>
-            <span className="relative block h-full max-h-[250px] overflow-hidden rounded-[18px] bg-[linear-gradient(135deg,#9edcff,#3ea4dc_55%,#1f7fb8)]">
-              <span className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/20" />
-              <span className="absolute -bottom-10 left-6 h-36 w-36 rounded-full bg-white/15" />
+            <span data-deploy className="rounded-full bg-white px-4 py-1.5 text-[12px] font-semibold text-black">
+              <Tx>Pubblica</Tx>
             </span>
-          </span>
-          {/* prenotazione */}
-          <span data-veil className="absolute inset-0 block bg-black/35 opacity-0" />
-          <span data-modal className="absolute left-1/2 top-1/2 block w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-[18px] bg-white p-4 opacity-0 shadow-[0_30px_70px_-20px_rgba(0,0,0,.45)]">
-            <span data-form className="block">
-              <span className="flex items-center justify-between text-[12.5px] font-semibold">
-                <Tx>Novembre 2026</Tx>
-                <Ico i={Calendar03Icon} s={15} c="text-[#111827]/50" />
-              </span>
-              <span className="mt-3 grid grid-cols-7 gap-y-1">
-                <Dow />
-                {[...Array.from({ length: 6 }, () => -1), ...Array.from({ length: 30 }, (_, k) => k + 1)].map((d, i) => (
-                  <span key={i} data-day={d > 0 ? d : undefined} className={`mx-auto flex h-6 w-6 items-center justify-center rounded-full text-[10.5px] ${d < 0 ? "" : d <= 10 ? "text-black/25" : ""}`}>
-                    {d > 0 ? d : ""}
+          </>
+        }
+      >
+        <span className="absolute inset-0 flex flex-col justify-center gap-8 px-10 pb-5">
+          <span className="relative block">
+            <span className="absolute inset-x-[12.5%] top-[22px] block h-px bg-white/10" />
+            <span data-line className="absolute left-[12.5%] top-[22px] block h-px w-[75%] origin-left bg-[#5ec4ff]" style={{ transform: "scaleX(0)" }} />
+            <span className="relative grid grid-cols-4">
+              {WEB_STEPS.map(([l, ic]) => (
+                <span key={l} className="flex flex-col items-center gap-2.5">
+                  <span className="relative block h-11 w-11">
+                    <Bead tint="rgba(255,255,255,.08)" radius={15} className="flex h-full w-full items-center justify-center text-white/55">
+                      <Ico i={ic} s={19} />
+                    </Bead>
+                    <span data-on className="absolute inset-0 block opacity-0">
+                      <Bead tint="rgba(94,196,255,.36)" radius={15} className="flex h-full w-full items-center justify-center text-white">
+                        <Ico i={Tick02Icon} s={20} />
+                      </Bead>
+                    </span>
                   </span>
-                ))}
+                  <span data-nl className="text-[11.5px] text-white/50">
+                    <Tx>{l}</Tx>
+                  </span>
+                </span>
+              ))}
+            </span>
+          </span>
+          <span data-final className="flex flex-col items-center gap-6">
+            <span data-url className="opacity-0">
+              <Bead tint="rgba(255,255,255,.1)" radius={999} className="flex h-11 items-center gap-2.5 px-6 text-[16px] font-medium tracking-[-0.01em]">
+                <Ico i={LockKeyIcon} s={15} c="text-[#6ee7a8]" />
+                studiobianchi.it
+                <span className="ml-3 font-mono text-[11px] font-normal text-white/45">0,8 s</span>
+              </Bead>
+            </span>
+            <span data-scores className="flex justify-center gap-12 opacity-0">
+              {[
+                ["Prestazioni", 100],
+                ["SEO", 100],
+                ["Accessibilità", 100],
+              ].map(([l, v]) => (
+                <span key={l} className="flex flex-col items-center gap-1.5">
+                  <span className="relative h-12 w-12">
+                    <svg viewBox="0 0 40 40" className="absolute inset-0 -rotate-90">
+                      <circle cx="20" cy="20" r="17" fill="none" stroke="rgba(255,255,255,.1)" strokeWidth="3.2" />
+                      <circle data-ring={v} cx="20" cy="20" r="17" fill="none" stroke={GREEN} strokeWidth="3.2" strokeLinecap="round" pathLength={100} strokeDasharray="100" strokeDashoffset="100" />
+                    </svg>
+                    <span data-score className="absolute inset-0 flex items-center justify-center font-mono text-[12px] tabular-nums">
+                      0
+                    </span>
+                  </span>
+                  <span className="text-[10.5px] text-white/55">
+                    <Tx>{l as string}</Tx>
+                  </span>
+                </span>
+              ))}
+            </span>
+          </span>
+        </span>
+      </Shell>
+    ),
+    play: (run, $, at) => {
+      const dep = $("[data-deploy]")[0];
+      const c = cursorIn(run, $, dep, at);
+      const shot = c.shot;
+      let t = human(run, c.cur, () => spot(shot, dep), at + 0.05, 0.55);
+      press(run, c.cur, dep, t);
+      run.to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.3);
+      // quattro passaggi: la linea arriva al passaggio, e il passaggio si accende nello stesso istante
+      const line = $("[data-line]")[0];
+      const nodes = $("[data-on]");
+      const labels = $("[data-nl]");
+      nodes.forEach((n, i) => {
+        const a = t + 0.3 + i * 0.55;
+        if (i > 0) run.fromTo(line, { scaleX: (i - 1) / 3 }, { scaleX: i / 3, duration: 0.45, ease: "power2.inOut" }, a - 0.45);
+        run.fromTo(n, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4, ease: "expo.out" }, a);
+        run.to(labels[i], { color: "#fff", duration: 0.3 }, a);
+        snd(run, "tick", a, 1 + i * 0.16);
+      });
+      const done = t + 0.3 + 3 * 0.55 + 0.45;
+      run
+        .to($("[data-building]"), { opacity: 0, duration: 0.2 }, done)
+        .to($("[data-live]"), { opacity: 1, duration: 0.3 }, done + 0.05)
+        .fromTo($("[data-url]"), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, done + 0.1)
+        .fromTo($("[data-scores]"), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" }, done + 0.4);
+      snd(run, "success", done);
+      zoomTo(run, shot, $("[data-final]")[0], 1.4, done + 0.05, 1.1, 0.5, 0.5);
+      $("[data-ring]").forEach((r, i) => {
+        run.fromTo(r, { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.8, ease: "power2.out" }, done + 0.7 + i * 0.12);
+        count(run, $("[data-score]")[i], 0, 100, done + 0.7 + i * 0.12, 0.8, (n) => String(Math.round(n)));
+      });
+    },
+  },
+  /* 3 · Ti porta prenotazioni: la prenotazione sul telefono e, nello stesso istante, la riga nella tua agenda */
+  {
+    dur: 6,
+    node: (
+      <Shell
+        title={<Tx>Agenda</Tx>}
+        right={
+          <span className="flex items-center gap-2 text-[12px] text-white/60">
+            <Tx>Visite di oggi</Tx>
+            <span data-cnt className="font-mono text-[13px] text-white">3</span>
+          </span>
+        }
+      >
+        <span className="absolute inset-0 grid grid-cols-[176px_1fr] items-center gap-12 px-10 pb-4">
+          <span data-phone className="block">
+            <Phone w={176} h={316}>
+              <span className="block text-[12.5px] font-semibold tracking-[-0.01em]">
+                <Tx>Prenota la visita</Tx>
               </span>
-              <span data-slots className="mt-3 flex gap-1.5 text-[10.5px]">
+              <WebDays />
+              <span data-slots className="mt-3 grid grid-cols-2 gap-1.5 text-[10.5px]">
                 {["9:00", "11:30", "14:30", "17:00"].map((h) => (
-                  <span key={h} data-slot={h} className="rounded-full bg-black/[.05] px-2.5 py-1 opacity-0">
+                  <span key={h} data-slot={h} className="flex h-7 items-center justify-center rounded-full bg-white/[.07] opacity-0">
                     {h}
                   </span>
                 ))}
               </span>
-              <span data-confirm className="mt-3 flex h-8 items-center justify-center rounded-full bg-[#1f7fb8] text-[12px] font-medium text-white opacity-30">
-                <Tx>Conferma</Tx>
+              <span data-confirm className="absolute inset-x-3 bottom-3 block h-8 overflow-hidden rounded-full bg-[#5ec4ff] text-[11.5px] font-semibold text-[#04121c] opacity-35">
+                <span data-ct className="flex h-full items-center justify-center">
+                  <Tx>Conferma</Tx>
+                </span>
+                <span data-cd className="absolute inset-0 flex items-center justify-center gap-1 opacity-0">
+                  <Ico i={Tick02Icon} s={14} />
+                  <Tx>Confermato</Tx>
+                </span>
               </span>
-            </span>
-            <span data-done className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-[18px] bg-white opacity-0">
-              <Ico i={CheckmarkCircle02Icon} s={34} c="text-[#30d158]" />
-              <span className="text-[13px] font-semibold"><Tx>Giovedì 12 novembre</Tx></span>
-              <span className="text-[11.5px] text-black/50">14:30</span>
-            </span>
+            </Phone>
           </span>
-          {/* notifica al titolare */}
-          <span data-notif className="absolute right-4 top-3 block w-[290px] opacity-0">
-            <Bead tint="rgba(30,34,40,.94)" radius={18} className="flex items-center gap-3 p-3 pr-4 text-white">
-              <Ours size={34} />
-              <span className="min-w-0 flex-1 leading-tight">
-                <span className="block text-[12.5px] font-semibold"><Tx>Nuova prenotazione</Tx></span>
-                <span className="block truncate text-[11.5px] text-white/65"><Tx>Giulia R. · giovedì alle 14:30</Tx></span>
+          <span className="relative block">
+            <span className="mb-2 block text-[11px] uppercase tracking-[0.1em] text-white/35">
+              <Tx>Giovedì 12 novembre</Tx>
+            </span>
+            {[
+              ["9:00", "Marco B.", "Igiene"],
+              ["11:30", "Elena T.", "Controllo"],
+            ].map(([h, n, s]) => (
+              <Appt key={h} h={h} n={n} s={s} />
+            ))}
+            <span data-new className="relative grid h-[52px] grid-cols-[54px_1fr_auto] items-center border-t border-white/[.08]">
+              <span data-hl className="absolute inset-x-0 inset-y-px block bg-[linear-gradient(90deg,rgba(94,196,255,.18),transparent)] opacity-0" />
+              <span data-beam className="absolute right-full top-1/2 block h-px w-12 origin-left bg-[linear-gradient(90deg,transparent,#5ec4ff)] opacity-0" />
+              <span className="relative font-mono text-[12px] text-white/45">14:30</span>
+              <span data-free className="relative text-[12.5px] text-white/30">
+                <Tx>Libero</Tx>
               </span>
-              <span className="text-[10.5px] text-white/45"><Tx>ora</Tx></span>
-            </Bead>
+              <span data-fill className="absolute inset-y-0 left-[54px] right-0 flex items-center justify-between opacity-0">
+                <span className="leading-tight">
+                  <span className="block text-[13px] font-medium">Giulia R.</span>
+                  <span className="block text-[11px] text-white/50">
+                    <Tx>Prima visita</Tx>
+                  </span>
+                </span>
+                <span className="rounded-full bg-[#5ec4ff]/20 px-2.5 py-0.5 text-[10.5px] font-medium text-[#8fd8ff]">
+                  <Tx>Nuova</Tx>
+                </span>
+              </span>
+            </span>
+            <Appt h="17:00" n="Luca F." s="Sbiancamento" />
           </span>
         </span>
-      </Browser>
+      </Shell>
     ),
     play: (run, $, at) => {
-      const c = cursorIn(run, $, $("[data-nav]")[0], at);
-      // passa sul menu, poi va sul pulsante e preme
-      let t = human(run, c.cur, () => spot(c.shot, $("[data-nav]")[0], 0.5, 0.5), at + 0.05, 0.5);
-      run.to($("[data-uline]"), { scaleX: 1, duration: 0.25, ease: "power2.out" }, t).to($("[data-uline]"), { scaleX: 0, transformOrigin: "right", duration: 0.25 }, t + 0.45);
-      t = click(run, c, $("[data-book]")[0], t + 0.3, 0.5);
-      run.to($("[data-veil]"), { opacity: 1, duration: 0.3 }, t + 0.05).fromTo($("[data-modal]"), { opacity: 0, scale: 0.92, y: 14 }, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: "expo.out" }, t + 0.05);
-      snd(run, "whoosh", t + 0.05);
-      // giorno, poi ora, poi conferma: il cursore arriva sempre sul punto giusto
-      const day = $('[data-day="12"]')[0];
-      t = click(run, c, day, t + 0.55, 0.5);
-      run.to(day, { backgroundColor: "#1f7fb8", color: "#fff", duration: 0.15 }, t).fromTo($("[data-slot]"), { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.3, stagger: 0.05, ease: "expo.out" }, t + 0.1);
-      const slot = $('[data-slot="14:30"]')[0];
-      t = click(run, c, slot, t + 0.5, 0.4);
-      run.to(slot, { backgroundColor: "#1f7fb8", color: "#fff", duration: 0.15 }, t).to($("[data-confirm]"), { opacity: 1, duration: 0.2 }, t);
-      t = click(run, c, $("[data-confirm]")[0], t + 0.25, 0.4);
+      const phone = $("[data-phone]")[0];
+      const day = $('[data-day="3"]')[0];
+      const c = cursorIn(run, $, day, at);
+      const shot = c.shot;
+      zoomTo(run, shot, phone, 1.5, at, 1, 0.5, 0.5);
+      let t = human(run, c.cur, () => spot(shot, day), at + 0.05, 0.6);
+      press(run, c.cur, day, t);
       run
-        .to($("[data-done]"), { opacity: 1, duration: 0.3 }, t + 0.05)
-        .fromTo($("[data-done] svg"), { scale: 0.3 }, { scale: 1, duration: 0.5, ease: "back.out(2.5)" }, t + 0.05)
-        .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.3)
-        .to([$("[data-modal]"), $("[data-veil]")], { opacity: 0, duration: 0.35, ease: "power2.in" }, t + 1)
-        .fromTo($("[data-notif]"), { opacity: 0, y: -26, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, t + 1.15);
-      snd(run, "success", t + 0.05);
-      snd(run, "notify", t + 1.2);
+        .to(day, { backgroundColor: "rgba(94,196,255,.9)", color: "#04121c", duration: 0.2 }, t)
+        .fromTo($("[data-slot]"), { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.35, stagger: 0.05, ease: "expo.out" }, t + 0.1);
+      const slot = $('[data-slot="14:30"]')[0];
+      t = human(run, c.cur, () => spot(shot, slot), t + 0.55, 0.5);
+      press(run, c.cur, slot, t);
+      run.to(slot, { backgroundColor: "rgba(94,196,255,.9)", color: "#04121c", duration: 0.2 }, t).to($("[data-confirm]"), { opacity: 1, duration: 0.25 }, t);
+      const conf = $("[data-confirm]")[0];
+      t = human(run, c.cur, () => spot(shot, conf), t + 0.4, 0.5);
+      press(run, c.cur, conf, t);
+      run
+        .to($("[data-ct]"), { opacity: 0, duration: 0.15 }, t)
+        .to($("[data-cd]"), { opacity: 1, duration: 0.25 }, t + 0.05)
+        .to(c.cur, { opacity: 0, duration: 0.25 }, t + 0.3);
+      // nello stesso istante la riga compare nell'agenda: la camera passa dal telefono alla riga
+      const a = t + 0.35;
+      const row = $("[data-new]")[0];
+      zoomTo(run, shot, row, 1.5, a, 1, 0.35, 0.5);
+      run
+        .fromTo($("[data-beam]"), { opacity: 1, scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power2.out" }, a)
+        .to($("[data-beam]"), { opacity: 0, duration: 0.3 }, a + 0.45)
+        .to($("[data-free]"), { opacity: 0, duration: 0.2 }, a + 0.3)
+        .fromTo($("[data-fill]"), { opacity: 0, x: 10 }, { opacity: 1, x: 0, duration: 0.5, ease: "expo.out" }, a + 0.35)
+        .fromTo($("[data-hl]"), { opacity: 0 }, { opacity: 1, duration: 0.3 }, a + 0.35);
+      count(run, $("[data-cnt]")[0], 3, 4, a + 0.45, 0.3, (n) => String(Math.round(n)));
+      snd(run, "notify", a + 0.35);
     },
   },
 ];
