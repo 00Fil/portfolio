@@ -18,7 +18,7 @@ import { profile } from "@/content/profile";
 import "../globals.css";
 
 const anton = localFont({ src: "../../fonts/anton.woff2", variable: "--font-anton", display: "swap" });
-const logo = localFont({ src: "../../fonts/macintosh-skeletal.woff2", variable: "--font-logo", display: "swap" });
+const logo = localFont({ src: "../../fonts/macintosh-skeletal.woff2", variable: "--font-logo", display: "block", preload: true });
 const serif = localFont({
   src: [
     { path: "../../fonts/instrument-serif-latin-400-italic.woff2", style: "italic", weight: "400" },
