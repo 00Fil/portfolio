@@ -18,6 +18,7 @@ import { ServiceIcon } from "./ServiceIcon";
 import { SHOTS, ShotView } from "@/components/sections/Spots";
 import type { ServiceStory } from "@/content/stories";
 import { Bento, Changes, Faq, How, Promise, Proof, Timeline, type Story } from "./ServiceStory";
+import { WebCinema } from "./WebCinema";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
@@ -309,8 +310,17 @@ export function ServiceDetail(p: ServiceDetailProps) {
      l'hai già fatto?, come si procede, cosa rischio, dubbi. Il prezzo non si mostra: arriva nel preventivo scritto. */
   return (
     <>
-      <Hero {...p} />
-      {tale && (
+      {k === "web" && tale ? (
+        <>
+          <WebCinema title={tale.hero.title || p.title} />
+          <Proof proof={tale.proof} items={p.proof ?? []} />
+          <Faq faq={tale.faq} />
+          <Close {...p} />
+        </>
+      ) : (
+        <Hero {...p} />
+      )}
+      {k !== "web" && tale && (
         <>
           <Marquee words={tale.gets.items.map((x) => x.t)} />
           <Changes changes={tale.changes} labels={{ before: p.t.before, after: p.t.after }} />

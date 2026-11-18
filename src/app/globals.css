@@ -521,3 +521,11 @@ html[data-perf="low"] .drop > .drop-glow { display: none; }
   .wsx .w-bk { left: auto; right: 3cqw; top: 3cqw; bottom: 3cqw; height: auto; width: 46cqw; }
   .wsx .w-ts { left: 3cqw; right: auto; top: auto; bottom: 3cqw; margin-inline: 0; }
 }
+
+/* Racconto a scorrimento: con "riduci movimento" i capitoli restano fermi, uno sotto l'altro, solo con la domanda e la risposta. */
+@media (prefers-reduced-motion: reduce) {
+  .cine-sec { height: auto !important; }
+  .cine-stage { position: relative !important; height: auto !important; padding: 12svh 0; }
+  .cine-vis { display: none; }
+  .cine-q, .cine-a { position: relative !important; top: auto !important; transform: none !important; opacity: 1 !important; visibility: visible !important; margin-top: 4svh; }
+}
