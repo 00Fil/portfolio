@@ -11,7 +11,6 @@ import { Bead } from "@/components/glass/Bead";
 import { Drop } from "@/components/glass/Drop";
 import { Tile3D } from "@/components/ui/Tile3D";
 import { Script } from "@/components/ui/Script";
-import { DeviceScene } from "./DeviceScene";
 import { prefersReducedMotion } from "@/lib/env";
 import type { ServiceStory } from "@/content/stories";
 import type { WebCopy } from "@/content/webpage";
@@ -42,17 +41,26 @@ const retype = (tl: gsap.core.Timeline, el: HTMLElement, from: string, to: strin
   tl.fromTo(o, { n: from.length }, { n: 0, duration: dEr, ease: "none", onUpdate: () => void (el.textContent = from.slice(0, Math.round(o.n))) }, at).fromTo(o, { n: 0 }, { n: to.length, duration: dTy, ease: "none", onUpdate: () => void (el.textContent = to.slice(0, Math.round(o.n))) }, at + dEr);
 };
 
-/** Un ciclo che parte quando il riquadro si vede e si ferma quando esce. `build` restituisce come riportare tutto all'inizio. */
-function useLoop(ref: React.RefObject<HTMLElement | null>, build: (tl: gsap.core.Timeline, q: Q) => () => void, hold = 1.6) {
+/** Parte una sola volta quando il riquadro si vede; poi si ripete solo al passaggio del cursore sulla card. `build` restituisce come riportare tutto all'inizio. */
+function useLoop(ref: React.RefObject<HTMLElement | null>, build: (tl: gsap.core.Timeline, q: Q) => () => void, _hold = 0) {
   useGSAP(
     () => {
-      if (prefersReducedMotion() || !ref.current) return;
-      const q = gsap.utils.selector(ref.current) as Q;
-      const tl = gsap.timeline({ paused: true, repeat: -1, repeatDelay: hold });
+      const el = ref.current;
+      if (prefersReducedMotion() || !el) return;
+      const q = gsap.utils.selector(el) as Q;
+      const tl = gsap.timeline({ paused: true });
       const reset = build(tl, q);
-      tl.eventCallback("onRepeat", reset);
       reset();
-      ScrollTrigger.create({ trigger: ref.current, start: "top 92%", end: "bottom 4%", onToggle: (s) => void (s.isActive ? tl.play() : tl.pause()) });
+      let seen = false;
+      ScrollTrigger.create({ trigger: el, start: "top 88%", once: true, onEnter: () => void ((seen = true), tl.play()) });
+      const host = el.closest("article") ?? el;
+      const again = () => {
+        if (!seen || tl.progress() < 1) return;
+        reset();
+        tl.restart();
+      };
+      host.addEventListener("pointerenter", again);
+      return () => host.removeEventListener("pointerenter", again);
     },
     { scope: ref },
   );
@@ -355,7 +363,6 @@ function LeadsMock({ m }: { m: M }) {
         .fromTo(ph, { x: 0 }, { x: 2.5, duration: 0.05, yoyo: true, repeat: 5, ease: "none" }, at)
         .to(ph, { x: 0, duration: 0.05 }, at + 0.35);
     });
-    tl.to(it, { autoAlpha: 0, y: "+=16", duration: 0.45, stagger: 0.06, ease: "power2.in" }, 4.7);
     return () => void gsap.set(it, { autoAlpha: 0, y: -H });
   }, 0.5);
   return (
@@ -363,16 +370,20 @@ function LeadsMock({ m }: { m: M }) {
       <div data-phone className="absolute left-1/2 top-1 aspect-[9/19.5] w-[min(236px,66%)] -translate-x-1/2 rounded-[36px] bg-[#101216] p-[6px]" style={{ boxShadow: "0 30px 50px -26px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.18)" }}>
         <div className="relative h-full overflow-hidden rounded-[30px]" style={{ background: "radial-gradient(120% 70% at 20% 0%,#8fd8ff,transparent 60%), linear-gradient(170deg,#3b8cff,#1b3f9c 70%,#0e1f4d)" }}>
           <span aria-hidden className="absolute left-1/2 top-2 z-10 h-[18px] w-[58px] -translate-x-1/2 rounded-full bg-[#101216]" />
-          <p className="pt-9 text-center text-[44px] font-light leading-none tracking-[-0.04em] text-white/95">9:41</p>
+          <div className="flex justify-center pt-8">
+            <Bead radius={26} tint="rgba(255,255,255,.2)" className="px-5 py-1.5 text-[44px] font-extrabold leading-none tracking-[-0.03em] text-white">
+              9:41
+            </Bead>
+          </div>
           <div className="absolute inset-x-2 top-[104px]">
             {rows.map(([Icon, c, name, what]) => (
-              <Bead key={name} data-nt className="absolute inset-x-0 top-0 flex items-center gap-2.5 px-2.5 text-white" radius={20} tint="rgba(255,255,255,.2)" style={{ height: H - 6, opacity: 0 }}>
+              <Bead key={name} data-nt className="absolute inset-x-0 top-0 flex items-center gap-2.5 px-2.5 text-[#14171c]" radius={20} tint="#f3f5f9" style={{ height: H - 6, opacity: 0 }}>
                 <GlassIcon Icon={Icon} c={c} size={32} />
                 <span className="min-w-0 flex-1 leading-tight">
                   <span className="block truncate text-[12.5px] font-semibold">{name}</span>
-                  <span className="block truncate text-[12px] text-white/80">{what}</span>
+                  <span className="block truncate text-[12px] text-[#5b6370]">{what}</span>
                 </span>
-                <span className="self-start pt-2.5 text-[10.5px] text-white/70">{m.now}</span>
+                <span className="self-start pt-2.5 text-[10.5px] text-[#7a8190]">{m.now}</span>
               </Bead>
             ))}
           </div>
@@ -396,37 +407,38 @@ const ENGINES: { k: BrandKey; x: number; y: number }[] = [
 function FoundMock({ m }: { m: M }) {
   const ref = useRef<HTMLDivElement>(null);
   useLoop(ref, (tl, q) => {
-    const tiles = q("[data-et]");
+    const el = ref.current!;
+    const tiles = q("[data-ei]");
     const ln = q("[data-ln]");
-    const pl = q("[data-pl]");
     const ck = q("[data-ck]");
     const hub = q("[data-hub]")[0];
-    tl.fromTo(hub, { scale: 0.85, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.7, ease: "back.out(1.6)" }, 0);
-    tl.fromTo(ln, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.8, stagger: 0.12, ease: "power2.out" }, 0.4);
-    tl.fromTo(tiles, { scale: 0.5, autoAlpha: 0, filter: "blur(6px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 0.7, stagger: 0.12, ease: "back.out(1.7)" }, 0.6);
-    tl.fromTo(pl, { strokeDashoffset: 1.2, autoAlpha: 1 }, { strokeDashoffset: -0.2, duration: 1.1, stagger: 0.12, ease: "power1.inOut" }, 1.6);
-    tl.fromTo(ck, { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.4, stagger: 0.12, ease: "back.out(3)" }, 2.5);
-    tl.to([tiles, hub, ln, ck], { autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 4.9);
-    return () => void gsap.set([tiles, hub, ck, pl], { autoAlpha: 0 });
-  }, 0.4);
-  const hubXY = { x: 50, y: 50 };
+    const rp = q("[data-rp]")[0];
+    const W = () => el.clientWidth;
+    const Hh = () => el.clientHeight;
+    tl.fromTo(hub, { scale: 0.8, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.35, ease: "expo.out" }, 0);
+    ENGINES.forEach(({ x, y }, i) => {
+      tl.fromTo(tiles[i], { x: ((50 - x) * W()) / 100, y: ((50 - y) * Hh()) / 100, scale: 0.4, autoAlpha: 0 }, { x: 0, y: 0, scale: 1, autoAlpha: 1, duration: 0.6, ease: "expo.out" }, 0.15 + i * 0.06);
+    });
+    tl.fromTo(ln, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, ease: "power1.out" }, 0.45);
+    tl.fromTo(rp, { scale: 0.4, autoAlpha: 0.55 }, { scale: 4, autoAlpha: 0, duration: 0.9, ease: "power2.out" }, 0.5);
+    tl.fromTo(ck, { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.3, stagger: 0.06, ease: "back.out(3)" }, 0.85);
+    return () => void gsap.set([tiles, hub, ck, ln, rp], { autoAlpha: 0 });
+  });
   return (
     <div ref={ref} className="relative h-full">
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
         {ENGINES.map(({ k, x, y }) => (
-          <g key={k}>
-            <line data-ln x1={hubXY.x} y1={hubXY.y} x2={x} y2={y} pathLength={1} strokeDasharray="1" strokeDashoffset="1" stroke="color-mix(in srgb,#5ec4ff 55%, transparent)" strokeWidth="1.4" vectorEffect="non-scaling-stroke" />
-            <line data-pl x1={hubXY.x} y1={hubXY.y} x2={x} y2={y} pathLength={1} strokeDasharray="0.14 1.2" strokeDashoffset="1.2" stroke="#2f6fe0" strokeWidth="3" strokeLinecap="round" vectorEffect="non-scaling-stroke" style={{ opacity: 0 }} />
-          </g>
+          <line key={k} data-ln x1={50} y1={50} x2={x} y2={y} stroke="color-mix(in srgb,#5ec4ff 50%, transparent)" strokeWidth="1.2" vectorEffect="non-scaling-stroke" style={{ opacity: 0 }} />
         ))}
       </svg>
+      <span data-rp aria-hidden className="absolute left-1/2 top-1/2 h-[52px] w-[120px] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ boxShadow: "inset 0 0 0 1.5px #5ec4ff", opacity: 0 }} />
       <Bead data-hub tint="color-mix(in srgb,#5ec4ff 36%, var(--bg-surface))" radius={24} className="absolute left-1/2 top-1/2 z-10 flex h-[52px] -translate-x-1/2 -translate-y-1/2 items-center gap-2.5 whitespace-nowrap px-5 text-[15px] font-medium text-ink" style={{ opacity: 0 }}>
         <Globe size={17} strokeWidth={2} aria-hidden />
         {m.address}
       </Bead>
       {ENGINES.map(({ k, x, y }) => (
-        <span key={k} data-et className="absolute z-10 -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, top: `${y}%`, opacity: 0 }}>
-          <span className="relative block">
+        <span key={k} className="absolute z-10 -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, top: `${y}%` }}>
+          <span data-ei className="relative block" style={{ opacity: 0 }}>
             <BrandTile k={k} size={60} solid />
             <span data-ck className="absolute -right-1 -top-1 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#2fb36a] text-white" style={{ boxShadow: "0 0 0 2px var(--bg-surface)", opacity: 0 }}>
               <Check size={11} strokeWidth={3.2} aria-hidden />
@@ -447,15 +459,14 @@ function SafeMock({ m }: { m: M }) {
     const pk = q("[data-pk]")[0];
     const cf = q("[data-cf]")[0];
     const lk = q("[data-lk]")[0];
-    tl.fromTo(nodes, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.12, ease: "expo.out" }, 0);
-    tl.fromTo(pk, { left: "16%", autoAlpha: 0 }, { left: "50%", autoAlpha: 1, duration: 1, ease: "power1.inOut" }, 1)
-      .fromTo(cf, { scale: 1 }, { scale: 1.07, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out" }, 2)
-      .to(pk, { left: "84%", duration: 1, ease: "power1.inOut" }, 2.05)
-      .to(pk, { autoAlpha: 0, duration: 0.2 }, 3.05)
-      .fromTo(lk, { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.5, ease: "back.out(3)" }, 3)
-      .to([nodes, lk], { autoAlpha: 0, duration: 0.4 }, 5.2);
+    tl.fromTo(nodes, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.07, ease: "expo.out" }, 0);
+    tl.fromTo(pk, { left: "16%", autoAlpha: 0 }, { left: "50%", autoAlpha: 1, duration: 0.5, ease: "power2.in" }, 0.45)
+      .fromTo(cf, { scale: 1 }, { scale: 1.07, duration: 0.14, yoyo: true, repeat: 1, ease: "power2.out" }, 0.95)
+      .to(pk, { left: "84%", duration: 0.5, ease: "power2.out" }, 1.0)
+      .to(pk, { autoAlpha: 0, duration: 0.12 }, 1.5)
+      .fromTo(lk, { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.35, ease: "back.out(3)" }, 1.45);
     return () => void gsap.set([pk, lk], { autoAlpha: 0 });
-  }, 0.5);
+  });
   return (
     <div ref={ref} className="relative flex h-full items-center">
       <span aria-hidden className="absolute left-[16%] right-[16%] top-1/2 h-px -translate-y-[10px] bg-[repeating-linear-gradient(90deg,var(--hair-strong)_0_6px,transparent_6px_12px)]" />
@@ -516,7 +527,6 @@ function DashMock({ m, locale }: { m: M; locale: string }) {
       for (let j = 0; j < k; j++) tl.to(nt[j], { y: (k - j) * H, duration: 0.6, ease: "expo.out" }, at);
       tl.fromTo(el, { y: -H, autoAlpha: 0, scale: 0.94 }, { y: 0, autoAlpha: 1, scale: 1, duration: 0.7, ease: "back.out(1.5)" }, at).call(() => void (bd.textContent = String(k + 1)), undefined, at + 0.1).fromTo(bd, { scale: 1.5 }, { scale: 1, duration: 0.4, ease: "back.out(3)" }, at + 0.1);
     });
-    tl.to([wl, nt, brs, q("[data-fade]")], { autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 6.4);
     return () => {
       gsap.set([wl, nt], { autoAlpha: 0 });
       gsap.set(nt, { y: -H });
@@ -532,7 +542,7 @@ function DashMock({ m, locale }: { m: M; locale: string }) {
   const title = "mb-3 text-[13px] font-semibold text-ink";
   let acc = 0;
   return (
-    <div ref={ref} className={`mx-auto flex w-full max-w-[1040px] overflow-hidden rounded-[22px] ${surface}`}>
+    <div ref={ref} className="flex w-full overflow-hidden" style={{ boxShadow: "inset 0 -1px 0 var(--hair-strong)" }}>
       <aside className="hidden w-[60px] shrink-0 flex-col items-center gap-3 py-4 md:flex" style={{ boxShadow: "inset -1px 0 0 var(--hair-strong)" }}>
         <Traffic />
         <span className="mt-2 flex flex-col gap-2">
@@ -654,11 +664,11 @@ function DashMock({ m, locale }: { m: M; locale: string }) {
 
 /* ───────────── Sezioni ───────────── */
 
-function Cell({ span, title, body, mock, h = "h-[230px]" }: { span: string; title: string; body: string; mock: ReactNode; h?: string }) {
+function Cell({ span, title, body, mock, h = "h-[230px]", bleed = false }: { span: string; title: string; body: string; mock: ReactNode; h?: string; bleed?: boolean }) {
   return (
     <Bead as="article" data-rv radius={36} className={`group relative flex flex-col overflow-hidden p-5 sm:p-7 ${span}`}>
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[70%] bg-[radial-gradient(60%_70%_at_50%_30%,color-mix(in_srgb,#5ec4ff_20%,transparent),transparent)]" />
-      <div className={`relative mb-6 transition-transform duration-[600ms] ease-[var(--ease-out)] group-hover:-translate-y-1.5 ${h}`}>{mock}</div>
+      <div className={bleed ? "relative -mx-5 -mt-5 mb-6 sm:-mx-7 sm:-mt-7" : `relative mb-6 transition-transform duration-[600ms] ease-[var(--ease-out)] group-hover:-translate-y-1.5 ${h}`}>{mock}</div>
       <h3 className="text-[clamp(21px,2vw,28px)] font-medium leading-[1.1] tracking-[-0.035em] text-ink">{title}</h3>
       <p className="mt-2.5 max-w-[46ch] text-[15.5px] leading-[1.55] text-ink-2">{body}</p>
     </Bead>
@@ -746,12 +756,12 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
         </header>
         <div className="grid gap-4 sm:gap-5 lg:grid-cols-12">
           <Cell span="lg:col-span-7" title={c.bento.cells.speed[0]} body={c.bento.cells.speed[1]} mock={<SpeedMock m={m} f={fs} />} h="h-[300px]" />
-          <Cell span="lg:col-span-5" title={c.bento.cells.screens[0]} body={c.bento.cells.screens[1]} mock={<DeviceScene fallback={<ScreensMock />} />} h="h-[300px]" />
+          <Cell span="lg:col-span-5" title={c.bento.cells.screens[0]} body={c.bento.cells.screens[1]} mock={<ScreensMock />} h="h-[300px]" />
           <Cell span="lg:col-span-7" title={c.bento.cells.edit[0]} body={c.bento.cells.edit[1]} mock={<EditMock m={m} />} h="h-[290px]" />
           <Cell span="lg:col-span-5" title={c.bento.cells.leads[0]} body={c.bento.cells.leads[1]} mock={<LeadsMock m={m} />} h="h-[290px]" />
           <Cell span="lg:col-span-7" title={c.bento.cells.found[0]} body={c.bento.cells.found[1]} mock={<FoundMock m={m} />} h="h-[270px]" />
           <Cell span="lg:col-span-5" title={c.bento.cells.safe[0]} body={c.bento.cells.safe[1]} mock={<SafeMock m={m} />} h="h-[270px]" />
-          <Cell span="lg:col-span-12" title={c.bento.cells.dash[0]} body={c.bento.cells.dash[1]} mock={<DashMock m={m} locale={locale} />} h="h-auto" />
+          <Cell span="lg:col-span-12" title={c.bento.cells.dash[0]} body={c.bento.cells.dash[1]} mock={<DashMock m={m} locale={locale} />} h="h-auto" bleed />
         </div>
       </section>
 
