@@ -3,8 +3,8 @@ import { soundOn } from "./sound";
 /**
  * Colonna sonora del video: La minore e un solo tempo (120 bpm), così ogni suono cade sul ritmo e suona bene
  * con gli altri. Si sente solo con l'audio del sito attivo.
- * Brano originale in stile house melodico: giro Am F C G, pad a sega, basso sincopato con sub, cassa a quattro
- * che fa "respirare" il resto, tema di quattro battute con ritmo 3+3+2 che si ripete. Nessun brano esistente.
+ * Tema di Grieg «Nella sala del re della montagna» (pubblico dominio), che tutti riconoscono, su base elettronica
+ * scura: pad a sega, basso sincopato con sub, cassa a quattro che fa "respirare" il resto, colpo finale su La.
  */
 let ctx: AudioContext | null = null;
 let bus: GainNode | null = null;
@@ -242,22 +242,25 @@ function music(c: AudioContext) {
   return { out: mbus, pump: pump!, verb: verb!, echo: echo! };
 }
 
-/** Giro in La minore, una battuta per accordo: Am | F | C | G. Triadi per il pad e fondamentale per il basso. */
+/** Giro in La minore, una battuta per accordo: Am | Fm | Am | Em. Triadi per il pad e fondamentale per il basso. */
 const CH = [
   { pad: [220, 261.63, 329.63], root: 110 },
-  { pad: [174.61, 220, 261.63], root: 87.31 },
-  { pad: [261.63, 329.63, 392], root: 130.81 },
-  { pad: [196, 246.94, 293.66], root: 98 },
+  { pad: [174.61, 207.65, 261.63], root: 87.31 },
+  { pad: [220, 261.63, 329.63], root: 110 },
+  { pad: [164.81, 196, 246.94], root: 82.41 },
 ];
-/** Tema originale di quattro battute (passo = sedicesimo, valore = semitoni da La4). Ritmo 3+3+2, sempre uguale: si canticchia dopo un ascolto. */
+/**
+ * Tema: «Nella sala del re della montagna» di Grieg (1875, pubblico dominio), trasposto in La minore.
+ * Passo = ottavo (due sedicesimi), valore = semitoni da La4; la melodia suona un'ottava sotto.
+ */
 const LEAD: Record<number, number>[] = [
-  { 0: 7, 3: 12, 6: 10, 8: 7, 12: 3 },
-  { 0: 8, 3: 12, 6: 10, 8: 8, 12: 3 },
-  { 0: 7, 3: 12, 6: 14, 8: 12, 10: 10, 12: 7 },
-  { 0: 10, 3: 14, 6: 12, 8: 10, 10: 7, 14: 7 },
+  { 0: 0, 2: 2, 4: 3, 6: 5, 8: 7, 10: 3, 12: 7 },
+  { 0: 6, 2: 2, 4: 6, 8: 5, 10: 1, 12: 5 },
+  { 0: 0, 2: 2, 4: 3, 6: 5, 8: 7, 10: 3, 12: 7 },
+  { 0: 12, 2: 10, 4: 7, 6: 3, 8: 7, 10: 10 },
 ];
-/** Colpo finale su La minore: tre note ribattute e una discesa. */
-const FIN: Record<number, number> = { 0: 12, 2: 12, 4: 12, 8: 7 };
+/** Colpo finale su La: tre note ribattute e la quinta sotto. */
+const FIN: Record<number, number> = { 0: 0, 2: 0, 4: 0, 8: -5 };
 /** Ritmo del basso: sedicesimi su cui cade la fondamentale (sincopato, con salto d'ottava). */
 const BASS = [0, 3, 6, 8, 10, 14];
 
@@ -351,22 +354,17 @@ function step(c: AudioContext, m: Mus, n: number, at: number) {
   }
   // stoccate d'accordo sull'«e» del 2 e del 4, dalla seconda strofa
   if (sect === 2 && bar >= 4 && (s === 6 || s === 14)) ch.pad.forEach((fr) => tone(fr * 2, "sawtooth", 0.034, 0.004, 0.16, 2600, { wet: 0.25, det: [-7, 7], pumped: true, lpEnd: 900 }));
-  // arpeggio sui sedicesimi pari, nello stacco (leggero) e dalla terza battuta del pieno
-  if ((sect === 3 || (sect === 2 && bar >= 6)) && s % 2 === 0) {
-    const a = ch.pad[(s / 2) % 3];
-    tone(a * 4, "triangle", 0.03, 0.003, 0.14, 4200, { wet: 0.35, echo: 0.25 });
-  }
   // tema: sega scordata filtrata, pizzicata, con eco a croma puntata. Entra alla terza battuta, un'ottava sopra dopo lo stacco
   const mel = sect === 4 ? FIN : LEAD[(bar + 2) % 4];
   const mn = bar >= 2 ? mel[s] : undefined;
   if (mn !== undefined) {
     let nx = 16 - s;
     for (let j = s + 1; j < 16; j++) if (mel[j] !== undefined) { nx = j - s; break; }
-    const dec = Math.min(0.7, Math.max(0.18, nx * 0.125 * 1.4));
-    const fr = 440 * 2 ** (mn / 12);
-    tone(fr, "sawtooth", 0.07, 0.006, dec, 3400, { wet: 0.4, echo: 0.45, det: [-8, 8], lpEnd: 1200 });
+    const dec = Math.min(0.7, Math.max(0.16, nx * 0.125 * 0.85));
+    const fr = 440 * 2 ** ((mn - (sect === 4 ? 0 : 12)) / 12);
+    tone(fr, "sawtooth", 0.1, 0.008, dec, 2200, { wet: 0.3, echo: 0.18, det: [-7, 7], lpEnd: 700 });
     tone(fr, "square", 0.02, 0.006, dec * 0.8, 2200, { wet: 0.3 });
-    if (bar >= 11 && sect !== 4) tone(fr * 2, "sine", 0.035, 0.004, dec * 0.8, 4200, { wet: 0.4, echo: 0.3 });
+    if (bar >= 6 && sect !== 4) tone(fr * 2, "sawtooth", 0.04, 0.006, dec, 2600, { wet: 0.35, det: [-6, 6], lpEnd: 1000 });
     if (sect === 4) {
       tone(fr / 2, "sawtooth", 0.09, 0.004, dec + 0.4, 900, { wet: 0.3, det: [-6, 6] });
       tone(55, "sine", 0.3, 0.004, 1.6, 200, { wet: 0 });
