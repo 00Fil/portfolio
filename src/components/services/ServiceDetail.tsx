@@ -19,6 +19,9 @@ import { SHOTS, ShotView } from "@/components/sections/Spots";
 import type { ServiceStory } from "@/content/stories";
 import { Bento, Changes, Faq, How, Promise, Proof, Timeline, type Story } from "./ServiceStory";
 import { WebCinema } from "./WebCinema";
+import { WebPage } from "./WebPage";
+import { getWebCopy } from "@/content/webpage";
+import { useLocale } from "next-intl";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
@@ -306,6 +309,7 @@ function Next({ next, others, t }: ServiceDetailProps) {
 
 export function ServiceDetail(p: ServiceDetailProps) {
   const { tale, k } = p;
+  const locale = useLocale();
   /* L'ordine segue le domande di chi compra: cosa ottengo, è il mio problema?, come funziona, cosa ricevo,
      l'hai già fatto?, come si procede, cosa rischio, dubbi. Il prezzo non si mostra: arriva nel preventivo scritto. */
   return (
@@ -313,12 +317,7 @@ export function ServiceDetail(p: ServiceDetailProps) {
       {k === "web" && tale ? (
         <>
           <WebCinema title={tale.hero.title || p.title} />
-          <Bento k={k} title={tale.gets.title} items={tale.gets.items.map((x) => ({ title: x.t, body: x.b }))} />
-          <Proof proof={tale.proof} items={p.proof ?? []} />
-          <Timeline timeline={tale.timeline} />
-          <Promise promise={tale.promise} github={p.github} />
-          <Faq faq={tale.faq} />
-          <Close {...p} />
+          <WebPage locale={locale} copy={getWebCopy(locale as "it" | "en")} tale={tale} proof={p.proof ?? []} github={p.github} ctaLabel={p.t.cta} ctaLead={p.t.ctaLead} />
         </>
       ) : (
         <Hero {...p} />

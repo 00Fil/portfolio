@@ -5,7 +5,8 @@ import { useLocale } from "next-intl";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
-import { ArrowDown, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { prefersReducedMotion } from "@/lib/env";
 import { onIntroLift } from "@/lib/intro";
@@ -48,20 +49,19 @@ function Kw({ text }: { text: string }) {
   );
 }
 
-/** Illustrazioni tracciate a linea per le garanzie: si disegnano da sole durante il film. */
-const ART: string[][] = [
-  ["M16 8h24l9 9v39H16z", "M40 8v9h9", "M24 28h18", "M24 36h18", "M24 44h9", "M34 52c3-5 5 3 8-2s4 2 7-1"],
-  ["M32 8a9 9 0 1 0 0.01 0", "M14 56c0-11 8-18 18-18s18 7 18 18", "M8 30a24 24 0 0 1 8-14", "M56 30a24 24 0 0 0-8-14"],
-  ["M8 34 34 8h22v22L30 56z", "M46 18a3.5 3.5 0 1 0 0.01 0", "M24 36l12-12", "M28 44l16-16"],
-  ["M14 30h36v26H14z", "M22 30V20a10 10 0 0 1 19-4", "M32 40v8", "M32 40a2 2 0 1 0 0.01 0"],
-];
-function PromiseArt({ i }: { i: number }) {
+/** Tessera 3D: faccia di vetro azzurro con spessore (strati dietro) e icona in rilievo. Si inclina con rotationX/Y da fuori. */
+function Tile3D({ Icon, size = 26, className = "" }: { Icon: LucideIcon; size?: number; className?: string }) {
   return (
-    <svg viewBox="0 0 64 64" className="h-full w-full" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      {ART[i % ART.length].map((d, k) => (
-        <path key={k} d={d} />
-      ))}
-    </svg>
+    <span className={`[perspective:240px] ${className}`}>
+      <span data-tile className="relative block h-full w-full" style={{ transformStyle: "preserve-3d" }}>
+        {[6, 5, 4, 3, 2, 1].map((z) => (
+          <span key={z} className="absolute inset-0 rounded-[30%]" style={{ transform: `translateZ(${-z * 1.7}px)`, background: `color-mix(in srgb, #1e56c8 ${70 + z * 5}%, #07225f)` }} />
+        ))}
+        <span className="absolute inset-0 flex items-center justify-center rounded-[30%] text-white" style={{ transformStyle: "preserve-3d", background: "linear-gradient(150deg,#b4e8ff 0%,#52b0f4 42%,#2f6fe0 100%)", boxShadow: "inset 0 1.5px 0 rgba(255,255,255,.85), inset 0 -3px 6px rgba(10,50,140,.4)" }}>
+          <Icon size={size} strokeWidth={2.1} style={{ transform: "translateZ(7px)", filter: "drop-shadow(0 3px 2px rgba(10,50,140,.55))" }} />
+        </span>
+      </span>
+    </span>
   );
 }
 
@@ -165,10 +165,10 @@ function Wire() {
 
 const B = 0.5;
 /* dalla battuta 9.2 in poi tutto scorre di 3.4 battute: il caricamento lento ha bisogno di tempo per essere visto */
-const T = (n: number) => (n >= 9.2 ? n + 9 : n) * B;
+const T = (n: number) => (n >= 9.2 ? n + 5 : n) * B;
 const U = (n: number) => n * B;
 const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
-const ICONS_PROMISE = [FileText, UserRound, KeyRound, LockOpen];
+const ICONS_PROMISE = [FileText, UserRound, Tag, LockOpen];
 const CAP = "pointer-events-none absolute inset-x-0 top-[5%] mx-auto max-w-[19ch] px-6 text-center text-[clamp(30px,4.6vw,76px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg md:top-[7%] md:max-w-[24ch]";
 
 export function WebCinema({ title }: { title: string }) {
@@ -340,62 +340,29 @@ export function WebCinema({ title }: { title: string }) {
         .fromTo(chrome, { autoAlpha: 0, y: 140 }, { autoAlpha: 1, y: 0, duration: 1.3, ease: "expo.out" }, U(5.7))
         .set(cam, { scale: 1 }, U(5.7));
       // un pezzo alla volta, a scatti, a intervalli irregolari; l'ultimo non arriva mai
-      [7.0, 8.2, 9.0, 10.2].forEach((b, i) => {
+      [7.4, 9.2, 10.4, 12.6].forEach((b, i) => {
         tl.set(bands[i], { autoAlpha: 0 }, U(b)).call(() => fx.tick(0.7 + i * 0.08), undefined, U(b));
       });
       {
         const o = { n: 0 };
-        tl.fromTo(o, { n: 0 }, { n: 7, duration: U(4.6), ease: "none", onUpdate: () => void (cnt.textContent = num(o.n)) }, U(5.9));
+        tl.fromTo(o, { n: 0 }, { n: 10.2, duration: U(8.1), ease: "none", onUpdate: () => void (cnt.textContent = num(o.n)) }, U(5.9));
       }
-      // il cliente non aspetta: dalla tua attività passa al concorrente, che si apre subito
-      const url = one("[data-url]");
-      const tt3 = one("[data-tt3]");
-      const comp = one("[data-comp]");
-      const bp = one("[data-bp]");
-      const bpPaths = $("[data-bp] svg *");
-      bpPaths.forEach((x) => x.setAttribute("pathLength", "1"));
-      gsap.set(bpPaths, { strokeDasharray: 1, strokeDashoffset: 1 });
-      gsap.set(tt3, { autoAlpha: 0 });
-      const me = c.find.me[1];
-      const rival = c.find.rival[1];
-      const L = U(10.6);
-      eraseTo(tl, url, me, L, 0.3);
-      typeTo(tl, url, rival, L + 0.35, 0.55, 2);
-      tl.to(tt1, { autoAlpha: 0, duration: 0.1 }, L + 0.9)
-        .fromTo(tt3, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.1 }, L + 0.9)
-        .call(() => (cnt.textContent = num(0.4)), undefined, L + 0.95)
-        .set([spin, stop], { autoAlpha: 0 }, L + 0.95)
-        .set([fav, rl], { autoAlpha: 1 }, L + 0.95)
-        .fromTo(comp, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, L + 0.95)
-        .call(() => fx.pluck(1, 0.8, 0.5), undefined, L + 0.95);
-      capAt(1, T(5.6), U(14.4));
+      cap(1, 5.6, 9.2);
 
-      /* 2 · Lo ricostruiamo per aprirlo in 0,8 secondi: stesso indirizzo, la pagina si ridisegna e poi si apre tutta insieme */
+      /* 2 · Il tuo si apre in 0,8 secondi: stessa pagina, un nuovo caricamento, tutto insieme */
       const at2 = T(9.3);
-      const R = U(14.4);
-      eraseTo(tl, url, rival, R, 0.3);
-      typeTo(tl, url, me, R + 0.35, 0.55, 3);
-      tl.to(tt3, { autoAlpha: 0, duration: 0.1 }, R + 0.9)
-        .fromTo(tt1, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.1 }, R + 0.9)
-        .set(bands, { autoAlpha: 0 }, R + 0.9)
-        .call(() => (cnt.textContent = num(0)), undefined, R + 0.9)
-        .set([spin, stop], { autoAlpha: 1 }, R + 0.9)
-        .set([fav, rl, ok], { autoAlpha: 0 }, R + 0.9)
-        .to(comp, { autoAlpha: 0, y: 30, duration: 0.3, ease: "power2.in" }, R + 0.9)
-        .fromTo(bp, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25 }, R + 0.9)
-        .to(bpPaths, { strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut", stagger: 0.035 }, R + 1.05)
-        .call(() => fx.riser(at2 - R - 1.0), undefined, R + 1.0);
       {
         const o = { n: 0 };
-        tl.fromTo(o, { n: 0 }, { n: 0.8, duration: 0.34, ease: "power1.out", onUpdate: () => void (cnt.textContent = num(o.n)) }, at2)
+        tl.call(() => (cnt.textContent = num(0)), undefined, at2)
+          .fromTo(o, { n: 0 }, { n: 0.8, duration: 0.34, ease: "power1.out", onUpdate: () => void (cnt.textContent = num(o.n)) }, at2)
           .call(() => (fx.chord([0, 2, 4, 5], 1), fx.whoosh(0.35, true, 0.6)), undefined, at2 + 0.38)
-          .to(bp, { autoAlpha: 0, duration: 0.12 }, at2 + 0.38)
+          .to(bands, { autoAlpha: 0, duration: 0.18, stagger: 0.03, ease: "none" }, at2 + 0.2)
           .to([spin, stop, tt1], { autoAlpha: 0, duration: 0.12 }, at2 + 0.38)
           .fromTo([fav, rl, tt2], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2.2)" }, at2 + 0.4)
           .fromTo(ok, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2.4)" }, at2 + 0.42)
           .to(cnt, { color: "var(--accent)", duration: 0.3 }, at2 + 0.4);
       }
-      capAt(2, U(14.6), T(11.7));
+      cap(2, 9.5, 11.7);
 
       /* 3 · Prima lo disegniamo: la camera entra nell'anello, dal fondo emerge la pagina inclinata */
       const wireBits = $("[data-wire] > div");
@@ -528,23 +495,14 @@ export function WebCinema({ title }: { title: string }) {
         const h = ps[i].offsetHeight;
         return small() ? { x: (i % 2 ? 0.5 : -0.5) * (w + 12), y: (i < 2 ? -0.5 : 0.5) * (h + 12) } : { x: (i - 1.5) * (w + 16), y: 0 };
       };
-      const pdraw = ps.map((p) => {
-        const sh = Array.from(p.querySelectorAll<SVGElement>("svg *"));
-        sh.forEach((x) => x.setAttribute("pathLength", "1"));
-        gsap.set(sh, { strokeDasharray: 1, strokeDashoffset: 1 });
-        return sh;
-      });
       tl.to(rr, { r: 0, duration: 0.7, ease: "power3.in", onUpdate: place }, T(49.2))
         .to(gs, { autoAlpha: 0, scale: 0.7, duration: 0.5, ease: "power2.in" }, T(49.3))
         .call(() => fx.whoosh(0.5, true, 0.7), undefined, T(49.8));
       ps.forEach((p, i) => {
-        const at = T(49.8 + i * 0.75);
-        const l = p.querySelector("[data-pl]");
-        tl.fromTo(p, { autoAlpha: 0, scale: 0.9, x: () => pp(i).x, y: () => pp(i).y + 90 }, { autoAlpha: 1, scale: 1, x: () => pp(i).x, y: () => pp(i).y, duration: 0.9, ease: "expo.out" }, at)
-          .to(pdraw[i], { strokeDashoffset: 0, duration: 0.8, ease: "power2.inOut", stagger: 0.12 }, at + 0.25)
-          .fromTo(l, { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "expo.out" }, at + 0.6)
-          .fromTo(p, { rotationX: 0 }, { rotationX: 0, duration: 0.01 }, at)
-          .call(() => fx.bell(7 + i * 2, 0.9), undefined, at + 0.25);
+        const at = T(49.8 + i * 0.4);
+        tl.fromTo(p, { autoAlpha: 0, scale: 0.82, x: () => pp(i).x, y: () => pp(i).y + 80 }, { autoAlpha: 1, scale: 1, x: () => pp(i).x, y: () => pp(i).y, duration: 0.7, ease: "expo.out" }, at)
+          .fromTo(p.querySelector("[data-tile]"), { rotationY: -40, rotationX: 18 }, { rotationY: 30, rotationX: -12, duration: Math.max(1, T(54.2) - at), ease: "sine.inOut" }, at)
+          .call(() => fx.bell(7 + i * 2, 0.9), undefined, at + 0.05);
       });
       cap(10, 50, 54.6);
 
@@ -694,7 +652,7 @@ export function WebCinema({ title }: { title: string }) {
               </MiniSite>
             </div>
             {/* il browser: prima carica lento, poi tutto insieme */}
-            <div data-it data-chrome className={`${center} w-[min(92vw,calc(min(66svh,520px)*1.58))] aspect-[1.58] max-md:aspect-[.82] flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
+            <div data-it data-chrome className={`${center} w-[min(92vw,calc(min(58svh,440px)*1.58))] aspect-[1.58] max-md:aspect-[.82] flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
               <div className="flex h-[38px] shrink-0 items-end gap-3 bg-[color-mix(in_srgb,var(--label-primary)_9%,var(--bg-canvas))] px-3">
                 <span className="mb-[13px] flex gap-[7px]">
                   {["#ff5f57", "#febc2e", "#28c840"].map((k) => (
@@ -712,7 +670,6 @@ export function WebCinema({ title }: { title: string }) {
                   <span className="relative block min-w-0 flex-1 truncate">
                     <span data-tt1 className="block truncate">{c.find.me[1]}</span>
                     <span data-tt2 className="absolute inset-0 block truncate font-medium">Marchio</span>
-                    <span data-tt3 className="absolute inset-0 block truncate">{c.find.rival[0]}</span>
                   </span>
                   <X size={13} strokeWidth={1.8} className="cine-fg2 shrink-0" />
                 </span>
@@ -727,7 +684,7 @@ export function WebCinema({ title }: { title: string }) {
                 </span>
                 <span className="flex h-[30px] min-w-0 flex-1 items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--label-primary)_7%,var(--bg-surface))] px-3 text-[13px]">
                   <Lock size={13} strokeWidth={1.9} className="cine-fg2 shrink-0" />
-                  <span data-url className="truncate">{c.find.me[1]}</span>
+                  <span className="truncate">{c.find.me[1]}</span>
                 </span>
                 <EllipsisVertical size={17} strokeWidth={1.7} className="cine-fg2" />
               </div>
@@ -738,36 +695,6 @@ export function WebCinema({ title }: { title: string }) {
                 {Array.from({ length: 7 }).map((_, i) => (
                   <span key={i} data-band className="absolute inset-x-0 bg-[var(--bg-surface)]" style={{ top: `${(i * 100) / 7}%`, height: "calc(100% / 7 + 1px)" }} />
                 ))}
-                <div data-comp className="absolute inset-0 flex flex-col overflow-hidden bg-[#f3efe6]" style={HID}>
-                  <span className="mx-4 mt-3 flex h-8 shrink-0 items-center gap-3 rounded-full bg-white px-4 shadow-[0_1px_0_rgba(0,0,0,.06)]">
-                    <span className="h-3 w-3 rounded-full bg-[#e8743b]" />
-                    <span className="h-2 w-10 rounded-full bg-[#c9c3b6]" />
-                    <span className="h-2 w-10 rounded-full bg-[#c9c3b6]" />
-                    <span className="ml-auto h-4 w-14 rounded-full bg-[#e8743b]" />
-                  </span>
-                  <span className="mx-4 mt-4 grid min-h-0 flex-1 grid-cols-[1.1fr_1fr] gap-4 pb-14">
-                    <span className="flex flex-col justify-center gap-2.5">
-                      <span className="h-4 w-[88%] rounded-full bg-[#2a2723]" />
-                      <span className="h-4 w-[62%] rounded-full bg-[#2a2723]" />
-                      <span className="mt-1 h-2 w-[80%] rounded-full bg-[#c9c3b6]" />
-                      <span className="h-2 w-[70%] rounded-full bg-[#c9c3b6]" />
-                      <span className="mt-2 h-7 w-24 rounded-full bg-[#e8743b]" />
-                    </span>
-                    <span className="rounded-2xl" style={{ background: "linear-gradient(145deg,#f6b17a,#e8743b 55%,#b9461c)" }} />
-                  </span>
-                </div>
-                <div data-bp className="absolute inset-0 bg-[var(--bg-surface)]" style={HID}>
-                  <svg viewBox="0 0 160 100" preserveAspectRatio="none" className="h-full w-full text-[var(--accent)]" fill="none" stroke="currentColor" strokeWidth={1.4} vectorEffect="non-scaling-stroke" strokeDasharray="none">
-                    <rect x="6" y="6" width="148" height="11" rx="4" vectorEffect="non-scaling-stroke" />
-                    <rect x="6" y="22" width="148" height="46" rx="5" vectorEffect="non-scaling-stroke" />
-                    <path d="M14 34h62" vectorEffect="non-scaling-stroke" />
-                    <path d="M14 42h44" vectorEffect="non-scaling-stroke" />
-                    <rect x="14" y="52" width="26" height="9" rx="4.5" vectorEffect="non-scaling-stroke" />
-                    <rect x="6" y="74" width="46" height="20" rx="4" vectorEffect="non-scaling-stroke" />
-                    <rect x="57" y="74" width="46" height="20" rx="4" vectorEffect="non-scaling-stroke" />
-                    <rect x="108" y="74" width="46" height="20" rx="4" vectorEffect="non-scaling-stroke" />
-                  </svg>
-                </div>
                 <span className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center">
                   <Bead as="span" radius={999} className="cine-fg flex h-10 items-center gap-2 px-4">
                     <span data-count className="font-mono text-[15px] tabular-nums">
@@ -783,15 +710,8 @@ export function WebCinema({ title }: { title: string }) {
               const Icon = ICONS_GETS[i];
               return (
                 <Bead as="div" key={t} data-it data-g radius={32} className={`cine-fg ${center} flex h-[clamp(66px,10svh,88px)] max-md:h-[58px] items-center whitespace-nowrap pr-[clamp(22px,2.6vw,32px)] text-[clamp(17px,2.1vw,25px)] font-medium tracking-[-0.015em] [--gp:clamp(18px,2.2vw,26px)]`} style={HID}>
-                  <span className="flex aspect-square h-full shrink-0 items-center justify-center [perspective:220px]">
-                    <span data-tile className="relative block h-[72%] w-[72%]" style={{ transformStyle: "preserve-3d" }}>
-                      {[6, 5, 4, 3, 2, 1].map((z) => (
-                        <span key={z} className="absolute inset-0 rounded-[30%]" style={{ transform: `translateZ(${-z * 1.7}px)`, background: `color-mix(in srgb, #1e56c8 ${70 + z * 5}%, #07225f)` }} />
-                      ))}
-                      <span className="absolute inset-0 flex items-center justify-center rounded-[30%] text-white" style={{ transformStyle: "preserve-3d", background: "linear-gradient(150deg,#b4e8ff 0%,#52b0f4 42%,#2f6fe0 100%)", boxShadow: "inset 0 1.5px 0 rgba(255,255,255,.85), inset 0 -3px 6px rgba(10,50,140,.4)" }}>
-                        <Icon size={26} strokeWidth={2.1} style={{ transform: "translateZ(7px)", filter: "drop-shadow(0 3px 2px rgba(10,50,140,.55))" }} />
-                      </span>
-                    </span>
+                  <span className="flex aspect-square h-full shrink-0 items-center justify-center">
+                    <Tile3D Icon={Icon} className="block h-[72%] w-[72%]" />
                   </span>
                   <span className="pl-1">{t}</span>
                 </Bead>
@@ -799,12 +719,9 @@ export function WebCinema({ title }: { title: string }) {
             })}
             {/* cosa garantisco */}
             {c.promise.items.map(([t], i) => (
-              <Bead as="div" key={t} data-it data-pr radius={30} className={`cine-fg ${center} flex aspect-[.86] w-[clamp(140px,19vw,250px)] flex-col items-center justify-center gap-4 px-3`} style={HID}>
-                <span className="relative block aspect-square w-[52%] text-[var(--accent)]">
-                  <PromiseArt i={i} />
-                </span>
-                <span className="text-center text-[clamp(14px,1.6vw,21px)] font-medium leading-tight tracking-[-0.015em]">{t}</span>
-                <span data-pl className="absolute bottom-3 h-[3px] w-[34%] origin-left rounded-full" style={{ background: "linear-gradient(90deg,#5ec4ff,#2f6fe0)" }} />
+              <Bead as="div" key={t} data-it data-pr radius={34} className={`cine-fg ${center} flex aspect-[.86] w-[clamp(140px,19vw,250px)] flex-col items-center justify-center gap-5 px-3`} style={HID}>
+                <Tile3D Icon={ICONS_PROMISE[i % ICONS_PROMISE.length]} size={34} className="block aspect-square w-[44%]" />
+                <span className="text-center text-[clamp(15px,1.7vw,22px)] font-medium leading-tight tracking-[-0.015em]">{t}</span>
               </Bead>
             ))}
           </div>
