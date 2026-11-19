@@ -1177,5 +1177,15 @@
     "status": "In manutenzione",
     "title": "Torniamo presto",
     "lead": "Accesso riservato"
+  },
+  "card": {
+    "metaTitle": "Card",
+    "code": "Codice",
+    "open": "Apri",
+    "wrong": "Codice errato",
+    "limit": "Troppi tentativi",
+    "off": "Non attivo",
+    "flip": "Gira la card",
+    "copied": "Copiato"
   }
 }

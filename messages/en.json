@@ -1177,5 +1177,15 @@
     "status": "Under maintenance",
     "title": "Back soon",
     "lead": "Restricted access"
+  },
+  "card": {
+    "metaTitle": "Card",
+    "code": "Code",
+    "open": "Open",
+    "wrong": "Wrong code",
+    "limit": "Too many attempts",
+    "off": "Not active",
+    "flip": "Flip the card",
+    "copied": "Copied"
   }
 }

@@ -1,0 +1,35 @@
+.stage { width: min(92vw, 760px); display: grid; gap: 28px; justify-items: center; }
+.scene { width: 100%; perspective: 1500px; container-type: inline-size; touch-action: pan-y; user-select: none; cursor: grab; position: relative; }
+.scene:active { cursor: grabbing; }
+.card { position: relative; width: 100%; aspect-ratio: 856 / 540; transform-style: preserve-3d; will-change: transform; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
+.shadow { position: absolute; left: 8%; right: 8%; bottom: -9cqw; height: 6cqw; border-radius: 50%; background: radial-gradient(closest-side, var(--shadow-strong, rgba(6, 38, 58, .45)), transparent); filter: blur(10px); opacity: var(--so, .7); transform: translateX(var(--sx2, 0)) scaleX(var(--ss, 1)); pointer-events: none; }
+.face { position: absolute; inset: 0; border-radius: 3.74cqw; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; background-size: cover; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .55); }
+.front { transform: translateZ(.46cqw); background-image: url(/card/front.webp); }
+.back { transform: rotateY(180deg) translateZ(.46cqw); background-image: url(/card/back.webp); image-rendering: auto; }
+.edge { position: absolute; background: linear-gradient(90deg, #e9eef2, #b9c6cf); }
+.eR { top: 3.74cqw; bottom: 3.74cqw; right: -.46cqw; width: .92cqw; transform: rotateY(90deg); }
+.eL { top: 3.74cqw; bottom: 3.74cqw; left: -.46cqw; width: .92cqw; transform: rotateY(90deg); }
+.eT { left: 3.74cqw; right: 3.74cqw; top: -.46cqw; height: .92cqw; transform: rotateX(90deg); }
+.eB { left: 3.74cqw; right: 3.74cqw; bottom: -.46cqw; height: .92cqw; transform: rotateX(90deg); }
+.glare { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light; opacity: .95;
+  background: radial-gradient(60% 70% at var(--gx, 50%) var(--gy, 40%), rgba(255, 255, 255, .85), rgba(255, 255, 255, 0) 62%); }
+.sheen { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: overlay;
+  background: linear-gradient(105deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .75) 46%, rgba(255, 255, 255, .15) 52%, rgba(255, 255, 255, 0) 64%);
+  background-size: 260% 100%; background-position: var(--sh, 50%) 0; opacity: var(--so2, .8); }
+.bar { position: absolute; left: 12.62cqw; width: 74.77cqw; height: 11.22cqw; border-radius: 99px; display: grid; place-items: center; color: #06263a; font-family: var(--nunito), var(--font-geist-sans), sans-serif; font-weight: 700; cursor: copy;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .78), rgba(236, 247, 255, .5));
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .85), inset 0 -1.6cqw 2.4cqw -1.4cqw rgba(94, 196, 255, .55), 0 1.6cqw 2.6cqw -1.6cqw rgba(6, 38, 58, .55); }
+.bar span { font-size: var(--fs); letter-spacing: .01em; white-space: nowrap; }
+.bar svg { position: absolute; left: 3.5cqw; width: 4.67cqw; height: 4.67cqw; }
+.dots { letter-spacing: .35em !important; opacity: .55; }
+.tip { position: absolute; right: 3.2cqw; font-size: 2.3cqw; opacity: 0; transition: opacity .2s; font-weight: 700; }
+.tipOn { opacity: .7; }
+.form { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 6px 0 20px; border-radius: 99px; background: var(--card); box-shadow: inset 0 0 0 1px var(--hair); transition: opacity .4s, transform .4s; }
+.form input { width: 150px; height: 100%; background: transparent; border: 0; outline: 0; color: var(--fg, inherit); font-size: 15px; letter-spacing: .08em; }
+.form button { width: 36px; height: 36px; border-radius: 99px; display: grid; place-items: center; background: var(--fg, #0b0d12); color: var(--bg, #fff); }
+.form button:disabled { opacity: .4; }
+.formGone { opacity: 0; transform: translateY(8px); pointer-events: none; }
+.err { font-size: 13px; opacity: .7; min-height: 18px; }
+.shake { animation: shake .4s; }
+@keyframes shake { 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+@media (prefers-reduced-motion: reduce) { .shake { animation: none; } }
