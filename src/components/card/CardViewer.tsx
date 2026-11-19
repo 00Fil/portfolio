@@ -1,14 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, KeyRound, User } from "lucide-react";
+import { ArrowRight, ArrowUpRight, KeyRound, User } from "lucide-react";
 import localFont from "next/font/local";
 import { unlockCard } from "@/app/[locale]/card/actions";
 import s from "./card.module.css";
 
 const nunito = localFont({ src: "../../fonts/nunito-700.woff2", variable: "--nunito", display: "swap", weight: "700" });
 
-type Txt = { code: string; open: string; flip: string; copied: string; errors: { wrong: string; limit: string; off: string } };
+type Txt = { code: string; open: string; flip: string; site: string; copied: string; errors: { wrong: string; limit: string; off: string } };
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
@@ -16,13 +16,13 @@ const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 export function CardViewer({ t }: { t: Txt }) {
   const scene = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
-  const [creds, setCreds] = useState<{ user: string; pass: string } | null>(null);
+  const [creds, setCreds] = useState<{ user: string; pass: string; url: string } | null>(null);
   const [err, setErr] = useState("");
   const [shake, setShake] = useState(false);
   const [pending, setPending] = useState(false);
   const [tip, setTip] = useState<"user" | "pass" | null>(null);
 
-  const st = useRef({ ry: -24, rx: 8, vy: 0, vx: 0, snap: 0, px: 0, py: 0, drag: false, moved: 0, lastX: 0, lastY: 0, lastT: 0, raf: 0, reduce: false });
+  const st = useRef({ ry: -24, rx: 8, vy: 0, vx: 0, snap: 0, px: 0, py: 0, drag: false, moved: 0, hit: "" as "" | "user" | "pass", lastX: 0, lastY: 0, lastT: 0, raf: 0, reduce: false });
 
   const paint = useCallback(() => {
     const el = card.current;
@@ -47,16 +47,16 @@ export function CardViewer({ t }: { t: Txt }) {
     const a = st.current;
     const dt = 1 / 60;
     if (!a.drag) {
-      const ty = a.snap + (a.reduce ? 0 : a.px * 10);
-      const tx = a.reduce ? 0 : -a.py * 8;
-      const k = 120, c = 16;
+      const ty = a.snap + (a.reduce ? 0 : a.px * 8);
+      const tx = a.reduce ? 0 : -a.py * 7;
+      const k = 26, c = 9.5;
       a.vy += ((ty - a.ry) * k - a.vy * c) * dt;
       a.vx += ((tx - a.rx) * k - a.vx * c) * dt;
       a.ry += a.vy * dt;
       a.rx += a.vx * dt;
     }
     paint();
-    const settled = !a.drag && Math.abs(a.vy) < 0.05 && Math.abs(a.vx) < 0.05 && Math.abs(a.snap + a.px * 10 - a.ry) < 0.05 && Math.abs(-a.py * 8 - a.rx) < 0.05;
+    const settled = !a.drag && Math.abs(a.vy) < 0.05 && Math.abs(a.vx) < 0.05 && Math.abs(a.snap + a.px * 8 - a.ry) < 0.05 && Math.abs(-a.py * 7 - a.rx) < 0.05;
     a.raf = settled ? 0 : requestAnimationFrame(loop);
   }, [paint]);
 
@@ -78,7 +78,7 @@ export function CardViewer({ t }: { t: Txt }) {
 
   const down = (e: React.PointerEvent) => {
     const a = st.current;
-    a.drag = true; a.moved = 0; a.vy = 0; a.vx = 0;
+    a.drag = true; a.moved = 0; a.hit = ((e.target as HTMLElement).closest("[data-copy]")?.getAttribute("data-copy") as "user" | "pass" | null) ?? ""; a.vy = 0; a.vx = 0;
     a.lastX = e.clientX; a.lastY = e.clientY; a.lastT = performance.now();
     scene.current!.setPointerCapture(e.pointerId);
     rel(e); kick();
@@ -98,13 +98,21 @@ export function CardViewer({ t }: { t: Txt }) {
     }
     kick();
   };
+  const copy = (k: "user" | "pass") => {
+    if (!creds) return;
+    navigator.clipboard?.writeText(creds[k]).then(() => { setTip(k); setTimeout(() => setTip(null), 1100); }).catch(() => {});
+  };
+
   const up = (e: React.PointerEvent) => {
     const a = st.current;
     if (!a.drag) return;
     a.drag = false;
     scene.current?.releasePointerCapture(e.pointerId);
-    if (a.moved < 6) a.snap = Math.round(a.ry / 180) * 180 + 180; // un tocco gira la card
-    else a.snap = Math.round((a.ry + clamp(a.vy, -900, 900) * 0.22) / 180) * 180;
+    if (a.moved < 6) {
+      if (a.hit && creds) copy(a.hit);
+      else a.snap = Math.round(a.ry / 180) * 180 + 180; // un tocco gira la card
+    }
+    else a.snap = Math.round((a.ry + clamp(a.vy, -700, 700) * 0.18) / 180) * 180;
     kick();
   };
   const leave = () => { const a = st.current; if (!a.drag) { a.px = 0; a.py = 0; kick(); } };
@@ -119,7 +127,7 @@ export function CardViewer({ t }: { t: Txt }) {
     const r = await unlockCard(v);
     setPending(false);
     if (r.ok) {
-      setCreds({ user: r.user, pass: r.pass });
+      setCreds({ user: r.user, pass: r.pass, url: r.url });
       const a = st.current;
       a.snap = Math.round(a.ry / 180) * 180 + (((Math.round(a.ry / 180) % 2) + 2) % 2 === 0 ? 180 : 0); // mostra il retro
       kick();
@@ -127,11 +135,6 @@ export function CardViewer({ t }: { t: Txt }) {
       setErr(t.errors[r.error]);
       setShake(true); setTimeout(() => setShake(false), 450);
     }
-  };
-
-  const copy = (k: "user" | "pass") => {
-    if (!creds) return;
-    navigator.clipboard?.writeText(creds[k]).then(() => { setTip(k); setTimeout(() => setTip(null), 1100); }).catch(() => {});
   };
 
   return (
@@ -155,12 +158,12 @@ export function CardViewer({ t }: { t: Txt }) {
             <div className={s.glare} />
           </div>
           <div className={`${s.face} ${s.back}`}>
-            <div className={s.bar} style={{ top: "18.93cqw", ["--fs" as string]: "4.67cqw" }} onClick={() => copy("user")}>
+            <div className={s.bar} data-copy="user" style={{ top: "18.93cqw", ["--fs" as string]: "4.67cqw" }}>
               <User aria-hidden strokeWidth={2} />
               <span className={creds ? "" : s.dots}>{creds ? creds.user : "••••••••"}</span>
               <i className={`${s.tip} ${tip === "user" ? s.tipOn : ""}`}>{t.copied}</i>
             </div>
-            <div className={s.bar} style={{ top: "32.94cqw", ["--fs" as string]: "3.62cqw" }} onClick={() => copy("pass")}>
+            <div className={s.bar} data-copy="pass" style={{ top: "32.94cqw", ["--fs" as string]: "3.62cqw" }}>
               <KeyRound aria-hidden strokeWidth={2} />
               <span className={creds ? "" : s.dots}>{creds ? creds.pass : "••••••••••"}</span>
               <i className={`${s.tip} ${tip === "pass" ? s.tipOn : ""}`}>{t.copied}</i>
@@ -173,10 +176,17 @@ export function CardViewer({ t }: { t: Txt }) {
         <div className={s.shadow} />
       </div>
 
-      <form onSubmit={submit} className={`${s.form} ${creds ? s.formGone : ""} ${shake ? s.shake : ""}`} autoComplete="off">
-        <input name="code" type="password" placeholder={t.code} aria-label={t.code} autoComplete="off" spellCheck={false} />
-        <button type="submit" disabled={pending} aria-label={t.open}><ArrowRight size={18} /></button>
-      </form>
+      {creds ? (
+        <a className={`${s.form} ${s.site}`} href={creds.url} target="_blank" rel="noopener noreferrer">
+          <span>{t.site}</span>
+          <i><ArrowUpRight size={18} /></i>
+        </a>
+      ) : (
+        <form onSubmit={submit} className={`${s.form} ${shake ? s.shake : ""}`} autoComplete="off">
+          <input name="code" type="password" placeholder={t.code} aria-label={t.code} autoComplete="off" spellCheck={false} />
+          <button type="submit" disabled={pending} aria-label={t.open}><ArrowRight size={18} /></button>
+        </form>
+      )}
       <p className={s.err} role="status">{err}</p>
     </div>
   );

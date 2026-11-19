@@ -22,7 +22,7 @@ export default async function CardPage({ params }: { params: Promise<{ locale: s
     <>
       <main id="main" className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-4 pb-36 pt-[calc(var(--bar-h)+24px)] lg:pb-16">
         <CardViewer
-          t={{ code: t("code"), open: t("open"), flip: t("flip"), copied: t("copied"), errors: { wrong: t("wrong"), limit: t("limit"), off: t("off") } }}
+          t={{ code: t("code"), open: t("open"), flip: t("flip"), site: t("site"), copied: t("copied"), errors: { wrong: t("wrong"), limit: t("limit"), off: t("off") } }}
         />
       </main>
       <SiteNav detail={{ title: t("metaTitle"), section: "home" }} plain />

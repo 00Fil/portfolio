@@ -1186,6 +1186,7 @@
     "limit": "Too many attempts",
     "off": "Not active",
     "flip": "Flip the card",
-    "copied": "Copied"
+    "copied": "Copied",
+    "site": "Go to the site"
   }
 }

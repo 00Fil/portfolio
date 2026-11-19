@@ -4,7 +4,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { headers } from "next/headers";
 import { rateLimited } from "@/lib/session";
 
-export type UnlockResult = { ok: true; user: string; pass: string } | { ok: false; error: "wrong" | "limit" | "off" };
+export type UnlockResult = { ok: true; user: string; pass: string; url: string } | { ok: false; error: "wrong" | "limit" | "off" };
 
 const digest = (s: string) => createHash("sha256").update(s).digest();
 
@@ -20,5 +20,6 @@ export async function unlockCard(code: string): Promise<UnlockResult> {
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   if (rateLimited(`card:${ip}`)) return { ok: false, error: "limit" };
   const good = timingSafeEqual(digest(String(code ?? "").trim().slice(0, 200)), digest(expected));
-  return good ? { ok: true, user, pass } : { ok: false, error: "wrong" };
+  const url = process.env.CARD_URL || "https://oratoriobedizzolecalvagese.it/wp-login.php";
+  return good ? { ok: true, user, pass, url } : { ok: false, error: "wrong" };
 }
