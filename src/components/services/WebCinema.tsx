@@ -165,7 +165,7 @@ function Wire() {
 
 const B = 0.5;
 /* dalla battuta 9.2 in poi tutto scorre di 3.4 battute: il caricamento lento ha bisogno di tempo per essere visto */
-const T = (n: number) => (n >= 9.2 ? n + 3.4 : n) * B;
+const T = (n: number) => (n >= 9.2 ? n + 9 : n) * B;
 const U = (n: number) => n * B;
 const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
 const ICONS_PROMISE = [FileText, UserRound, KeyRound, LockOpen];
@@ -291,15 +291,16 @@ export function WebCinema({ title }: { title: string }) {
           tl.call(() => fx.pluck(deg + 7, 0.9, 0.5), undefined, at2);
         }
       };
-      const cap = (i: number, b0: number, b1: number) => {
+      const capAt = (i: number, a0: number, a1: number) => {
         const u = units[i];
-        const t0 = Math.round(T(b0) / B) * B;
-        const t1 = Math.round(T(b1) / B) * B;
+        const t0 = Math.round(a0 / B) * B;
+        const t1 = Math.round(a1 / B) * B;
         tl.set(caps[i], { autoAlpha: 1 }, t0);
         slam(u, t0, i % 5);
         tl.to([...u.a, ...u.b], { scale: 0.94, autoAlpha: 0, filter: "blur(8px)", duration: 0.28, ease: "power3.in" }, t1 - 0.28);
         tl.set(caps[i], { autoAlpha: 0 }, t1);
       };
+      const cap = (i: number, b0: number, b1: number) => capAt(i, T(b0), T(b1));
       const punch = (b: number, s = 1.02) => tl.fromTo(cam, { scale: s }, { scale: 1, duration: 0.6, ease: "expo.out" }, T(b));
 
       /* 0 · Un cliente ti cerca: la camera parte vicina alla barra e si allontana mentre arrivano i risultati */
@@ -339,29 +340,62 @@ export function WebCinema({ title }: { title: string }) {
         .fromTo(chrome, { autoAlpha: 0, y: 140 }, { autoAlpha: 1, y: 0, duration: 1.3, ease: "expo.out" }, U(5.7))
         .set(cam, { scale: 1 }, U(5.7));
       // un pezzo alla volta, a scatti, a intervalli irregolari; l'ultimo non arriva mai
-      [7.2, 8.8, 9.6, 11.2].forEach((b, i) => {
+      [7.0, 8.2, 9.0, 10.2].forEach((b, i) => {
         tl.set(bands[i], { autoAlpha: 0 }, U(b)).call(() => fx.tick(0.7 + i * 0.08), undefined, U(b));
       });
       {
         const o = { n: 0 };
-        tl.fromTo(o, { n: 0 }, { n: 8.4, duration: U(6.5), ease: "none", onUpdate: () => void (cnt.textContent = num(o.n)) }, U(5.9));
+        tl.fromTo(o, { n: 0 }, { n: 7, duration: U(4.6), ease: "none", onUpdate: () => void (cnt.textContent = num(o.n)) }, U(5.9));
       }
-      cap(1, 5.6, 9.2);
+      // il cliente non aspetta: dalla tua attività passa al concorrente, che si apre subito
+      const url = one("[data-url]");
+      const tt3 = one("[data-tt3]");
+      const comp = one("[data-comp]");
+      const bp = one("[data-bp]");
+      const bpPaths = $("[data-bp] svg *");
+      bpPaths.forEach((x) => x.setAttribute("pathLength", "1"));
+      gsap.set(bpPaths, { strokeDasharray: 1, strokeDashoffset: 1 });
+      gsap.set(tt3, { autoAlpha: 0 });
+      const me = c.find.me[1];
+      const rival = c.find.rival[1];
+      const L = U(10.6);
+      eraseTo(tl, url, me, L, 0.3);
+      typeTo(tl, url, rival, L + 0.35, 0.55, 2);
+      tl.to(tt1, { autoAlpha: 0, duration: 0.1 }, L + 0.9)
+        .fromTo(tt3, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.1 }, L + 0.9)
+        .call(() => (cnt.textContent = num(0.4)), undefined, L + 0.95)
+        .set([spin, stop], { autoAlpha: 0 }, L + 0.95)
+        .set([fav, rl], { autoAlpha: 1 }, L + 0.95)
+        .fromTo(comp, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, L + 0.95)
+        .call(() => fx.pluck(1, 0.8, 0.5), undefined, L + 0.95);
+      capAt(1, T(5.6), U(14.4));
 
-      /* 2 · Il tuo si apre in 0,8 secondi: stessa pagina, un nuovo caricamento, tutto insieme */
+      /* 2 · Lo ricostruiamo per aprirlo in 0,8 secondi: stesso indirizzo, la pagina si ridisegna e poi si apre tutta insieme */
       const at2 = T(9.3);
+      const R = U(14.4);
+      eraseTo(tl, url, rival, R, 0.3);
+      typeTo(tl, url, me, R + 0.35, 0.55, 3);
+      tl.to(tt3, { autoAlpha: 0, duration: 0.1 }, R + 0.9)
+        .fromTo(tt1, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.1 }, R + 0.9)
+        .set(bands, { autoAlpha: 0 }, R + 0.9)
+        .call(() => (cnt.textContent = num(0)), undefined, R + 0.9)
+        .set([spin, stop], { autoAlpha: 1 }, R + 0.9)
+        .set([fav, rl, ok], { autoAlpha: 0 }, R + 0.9)
+        .to(comp, { autoAlpha: 0, y: 30, duration: 0.3, ease: "power2.in" }, R + 0.9)
+        .fromTo(bp, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25 }, R + 0.9)
+        .to(bpPaths, { strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut", stagger: 0.035 }, R + 1.05)
+        .call(() => fx.riser(at2 - R - 1.0), undefined, R + 1.0);
       {
         const o = { n: 0 };
-        tl.call(() => (cnt.textContent = num(0)), undefined, at2)
-          .fromTo(o, { n: 0 }, { n: 0.8, duration: 0.34, ease: "power1.out", onUpdate: () => void (cnt.textContent = num(o.n)) }, at2)
+        tl.fromTo(o, { n: 0 }, { n: 0.8, duration: 0.34, ease: "power1.out", onUpdate: () => void (cnt.textContent = num(o.n)) }, at2)
           .call(() => (fx.chord([0, 2, 4, 5], 1), fx.whoosh(0.35, true, 0.6)), undefined, at2 + 0.38)
-          .to(bands, { autoAlpha: 0, duration: 0.18, stagger: 0.03, ease: "none" }, at2 + 0.2)
+          .to(bp, { autoAlpha: 0, duration: 0.12 }, at2 + 0.38)
           .to([spin, stop, tt1], { autoAlpha: 0, duration: 0.12 }, at2 + 0.38)
           .fromTo([fav, rl, tt2], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2.2)" }, at2 + 0.4)
           .fromTo(ok, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2.4)" }, at2 + 0.42)
           .to(cnt, { color: "var(--accent)", duration: 0.3 }, at2 + 0.4);
       }
-      cap(2, 9.5, 11.7);
+      capAt(2, U(14.6), T(11.7));
 
       /* 3 · Prima lo disegniamo: la camera entra nell'anello, dal fondo emerge la pagina inclinata */
       const wireBits = $("[data-wire] > div");
@@ -456,7 +490,7 @@ export function WebCinema({ title }: { title: string }) {
           const w = g.offsetWidth;
           const cx = ((w - h) / 2) * (1 - v);
           const clip = `inset(0px ${(w - h) * (1 - v)}px 0px 0px round ${h * (0.3 + 0.2 * v)}px)`;
-          if (small()) gsap.set(g, { x: cx, y: (i - 2.55) * 64 * r, clipPath: clip });
+          if (small()) gsap.set(g, { x: cx, y: (i - 2.55) * 72 * r, clipPath: clip });
           else {
             const t = orb.a + (i / gs.length) * Math.PI * 2;
             gsap.set(g, { x: cx + Math.cos(t) * Math.min(cam.offsetWidth * 0.37, 540) * r, y: Math.sin(t) * Math.min(cam.offsetHeight * 0.3, 210) * r, clipPath: clip });
@@ -474,14 +508,14 @@ export function WebCinema({ title }: { title: string }) {
         .to(dev, { scale: () => fit(mid)() * 0.22, rotationY: 30, autoAlpha: 0, duration: 0.9, ease: "power3.in" }, T(40.6))
         .fromTo(orb, { a: -0.5 }, { a: 0.7, duration: T(7.4), ease: "sine.inOut", onUpdate: place }, T(41.2));
       gs.forEach((g, i) => {
-        const at = T(41.2 + i * 1);
-        tl.fromTo(g, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2)" }, at)
-          .fromTo(g.querySelector("[data-tile]"), { rotationY: -80, rotationX: 25 }, { rotationY: 0, rotationX: 0, duration: 0.9, ease: "expo.out" }, at + 0.1)
-          .to(draws[i], { strokeDashoffset: 0, duration: 0.55, ease: "power2.inOut", stagger: 0.06 }, at + 0.1)
-          .to(rr[i], { v: 1, duration: 0.7, ease: "expo.inOut", onUpdate: place }, at + 0.65)
-          .to(rr[i], { r: 1, duration: 1.1, ease: "expo.out", onUpdate: place }, at + 0.7)
-          .call(() => fx.pluck(i + 2, 0.9, 0.5), undefined, at + 0.1)
-          .call(() => fx.tick(1.2), undefined, at + 0.7);
+        const at = T(41.2 + i * 0.62);
+        tl.fromTo(g, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, ease: "expo.out" }, at)
+          .fromTo(g.querySelector("[data-tile]"), { rotationY: -34, rotationX: 16 }, { rotationY: 34, rotationX: -14, duration: Math.max(1, T(49) - at), ease: "sine.inOut" }, at)
+          .to(draws[i], { strokeDashoffset: 0, duration: 0.3, ease: "power2.out", stagger: 0.03 }, at + 0.05)
+          .to(rr[i], { v: 1, duration: 0.45, ease: "expo.inOut", onUpdate: place }, at + 0.4)
+          .to(rr[i], { r: 1, duration: 0.8, ease: "expo.out", onUpdate: place }, at + 0.45)
+          .call(() => fx.pluck(i + 2, 0.9, 0.5), undefined, at + 0.05)
+          .call(() => fx.tick(1.2), undefined, at + 0.4);
       });
       tl.call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(48.6));
       punch(48.6, 1.015);
@@ -524,10 +558,13 @@ export function WebCinema({ title }: { title: string }) {
         .set(endCard, { autoAlpha: 1 }, T(54.8));
       slam(eg, T(55.0), 0);
       tl.call(() => (fx.chord([0, 2, 4, 7], 1.2)), undefined, T(55.0))
-        .fromTo(one("[data-logo]"), { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 1.1, ease: "expo.out" }, T(55.0) + 1.7)
-        .fromTo(one("[data-more]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, T(55.0) + 2.3);
+        .to(endCard, { autoAlpha: 0, y: -30, filter: "blur(10px)", duration: 0.5, ease: "power2.in" }, T(55.0) + 1.7)
+        .set(one("[data-end2]"), { autoAlpha: 1 }, T(55.0) + 2.1)
+        .fromTo(one("[data-logo]"), { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 1.1, ease: "expo.out" }, T(55.0) + 2.1)
+        .call(() => fx.chord([0, 2, 4, 7], 1), undefined, T(55.0) + 2.1)
+        .fromTo(one("[data-more]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, T(55.0) + 2.9);
       punch(51.8, 1.03);
-      tl.set({}, {}, T(55.0) + 3.4);
+      tl.set({}, {}, T(55.0) + 4);
 
       /* Il tempo del video lo muoviamo noi, un fotogramma alla volta e con un passo massimo:
          se il dispositivo rallenta (pagina che carica, telefono sotto sforzo) il video rallenta con lui invece di saltare le scene. */
@@ -645,12 +682,19 @@ export function WebCinema({ title }: { title: string }) {
                     </span>
                   </div>
                 ))}
+                <div data-saved className="absolute inset-0 z-20 flex items-center justify-center backdrop-blur-xl" style={{ ...HID, background: "rgba(13,17,21,.42)", backdropFilter: "blur(20px) saturate(1.4)", WebkitBackdropFilter: "blur(20px) saturate(1.4)" }}>
+                  <span data-saved-t className="text-[clamp(34px,15cqw,110px)]" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1 }}>
+                    <GradientText colors={["#25c06a", "#7df0ae", "#16a05a", "#b5f7cf"]} animationSpeed={8} variant="flow" glow={1}>
+                      {c.edit.saved + "!"}
+                    </GradientText>
+                  </span>
+                </div>
                 <Wire />
                 <span data-scan className="pointer-events-none absolute inset-x-0 z-30 block h-[2px] bg-[#8fd8ff] shadow-[0_0_28px_6px_rgba(143,216,255,.6)]" style={HID} />
               </MiniSite>
             </div>
             {/* il browser: prima carica lento, poi tutto insieme */}
-            <div data-it data-chrome className={`${center} w-[min(92vw,calc(min(58svh,440px)*1.58))] aspect-[1.58] max-md:aspect-[.82] flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
+            <div data-it data-chrome className={`${center} w-[min(92vw,calc(min(66svh,520px)*1.58))] aspect-[1.58] max-md:aspect-[.82] flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
               <div className="flex h-[38px] shrink-0 items-end gap-3 bg-[color-mix(in_srgb,var(--label-primary)_9%,var(--bg-canvas))] px-3">
                 <span className="mb-[13px] flex gap-[7px]">
                   {["#ff5f57", "#febc2e", "#28c840"].map((k) => (
@@ -668,6 +712,7 @@ export function WebCinema({ title }: { title: string }) {
                   <span className="relative block min-w-0 flex-1 truncate">
                     <span data-tt1 className="block truncate">{c.find.me[1]}</span>
                     <span data-tt2 className="absolute inset-0 block truncate font-medium">Marchio</span>
+                    <span data-tt3 className="absolute inset-0 block truncate">{c.find.rival[0]}</span>
                   </span>
                   <X size={13} strokeWidth={1.8} className="cine-fg2 shrink-0" />
                 </span>
@@ -682,7 +727,7 @@ export function WebCinema({ title }: { title: string }) {
                 </span>
                 <span className="flex h-[30px] min-w-0 flex-1 items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--label-primary)_7%,var(--bg-surface))] px-3 text-[13px]">
                   <Lock size={13} strokeWidth={1.9} className="cine-fg2 shrink-0" />
-                  <span className="truncate">{c.find.me[1]}</span>
+                  <span data-url className="truncate">{c.find.me[1]}</span>
                 </span>
                 <EllipsisVertical size={17} strokeWidth={1.7} className="cine-fg2" />
               </div>
@@ -693,6 +738,36 @@ export function WebCinema({ title }: { title: string }) {
                 {Array.from({ length: 7 }).map((_, i) => (
                   <span key={i} data-band className="absolute inset-x-0 bg-[var(--bg-surface)]" style={{ top: `${(i * 100) / 7}%`, height: "calc(100% / 7 + 1px)" }} />
                 ))}
+                <div data-comp className="absolute inset-0 flex flex-col overflow-hidden bg-[#f3efe6]" style={HID}>
+                  <span className="mx-4 mt-3 flex h-8 shrink-0 items-center gap-3 rounded-full bg-white px-4 shadow-[0_1px_0_rgba(0,0,0,.06)]">
+                    <span className="h-3 w-3 rounded-full bg-[#e8743b]" />
+                    <span className="h-2 w-10 rounded-full bg-[#c9c3b6]" />
+                    <span className="h-2 w-10 rounded-full bg-[#c9c3b6]" />
+                    <span className="ml-auto h-4 w-14 rounded-full bg-[#e8743b]" />
+                  </span>
+                  <span className="mx-4 mt-4 grid min-h-0 flex-1 grid-cols-[1.1fr_1fr] gap-4 pb-14">
+                    <span className="flex flex-col justify-center gap-2.5">
+                      <span className="h-4 w-[88%] rounded-full bg-[#2a2723]" />
+                      <span className="h-4 w-[62%] rounded-full bg-[#2a2723]" />
+                      <span className="mt-1 h-2 w-[80%] rounded-full bg-[#c9c3b6]" />
+                      <span className="h-2 w-[70%] rounded-full bg-[#c9c3b6]" />
+                      <span className="mt-2 h-7 w-24 rounded-full bg-[#e8743b]" />
+                    </span>
+                    <span className="rounded-2xl" style={{ background: "linear-gradient(145deg,#f6b17a,#e8743b 55%,#b9461c)" }} />
+                  </span>
+                </div>
+                <div data-bp className="absolute inset-0 bg-[var(--bg-surface)]" style={HID}>
+                  <svg viewBox="0 0 160 100" preserveAspectRatio="none" className="h-full w-full text-[var(--accent)]" fill="none" stroke="currentColor" strokeWidth={1.4} vectorEffect="non-scaling-stroke" strokeDasharray="none">
+                    <rect x="6" y="6" width="148" height="11" rx="4" vectorEffect="non-scaling-stroke" />
+                    <rect x="6" y="22" width="148" height="46" rx="5" vectorEffect="non-scaling-stroke" />
+                    <path d="M14 34h62" vectorEffect="non-scaling-stroke" />
+                    <path d="M14 42h44" vectorEffect="non-scaling-stroke" />
+                    <rect x="14" y="52" width="26" height="9" rx="4.5" vectorEffect="non-scaling-stroke" />
+                    <rect x="6" y="74" width="46" height="20" rx="4" vectorEffect="non-scaling-stroke" />
+                    <rect x="57" y="74" width="46" height="20" rx="4" vectorEffect="non-scaling-stroke" />
+                    <rect x="108" y="74" width="46" height="20" rx="4" vectorEffect="non-scaling-stroke" />
+                  </svg>
+                </div>
                 <span className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center">
                   <Bead as="span" radius={999} className="cine-fg flex h-10 items-center gap-2 px-4">
                     <span data-count className="font-mono text-[15px] tabular-nums">
@@ -707,10 +782,15 @@ export function WebCinema({ title }: { title: string }) {
             {c.gets.items.map(([t], i) => {
               const Icon = ICONS_GETS[i];
               return (
-                <Bead as="div" key={t} data-it data-g radius={32} className={`cine-fg ${center} flex h-[clamp(52px,7.5svh,64px)] max-md:h-12 items-center whitespace-nowrap pr-[clamp(18px,2.2vw,26px)] text-[clamp(16px,1.9vw,22px)] font-medium tracking-[-0.015em] [--gp:clamp(18px,2.2vw,26px)]`} style={HID}>
-                  <span className="flex aspect-square h-full shrink-0 items-center justify-center [perspective:240px]">
-                    <span data-tile className="flex h-[68%] w-[68%] items-center justify-center rounded-[30%] text-white" style={{ background: "linear-gradient(155deg,#9fe0ff 0%,#4aa8f0 45%,#2f6fe0 100%)", boxShadow: "inset 0 1.5px 0 rgba(255,255,255,.75), inset 0 -4px 8px rgba(10,50,140,.35), 0 8px 14px -4px rgba(47,111,224,.6)", transformStyle: "preserve-3d" }}>
-                      <Icon size={20} strokeWidth={2} style={{ filter: "drop-shadow(0 2px 1.5px rgba(10,50,140,.55))" }} />
+                <Bead as="div" key={t} data-it data-g radius={32} className={`cine-fg ${center} flex h-[clamp(66px,10svh,88px)] max-md:h-[58px] items-center whitespace-nowrap pr-[clamp(22px,2.6vw,32px)] text-[clamp(17px,2.1vw,25px)] font-medium tracking-[-0.015em] [--gp:clamp(18px,2.2vw,26px)]`} style={HID}>
+                  <span className="flex aspect-square h-full shrink-0 items-center justify-center [perspective:220px]">
+                    <span data-tile className="relative block h-[72%] w-[72%]" style={{ transformStyle: "preserve-3d" }}>
+                      {[6, 5, 4, 3, 2, 1].map((z) => (
+                        <span key={z} className="absolute inset-0 rounded-[30%]" style={{ transform: `translateZ(${-z * 1.7}px)`, background: `color-mix(in srgb, #1e56c8 ${70 + z * 5}%, #07225f)` }} />
+                      ))}
+                      <span className="absolute inset-0 flex items-center justify-center rounded-[30%] text-white" style={{ transformStyle: "preserve-3d", background: "linear-gradient(150deg,#b4e8ff 0%,#52b0f4 42%,#2f6fe0 100%)", boxShadow: "inset 0 1.5px 0 rgba(255,255,255,.85), inset 0 -3px 6px rgba(10,50,140,.4)" }}>
+                        <Icon size={26} strokeWidth={2.1} style={{ transform: "translateZ(7px)", filter: "drop-shadow(0 3px 2px rgba(10,50,140,.55))" }} />
+                      </span>
                     </span>
                   </span>
                   <span className="pl-1">{t}</span>
@@ -729,23 +809,18 @@ export function WebCinema({ title }: { title: string }) {
             ))}
           </div>
         </div>
-      <div data-saved className="absolute inset-0 z-[5] flex items-center justify-center backdrop-blur-2xl [backdrop-filter:blur(28px)_saturate(1.4)]" style={{ ...HID, background: "color-mix(in srgb, var(--bg-surface) 52%, transparent)" }}>
-        <span data-saved-t className="text-[clamp(64px,13vw,180px)]" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1 }}>
-          <GradientText colors={["#119a52", "#3ddc84", "#0e8a48", "#8cf0b4"]} animationSpeed={8} variant="flow" glow={1}>
-            {c.edit.saved + "!"}
-          </GradientText>
-        </span>
-      </div>
       <div data-end className="absolute inset-0 flex flex-col items-center justify-center" style={HID}>
         <p data-eh className="mx-auto max-w-[14ch] px-6 text-center text-[clamp(38px,6.6vw,108px)] font-medium leading-[1.04] tracking-[-0.05em] cine-fg">
           <Kw text={c.end.t} />
         </p>
-        <div data-logo className="mt-6 [--logo-size:clamp(38px,9vw,112px)]" style={HID}>
+      </div>
+      <div data-end2 className="absolute inset-0 flex flex-col items-center justify-center gap-14" style={HID}>
+        <div data-logo className="[--logo-size:clamp(46px,10.5vw,136px)]" style={HID}>
           <Wordmark />
         </div>
-        <span data-more className="cine-fg mt-10 flex flex-col items-center gap-1 text-[clamp(22px,3vw,32px)]" style={{ ...HID, fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSynthesis: "none" }}>
+        <span data-more className="cine-fg flex flex-col items-center gap-1 text-[clamp(24px,3.4vw,40px)]" style={{ ...HID, fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSynthesis: "none" }}>
           {c.end.more}
-          <ArrowDown size={16} strokeWidth={1.8} className="animate-bounce" />
+          <ArrowDown size={18} strokeWidth={1.8} className="animate-bounce" />
         </span>
       </div>
       {!prefersReducedMotion() && (

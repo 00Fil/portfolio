@@ -1,14 +1,16 @@
 import { soundOn } from "./sound";
 
 /**
- * Colonna sonora del video: una sola tonalità (La minore pentatonica) e un solo tempo, così ogni suono
- * cade sul ritmo e suona bene con gli altri. Si sente solo con l'audio del sito attivo.
+ * Colonna sonora del video: una sola tonalità (La maggiore, scala pentatonica per gli effetti) e un solo tempo,
+ * così ogni suono cade sul ritmo e suona bene con gli altri. Si sente solo con l'audio del sito attivo.
+ * Armonia e melodia vengono da opere di pubblico dominio: il Canone di Pachelbel (giro di accordi e tema discendente)
+ * e l'Inno alla gioia di Beethoven, che chiude sul titolo finale.
  */
 let ctx: AudioContext | null = null;
 let bus: GainNode | null = null;
 let noise: AudioBuffer | null = null;
 
-const PENT = [0, 3, 5, 7, 10];
+const PENT = [0, 2, 4, 7, 9];
 /** Frequenza del grado d della scala (5 gradi per ottava). */
 export const fq = (d: number, base = 220) => base * 2 ** ((PENT[((d % 5) + 5) % 5] + 12 * Math.floor(d / 5)) / 12);
 
@@ -164,7 +166,7 @@ export const fx = {
     s.stop(t + 0.08);
   },
   /**
-   * Base musicale: 120 battiti al minuto, giri di 4 battute (La min, Fa, Do, Sol).
+   * Base musicale: 120 battiti al minuto, giri di 4 battute (Canone di Pachelbel in La).
    * Non ha un orologio suo: segue il tempo del video, così si ferma in pausa e riparte allineata.
    * Si costruisce per gradi: prima solo accordi e un battito leggero, poi cassa, tocco, basso e arpeggio.
    */
@@ -233,32 +235,43 @@ function music(c: AudioContext) {
   return { out: mbus, verb: verb!, echo: echo! };
 }
 
-const ROOT = [110, 87.31, 130.81, 98];
-/** Am9, Fmaj7, Cmaj9, G6/9: accordi con la nona e la settima, morbidi. */
+/** Giro del Canone in La: La Mi | Fa#m Do#m | Re La | Re Mi, due accordi per battuta. */
+const ROOT = [110, 82.41, 92.5, 69.3, 73.42, 110, 73.42, 82.41];
 const CH = [
-  [220, 261.63, 329.63, 392, 493.88],
-  [174.61, 220, 261.63, 329.63],
-  [261.63, 329.63, 392, 493.88, 587.33],
-  [196, 246.94, 293.66, 329.63, 440],
+  [220, 277.18, 329.63, 493.88],
+  [164.81, 246.94, 329.63, 415.3],
+  [185, 220, 277.18, 369.99],
+  [138.59, 277.18, 329.63, 415.3],
+  [146.83, 220, 293.66, 369.99],
+  [220, 277.18, 329.63, 493.88],
+  [146.83, 220, 293.66, 369.99],
+  [164.81, 246.94, 329.63, 415.3],
 ];
-/** Melodia di 8 battute: passo (sedicesimo) → semitoni da La4. Prima frase in basso, la risposta un'ottava sopra. */
-const MEL: Record<number, number>[] = [
-  { 0: 7, 3: 5, 6: 3, 10: 5, 12: 2 },
-  { 0: 0, 3: 3, 6: 5, 8: 3, 12: 0 },
-  { 0: 7, 4: 10, 7: 7, 10: 5, 12: 7 },
-  { 0: 5, 3: 7, 6: 5, 8: 2, 11: 0, 14: 2 },
-  { 0: 12, 3: 10, 6: 7, 10: 10, 12: 5 },
-  { 0: 12, 3: 15, 6: 12, 8: 10, 12: 8 },
-  { 0: 14, 3: 12, 6: 10, 10: 7, 12: 10 },
-  { 0: 12, 3: 10, 6: 7, 8: 5, 11: 7, 14: 2 },
-];
+/** Melodia: passo (sedicesimo) → semitoni da La4. Battute 2-5 il tema del Canone, 6-9 la sua variazione,
+ *  12-15 l'Inno alla gioia, 16 la nota di arrivo sul titolo. */
+const MEL: Record<number, Record<number, number>> = {
+  2: { 0: 16, 8: 14 },
+  3: { 0: 12, 8: 11 },
+  4: { 0: 9, 8: 7 },
+  5: { 0: 9, 8: 11 },
+  6: { 0: 16, 4: 12, 8: 14, 12: 11 },
+  7: { 0: 12, 4: 9, 8: 11, 12: 7 },
+  8: { 0: 9, 4: 14, 8: 12, 12: 16 },
+  9: { 0: 14, 4: 9, 8: 11, 12: 14 },
+  12: { 0: 16, 4: 16, 8: 17, 12: 19 },
+  13: { 0: 19, 4: 17, 8: 16, 12: 14 },
+  14: { 0: 12, 4: 12, 8: 14, 12: 16 },
+  15: { 0: 16, 6: 14, 8: 14 },
+  16: { 0: 12 },
+};
 
 function step(c: AudioContext, m: { out: GainNode; verb: ConvolverNode; echo: DelayNode }, n: number, at: number) {
   const s = n % 16;
   const bar = Math.floor(n / 16);
-  const ch = bar % 4;
-  const lvl = bar < 1 ? 0 : bar < 2 ? 1 : bar < 15 ? 2 : 1;
-  const ended = bar >= 16;
+  const fin = bar >= 16;
+  const ch = fin ? 0 : (bar % 4) * 2 + (s >= 8 ? 1 : 0);
+  const lvl = bar < 1 ? 0 : bar < 2 ? 1 : bar < 17 ? 2 : 1;
+  const ended = bar >= 18;
   if (ended && s) return;
   const tone = (fr: number, type: OscillatorType, peak: number, atk: number, dec: number, lp: number, wet = 0.3) => {
     const o = c.createOscillator();
@@ -296,10 +309,10 @@ function step(c: AudioContext, m: { out: GainNode; verb: ConvolverNode; echo: De
     sn.stop(at + dec + 0.03);
   };
   // accordo lungo a inizio battuta
-  if (s === 0) CH[ch].forEach((fr, i) => tone(fr, "triangle", 0.036, 0.3, 1.9 + i * 0.1, 1000, 0.55));
+  if (s === 0 || (s === 8 && !fin)) CH[ch].forEach((fr, i) => tone(fr, "triangle", 0.034, 0.25, (fin ? 2.6 : 1.1) + i * 0.1, 1000, 0.55));
   if (ended) return;
   // basso sul primo e sul terzo battito, con una nota in anticipo
-  if (lvl >= 2 && (s === 0 || s === 6 || s === 10 || s === 14)) tone(ROOT[ch] * (s === 10 ? 1.5 : 1), "sine", 0.16, 0.008, s === 0 ? 0.5 : 0.28, 400, 0.05);
+  if (lvl >= 2 && (s === 0 || s === 6 || s === 8 || s === 14)) tone(ROOT[ch] * (s === 14 ? 1.5 : 1), "sine", 0.16, 0.008, s === 0 || s === 8 ? 0.5 : 0.28, 400, 0.05);
   // cassa
   if (lvl >= 1 && s % 8 === 0 && bar >= 2) kickAt(c, m.out, at, lvl >= 2 && s % 8 === 0 ? 1 : 0.7);
   if (lvl >= 2 && s % 4 === 0 && s % 8 !== 0) kickAt(c, m.out, at, 0.45);
@@ -311,7 +324,7 @@ function step(c: AudioContext, m: { out: GainNode; verb: ConvolverNode; echo: De
   // arpeggio sottile sui controtempi
   if (lvl >= 1 && bar >= 1 && s % 4 === 2) tone(CH[ch][(s / 4 + bar) % CH[ch].length] * 2, "sine", 0.02, 0.004, 0.3, 3000, 0.45);
   // melodia: sinusoide con una nota armonica sopra, mandata anche all'eco
-  const mn = bar >= 2 && bar < 16 ? MEL[(bar - 2) % 8][s] : undefined;
+  const mn = MEL[bar]?.[s];
   if (mn !== undefined) {
     const fr = 440 * 2 ** (mn / 12);
     for (const [k, ty, pk] of [[1, "sine", 0.07], [2, "triangle", 0.012]] as const) {
@@ -324,7 +337,7 @@ function step(c: AudioContext, m: { out: GainNode; verb: ConvolverNode; echo: De
       o.frequency.value = fr * k;
       g.gain.setValueAtTime(0.0001, at);
       g.gain.linearRampToValueAtTime(pk, at + 0.012);
-      g.gain.exponentialRampToValueAtTime(0.0001, at + 0.7);
+      g.gain.exponentialRampToValueAtTime(0.0001, at + (bar >= 12 ? 0.55 : 0.95));
       o.connect(f).connect(g);
       g.connect(m.out);
       const w = c.createGain();
@@ -334,7 +347,7 @@ function step(c: AudioContext, m: { out: GainNode; verb: ConvolverNode; echo: De
       e.gain.value = 0.55;
       g.connect(e).connect(m.echo);
       o.start(at);
-      o.stop(at + 0.8);
+      o.stop(at + 1.1);
     }
   }
 }
