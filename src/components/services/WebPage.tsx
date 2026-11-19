@@ -11,6 +11,7 @@ import { Bead } from "@/components/glass/Bead";
 import { Drop } from "@/components/glass/Drop";
 import { Tile3D } from "@/components/ui/Tile3D";
 import { Script } from "@/components/ui/Script";
+import { DeviceScene } from "./DeviceScene";
 import { prefersReducedMotion } from "@/lib/env";
 import type { ServiceStory } from "@/content/stories";
 import type { WebCopy } from "@/content/webpage";
@@ -162,7 +163,7 @@ function SpeedMock({ m, f }: { m: M; f: (n: number) => string }) {
       </span>
       <div className="relative h-full min-w-0 flex-1 overflow-hidden [perspective:1100px] [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_88%,transparent)]">
         <div className="absolute inset-y-0 left-0 flex items-center">
-          <div data-strip className="relative origin-left scale-[.7] rounded-[12px] px-5 py-6 sm:scale-90 lg:scale-100" style={{ transformStyle: "preserve-3d", background: "linear-gradient(180deg,#14171c,#0b0d11)", boxShadow: "0 30px 50px -24px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.1)" }}>
+          <div data-strip className="relative origin-left scale-[.7] rounded-[12px] px-5 py-6 sm:scale-[.82] lg:scale-[.88]" style={{ transformStyle: "preserve-3d", background: "linear-gradient(180deg,#14171c,#0b0d11)", boxShadow: "0 30px 50px -24px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.1)" }}>
             {[0, 1].map((r) => (
               <span key={r} aria-hidden className={`absolute inset-x-3 h-[6px] ${r ? "bottom-2" : "top-2"}`} style={{ background: "repeating-linear-gradient(90deg, rgba(255,255,255,.5) 0 7px, transparent 7px 15px)", borderRadius: 2 }} />
             ))}
@@ -771,8 +772,8 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
           </p>
         </header>
         <div className="grid gap-4 sm:gap-5 lg:grid-cols-12">
-          <Cell span="lg:col-span-7" title={c.bento.cells.speed[0]} body={c.bento.cells.speed[1]} mock={<SpeedMock m={m} f={fs} />} h="h-[250px]" />
-          <Cell span="lg:col-span-5" title={c.bento.cells.screens[0]} body={c.bento.cells.screens[1]} mock={<ScreensMock />} h="h-[250px]" />
+          <Cell span="lg:col-span-7" title={c.bento.cells.speed[0]} body={c.bento.cells.speed[1]} mock={<SpeedMock m={m} f={fs} />} h="h-[300px]" />
+          <Cell span="lg:col-span-5" title={c.bento.cells.screens[0]} body={c.bento.cells.screens[1]} mock={<DeviceScene fallback={<ScreensMock />} />} h="h-[300px]" />
           <Cell span="lg:col-span-7" title={c.bento.cells.edit[0]} body={c.bento.cells.edit[1]} mock={<EditMock m={m} />} h="h-[290px]" />
           <Cell span="lg:col-span-5" title={c.bento.cells.leads[0]} body={c.bento.cells.leads[1]} mock={<LeadsMock m={m} />} h="h-[290px]" />
           <Cell span="lg:col-span-7" title={c.bento.cells.found[0]} body={c.bento.cells.found[1]} mock={<FoundMock m={m} />} h="h-[270px]" />
