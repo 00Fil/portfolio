@@ -4,7 +4,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { ArrowRight, ArrowUpRight, KeyRound, LayoutTemplate, LockOpen, PhoneCall, Plus, RefreshCw, Rocket, ShieldCheck, Star, UserRound, Zap, FileText } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CalendarDays, Globe, HardDrive, Inbox, KeyRound, Lock, MessageCircle, Search, LayoutTemplate, LockOpen, PhoneCall, Plus, RefreshCw, Rocket, ShieldCheck, Star, UserRound, Zap, FileText } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Bead } from "@/components/glass/Bead";
 import { Drop } from "@/components/glass/Drop";
@@ -26,62 +26,78 @@ const h2 = "max-w-[20ch] text-[clamp(34px,4.6vw,68px)] font-medium leading-[1.04
 const surface = "bg-[var(--bg-surface)] shadow-[inset_0_0_0_1px_var(--hair-strong),0_14px_32px_-18px_rgba(0,0,0,.28)]";
 const dot = (c = "#2fb36a") => <span className="inline-block h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: c, boxShadow: `0 0 0 3px color-mix(in srgb, ${c} 25%, transparent)` }} />;
 const sky = "linear-gradient(150deg,#5ec4ff,#2f6fe0)";
+const blue = "linear-gradient(180deg,#3b8cff,#1f6ae8)";
 
-/* Le immagini dentro le tessere sono ferme: l'unico gesto è un leggero sollevamento al passaggio del mouse (vedi Cell). */
+/* Le immagini dentro le tessere riprendono macOS (finestre, notifiche, Spotlight, Impostazioni) e stanno ferme: l'unico gesto è il sollevamento al passaggio del mouse (vedi Cell). */
 
-/* ───────────── 1 · Velocità ───────────── */
+/** I tre pallini di una finestra di macOS. */
+const Traffic = () => (
+  <span className="flex shrink-0 gap-[7px]">
+    {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
+      <span key={c} className="h-[11px] w-[11px] rounded-full" style={{ background: c, boxShadow: "inset 0 0 0 .5px rgba(0,0,0,.18)" }} />
+    ))}
+  </span>
+);
+
+/** Icona di app: quadrato arrotondato con sfumatura e simbolo bianco. */
+function AppIcon({ Icon, c, size = 36 }: { Icon: typeof Lock; c: string; size?: number }) {
+  return (
+    <span className="flex shrink-0 items-center justify-center text-white" style={{ width: size, height: size, borderRadius: size * 0.27, background: c, boxShadow: "inset 0 1px 0 rgba(255,255,255,.45), inset 0 0 0 .5px rgba(0,0,0,.12), 0 3px 8px -3px rgba(0,0,0,.35)" }}>
+      <Icon size={size * 0.52} strokeWidth={2} aria-hidden />
+    </span>
+  );
+}
+
+/* ───────────── 1 · Velocità: finestra di Safari ───────────── */
 
 function SpeedMock({ m, f }: { m: M; f: (n: number) => string }) {
   const row = (lbl: string, t: number, w: string, bg: string, strong: boolean) => (
     <div>
-      <div className="mb-2 flex items-baseline justify-between text-[14px]">
+      <div className="mb-1.5 flex items-baseline justify-between text-[13px]">
         <span className={strong ? "font-medium text-ink" : "text-ink-3"}>{lbl}</span>
         <span className={`font-mono tabular-nums ${strong ? "text-ink" : "text-ink-3"}`}>{f(t)}</span>
       </div>
-      <span className="block h-3 overflow-hidden rounded-full bg-[var(--hover)]">
+      <span className="block h-[7px] overflow-hidden rounded-full bg-[var(--hover)]">
         <span className="block h-full rounded-full" style={{ width: w, background: bg }} />
       </span>
     </div>
   );
   return (
-    <div className="flex h-full items-center gap-6 sm:gap-10">
-      <div className="relative flex h-[124px] w-[124px] shrink-0 items-center justify-center sm:h-[148px] sm:w-[148px]">
-        <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90">
-          <circle cx="50" cy="50" r="44" fill="none" stroke="var(--hover)" strokeWidth="8" />
-          <circle cx="50" cy="50" r="44" fill="none" stroke="url(#spd)" strokeWidth="8" strokeLinecap="round" />
-          <defs>
-            <linearGradient id="spd" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#5ec4ff" />
-              <stop offset="1" stopColor="#2f6fe0" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <span className="text-center leading-none">
-          <span className="block text-[44px] font-medium tracking-[-0.04em] text-ink sm:text-[52px]">100</span>
-          <span className="mt-1 block text-[12px] text-ink-3">{m.score}</span>
+    <div className={`flex h-full flex-col overflow-hidden rounded-[16px] ${surface}`}>
+      <div className="flex h-10 shrink-0 items-center gap-3 bg-[var(--hover)] px-3.5">
+        <Traffic />
+        <span className="mx-auto flex h-6 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-[7px] bg-[var(--bg-surface)] px-3 text-[12px] text-ink-2 sm:max-w-[60%]" style={{ boxShadow: "inset 0 0 0 .5px var(--hair-strong)" }}>
+          <Lock size={11} strokeWidth={2.2} aria-hidden />
+          <span className="truncate">{m.address}</span>
         </span>
+        <span className="hidden w-[47px] sm:block" />
       </div>
-      <div className="grid min-w-0 flex-1 gap-5">
-        {row(m.yours, 0.8, "13%", sky, true)}
-        {row(m.slow, 6.4, "100%", "color-mix(in srgb, var(--label-primary) 26%, transparent)", false)}
+      <span className="block h-[2px] shrink-0" style={{ background: blue }} />
+      <div className="flex flex-1 items-center gap-6 px-5 sm:gap-10 sm:px-7">
+        <span className="shrink-0 leading-none">
+          <span className="block bg-clip-text text-[clamp(48px,5.4vw,68px)] font-semibold tracking-[-0.05em] text-transparent" style={{ backgroundImage: blue }}>
+            {f(0.8)}
+          </span>
+          <span className="mt-2 block text-[12.5px] text-ink-3">{m.score}</span>
+        </span>
+        <div className="grid min-w-0 flex-1 gap-4">
+          {row(m.yours, 0.8, "13%", blue, true)}
+          {row(m.slow, 6.4, "100%", "color-mix(in srgb, var(--label-primary) 24%, transparent)", false)}
+        </div>
       </div>
     </div>
   );
 }
 
-/* ───────────── 2 · Ogni schermo ───────────── */
+/* ───────────── 2 · Ogni schermo: Mac, iPad, iPhone ───────────── */
 
 function Wire({ cols = 2, tall = false }: { cols?: number; tall?: boolean }) {
   return (
     <span className="flex h-full flex-col gap-1.5">
-      <span className="flex h-2 items-center justify-between">
-        <span className="h-1 w-4 rounded-full bg-[var(--hair-strong)]" />
-        <span className="h-1 w-6 rounded-full bg-[var(--hair-strong)]" />
-      </span>
-      <span className={`block rounded-[8px] ${tall ? "flex-[1.2]" : "flex-1"}`} style={{ background: "linear-gradient(140deg,#8fd8ff,#2f6fe0)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.55)" }} />
+      <span className={`block rounded-[7px] ${tall ? "flex-[1.2]" : "flex-1"}`} style={{ background: "linear-gradient(140deg,#8fd8ff,#2f6fe0)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.55)" }} />
       <span className={`grid gap-1.5 ${cols === 1 ? "grid-cols-1" : cols === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
         {Array.from({ length: cols === 1 ? 2 : cols }).map((_, i) => (
-          <span key={i} className="h-3 rounded-[5px] bg-[var(--hover)]" />
+          <span key={i} className="h-2.5 rounded-[4px] bg-[var(--hover)]" />
         ))}
       </span>
     </span>
@@ -89,100 +105,125 @@ function Wire({ cols = 2, tall = false }: { cols?: number; tall?: boolean }) {
 }
 
 function ScreensMock() {
-  const fr = `${surface} p-2.5`;
+  const bezel = "bg-[#1b1d22] shadow-[0_18px_34px_-16px_rgba(0,0,0,.5),inset_0_0_0_1px_rgba(255,255,255,.14)]";
   return (
     <div className="flex h-full items-end justify-center gap-3 sm:gap-4">
-      <div className={`${fr} h-[134px] w-[52%] rounded-[18px]`}>
-        <Wire cols={3} />
+      <div className={`flex h-[150px] w-[54%] flex-col overflow-hidden rounded-[14px] ${surface}`}>
+        <div className="flex h-6 shrink-0 items-center bg-[var(--hover)] px-2.5">
+          <Traffic />
+        </div>
+        <div className="min-h-0 flex-1 p-2.5">
+          <Wire cols={3} />
+        </div>
       </div>
-      <div className={`${fr} h-[168px] w-[26%] rounded-[18px]`}>
-        <Wire cols={2} tall />
+      <div className={`h-[172px] w-[24%] rounded-[16px] p-[5px] ${bezel}`}>
+        <div className="h-full rounded-[11px] bg-[var(--bg-surface)] p-2">
+          <Wire cols={2} tall />
+        </div>
       </div>
-      <div className={`${fr} h-[196px] w-[16%] min-w-[58px] rounded-[20px]`} style={{ boxShadow: "inset 0 0 0 2px #5ec4ff, 0 20px 40px -18px rgba(47,111,224,.55)" }}>
-        <Wire cols={1} tall />
+      <div className={`relative h-[198px] w-[15%] min-w-[58px] rounded-[20px] p-[5px] ${bezel}`}>
+        <span aria-hidden className="absolute left-1/2 top-[9px] z-10 h-[7px] w-[22px] -translate-x-1/2 rounded-full bg-[#1b1d22]" />
+        <div className="h-full rounded-[15px] bg-[var(--bg-surface)] px-1.5 pb-1.5 pt-4">
+          <Wire cols={1} tall />
+        </div>
       </div>
     </div>
   );
 }
 
-/* ───────────── 3 · Lo modifichi tu ───────────── */
+/* ───────────── 3 · Lo modifichi tu: foglio di dialogo ───────────── */
 
 function EditMock({ m }: { m: M }) {
   return (
-    <div className="flex h-full flex-col justify-between gap-4">
-      <div className={`rounded-[18px] p-4 ${surface}`} style={{ boxShadow: "inset 0 0 0 2px #5ec4ff, 0 16px 36px -18px rgba(47,111,224,.5)" }}>
-        <span className="mb-2 block h-1.5 w-10 rounded-full" style={{ background: sky }} />
-        <p className="text-[12px] text-ink-3">{m.field}</p>
-        <p className="mt-0.5 text-[16px] font-medium text-ink">{m.typed}</p>
-      </div>
-      <div className="flex items-center gap-2.5">
-        <span className={`flex h-11 min-w-0 flex-1 items-center rounded-full px-4 text-[14px] text-ink ${surface}`}>
+    <div className={`mx-auto flex h-full w-full max-w-[380px] flex-col justify-between rounded-[18px] p-4 ${surface}`}>
+      <div>
+        <p className="text-[13px] font-semibold text-ink">{m.field}</p>
+        <span className="mt-2.5 flex h-9 items-center rounded-[8px] bg-[var(--bg-surface)] px-3 text-[14px] text-ink" style={{ boxShadow: "inset 0 0 0 1px #3b8cff, 0 0 0 3.5px color-mix(in srgb,#3b8cff 38%, transparent)" }}>
           <span className="truncate">{m.typed}</span>
+          <span aria-hidden className="ml-px h-[17px] w-[1.5px] bg-[#3b8cff]" />
         </span>
-        <span className="flex h-11 items-center rounded-full px-5 text-[14px] font-medium text-white" style={{ background: sky }}>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="inline-flex items-center gap-2 text-[13px] text-ink-2">
+          {dot()}
+          {m.saved}
+        </span>
+        <span className="flex h-8 items-center rounded-[8px] px-5 text-[13.5px] font-medium text-white" style={{ background: blue, boxShadow: "inset 0 1px 0 rgba(255,255,255,.3), 0 4px 10px -4px rgba(31,106,232,.7)" }}>
           {m.save}
         </span>
       </div>
-      <span className="inline-flex items-center gap-2 self-start text-[13.5px] font-medium text-ink">
-        {dot()}
-        {m.saved}
-      </span>
     </div>
   );
 }
 
-/* ───────────── 4 · Richieste ───────────── */
+/* ───────────── 4 · Richieste: notifiche ───────────── */
 
 function LeadsMock({ m }: { m: M }) {
-  const rows: [string, string, string][] = [["GR", "Giulia R.", m.request], ["MB", "Marco B.", m.booking], ["ET", "Elena T.", m.message]];
+  const rows: [typeof Inbox, string, string, string, string][] = [
+    [Inbox, "linear-gradient(180deg,#5ec4ff,#2f6fe0)", "Giulia R.", m.request, m.now],
+    [CalendarDays, "linear-gradient(180deg,#ff7a6b,#e5483a)", "Marco B.", m.booking, m.now],
+    [MessageCircle, "linear-gradient(180deg,#5fd97f,#25a94b)", "Elena T.", m.message, m.now],
+  ];
   return (
     <div className="relative h-full">
-      <span className="absolute right-0 top-0 z-10 inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-[13px] font-medium text-white" style={{ background: sky }}>
-        3
-      </span>
-      {rows.map(([ini, name, what], i) => (
-        <div key={name} className={`absolute inset-x-0 flex h-[54px] items-center gap-3 rounded-[18px] px-3 ${surface}`} style={{ top: 34 + i * 58, left: i * 0, transform: `scale(${1 - (2 - i) * 0.025})` }}>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[12px] font-medium text-white" style={{ background: "linear-gradient(150deg,#8fd8ff,#2f6fe0)" }}>
-            {ini}
-          </span>
+      {rows.map(([Icon, c, name, what, when], i) => (
+        <div key={name} className={`absolute inset-x-0 flex h-[58px] items-center gap-3 rounded-[20px] px-3 ${surface}`} style={{ top: i * 60 }}>
+          <AppIcon Icon={Icon} c={c} size={38} />
           <span className="min-w-0 flex-1 leading-tight">
-            <span className="block truncate text-[14px] font-medium text-ink">{name}</span>
-            <span className="block truncate text-[12.5px] text-ink-3">{what}</span>
+            <span className="block truncate text-[14px] font-semibold text-ink">{name}</span>
+            <span className="block truncate text-[13px] text-ink-2">{what}</span>
           </span>
-          <span className="text-[12px] text-ink-3">{m.now}</span>
+          <span className="self-start pt-3.5 text-[12px] text-ink-3">{when}</span>
         </div>
       ))}
     </div>
   );
 }
 
-/* ───────────── 5 · Ti trovano ───────────── */
+/* ───────────── 5 · Ti trovano: Spotlight ───────────── */
 
 function FoundMock({ m, f }: { m: M; f: (n: number) => string }) {
   const rows = [m.you, m.other1, m.other2];
   return (
-    <div className="relative h-full">
-      <div className={`absolute inset-x-0 top-0 flex h-10 items-center gap-2.5 rounded-full px-4 text-[13.5px] text-ink-2 ${surface}`}>
-        <span className="h-3 w-3 rounded-full border-2 border-ink-3" />
+    <div className={`flex h-full flex-col overflow-hidden rounded-[18px] ${surface}`}>
+      <div className="flex h-[46px] shrink-0 items-center gap-2.5 px-4 text-[15px] text-ink" style={{ boxShadow: "inset 0 -1px 0 var(--hair-strong)" }}>
+        <Search size={17} strokeWidth={2} className="text-ink-3" aria-hidden />
         {m.query}
       </div>
-      {rows.map((name, i) => (
-        <div
-          key={name}
-          className={`absolute inset-x-0 flex h-[52px] items-center gap-3 rounded-[18px] px-3 ${surface}`}
-          style={{ top: 50 + i * 56, ...(i === 0 ? { boxShadow: "inset 0 0 0 2px #5ec4ff, 0 14px 32px -14px rgba(47,111,224,.5)" } : { opacity: 0.9 - i * 0.12 }) }}
-        >
-          <span className="h-9 w-9 shrink-0 rounded-[11px]" style={{ background: i === 0 ? "linear-gradient(150deg,#8fd8ff,#2f6fe0)" : "var(--hover)" }} />
-          <span className="min-w-0 flex-1 leading-tight">
-            <span className="block truncate text-[14px] font-medium text-ink">{name}</span>
-            <span className="flex items-center gap-1 truncate text-[12.5px] text-ink-3">
-              <Star size={12} strokeWidth={0} fill="#f5b83d" />
-              {f(i === 0 ? 4.9 : 4.2)} · {i === 0 ? 128 : 36} {m.reviews}
+      <div className="flex flex-1 flex-col justify-center gap-0.5 px-1.5">
+        {rows.map((name, i) => (
+          <div key={name} className="flex h-[44px] items-center gap-3 rounded-[10px] px-2.5" style={i === 0 ? { background: blue } : undefined}>
+            <span className="h-7 w-7 shrink-0 rounded-[8px]" style={{ background: i === 0 ? "rgba(255,255,255,.9)" : "var(--hover)" }} />
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className={`block truncate text-[13.5px] font-medium ${i === 0 ? "text-white" : "text-ink"}`}>{name}</span>
+              <span className={`flex items-center gap-1 truncate text-[12px] ${i === 0 ? "text-white/85" : "text-ink-3"}`}>
+                <Star size={11} strokeWidth={0} fill={i === 0 ? "#fff" : "#f5b83d"} />
+                {f(i === 0 ? 4.9 : 4.2)} · {i === 0 ? 128 : 36} {m.reviews}
+              </span>
             </span>
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-[12px] text-ink-2">
-            {dot()}
-            {m.open}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ───────────── 6 · Sicuro: Impostazioni di Sistema ───────────── */
+
+function SafeMock({ m }: { m: M }) {
+  const rows: [typeof Lock, string, string][] = [
+    [Lock, "linear-gradient(180deg,#5ec4ff,#2f6fe0)", m.https],
+    [HardDrive, "linear-gradient(180deg,#9aa3b2,#6b7384)", m.backup],
+    [Globe, "linear-gradient(180deg,#5fd97f,#25a94b)", m.online],
+  ];
+  return (
+    <div className={`flex h-full flex-col justify-center overflow-hidden rounded-[18px] px-4 ${surface}`}>
+      {rows.map(([Icon, c, label], i) => (
+        <div key={label} className="flex h-[58px] items-center gap-3.5" style={i ? { boxShadow: "inset 0 1px 0 var(--hair-strong)" } : undefined}>
+          <AppIcon Icon={Icon} c={c} size={32} />
+          <span className="min-w-0 flex-1 truncate text-[14.5px] text-ink">{label}</span>
+          <span className="relative h-[24px] w-[42px] shrink-0 rounded-full" style={{ background: "linear-gradient(180deg,#34c759,#25a94b)", boxShadow: "inset 0 0 0 .5px rgba(0,0,0,.15)" }}>
+            <span className="absolute right-[2px] top-[2px] h-5 w-5 rounded-full bg-white" style={{ boxShadow: "0 2px 4px rgba(0,0,0,.28)" }} />
           </span>
         </div>
       ))}
@@ -190,59 +231,32 @@ function FoundMock({ m, f }: { m: M; f: (n: number) => string }) {
   );
 }
 
-/* ───────────── 6 · Sicuro ───────────── */
-
-function SafeMock({ m }: { m: M }) {
-  const chip = "absolute inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[13px] font-medium text-ink";
-  const st = { background: "var(--bg-surface)", boxShadow: "inset 0 0 0 1px var(--hair-strong), 0 12px 26px -14px rgba(0,0,0,.3)" };
-  return (
-    <div className="relative flex h-full items-center justify-center">
-      {[150, 210].map((d) => (
-        <span key={d} aria-hidden className="absolute rounded-full" style={{ width: d, height: d, boxShadow: "inset 0 0 0 1.5px color-mix(in srgb, #5ec4ff 40%, transparent)" }} />
-      ))}
-      <Tile3D Icon={ShieldCheck} size={38} className="relative block h-[96px] w-[96px]" />
-      <span className={`${chip} left-0 top-2`} style={st}>
-        {dot("#5ec4ff")}
-        {m.https}
-      </span>
-      <span className={`${chip} bottom-3 left-[6%]`} style={st}>
-        {dot("#5ec4ff")}
-        {m.backup}
-      </span>
-      <span className={`${chip} right-0 top-8`} style={st}>
-        {dot()}
-        {m.online}
-      </span>
-    </div>
-  );
-}
-
-/* ───────────── 7 · Area clienti ───────────── */
+/* ───────────── 7 · Area clienti: widget ───────────── */
 
 function DashMock({ m }: { m: M }) {
   const hs = [0.4, 0.62, 0.5, 0.82, 0.7, 0.95, 0.78];
   return (
-    <div className="grid h-full grid-cols-[1.1fr_1fr] gap-4 sm:gap-6">
-      <div className={`flex flex-col justify-end rounded-[20px] p-4 ${surface}`}>
-        <div className="flex h-[120px] items-end gap-1.5 sm:gap-2">
+    <div className={`flex h-full flex-col rounded-[20px] p-4 sm:p-5 ${surface}`}>
+      <p className="mb-3 text-[13px] font-semibold text-ink">{m.project}</p>
+      <div className="grid min-h-0 flex-1 grid-cols-[1fr_1fr] gap-5 sm:gap-8">
+        <div className="flex items-end gap-1.5">
           {hs.map((h, i) => (
-            <span key={i} className="block flex-1 rounded-[6px]" style={{ height: `${h * 100}%`, background: i % 2 ? "linear-gradient(0deg,#2f6fe0,#5ec4ff)" : "linear-gradient(0deg,#5ec4ff,#8fd8ff)" }} />
+            <span key={i} className="block flex-1 rounded-[5px]" style={{ height: `${h * 100}%`, background: i === 5 ? blue : "color-mix(in srgb,#3b8cff 28%, transparent)" }} />
           ))}
         </div>
-      </div>
-      <div className="flex flex-col justify-center gap-4">
-        <p className="text-[13px] text-ink-3">{m.project}</p>
-        {[90, 60, 30].map((v) => (
-          <div key={v}>
-            <div className="mb-1.5 flex justify-between text-[12.5px] text-ink-2">
-              <span>{m.progress}</span>
-              <span className="font-mono tabular-nums">{v}%</span>
+        <div className="flex flex-col justify-center gap-3.5">
+          {[90, 60, 30].map((v) => (
+            <div key={v}>
+              <div className="mb-1.5 flex justify-between text-[12.5px] text-ink-2">
+                <span>{m.progress}</span>
+                <span className="font-mono tabular-nums">{v}%</span>
+              </div>
+              <span className="block h-[6px] overflow-hidden rounded-full bg-[var(--hover)]">
+                <span className="block h-full rounded-full" style={{ width: `${v}%`, background: blue }} />
+              </span>
             </div>
-            <span className="block h-2 overflow-hidden rounded-full bg-[var(--hover)]">
-              <span className="block h-full rounded-full" style={{ width: `${v}%`, background: sky }} />
-            </span>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
