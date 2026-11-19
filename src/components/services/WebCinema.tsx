@@ -449,40 +449,27 @@ export function WebCinema({ title }: { title: string }) {
       /* 9 · Tutto compreso: ogni cosa nasce come icona che si disegna al centro, diventa card e si unisce al cerchio */
       const gs = $("[data-g]");
       const orb = { a: -0.5 };
-      const rr = gs.map(() => ({ r: 0, v: 0 }));
+      const rr = gs.map(() => ({ r: 0 }));
       const place = () =>
         gs.forEach((g, i) => {
-          const { r, v } = rr[i];
-          const h = g.offsetHeight;
-          const w = g.offsetWidth;
-          const cx = ((w - h) / 2) * (1 - v);
-          const clip = `inset(0px ${(w - h) * (1 - v)}px 0px 0px round ${h * (0.3 + 0.2 * v)}px)`;
-          if (small()) gsap.set(g, { x: cx, y: (i - 2.55) * 72 * r, clipPath: clip });
+          const { r } = rr[i];
+          if (small()) gsap.set(g, { x: 0, y: (i - 2.55) * 72 * r });
           else {
             const t = orb.a + (i / gs.length) * Math.PI * 2;
-            gsap.set(g, { x: cx + Math.cos(t) * Math.min(cam.offsetWidth * 0.37, 540) * r, y: Math.sin(t) * Math.min(cam.offsetHeight * 0.3, 210) * r, clipPath: clip });
+            gsap.set(g, { x: Math.cos(t) * Math.min(cam.offsetWidth * 0.37, 540) * r, y: Math.sin(t) * Math.min(cam.offsetHeight * 0.3, 210) * r });
           }
         });
-      const draws = gs.map((g) => {
-        const ps = Array.from(g.querySelectorAll<SVGElement>("svg *"));
-        ps.forEach((x) => x.setAttribute("pathLength", "1"));
-        gsap.set(ps, { strokeDasharray: 1, strokeDashoffset: 1 });
-        return ps;
-      });
       place();
       tl.to(saved, { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, T(40.6))
         .call(() => (fx.kick(1), fx.whoosh(0.8, false, 1)), undefined, T(40.8))
         .to(dev, { scale: () => fit(mid)() * 0.22, rotationY: 30, autoAlpha: 0, duration: 0.9, ease: "power3.in" }, T(40.6))
-        .fromTo(orb, { a: -0.5 }, { a: 0.7, duration: T(7.4), ease: "sine.inOut", onUpdate: place }, T(41.2));
+        .fromTo(orb, { a: -0.5 }, { a: 0.4, duration: T(7.4), ease: "none", onUpdate: place }, T(41.2));
+      // ogni voce esce dal centro con una molla e si ferma sul suo posto dell'ellisse: niente deformazioni, solo posizione e messa a fuoco
       gs.forEach((g, i) => {
-        const at = T(41.2 + i * 0.62);
-        tl.fromTo(g, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, ease: "expo.out" }, at)
-          .fromTo(g.querySelector("[data-tile]"), { rotationY: -34, rotationX: 16 }, { rotationY: 34, rotationX: -14, duration: Math.max(1, T(49) - at), ease: "sine.inOut" }, at)
-          .to(draws[i], { strokeDashoffset: 0, duration: 0.3, ease: "power2.out", stagger: 0.03 }, at + 0.05)
-          .to(rr[i], { v: 1, duration: 0.45, ease: "expo.inOut", onUpdate: place }, at + 0.4)
-          .to(rr[i], { r: 1, duration: 0.8, ease: "expo.out", onUpdate: place }, at + 0.45)
-          .call(() => fx.pluck(i + 2, 0.9, 0.5), undefined, at + 0.05)
-          .call(() => fx.tick(1.2), undefined, at + 0.4);
+        const at = T(41.2 + i * 0.55);
+        tl.fromTo(g, { autoAlpha: 0, scale: 0.5, filter: "blur(10px)" }, { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.7, ease: "back.out(1.5)" }, at)
+          .to(rr[i], { r: 1, duration: 1, ease: "expo.out", onUpdate: place }, at)
+          .call(() => fx.pluck(i + 2, 0.9, 0.5), undefined, at + 0.05);
       });
       tl.call(() => fx.chord([0, 2, 4, 5], 1), undefined, T(48.6));
       punch(48.6, 1.015);
@@ -496,7 +483,7 @@ export function WebCinema({ title }: { title: string }) {
         return small() ? { x: (i % 2 ? 0.5 : -0.5) * (w + 12), y: (i < 2 ? -0.5 : 0.5) * (h + 12) } : { x: (i - 1.5) * (w + 16), y: 0 };
       };
       tl.to(rr, { r: 0, duration: 0.7, ease: "power3.in", onUpdate: place }, T(49.2))
-        .to(gs, { autoAlpha: 0, scale: 0.7, duration: 0.5, ease: "power2.in" }, T(49.3))
+        .to(gs, { autoAlpha: 0, scale: 0.8, filter: "blur(8px)", duration: 0.5, ease: "power2.in" }, T(49.3))
         .call(() => fx.whoosh(0.5, true, 0.7), undefined, T(49.8));
       ps.forEach((p, i) => {
         const at = T(49.8 + i * 0.4);
