@@ -65,6 +65,81 @@ function Tile3D({ Icon, size = 26, className = "" }: { Icon: LucideIcon; size?: 
   );
 }
 
+
+/**
+ * Dissolvenza a particelle: fotografa il sito (immagine, barra e titolo) in una griglia di punti che si staccano da sinistra a destra,
+ * salgono e svaniscono, come polvere portata dal vento. `visible` è la frazione di altezza già caricata.
+ */
+function makeDissolve(cv: HTMLCanvasElement, host: HTMLElement, img: HTMLImageElement | null, visible: number) {
+  const W = host.offsetWidth;
+  const H = host.offsetHeight;
+  const dpr = Math.min(devicePixelRatio || 1, 1.5);
+  cv.width = Math.round(W * dpr);
+  cv.height = Math.round(H * dpr);
+  const ctx = cv.getContext("2d")!;
+  const oc = document.createElement("canvas");
+  oc.width = W;
+  oc.height = H;
+  const o = oc.getContext("2d", { willReadFrequently: true })!;
+  o.fillStyle = "#0d1115";
+  o.fillRect(0, 0, W, H);
+  if (img && img.complete && img.naturalWidth) {
+    const r = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+    const w = img.naturalWidth * r;
+    const h = img.naturalHeight * r;
+    o.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+  }
+  const g = o.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, "rgba(8,12,16,.6)");
+  g.addColorStop(0.28, "rgba(8,12,16,.1)");
+  g.addColorStop(0.5, "rgba(8,12,16,.3)");
+  g.addColorStop(1, "rgba(8,12,16,.92)");
+  o.fillStyle = g;
+  o.fillRect(0, 0, W, H);
+  const rr = (x: number, y: number, w: number, h: number, r: number, c: string) => {
+    o.fillStyle = c;
+    o.beginPath();
+    o.roundRect(x, y, w, h, r);
+    o.fill();
+  };
+  const u = Math.min(1, W / 520);
+  rr(12, 12, W - 24, 52 * u + 8, 14, "#151a21");
+  rr(W - 120 * u, 20, 100 * u, 52 * u - 8, 10, "#ffffff");
+  [0, 1, 2].forEach((i) => rr(W * 0.42 + i * 70 * u, 34, 46 * u, 8, 4, "rgba(255,255,255,.7)"));
+  rr(24, H * 0.32, W * 0.5, H * 0.09, 8, "#ffffff");
+  rr(24, H * 0.32 + H * 0.12, W * 0.38, H * 0.09, 8, "#ffffff");
+  rr(W - 110 * u, H * 0.16, 84 * u, 84 * u, 42 * u, "#151a21");
+  const S = W < 420 ? 4 : 5;
+  const px = o.getImageData(0, 0, W, H).data;
+  const lim = H * visible;
+  const P: { x: number; y: number; c: string; d: number; vx: number; vy: number; s: number }[] = [];
+  for (let y = 0; y < lim; y += S)
+    for (let x = 0; x < W; x += S) {
+      const i = (Math.floor(y + S / 2) * W + Math.floor(x + S / 2)) * 4;
+      P.push({ x, y, c: `${px[i]},${px[i + 1]},${px[i + 2]}`, d: (x / W) * 0.5 + Math.random() * 0.14, vx: (120 + Math.random() * 380) * (W / 440), vy: (Math.random() - 0.62) * 170, s: S * (0.7 + Math.random() * 0.6) });
+    }
+  return (p: number) => {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    for (const q of P) {
+      const t = Math.min(1, Math.max(0, (p - q.d) / 0.46));
+      if (t >= 1) continue;
+      const e = t * t;
+      const a = 1 - t;
+      if (t === 0) {
+        ctx.fillStyle = `rgb(${q.c})`;
+        ctx.fillRect(q.x, q.y, S, S);
+      } else {
+        const r = (q.s / 2) * (1 - 0.55 * t);
+        ctx.fillStyle = `rgba(${q.c},${a})`;
+        ctx.beginPath();
+        ctx.arc(q.x + S / 2 + q.vx * e, q.y + S / 2 + q.vy * e - 26 * e, r, 0, 6.2832);
+        ctx.fill();
+      }
+    }
+  };
+}
+
 /** Scrive lettera per lettera; ogni due lettere una nota che sale nella scala. */
 const typeTo = (tl: gsap.core.Timeline, el: Element, text: string, at: number, dur: number, deg = 0) => {
   const o = { n: 0 };
@@ -99,13 +174,13 @@ function MiniSite({ c, children }: { c: Cinema; children?: ReactNode }) {
         <span className="flex h-full items-center gap-[clamp(14px,3cqw,28px)] py-[6px] text-[clamp(12px,1.6cqw,15px)]">
           <span className="hidden gap-[clamp(14px,3cqw,28px)] @min-[560px]:flex">
             {c.site.nav.map((n) => (
-              <span key={n}>{n}</span>
+              <span key={n} className="cin-nav">{n}</span>
             ))}
           </span>
           <span className="hidden h-full items-center bg-white px-[clamp(14px,2.4cqw,20px)] font-semibold text-black @min-[560px]:flex" style={{ borderRadius: R_IN2 }}>
             {c.site.book}
           </span>
-          <span className="flex aspect-square h-full items-center justify-center bg-white text-black @min-[560px]:hidden" style={{ borderRadius: R_IN2 }}>
+          <span className="cin-menu flex aspect-square h-full items-center justify-center bg-white text-black @min-[560px]:hidden" style={{ borderRadius: R_IN2 }}>
             <Menu size={16} strokeWidth={2} />
           </span>
         </span>
@@ -340,29 +415,90 @@ export function WebCinema({ title }: { title: string }) {
         .fromTo(chrome, { autoAlpha: 0, y: 140 }, { autoAlpha: 1, y: 0, duration: 1.3, ease: "expo.out" }, U(5.7))
         .set(cam, { scale: 1 }, U(5.7));
       // un pezzo alla volta, a scatti, a intervalli irregolari; l'ultimo non arriva mai
-      [7.4, 9.2, 10.4, 12.6].forEach((b, i) => {
+      [7.4, 9.2, 10.4, 11.2].forEach((b, i) => {
         tl.set(bands[i], { autoAlpha: 0 }, U(b)).call(() => fx.tick(0.7 + i * 0.08), undefined, U(b));
       });
       {
         const o = { n: 0 };
-        tl.fromTo(o, { n: 0 }, { n: 10.2, duration: U(8.1), ease: "none", onUpdate: () => void (cnt.textContent = num(o.n)) }, U(5.9));
+        tl.fromTo(o, { n: 0 }, { n: 10.2, duration: 6.5 - U(5.9), ease: "none", onUpdate: () => void (cnt.textContent = num(o.n)) }, U(5.9));
       }
-      cap(1, 5.6, 9.2);
+      capAt(1, T(5.6), 6.5);
+      // prima che finisca di caricare, il sito si scioglie in particelle: il cliente se ne va
+      const sw = one("[data-sw]");
+      const cv = one("[data-ptc]") as HTMLCanvasElement;
+      const content = sw.parentElement as HTMLElement;
+      let draw: ((p: number) => void) | null = null;
+      const dis = { p: 0 };
+      const D0 = 5.8;
+      gsap.set(cv, { autoAlpha: 0 });
+      tl.call(
+        () => {
+          draw = makeDissolve(cv, content, content.querySelector("img"), 4 / 7);
+          draw(0);
+        },
+        undefined,
+        D0 - 0.05,
+      )
+        .set(cv, { autoAlpha: 1 }, D0 - 0.02)
+        .set(sw, { autoAlpha: 0 }, D0)
+        .call(() => fx.whoosh(0.9, false, 0.8), undefined, D0)
+        .fromTo(dis, { p: 0 }, { p: 1, duration: 0.8, ease: "none", onUpdate: () => draw?.(dis.p) }, D0)
+        .set(cv, { autoAlpha: 0 }, D0 + 0.82);
 
-      /* 2 · Il tuo si apre in 0,8 secondi: stessa pagina, un nuovo caricamento, tutto insieme */
-      const at2 = T(9.3);
+      /* 2 · Il tuo si apre in 0,8 secondi: stessa pagina, un nuovo caricamento, tutto insieme; poi si naviga */
+      const at2 = 6.6;
       {
         const o = { n: 0 };
-        tl.call(() => (cnt.textContent = num(0)), undefined, at2)
+        tl.call(
+          () => {
+            cnt.textContent = num(0);
+            chrome.querySelectorAll<HTMLElement>(".cin-nav,.cin-menu").forEach((n) => gsap.set(n, { clearProps: "boxShadow,backgroundColor,borderRadius" }));
+            const u1 = one("[data-url1]");
+            if (u1) u1.textContent = c.find.me[1];
+          },
+          undefined,
+          at2,
+        )
           .fromTo(o, { n: 0 }, { n: 0.8, duration: 0.34, ease: "power1.out", onUpdate: () => void (cnt.textContent = num(o.n)) }, at2)
-          .call(() => (fx.chord([0, 2, 4, 5], 1), fx.whoosh(0.35, true, 0.6)), undefined, at2 + 0.38)
-          .to(bands, { autoAlpha: 0, duration: 0.18, stagger: 0.03, ease: "none" }, at2 + 0.2)
-          .to([spin, stop, tt1], { autoAlpha: 0, duration: 0.12 }, at2 + 0.38)
-          .fromTo([fav, rl, tt2], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2.2)" }, at2 + 0.4)
-          .fromTo(ok, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2.4)" }, at2 + 0.42)
-          .to(cnt, { color: "var(--accent)", duration: 0.3 }, at2 + 0.4);
+          .fromTo(sw, { autoAlpha: 0, scale: 1.04 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: "power2.out", immediateRender: false }, at2 + 0.06)
+          .to(bands, { autoAlpha: 0, duration: 0.1, stagger: 0.02, ease: "none" }, at2 + 0.04)
+          .call(() => (fx.chord([0, 2, 4, 5], 1), fx.whoosh(0.35, true, 0.6)), undefined, at2 + 0.4)
+          .to([spin, stop, tt1], { autoAlpha: 0, duration: 0.12 }, at2 + 0.36)
+          .fromTo([fav, rl, tt2], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2.2)" }, at2 + 0.38)
+          .fromTo(ok, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2.4)" }, at2 + 0.4)
+          .to(cnt, { color: "var(--accent)", duration: 0.3 }, at2 + 0.38);
       }
-      cap(2, 9.5, 11.7);
+      // inizia la navigazione: il cursore va sul menù, clicca, la pagina cambia
+      {
+        const cur = one("[data-cur]");
+        const prog = one("[data-prog]");
+        const url1 = one("[data-url1]");
+        const navT = () => {
+          const n = chrome.querySelectorAll<HTMLElement>(".cin-nav")[1];
+          return n && n.offsetParent ? n : chrome.querySelector<HTMLElement>(".cin-menu")!;
+        };
+        const loc = () => {
+          const a = content.getBoundingClientRect();
+          const r = navT().getBoundingClientRect();
+          const sc = a.width / content.offsetWidth;
+          return { x: (r.left + r.width * 0.5 - a.left) / sc, y: (r.top + r.height * 0.6 - a.top) / sc };
+        };
+        const A = 7.05;
+        const nxt = c.site.nav[1].toLowerCase().replace(/\s+/g, "-");
+        tl.fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.85, y: () => content.offsetHeight * 0.95 }, { autoAlpha: 1, x: () => loc().x, y: () => loc().y, duration: 0.5, ease: "power3.inOut" }, A)
+          .to(cur, { scale: 0.82, duration: 0.08, ease: "power2.out" }, A + 0.55)
+          .to(cur, { scale: 1, duration: 0.25, ease: "back.out(3)" }, A + 0.63)
+          .call(() => fx.tick(1.4), undefined, A + 0.55)
+          .call(() => void gsap.fromTo(navT(), { boxShadow: "0 0 0 0 rgba(255,255,255,0)", backgroundColor: "rgba(255,255,255,0)", borderRadius: 8 }, { boxShadow: "0 0 0 7px rgba(255,255,255,.22)", backgroundColor: "rgba(255,255,255,.22)", duration: 0.18, overwrite: true }), undefined, A + 0.55)
+          .fromTo(prog, { scaleX: 0, autoAlpha: 1 }, { scaleX: 1, duration: 0.32, ease: "power2.out" }, A + 0.6)
+          .to(prog, { autoAlpha: 0, duration: 0.15 }, A + 0.95)
+          .to(sw, { y: 10, autoAlpha: 0.35, duration: 0.14, ease: "power2.in" }, A + 0.62)
+          .fromTo(sw, { y: -10 }, { y: 0, autoAlpha: 1, duration: 0.3, ease: "power2.out", immediateRender: false }, A + 0.78)
+          .call(() => void (url1.textContent = `${c.find.me[1]}/${nxt}`), undefined, A + 0.66)
+          .call(() => fx.pluck(7, 0.8, 0.4), undefined, A + 0.8)
+          .to(cur, { autoAlpha: 0, duration: 0.2 }, A + 1.0);
+      }
+      capAt(2, 6.5, T(11.7));
 
       /* 3 · Prima lo disegniamo: la camera entra nell'anello, dal fondo emerge la pagina inclinata */
       const wireBits = $("[data-wire] > div");
@@ -671,14 +807,19 @@ export function WebCinema({ title }: { title: string }) {
                 </span>
                 <span className="flex h-[30px] min-w-0 flex-1 items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--label-primary)_7%,var(--bg-surface))] px-3 text-[13px]">
                   <Lock size={13} strokeWidth={1.9} className="cine-fg2 shrink-0" />
-                  <span className="truncate">{c.find.me[1]}</span>
+                  <span data-url1 className="truncate">{c.find.me[1]}</span>
                 </span>
                 <EllipsisVertical size={17} strokeWidth={1.7} className="cine-fg2" />
               </div>
               <div className="relative min-h-0 flex-1 bg-[var(--bg-surface)]">
-                <div className="absolute inset-0">
+                <div data-sw className="absolute inset-0">
                   <MiniSite c={c} />
                 </div>
+                <canvas data-ptc aria-hidden className="pointer-events-none absolute inset-0 h-full w-full" style={HID} />
+                <span data-prog aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[3px] origin-left" style={{ ...HID, background: "var(--accent)" }} />
+                <svg data-cur viewBox="0 0 24 24" width="24" height="24" aria-hidden className="pointer-events-none absolute left-0 top-0 z-20" style={{ ...HID, filter: "drop-shadow(0 2px 3px rgba(0,0,0,.45))" }}>
+                  <path d="M5 3l14 8-6 1.6L10.4 19z" fill="#14171c" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
+                </svg>
                 {Array.from({ length: 7 }).map((_, i) => (
                   <span key={i} data-band className="absolute inset-x-0 bg-[var(--bg-surface)]" style={{ top: `${(i * 100) / 7}%`, height: "calc(100% / 7 + 1px)" }} />
                 ))}

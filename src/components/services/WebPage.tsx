@@ -69,9 +69,9 @@ function Brand({ k, size = 28, className = "" }: { k: BrandKey; size?: number; c
 }
 
 /** Tessera di vetro liquido con un marchio dentro. */
-function BrandTile({ k, size = 58, ...rest }: { k: BrandKey; size?: number; [k: string]: unknown }) {
+function BrandTile({ k, size = 58, solid = false, ...rest }: { k: BrandKey; size?: number; solid?: boolean; [k: string]: unknown }) {
   return (
-    <Bead radius={size * 0.32} className="flex items-center justify-center text-ink" style={{ width: size, height: size }} {...rest}>
+    <Bead radius={size * 0.32} tint={solid ? "var(--bg-surface)" : undefined} className="flex items-center justify-center text-ink" style={{ width: size, height: size }} {...rest}>
       <Brand k={k} size={size * 0.5} />
     </Bead>
   );
@@ -420,14 +420,14 @@ function FoundMock({ m }: { m: M }) {
           </g>
         ))}
       </svg>
-      <Bead data-hub tint="sky" radius={24} className="absolute left-1/2 top-1/2 z-10 flex h-[52px] -translate-x-1/2 -translate-y-1/2 items-center gap-2.5 whitespace-nowrap px-5 text-[15px] font-medium text-ink" style={{ opacity: 0 }}>
+      <Bead data-hub tint="color-mix(in srgb,#5ec4ff 36%, var(--bg-surface))" radius={24} className="absolute left-1/2 top-1/2 z-10 flex h-[52px] -translate-x-1/2 -translate-y-1/2 items-center gap-2.5 whitespace-nowrap px-5 text-[15px] font-medium text-ink" style={{ opacity: 0 }}>
         <Globe size={17} strokeWidth={2} aria-hidden />
         {m.address}
       </Bead>
       {ENGINES.map(({ k, x, y }) => (
         <span key={k} data-et className="absolute z-10 -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, top: `${y}%`, opacity: 0 }}>
           <span className="relative block">
-            <BrandTile k={k} size={60} />
+            <BrandTile k={k} size={60} solid />
             <span data-ck className="absolute -right-1 -top-1 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-[#2fb36a] text-white" style={{ boxShadow: "0 0 0 2px var(--bg-surface)", opacity: 0 }}>
               <Check size={11} strokeWidth={3.2} aria-hidden />
             </span>
@@ -443,58 +443,41 @@ function FoundMock({ m }: { m: M }) {
 function SafeMock({ m }: { m: M }) {
   const ref = useRef<HTMLDivElement>(null);
   useLoop(ref, (tl, q) => {
-    const pk = q("[data-pk]");
-    const th = q("[data-th]");
-    const rg = q("[data-rg]");
+    const nodes = q("[data-node]");
+    const pk = q("[data-pk]")[0];
     const cf = q("[data-cf]")[0];
-    const chips = q("[data-sc]");
-    tl.fromTo(q("[data-node]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.12, ease: "expo.out" }, 0);
-    tl.fromTo(chips, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.12, ease: "expo.out" }, 0.5);
-    pk.forEach((p, i) => tl.fromTo(p, { left: "14%", autoAlpha: 0 }, { left: "86%", keyframes: { autoAlpha: [0, 1, 1, 1, 0] }, duration: 1.7, ease: "none" }, 1 + i * 0.75));
-    th.forEach((p, i) => {
-      const at = 1.35 + i * 1.5;
-      tl.fromTo(p, { left: "14%", top: "14%", autoAlpha: 0, scale: 1 }, { left: "44%", top: "50%", autoAlpha: 1, duration: 0.85, ease: "power2.in" }, at)
-        .to(p, { autoAlpha: 0, scale: 0.2, duration: 0.15 }, at + 0.85)
-        .fromTo(rg[i], { scale: 0.6, autoAlpha: 0.9 }, { scale: 1.7, autoAlpha: 0, duration: 0.6, ease: "power2.out" }, at + 0.85)
-        .fromTo(cf, { scale: 1 }, { scale: 1.08, duration: 0.12, yoyo: true, repeat: 1 }, at + 0.85);
-    });
-    tl.to(q("[data-node]"), { autoAlpha: 0, duration: 0.4 }, 5.2).to(chips, { autoAlpha: 0, duration: 0.4 }, 5.2);
-    return () => void gsap.set([pk, th, rg], { autoAlpha: 0 });
-  }, 0.4);
-  const line = "absolute top-1/2 h-px -translate-y-1/2 bg-[repeating-linear-gradient(90deg,var(--hair-strong)_0_6px,transparent_6px_12px)]";
+    const lk = q("[data-lk]")[0];
+    tl.fromTo(nodes, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.12, ease: "expo.out" }, 0);
+    tl.fromTo(pk, { left: "16%", autoAlpha: 0 }, { left: "50%", autoAlpha: 1, duration: 1, ease: "power1.inOut" }, 1)
+      .fromTo(cf, { scale: 1 }, { scale: 1.07, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out" }, 2)
+      .to(pk, { left: "84%", duration: 1, ease: "power1.inOut" }, 2.05)
+      .to(pk, { autoAlpha: 0, duration: 0.2 }, 3.05)
+      .fromTo(lk, { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.5, ease: "back.out(3)" }, 3)
+      .to([nodes, lk], { autoAlpha: 0, duration: 0.4 }, 5.2);
+    return () => void gsap.set([pk, lk], { autoAlpha: 0 });
+  }, 0.5);
   return (
-    <div ref={ref} className="flex h-full flex-col justify-between">
-      <div className="relative h-[128px]">
-        <span aria-hidden className={`${line} left-[14%] right-[14%]`} />
-        <div data-node className="absolute left-[14%] top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1.5">
-          <Bead radius={18} className="flex h-[52px] w-[52px] items-center justify-center text-ink">
-            <Globe size={22} strokeWidth={1.9} aria-hidden />
-          </Bead>
-          <span className="text-[11.5px] text-ink-3">{m.visitor}</span>
-        </div>
-        <div data-node data-cf className="absolute left-[44%] top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
-          <span data-rg aria-hidden className="absolute inset-0 rounded-[24px]" style={{ boxShadow: "0 0 0 2px #f38020", opacity: 0 }} />
-          <BrandTile k="cloudflare" size={78} />
-        </div>
-        <div data-node className="absolute left-[86%] top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1.5">
-          <GlassIcon Icon={Lock} c="#2f7bff" size={52} />
-          <span className="text-[11.5px] text-ink-3">{m.address}</span>
-        </div>
-        {[0, 1, 2].map((i) => (
-          <span key={i} data-pk className="absolute top-1/2 h-[9px] w-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: "#2fb36a", boxShadow: "0 0 0 3px rgba(47,179,106,.25)", opacity: 0 }} />
-        ))}
-        {[0, 1].map((i) => (
-          <span key={i} data-th className="absolute h-[9px] w-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ background: "#e5483a", boxShadow: "0 0 0 3px rgba(229,72,58,.25)", opacity: 0 }} />
-        ))}
+    <div ref={ref} className="relative flex h-full items-center">
+      <span aria-hidden className="absolute left-[16%] right-[16%] top-1/2 h-px -translate-y-[10px] bg-[repeating-linear-gradient(90deg,var(--hair-strong)_0_6px,transparent_6px_12px)]" />
+      <div data-node className="absolute left-[16%] top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
+        <Bead radius={20} tint="var(--bg-surface)" className="flex h-[56px] w-[56px] items-center justify-center text-ink">
+          <Globe size={24} strokeWidth={1.8} aria-hidden />
+        </Bead>
+        <span className="text-[12px] text-ink-3">{m.visitor}</span>
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        {([["letsencrypt", m.ssl], [null, m.backup], [null, m.https]] as const).map(([k, label], i) => (
-          <Bead key={label} data-sc className="inline-flex h-10 items-center gap-2 whitespace-nowrap px-4 text-[13px] font-medium text-ink" radius={20}>
-            {k ? <Brand k={k} size={16} /> : i === 1 ? <HardDrive size={16} strokeWidth={2} aria-hidden /> : <Lock size={15} strokeWidth={2.2} aria-hidden />}
-            {label}
-          </Bead>
-        ))}
+      <div data-node data-cf className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+        <BrandTile k="cloudflare" size={84} solid />
       </div>
+      <div data-node className="absolute left-[84%] top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2">
+        <span className="relative">
+          <GlassIcon Icon={Lock} c="#2f7bff" size={56} />
+          <span data-lk className="absolute -right-1 -top-1 flex h-[20px] w-[20px] items-center justify-center rounded-full bg-[#2fb36a] text-white" style={{ boxShadow: "0 0 0 2px var(--bg-surface)", opacity: 0 }}>
+            <Check size={12} strokeWidth={3.2} aria-hidden />
+          </span>
+        </span>
+        <span className="text-[12px] text-ink-3">{m.address}</span>
+      </div>
+      <span data-pk className="absolute top-1/2 h-[10px] w-[10px] -translate-x-1/2 -translate-y-[15px] rounded-full" style={{ background: "#2fb36a", boxShadow: "0 0 0 4px rgba(47,179,106,.25)", opacity: 0 }} />
     </div>
   );
 }
@@ -512,7 +495,7 @@ function DashMock({ m, locale }: { m: M; locale: string }) {
     [Truck, "#ff9f0a", m.n3, m.n3s],
   ];
   const nf = (n: number) => Math.round(n).toLocaleString(locale === "en" ? "en-US" : "it-IT");
-  const H = 58;
+  const H = 54;
   useLoop(ref, (tl, q) => {
     const wl = q("[data-wl]");
     const nums = q("[data-num]");
@@ -523,7 +506,7 @@ function DashMock({ m, locale }: { m: M; locale: string }) {
     const brs = q("[data-bar]");
     const nt = q("[data-nt]");
     const bd = q("[data-bd]")[0];
-    tl.fromTo(wl, { y: 14, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.1, ease: "expo.out" }, 0);
+    tl.fromTo(wl, { y: 12, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.1, ease: "expo.out" }, 0);
     nums.forEach((el, i) => count(tl, el, 0, to[i], 1.3, 0.3 + i * 0.12, nf, "expo.out"));
     arcs.forEach((a, i) => tl.fromTo(a, { attr: { "stroke-dasharray": "0 100" } }, { attr: { "stroke-dasharray": `${seg[i][0] - 2} ${102 - seg[i][0]}` }, duration: 0.9, ease: "power2.out" }, 0.5 + i * 0.3));
     tl.fromTo(line, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.3, ease: "power2.inOut" }, 0.6).fromTo(area, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.8 }, 1.3);
@@ -546,131 +529,121 @@ function DashMock({ m, locale }: { m: M; locale: string }) {
   }, 0.5);
   const nav: LucideIcon[] = [LayoutDashboard, ShoppingBag, MessageCircle, Users, Settings];
   const kp: [string, string][] = [[m.kOrders, "+12%"], [m.kMessages, "+3"], [m.kVisits, "+8%"]];
+  const title = "mb-3 text-[13px] font-semibold text-ink";
   let acc = 0;
   return (
-    <div ref={ref} className={`flex overflow-hidden rounded-[22px] ${surface}`}>
-      <aside className="hidden w-[68px] shrink-0 flex-col items-center gap-3 py-5 md:flex" style={{ boxShadow: "inset -1px 0 0 var(--hair-strong)" }}>
+    <div ref={ref} className={`mx-auto flex w-full max-w-[1040px] overflow-hidden rounded-[22px] ${surface}`}>
+      <aside className="hidden w-[60px] shrink-0 flex-col items-center gap-3 py-4 md:flex" style={{ boxShadow: "inset -1px 0 0 var(--hair-strong)" }}>
         <Traffic />
-        <span className="mt-3 flex flex-col gap-2.5">
+        <span className="mt-2 flex flex-col gap-2">
           {nav.map((Icon, i) => (
-            <Bead key={i} radius={14} tint={i === 0 ? "sky" : "transparent"} className={`flex h-10 w-10 items-center justify-center ${i === 0 ? "text-ink" : "text-ink-3"}`}>
-              <Icon size={18} strokeWidth={1.9} aria-hidden />
+            <Bead key={i} radius={13} tint={i === 0 ? "sky" : "transparent"} className={`flex h-9 w-9 items-center justify-center ${i === 0 ? "text-ink" : "text-ink-3"}`}>
+              <Icon size={17} strokeWidth={1.9} aria-hidden />
             </Bead>
           ))}
         </span>
       </aside>
-      <div className="min-w-0 flex-1 p-4 sm:p-6">
+      <div className="min-w-0 flex-1 p-4 sm:p-5">
         <header className="flex items-center justify-between gap-4">
           <div>
-            <p data-wl className="text-[clamp(20px,2.3vw,30px)] font-semibold leading-tight tracking-[-0.03em] text-ink">
+            <p data-wl className="text-[clamp(19px,2vw,26px)] font-semibold leading-tight tracking-[-0.03em] text-ink">
               {m.welcome}
             </p>
-            <p data-wl className="mt-1 text-[14px] text-ink-3">
+            <p data-wl className="mt-0.5 text-[13.5px] text-ink-3">
               {m.welcomeSub}
             </p>
           </div>
-          <div data-fade className="flex items-center gap-3">
+          <div data-fade className="flex items-center gap-2.5">
             <span className="relative">
-              <Bead radius={16} className="flex h-10 w-10 items-center justify-center text-ink">
-                <Bell size={18} strokeWidth={1.9} aria-hidden />
+              <Bead radius={15} className="flex h-9 w-9 items-center justify-center text-ink">
+                <Bell size={17} strokeWidth={1.9} aria-hidden />
               </Bead>
-              <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#ff453a] px-1 text-[11px] font-semibold text-white" style={{ boxShadow: "0 0 0 2px var(--bg-surface)" }}>
+              <span className="absolute -right-1 -top-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#ff453a] px-1 text-[10.5px] font-semibold text-white" style={{ boxShadow: "0 0 0 2px var(--bg-surface)" }}>
                 <span data-bd>0</span>
               </span>
             </span>
-            <Bead radius={20} tint="sky" className="flex h-10 w-10 items-center justify-center text-[13px] font-semibold text-ink">
+            <Bead radius={18} tint="sky" className="flex h-9 w-9 items-center justify-center text-[12.5px] font-semibold text-ink">
               MR
             </Bead>
           </div>
         </header>
-        <div className="mt-5 grid gap-x-8 gap-y-6 lg:grid-cols-12">
-          <div className="grid content-start gap-6 lg:col-span-8">
-            <div data-fade className="grid grid-cols-3 gap-4">
-              {kp.map(([l, d], i) => (
-                <div key={l} className={i ? "pl-4" : ""} style={i ? { boxShadow: "inset 1px 0 0 var(--hair-strong)" } : undefined}>
-                  <p className="text-[12.5px] text-ink-3">{l}</p>
-                  <p data-num className="mt-1 text-[clamp(24px,2.8vw,36px)] font-semibold tabular-nums leading-none tracking-[-0.04em] text-ink">
-                    0
-                  </p>
-                  <p className="mt-1.5 inline-flex items-center gap-1.5 text-[12px] text-ink-2">
-                    {dot()}
-                    {d}
-                  </p>
-                </div>
+        {/* griglia a quattro colonne: ogni riga ha la stessa altezza */}
+        <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-5 lg:grid-cols-4">
+          {kp.map(([l, d], i) => (
+            <div key={l} data-fade className="min-h-[84px]">
+              <p className="text-[12.5px] text-ink-3">{l}</p>
+              <p data-num className="mt-1 text-[clamp(24px,2.6vw,32px)] font-semibold tabular-nums leading-none tracking-[-0.04em] text-ink">
+                0
+              </p>
+              <p className="mt-2 inline-flex items-center gap-1.5 text-[12px] text-ink-2">
+                {dot()}
+                {d}
+              </p>
+            </div>
+          ))}
+          <div data-fade className="col-span-2 min-h-[84px] lg:col-span-1">
+            <div className="flex h-[56px] items-end gap-1.5">
+              {bars.map((h, i) => (
+                <span key={i} data-bar className="block flex-1 origin-bottom rounded-[4px]" style={{ height: `${h * 100}%`, background: i === 3 ? blue : "color-mix(in srgb,#3b8cff 26%, transparent)" }} />
               ))}
             </div>
-            <div data-fade className="grid gap-6 sm:grid-cols-2">
-              <div>
-                <p className="mb-3 text-[13px] font-semibold text-ink">{m.chDonut}</p>
-                <div className="flex items-center gap-4">
-                  <svg viewBox="0 0 100 100" className="h-[104px] w-[104px] shrink-0 -rotate-90" aria-hidden>
-                    <circle cx="50" cy="50" r="36" fill="none" stroke="var(--hover)" strokeWidth="14" />
-                    {seg.map(([v, c], i) => {
-                      const start = acc;
-                      acc += v;
-                      return <circle key={i} data-arc cx="50" cy="50" r="36" fill="none" stroke={c} strokeWidth="14" pathLength={100} strokeDasharray="0 100" strokeDashoffset={-start - 1} />;
-                    })}
-                  </svg>
-                  <ul className="grid gap-2 text-[13px] text-ink-2">
-                    {[m.d1, m.d2, m.d3].map((l, i) => (
-                      <li key={l} className="flex items-center gap-2">
-                        <span className="h-2.5 w-2.5 rounded-[3px]" style={{ background: seg[i][1] }} />
-                        {l}
-                        <span className="ml-1 font-mono text-[12px] tabular-nums text-ink-3">{seg[i][0]}%</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-              <div>
-                <p className="mb-3 text-[13px] font-semibold text-ink">{m.chLine}</p>
-                <svg viewBox="0 0 200 84" className="h-[104px] w-full" preserveAspectRatio="none" aria-hidden>
-                  <defs>
-                    <linearGradient id="dsh-a" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0" stopColor="#3b8cff" stopOpacity=".35" />
-                      <stop offset="1" stopColor="#3b8cff" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  <path data-area d="M0 66 C20 58 30 40 50 44 S80 66 100 46 S140 14 160 28 S190 20 200 10 V84 H0 Z" fill="url(#dsh-a)" />
-                  <path data-line d="M0 66 C20 58 30 40 50 44 S80 66 100 46 S140 14 160 28 S190 20 200 10" fill="none" stroke="#2f6fe0" strokeWidth="2.5" strokeLinecap="round" pathLength={1} strokeDasharray="1" strokeDashoffset="1" vectorEffect="non-scaling-stroke" />
-                </svg>
-              </div>
+            <div className="mt-1 flex gap-1.5 text-[10.5px] text-ink-3">
+              {days.map((d, i) => (
+                <span key={i} className="flex-1 text-center">
+                  {d}
+                </span>
+              ))}
             </div>
           </div>
-          <div className="grid content-start gap-6 lg:col-span-4">
-            <div>
-              <p data-fade className="mb-3 text-[13px] font-semibold text-ink">
-                {m.activity}
-              </p>
-              <div className="relative h-[184px]">
-                {feed.map(([Icon, c, t, s]) => (
-                  <Bead key={t} data-nt radius={18} className="absolute inset-x-0 top-0 flex items-center gap-3 px-3 text-ink" style={{ height: H - 6, opacity: 0 }}>
-                    <GlassIcon Icon={Icon} c={c} size={34} />
-                    <span className="min-w-0 flex-1 leading-tight">
-                      <span className="block truncate text-[13px] font-semibold">{t}</span>
-                      <span className="block truncate text-[12px] text-ink-2">{s}</span>
-                    </span>
-                    <span className="self-start pt-3 text-[11px] text-ink-3">{m.now}</span>
-                  </Bead>
+          <div data-fade className="col-span-2 lg:col-span-1">
+            <p className={title}>{m.chDonut}</p>
+            <div className="flex items-center gap-4">
+              <svg viewBox="0 0 100 100" className="h-[96px] w-[96px] shrink-0 -rotate-90" aria-hidden>
+                <circle cx="50" cy="50" r="36" fill="none" stroke="var(--hover)" strokeWidth="14" />
+                {seg.map(([v, c], i) => {
+                  const start = acc;
+                  acc += v;
+                  return <circle key={i} data-arc cx="50" cy="50" r="36" fill="none" stroke={c} strokeWidth="14" pathLength={100} strokeDasharray="0 100" strokeDashoffset={-start - 1} />;
+                })}
+              </svg>
+              <ul className="grid gap-1.5 text-[12.5px] text-ink-2">
+                {[m.d1, m.d2, m.d3].map((l, i) => (
+                  <li key={l} className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-[3px]" style={{ background: seg[i][1] }} />
+                    {l}
+                    <span className="ml-auto font-mono text-[11.5px] tabular-nums text-ink-3">{seg[i][0]}%</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
-            <div data-fade>
-              <p className="mb-3 text-[13px] font-semibold text-ink">{m.chBars}</p>
-              <div className="flex h-[76px] items-end gap-2">
-                {bars.map((h, i) => (
-                  <span key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
-                    <span data-bar className="block w-full origin-bottom rounded-[5px]" style={{ height: `${h * 100}%`, background: i === 3 ? blue : "color-mix(in srgb,#3b8cff 26%, transparent)" }} />
+          </div>
+          <div data-fade className="col-span-2">
+            <p className={title}>{m.chLine}</p>
+            <svg viewBox="0 0 200 84" className="h-[96px] w-full" preserveAspectRatio="none" aria-hidden>
+              <defs>
+                <linearGradient id="dsh-a" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#3b8cff" stopOpacity=".35" />
+                  <stop offset="1" stopColor="#3b8cff" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path data-area d="M0 66 C20 58 30 40 50 44 S80 66 100 46 S140 14 160 28 S190 20 200 10 V84 H0 Z" fill="url(#dsh-a)" />
+              <path data-line d="M0 66 C20 58 30 40 50 44 S80 66 100 46 S140 14 160 28 S190 20 200 10" fill="none" stroke="#2f6fe0" strokeWidth="2.5" strokeLinecap="round" pathLength={1} strokeDasharray="1" strokeDashoffset="1" vectorEffect="non-scaling-stroke" />
+            </svg>
+          </div>
+          <div className="col-span-2 lg:col-span-1">
+            <p data-fade className={title}>
+              {m.activity}
+            </p>
+            <div className="relative h-[162px]">
+              {feed.map(([Icon, c, t, s]) => (
+                <Bead key={t} data-nt radius={16} className="absolute inset-x-0 top-0 flex items-center gap-2.5 px-2.5 text-ink" style={{ height: H - 6, opacity: 0 }}>
+                  <GlassIcon Icon={Icon} c={c} size={30} />
+                  <span className="min-w-0 flex-1 leading-tight">
+                    <span className="block truncate text-[12.5px] font-semibold">{t}</span>
+                    <span className="block truncate text-[11.5px] text-ink-2">{s}</span>
                   </span>
-                ))}
-              </div>
-              <div className="mt-1.5 flex gap-2 text-[11px] text-ink-3">
-                {days.map((d, i) => (
-                  <span key={i} className="flex-1 text-center">
-                    {d}
-                  </span>
-                ))}
-              </div>
+                </Bead>
+              ))}
             </div>
           </div>
         </div>
