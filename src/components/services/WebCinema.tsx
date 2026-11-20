@@ -6,7 +6,7 @@ import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 import type { LucideIcon } from "lucide-react";
-import { ArrowDown, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
+import { Frame, MessageCircle, MousePointer2, PenTool, Square, Type, ArrowDown, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { prefersReducedMotion } from "@/lib/env";
 import { onIntroLift } from "@/lib/intro";
@@ -65,94 +65,6 @@ function Tile3D({ Icon, size = 26, className = "" }: { Icon: LucideIcon; size?: 
 }
 
 
-/**
- * Dissolvenza a particelle: fotografa il sito (immagine, barra e titolo) in una griglia di punti che si staccano da sinistra a destra,
- * salgono e svaniscono, come polvere portata dal vento.
- */
-function makeDissolve(cv: HTMLCanvasElement, host: HTMLElement, img: HTMLImageElement | null, old: Cinema["old"]) {
-  const W = host.offsetWidth;
-  const H = host.offsetHeight;
-  const dpr = Math.min(devicePixelRatio || 1, 1.5);
-  cv.width = Math.round(W * dpr);
-  cv.height = Math.round(H * dpr);
-  const ctx = cv.getContext("2d")!;
-  const oc = document.createElement("canvas");
-  oc.width = W;
-  oc.height = H;
-  const o = oc.getContext("2d", { willReadFrequently: true })!;
-  // la copia del vecchio sito com'è in quel momento: stesse proporzioni di OldSite
-  const serif = (px: number, st = "") => `${st} ${Math.round(px)}px "Times New Roman", Times, serif`;
-  o.fillStyle = "#e8e2d0";
-  o.fillRect(0, 0, W, H);
-  o.fillStyle = "#1d2b6b";
-  o.fillRect(0, 0, W, H * 0.14);
-  o.fillStyle = "#ffd200";
-  o.font = serif(H * 0.07, "bold");
-  o.textAlign = "center";
-  o.textBaseline = "middle";
-  o.fillText(old.brand, W / 2, H * 0.07);
-  o.textAlign = "left";
-  o.fillStyle = "#c8c0aa";
-  o.fillRect(0, H * 0.14, W * 0.24, H * 0.86);
-  o.font = serif(H * 0.045);
-  o.fillStyle = "#0000ee";
-  old.menu.forEach((m, i) => {
-    const y = H * (0.22 + i * 0.08);
-    o.fillText(m, W * 0.03, y);
-    o.fillRect(W * 0.03, y + H * 0.022, o.measureText(m).width, 1);
-  });
-  o.fillStyle = "#c00000";
-  o.font = serif(H * 0.05, "italic bold");
-  o.fillText(old.hello, W * 0.28, H * 0.2);
-  const ix = W * 0.28, iy = H * 0.27, iw = W * 0.4, ih = H * 0.42;
-  o.fillStyle = "#888";
-  o.fillRect(ix - 3, iy - 3, iw + 6, ih * 0.66 + 3);
-  if (img && img.complete && img.naturalWidth) {
-    o.save();
-    o.beginPath();
-    o.rect(ix, iy, iw, ih * 0.66);
-    o.clip();
-    o.filter = "sepia(.5) saturate(.7) contrast(.85)";
-    const r = Math.max(iw / img.naturalWidth, ih / img.naturalHeight);
-    o.drawImage(img, ix + (iw - img.naturalWidth * r) / 2, iy + (ih - img.naturalHeight * r) / 2, img.naturalWidth * r, img.naturalHeight * r);
-    o.restore();
-  }
-  o.fillStyle = "#222";
-  o.font = serif(H * 0.04);
-  old.text.forEach((t, i) => o.fillText(t, W * 0.28, H * (0.77 + i * 0.065)));
-  o.font = serif(H * 0.035);
-  o.fillStyle = "#555";
-  o.fillText(old.visits, W * 0.72, H * 0.93);
-  const S = W < 420 ? 4 : 5;
-  const px = o.getImageData(0, 0, W, H).data;
-  const lim = H;
-  const P: { x: number; y: number; c: string; d: number; vx: number; vy: number; s: number }[] = [];
-  for (let y = 0; y < lim; y += S)
-    for (let x = 0; x < W; x += S) {
-      const i = (Math.floor(y + S / 2) * W + Math.floor(x + S / 2)) * 4;
-      P.push({ x, y, c: `${px[i]},${px[i + 1]},${px[i + 2]}`, d: (x / W) * 0.5 + Math.random() * 0.14, vx: (120 + Math.random() * 380) * (W / 440), vy: (Math.random() - 0.62) * 170, s: S * (0.7 + Math.random() * 0.6) });
-    }
-  return (p: number) => {
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-    for (const q of P) {
-      const t = Math.min(1, Math.max(0, (p - q.d) / 0.46));
-      if (t >= 1) continue;
-      const e = t * t;
-      const a = 1 - t;
-      if (t === 0) {
-        ctx.fillStyle = `rgb(${q.c})`;
-        ctx.fillRect(q.x, q.y, S, S);
-      } else {
-        const r = (q.s / 2) * (1 - 0.55 * t);
-        ctx.fillStyle = `rgba(${q.c},${a})`;
-        ctx.beginPath();
-        ctx.arc(q.x + S / 2 + q.vx * e, q.y + S / 2 + q.vy * e - 26 * e, r, 0, 6.2832);
-        ctx.fill();
-      }
-    }
-  };
-}
 
 /** Scrive lettera per lettera; ogni due lettere una nota che sale nella scala. */
 const typeTo = (tl: gsap.core.Timeline, el: Element, text: string, at: number, dur: number, deg = 0) => {
@@ -229,18 +141,45 @@ function MiniSite({ c, children }: { c: Cinema; children?: ReactNode }) {
   );
 }
 
-/** Lo stesso disegno prima di essere finito: solo le forme, nelle stesse posizioni. */
-function Wire() {
+/** Lo stesso disegno prima di essere finito, nel file di progetto: le forme nelle stesse posizioni, e il team al lavoro con i suoi cursori. */
+const TEAM_C = ["#9b6bff", "#14b86e", "#ff7a59"];
+function Wire({ team }: { team: string[] }) {
   return (
-    <div data-wire className="ms @container absolute inset-0 z-10 overflow-hidden bg-[var(--bg-sunken)]">
-      <div className="cine-blk absolute left-[var(--i)] right-[var(--i)] top-[var(--i)]" style={{ borderRadius: R_IN, height: NAV_H }} />
+    <div data-wire className="ms @container absolute inset-0 z-10 overflow-hidden bg-[var(--bg-sunken)]" style={{ backgroundImage: "radial-gradient(color-mix(in srgb, var(--label-primary) 14%, transparent) 1px, transparent 1px)", backgroundSize: "18px 18px" }}>
+      <div data-wb className="cine-blk absolute left-[var(--i)] right-[var(--i)] top-[var(--i)]" style={{ borderRadius: R_IN, height: NAV_H }} />
       <div className="ms-hero absolute flex flex-col justify-center gap-[clamp(10px,2.4cqw,24px)]">
-        <div className="cine-blk h-[clamp(10px,1.5cqw,14px)] w-[22%] rounded-full" />
-        <div className="cine-blk h-[clamp(26px,6.6cqw,80px)] w-[88%] rounded-[10px]" />
-        <div className="cine-blk h-[clamp(26px,6.6cqw,80px)] w-[70%] rounded-[10px]" />
-        <div className="cine-blk h-[clamp(10px,1.5cqw,14px)] w-[30%] rounded-full" />
+        <div data-wb className="cine-blk h-[clamp(10px,1.5cqw,14px)] w-[22%] rounded-full" />
+        <div data-wb className="cine-blk h-[clamp(26px,6.6cqw,80px)] w-[88%] rounded-[10px]" />
+        <div data-wb className="cine-blk h-[clamp(26px,6.6cqw,80px)] w-[70%] rounded-[10px]" />
+        <div data-wb className="cine-blk h-[clamp(10px,1.5cqw,14px)] w-[30%] rounded-full" />
       </div>
-      <div className="ms-photo cine-blk absolute" style={{ borderRadius: R_IN }} />
+      <div data-wb className="ms-photo cine-blk absolute" style={{ borderRadius: R_IN }} />
+      {/* selezione */}
+      <div data-fsel className="pointer-events-none absolute left-0 top-0 z-20 border-2 border-[var(--accent)]" style={HID}>
+        {["-left-[5px] -top-[5px]", "-right-[5px] -top-[5px]", "-left-[5px] -bottom-[5px]", "-right-[5px] -bottom-[5px]"].map((p) => (
+          <span key={p} className={`absolute h-2 w-2 border-2 border-[var(--accent)] bg-white ${p}`} />
+        ))}
+        <span data-fsz className="absolute left-1/2 top-[calc(100%+8px)] -translate-x-1/2 whitespace-nowrap rounded-[6px] bg-[var(--accent)] px-2 py-0.5 font-mono text-[11px] text-white" />
+      </div>
+      {/* strumenti, in basso come nel file di progetto */}
+      <div data-fbar className="absolute bottom-[calc(var(--i)+10px)] left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-[14px] bg-[var(--bg-surface)] p-1.5 shadow-[0_12px_30px_-12px_rgba(0,0,0,.35)] ring-1 ring-[var(--hair-strong)]">
+        {[MousePointer2, Frame, Square, Type, PenTool, MessageCircle].map((I, i) => (
+          <span key={i} className={`flex h-9 w-9 items-center justify-center rounded-[10px] ${i ? "text-[var(--label-secondary)]" : "bg-[var(--accent)] text-white"}`}>
+            <I size={17} strokeWidth={1.8} />
+          </span>
+        ))}
+      </div>
+      {/* il team */}
+      {team.map((n, i) => (
+        <span key={n} data-fc className="pointer-events-none absolute left-0 top-0 z-30 block" style={HID}>
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,.3))" }}>
+            <path d="M5 3l14 8-6 1.6L10.4 19z" fill={TEAM_C[i % 3]} stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
+          </svg>
+          <span className="absolute left-[16px] top-[18px] whitespace-nowrap rounded-[7px] px-2 py-[3px] text-[12px] font-medium text-white" style={{ background: TEAM_C[i % 3] }}>
+            {n}
+          </span>
+        </span>
+      ))}
     </div>
   );
 }
@@ -406,16 +345,13 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         return k < 0 ? { a: all, b: [] as HTMLElement[] } : { a: all.slice(0, k), b: all.slice(k) };
       };
       const units = caps.map(split);
+      // le parole entrano una alla volta, morbide: salgono appena e si mettono a fuoco
       const slam = (g: { a: HTMLElement[]; b: HTMLElement[] }, at: number, deg: number, L: gsap.core.Timeline = tl) => {
-        if (g.a.length) {
-          L.fromTo(g.a, { scale: 1.22, autoAlpha: 0, filter: "blur(10px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 0.42, ease: "expo.out" }, at);
-          L.call(() => (F.kick(0.9), F.tick(1)), undefined, at);
-        }
-        if (g.b.length) {
-          const at2 = at + (g.a.length ? 0.25 : 0);
-          L.fromTo(g.b, { scale: 1.3, autoAlpha: 0, filter: "blur(12px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 0.5, ease: "expo.out" }, at2);
-          L.call(() => F.pluck(deg + 7, 0.9, 0.5), undefined, at2);
-        }
+        const all = [...g.a, ...g.b];
+        if (!all.length) return;
+        L.fromTo(all, { autoAlpha: 0, y: "0.32em", filter: "blur(8px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.8, ease: "power3.out", stagger: 0.1 }, at);
+        L.call(() => F.tick(0.8), undefined, at);
+        if (g.b.length) L.call(() => F.pluck(deg + 7, 0.9, 0.5), undefined, at + 0.1 * g.a.length);
       };
       // il testo non sta più sopra la grafica: ogni frase ha il suo schermo, prima della sua scena (vedi il montaggio in fondo)
       const capAt = (..._: number[]) => void _;
@@ -453,7 +389,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const tt2 = one("[data-tt2]");
       const num = (n: number) => n.toFixed(1).replace(".", locale === "en" ? "." : ",") + " s";
       gsap.set([fav, rl, tt2, ok], { autoAlpha: 0 });
-      tl.to([pill, ...res], { autoAlpha: 0, y: "-=40", filter: "blur(8px)", duration: 0.45, stagger: 0.03, ease: "power2.in" }, T(5.1))
+      tl.set([pill, ...res], { autoAlpha: 0 }, U(5.7))
         .call(() => (F.whoosh(0.5, false, 0.8), F.riser(U(6.5))), undefined, U(5.5))
         .fromTo(chrome, { autoAlpha: 0, y: 140 }, { autoAlpha: 1, y: 0, duration: 1.3, ease: "expo.out" }, U(5.7))
         .set(cam, { scale: 1 }, U(5.7));
@@ -487,27 +423,54 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         tl.fromTo(o, { n: 0 }, { n: 10.2, duration: 6.5 - U(5.9), ease: "none", onUpdate: () => void (cnt.textContent = num(o.n)) }, U(5.9));
       }
       capAt(1, T(5.6), 6.5);
-      // prima che finisca di caricare, il sito si scioglie in particelle: il cliente se ne va
       const sw = one("[data-sw]");
-      const cv = one("[data-ptc]") as HTMLCanvasElement;
       const content = sw.parentElement as HTMLElement;
-      let draw: ((p: number) => void) | null = null;
-      const dis = { p: 0 };
-      const D0 = 5.8;
-      gsap.set(cv, { autoAlpha: 0 });
-      tl.call(
-        () => {
-          draw = makeDissolve(cv, content, oimg.querySelector("img"), c.old);
-          draw(0);
-        },
-        undefined,
-        D0 - 0.05,
-      )
-        .set(cv, { autoAlpha: 1 }, D0 - 0.02)
-        .set(oldEl, { autoAlpha: 0 }, D0)
-        .call(() => F.whoosh(0.9, false, 0.8), undefined, D0)
-        .fromTo(dis, { p: 0 }, { p: 1, duration: 0.8, ease: "none", onUpdate: () => draw?.(dis.p) }, D0)
-        .set(cv, { autoAlpha: 0 }, D0 + 0.82);
+
+      /* 1b · Il cliente non aspetta: torna alla ricerca e apre il secondo risultato. Montato a parte, tra una scena e l'altra. */
+      const back = gsap.timeline({ paused: true });
+      {
+        const cur = one("[data-cur]");
+        const gres = one("[data-gres]");
+        const rival = one("[data-rival]");
+        const url1 = one("[data-url1]");
+        const second = one('[data-gr="1"] [data-grt]');
+        // un punto di un elemento qualsiasi della finestra, nelle coordinate del contenuto (la finestra può essere scalata)
+        const at = (e: () => HTMLElement, fx = 0.5, fy = 0.6) => () => {
+          const a = content.getBoundingClientRect();
+          const r = e().getBoundingClientRect();
+          const sc = a.width / content.offsetWidth || 1;
+          return { x: (r.left + r.width * fx - a.left) / sc, y: (r.top + r.height * fy - a.top) / sc };
+        };
+        const bk = at(() => one("[data-back]"), 0.4, 0.55);
+        const sc2 = at(() => second, 0.3, 0.7);
+        back
+          .fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.7, y: () => content.offsetHeight * 0.75, scale: 1 }, { autoAlpha: 1, x: () => bk().x, y: () => bk().y, duration: 1.1, ease: "power3.inOut" }, 0.2)
+          .to(cur, { scale: 0.8, duration: 0.09, ease: "power2.out" }, 1.4)
+          .to(cur, { scale: 1, duration: 0.3, ease: "back.out(3)" }, 1.49)
+          .call(() => F.tick(1.4), undefined, 1.4)
+          .fromTo(one("[data-back]"), { backgroundColor: "rgba(94,196,255,0)" }, { backgroundColor: "rgba(94,196,255,.25)", duration: 0.12, yoyo: true, repeat: 1 }, 1.4)
+          .set(oldEl, { autoAlpha: 0 }, 1.55)
+          .set(gres, { autoAlpha: 1 }, 1.55)
+          .call(() => void (url1.textContent = c.find.typed), undefined, 1.55)
+          .call(() => void (url1.textContent = c.find.me[1]), undefined, 1.54)
+          .fromTo(gres, { y: 8 }, { y: 0, duration: 0.25, ease: "power3.out", immediateRender: false }, 1.55)
+          .to(cur, { x: () => sc2().x, y: () => sc2().y, duration: 1.2, ease: "power3.inOut" }, 2.1)
+          .set(second, { textDecoration: "underline" }, 3.2)
+          .to(cur, { scale: 0.8, duration: 0.09, ease: "power2.out" }, 3.7)
+          .to(cur, { scale: 1, duration: 0.3, ease: "back.out(3)" }, 3.79)
+          .call(() => F.tick(1.4), undefined, 3.7)
+          .set(gres, { autoAlpha: 0 }, 3.95)
+          .set(rival, { autoAlpha: 1 }, 3.95)
+          .call(() => void (url1.textContent = c.find.others[0][1]), undefined, 3.95)
+          .call(() => void (url1.textContent = c.find.typed), undefined, 3.94)
+          .fromTo(rival.children, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.08, immediateRender: false }, 3.95)
+          .to(cur, { autoAlpha: 0, duration: 0.3 }, 4.2)
+          // l'etichetta in basso: non conta più i secondi, dice cosa è successo
+          .to([cnt, one("[data-sep]"), one("[data-tag1]")], { autoAlpha: 0, duration: 0.2 }, 4.0)
+          .fromTo(one("[data-tag3]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: "back.out(2)", immediateRender: false }, 4.15)
+          .call(() => F.chord([0, 1, 3], 0.6), undefined, 4.1)
+          .set({}, {}, 6.2);
+      }
 
       /* 2 · Il tuo si apre in 0,8 secondi: stessa pagina, un nuovo caricamento, tutto insieme; poi si naviga */
       const at2 = 6.6;
@@ -571,12 +534,45 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       capAt(2, 6.5, T(11.7));
 
       /* 3 · Prima lo disegniamo: la camera entra nell'anello, dal fondo emerge la pagina inclinata */
-      const wireBits = $("[data-wire] > div");
+      const wireBits = $("[data-wb]");
       tl.call(() => F.whoosh(0.8, true, 1), undefined, T(11.5))
-        .to(chrome, { autoAlpha: 0, y: -50, duration: 0.8, ease: "power3.in" }, T(11.4))
+        .set(chrome, { autoAlpha: 0 }, T(11.9))
         .fromTo(dev, { autoAlpha: 0, rotationX: 40, y: 160, scale: () => fit(wide)() * 0.7 }, { autoAlpha: 1, rotationX: 0, y: 0, scale: fit(wide), duration: 1.5, ease: "expo.out" }, T(11.9))
         .fromTo(wireBits, { autoAlpha: 0, scale: 0.86, y: 16 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.7)", stagger: T(0.4) }, T(12.6));
       wireBits.forEach((_, i) => tl.call(() => F.pluck(i * 2, 0.7, 0.3), undefined, T(12.6) + i * T(0.4)));
+      // il team nel file di progetto: ogni cursore va sul pezzo che sta disegnando, la selezione lo segue
+      {
+        const wire = one("[data-wire]");
+        const fcs = $("[data-fc]");
+        const sel = one("[data-fsel]");
+        const fsz = one("[data-fsz]");
+        const off = (e: HTMLElement) => {
+          let x = 0;
+          let y = 0;
+          let n: HTMLElement | null = e;
+          while (n && n !== wire) {
+            x += n.offsetLeft;
+            y += n.offsetTop;
+            n = n.offsetParent as HTMLElement | null;
+          }
+          return { x, y, w: e.offsetWidth, h: e.offsetHeight };
+        };
+        const start = [[0.16, 0.34], [0.74, 0.2], [0.5, 0.78]];
+        const drift = [[0.3, 0.6], [0.6, 0.42], [0.72, 0.68]];
+        fcs.forEach((f, j) =>
+          tl.fromTo(f, { autoAlpha: 0, x: () => wire.offsetWidth * start[j][0], y: () => wire.offsetHeight * start[j][1] }, { autoAlpha: 1, duration: 0.4, ease: "power2.out" }, T(12.1) + j * 0.12),
+        );
+        wireBits.forEach((b, i) => {
+          const j = i % fcs.length;
+          const t = T(12.6) + i * T(0.4);
+          tl.to(fcs[j], { x: () => off(b).x + off(b).w * 0.9, y: () => off(b).y + off(b).h * 0.8, duration: 0.5, ease: "power3.inOut" }, t - 0.45)
+            .set(sel, { autoAlpha: 1, x: () => off(b).x, y: () => off(b).y, width: () => off(b).w, height: () => off(b).h }, t)
+            .call(() => void (fsz.textContent = `${b.offsetWidth} × ${b.offsetHeight}`), undefined, t);
+        });
+        const end = T(12.6) + wireBits.length * T(0.4);
+        fcs.forEach((f, j) => tl.to(f, { x: () => wire.offsetWidth * drift[j][0], y: () => wire.offsetHeight * drift[j][1], duration: 1.4, ease: "sine.inOut" }, end + j * 0.15));
+        tl.set(sel, { autoAlpha: 0 }, T(15.5));
+      }
       cap(3, 11.9, 15.6);
 
       /* 4 · Poi lo costruiamo: una linea di luce lo trasforma nel sito vero */
@@ -670,9 +666,9 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           }
         });
       place();
-      tl.to(saved, { autoAlpha: 0, duration: 0.4, ease: "power2.in" }, T(40.6))
+      tl.set(saved, { autoAlpha: 0 }, T(41.2))
         .call(() => (F.kick(1), F.whoosh(0.8, false, 1)), undefined, T(40.8))
-        .to(dev, { scale: () => fit(mid)() * 0.22, rotationY: 30, autoAlpha: 0, duration: 0.9, ease: "power3.in" }, T(40.6))
+        .set(dev, { autoAlpha: 0 }, T(41.2))
         .fromTo(orb, { a: -0.5 }, { a: 0.4, duration: T(7.4), ease: "none", onUpdate: place }, T(41.2));
       // ogni voce esce dal centro con una molla e si ferma sul suo posto dell'ellisse: niente deformazioni, solo posizione e messa a fuoco
       gs.forEach((g, i) => {
@@ -692,8 +688,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const h = ps[i].offsetHeight;
         return narrow() ? { x: (i % 2 ? 0.5 : -0.5) * (w + 12), y: (i < 2 ? -0.5 : 0.5) * (h + 12) } : { x: (i - 1.5) * (w + 16), y: 0 };
       };
-      tl.to(rr, { r: 0, duration: 0.7, ease: "power3.in", onUpdate: place }, T(49.2))
-        .to(gs, { autoAlpha: 0, scale: 0.8, filter: "blur(8px)", duration: 0.5, ease: "power2.in" }, T(49.3))
+      tl.set(gs, { autoAlpha: 0 }, T(49.8))
         .call(() => F.whoosh(0.5, true, 0.7), undefined, T(49.8));
       ps.forEach((p, i) => {
         const at = T(49.8 + i * 0.4);
@@ -708,7 +703,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const e = one("[data-eh]");
         return split(e);
       })();
-      tl.to(ps, { autoAlpha: 0, y: "-=30", filter: "blur(8px)", duration: 0.45, stagger: 0.04, ease: "power2.in" }, T(54.2))
+      tl.set(ps, { autoAlpha: 0 }, T(54.8))
         .call(() => (F.kick(1.2), F.whoosh(0.9, true, 1)), undefined, T(54.8))
         .set(endCard, { autoAlpha: 1 }, T(54.8));
       slam(eg, T(55.0), 0);
@@ -723,21 +718,79 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
 
       /* Il tempo del video lo muoviamo noi, un fotogramma alla volta e con un passo massimo:
          se il dispositivo rallenta (pagina che carica, telefono sotto sforzo) il video rallenta con lui invece di saltare le scene. */
-      /* montaggio: frase a schermo intero, poi la sua scena a schermo intero */
-      const segs: [number, number][] = [
-        [0, T(5.5)],
-        [T(5.5), 6.5],
-        [6.5, T(11.7)],
-        [T(11.7), T(15.6)],
-        [T(15.6), T(18)],
-        [T(18), T(21.8)],
-        [T(21.8), T(25.8)],
-        [T(25.8), T(31.2)],
-        [T(31.2), T(41.1)],
-        [T(41.1), T(49.8)],
-        [T(49.8), T(54.6)],
-      ];
+      /* SEO: i risultati della ricerca, e la tua attività che sale in cima */
+      const seoTl = gsap.timeline({ paused: true });
+      {
+        const box = one("[data-seo]");
+        const rows = $("[data-sr]");
+        const me = rows[rows.length - 1];
+        const rh = () => rows[0].offsetHeight + 12;
+        seoTl
+          .set(dev, { autoAlpha: 0 }, 0)
+          .set(box, { autoAlpha: 1 }, 0)
+          .set(rows, { y: (i: number) => i * rh() }, 0)
+          .fromTo(rows, { autoAlpha: 0, scale: 0.95 }, { autoAlpha: 1, scale: 1, duration: 0.6, ease: "power3.out", stagger: 0.09 }, 0.05)
+          .to(me, { opacity: 0.55, duration: 0.4 }, 0.8);
+        rows.slice(0, -1).forEach((r, i) => seoTl.to(r, { y: () => (i + 1) * rh(), duration: 1.5, ease: "power3.inOut" }, 1.5 + 0.05 * (rows.length - 2 - i)));
+        seoTl
+          .to(me, { y: 0, opacity: 1, duration: 1.5, ease: "power3.inOut" }, 1.5)
+          .call(() => F.whoosh(0.5, true, 0.6), undefined, 1.5)
+          .fromTo(me, { boxShadow: "0 0 0 0px rgba(94,196,255,0)" }, { boxShadow: "0 0 0 3px var(--accent)", duration: 0.5, ease: "back.out(2.5)" }, 3.0)
+          .call(() => F.chord([0, 2, 4, 5], 0.8), undefined, 3.0)
+          .set({}, {}, 4.2);
+      }
+      /* GEO: chiedi a un assistente AI, e ti consiglia */
+      const geoTl = gsap.timeline({ paused: true });
+      {
+        const box = one("[data-geo]");
+        const src = one("[data-gsrc]");
+        geoTl
+          .set(one("[data-seo]"), { autoAlpha: 0 }, 0)
+          .set(box, { autoAlpha: 1 }, 0)
+          .fromTo(one("[data-gq]"), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.1)
+          .fromTo(one("[data-ga]"), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.9)
+          .set(src, { autoAlpha: 0 }, 0);
+        typeTo(geoTl, one("[data-gat]"), c.geo.a, 1.4, 2.2, 2);
+        geoTl
+          .fromTo(src, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(2.4)" }, 3.75)
+          .fromTo(src, { boxShadow: "0 0 0 0 rgba(94,196,255,0)" }, { boxShadow: "0 0 26px 2px rgba(94,196,255,.55)", duration: 0.6, ease: "power2.out" }, 3.9)
+          .call(() => F.chord([0, 2, 4, 7], 0.8), undefined, 3.75)
+          .set({}, {}, 5.4);
+      }
+      // il secondo tempo del cliente che se ne va: i secondi continuano a salire finché non torna indietro
+      {
+        const o = { n: 8 };
+        back.fromTo(o, { n: 8 }, { n: 10.3, duration: 3.9, ease: "none", onUpdate: () => void (cnt.textContent = num(o.n)) }, 0);
+      }
+
+      /* montaggio: la frase a schermo intero, poi la sua scena a schermo intero, poi un attimo fermi sul finale */
+      const xcaps = [0, 1].map((i) => one(`[data-capx="${i}"]`));
+      const xunits = xcaps.map(split);
       const scene = tl;
+      type Ch = { u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
+      const ch: Ch[] = [
+        { u: units[0], el: caps[0], seg: [0, T(5.1)] },
+        { u: units[1], el: caps[1], seg: [U(5.7), 5.75], hold: 0 },
+        {
+          sub: back,
+          after: (t) =>
+            void mt
+              .set([one("[data-rival]"), one("[data-tag3]"), one("[data-cur]")], { autoAlpha: 0 }, t)
+              .set([cnt, one("[data-sep]"), one("[data-tag1]")], { autoAlpha: 1 }, t),
+        },
+        { u: units[2], el: caps[2], seg: [6.5, T(11.4)], speed: 0.75 },
+        { u: units[3], el: caps[3], seg: [T(11.9), T(15.6)], speed: 0.5 },
+        { u: units[4], el: caps[4], seg: [T(15.6), T(18)], speed: 0.8 },
+        { u: units[5], el: caps[5], seg: [T(18), T(22.1)], speed: 0.85 },
+        { u: units[6], el: caps[6], seg: [T(22.1), T(25.4)] },
+        { u: units[7], el: caps[7], seg: [T(25.4), T(31)] },
+        { u: units[8], el: caps[8], seg: [T(31), T(40.6)] },
+        { u: xunits[0], el: xcaps[0], sub: seoTl },
+        { u: xunits[1], el: xcaps[1], sub: geoTl, after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
+        { u: units[9], el: caps[9], seg: [T(41.2), T(49.2)] },
+        { u: units[10], el: caps[10], seg: [T(49.8), T(54.2)] },
+        { seg: [T(54.8), scene.duration()], hold: 0 },
+      ];
       const mt = gsap.timeline({
         paused: true,
         onUpdate: () => {
@@ -745,25 +798,36 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         },
       });
       let at = 0;
-      const run = (a: number, b: number) => {
-        mt.add(scene.tweenFromTo(a, b, { duration: b - a, ease: "none", immediateRender: false }), at);
-        at += b - a;
-      };
-      segs.forEach(([a, b], i) => {
-        const u = units[i];
-        if (!u) return run(a, b);
-        mt.to(cam, { autoAlpha: 0, duration: 0.35, ease: "power2.in" }, at);
-        const c0 = at + 0.3;
-        mt.set(caps[i], { autoAlpha: 1 }, c0);
-        slam(u, c0, i % 5, mt);
-        const len = Math.max(1.5, 1.1 + caps[i].textContent!.length * 0.035);
-        mt.to([...u.a, ...u.b], { scale: 0.94, autoAlpha: 0, filter: "blur(8px)", duration: 0.3, ease: "power3.in" }, c0 + len);
-        mt.set(caps[i], { autoAlpha: 0 }, c0 + len + 0.3);
-        at = c0 + len + 0.3;
-        mt.fromTo(cam, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out", immediateRender: false }, at);
-        run(a, b);
+      let pending: ((t: number) => void) | undefined;
+      ch.forEach((k, i) => {
+        if (k.u && k.el) {
+          mt.to(cam, { autoAlpha: 0, duration: 0.45, ease: "power2.inOut" }, at);
+          pending?.(at + 0.46);
+          pending = undefined;
+          const words = [...k.u.a, ...k.u.b];
+          const c0 = at + 0.35;
+          mt.set(k.el, { autoAlpha: 1 }, c0);
+          slam(k.u, c0, i % 5, mt);
+          const c1 = c0 + 0.8 + 0.1 * (words.length - 1) + 0.6 + (k.el.textContent?.length ?? 20) * 0.022;
+          mt.to(words, { autoAlpha: 0, y: "-0.18em", filter: "blur(6px)", duration: 0.5, ease: "power2.in" }, c1);
+          mt.set(k.el, { autoAlpha: 0 }, c1 + 0.5);
+          at = c1 + 0.4;
+          mt.fromTo(cam, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.55, ease: "power2.out", immediateRender: false }, at);
+        }
+        if (k.seg) {
+          const [a, b] = k.seg;
+          const d = (b - a) / (k.speed ?? 1);
+          mt.add(scene.tweenFromTo(a, b, { duration: d, ease: "none", immediateRender: false }), at);
+          at += d;
+        }
+        if (k.sub) {
+          const d = k.sub.duration();
+          mt.add(k.sub.tweenFromTo(0, d, { duration: d, ease: "none", immediateRender: false }), at);
+          at += d;
+        }
+        at += k.hold ?? 1;
+        if (k.after) pending = k.after;
       });
-      run(T(54.6), scene.duration());
       tlRef.current = mt;
 
       const drive = (_t: number, dt: number) => {
@@ -857,6 +921,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             <Kw text={t} />
           </p>
         ))}
+        {[c.seo.cap, c.geo.cap].map((t, i) => (
+          <p key={t} data-capx={i} className={CAPF} style={HID}>
+            <Kw text={t} />
+          </p>
+        ))}
         <div data-cam className="absolute inset-0 will-change-transform">
           <div className="absolute inset-x-0 top-[50%] h-0">
             {/* ricerca e risultati */}
@@ -904,7 +973,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                     </GradientText>
                   </span>
                 </div>
-                <Wire />
+                <Wire team={c.team} />
                 <span data-scan className="pointer-events-none absolute inset-x-0 z-30 block h-[2px] bg-[#8fd8ff] shadow-[0_0_28px_6px_rgba(143,216,255,.6)]" style={HID} />
               </MiniSite>
             </div>
@@ -933,7 +1002,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                 <Plus size={15} strokeWidth={1.8} className="cine-fg2 mb-[10px]" />
               </div>
               <div className="cine-fg flex h-[44px] shrink-0 items-center gap-2 bg-[var(--bg-surface)] px-3">
-                <ArrowLeft size={17} strokeWidth={1.7} className="cine-fg2 opacity-60" />
+                <ArrowLeft data-back size={17} strokeWidth={1.7} className="cine-fg2 rounded-full" />
                 <ArrowRight size={17} strokeWidth={1.7} className="cine-fg2 opacity-60" />
                 <span className="relative block h-[18px] w-[18px] shrink-0">
                   <X data-stop size={17} strokeWidth={1.8} className="absolute inset-0" />
@@ -947,11 +1016,35 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
               </div>
               <div className="relative min-h-0 flex-1 bg-[var(--bg-surface)]">
                 <OldSite c={c} />
+                {/* la ricerca, di nuovo: il cliente torna indietro */}
+                <div data-gres className="absolute inset-0 z-[5] bg-[var(--bg-surface)] px-[6%] pt-[5%] text-[var(--label-primary)] [container-type:size]" style={HID}>
+                  <div className="flex h-[11cqh] min-h-[30px] w-[min(520px,80%)] items-center gap-2.5 rounded-full px-4 text-[clamp(11px,3.6cqh,16px)] ring-1 ring-[var(--hair-strong)]">
+                    <Search size={15} strokeWidth={1.8} className="shrink-0 text-[var(--label-secondary)]" />
+                    {c.find.typed}
+                  </div>
+                  <div className="mt-[6cqh] flex flex-col gap-[5cqh]">
+                    {[c.find.me, ...c.find.others].map(([t, u], i) => (
+                      <div key={u} data-gr={i}>
+                        <span className="block text-[clamp(10px,3cqh,13px)] text-[var(--label-secondary)]">{u}</span>
+                        <span data-grt className="block text-[clamp(14px,5cqh,22px)] font-medium text-[var(--accent)] underline-offset-4">
+                          {t}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* il concorrente: si apre subito */}
+                <div data-rival className="absolute inset-0 z-[6] flex flex-col items-center justify-center gap-[3cqh] bg-[var(--bg-canvas)] [container-type:size]" style={HID}>
+                  <span className="text-[clamp(22px,10cqh,56px)] font-semibold tracking-[-0.045em] text-[var(--label-primary)]">{c.find.others[0][0]}</span>
+                  <span className="flex items-center gap-2 text-[clamp(11px,3.6cqh,16px)] text-[var(--label-secondary)]">
+                    <span className="h-2 w-2 rounded-full bg-[var(--positive)]" />
+                    {c.rival.open}
+                  </span>
+                </div>
                 <div data-sw className="absolute inset-0">
                   <MiniSite c={c} />
                 </div>
                 <span data-wipe aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-20 block w-[3px] bg-[var(--accent)] shadow-[0_0_30px_8px_rgba(94,196,255,.55)]" style={HID} />
-                <canvas data-ptc aria-hidden className="pointer-events-none absolute inset-0 h-full w-full" style={HID} />
                 <span data-prog aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[3px] origin-left" style={{ ...HID, background: "var(--accent)" }} />
                 <svg data-cur viewBox="0 0 24 24" width="24" height="24" aria-hidden className="pointer-events-none absolute left-0 top-0 z-20" style={{ ...HID, filter: "drop-shadow(0 2px 3px rgba(0,0,0,.45))" }}>
                   <path d="M5 3l14 8-6 1.6L10.4 19z" fill="#14171c" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
@@ -964,8 +1057,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                       <span data-tag2 className="absolute left-0 top-0" style={HID}>
                         {c.ba[1]}
                       </span>
+                      <span data-tag3 className="absolute left-0 top-0 whitespace-nowrap" style={HID}>
+                        {c.rival.lost}
+                      </span>
                     </span>
-                    <span className="h-4 w-px bg-[var(--hair-strong)]" />
+                    <span data-sep className="h-4 w-px bg-[var(--hair-strong)]" />
                     <span data-count className="font-mono tabular-nums">
                       0,0 s
                     </span>
@@ -973,6 +1069,40 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                   </Bead>
                 </span>
               </div>
+            </div>
+            {/* SEO: la tua attività sale in cima ai risultati */}
+            <div data-it data-seo className={`${center} w-[min(660px,80cqw)]`} style={{ ...HID, height: "calc(5 * (clamp(54px,8.4cqh,70px) + 12px) - 12px)" }}>
+              {[1, 2, 3, 4, 5].map((n, i) => (
+                <span key={n} className="cine-fg2 absolute -left-10 flex w-6 items-center justify-end font-mono text-[clamp(13px,1.5cqw,17px)] tabular-nums" style={{ top: `calc(${i} * (clamp(54px,8.4cqh,70px) + 12px))`, height: "clamp(54px,8.4cqh,70px)" }}>
+                  {n}
+                </span>
+              ))}
+              {[...c.find.others, ...c.seo.more, c.find.me].map(([t, u], i, all) => (
+                <Bead as="div" key={u} data-sr radius={30} className="cine-fg absolute inset-x-0 top-0 flex h-[clamp(54px,8.4cqh,70px)] items-center justify-between gap-4 px-[clamp(18px,2.6cqw,30px)]">
+                  <span className={`text-[clamp(16px,2.1cqw,24px)] tracking-[-0.02em] ${i === all.length - 1 ? "font-semibold" : "cine-fg2"}`}>{t}</span>
+                  <span className="cine-fg2 text-[clamp(12px,1.4cqw,16px)]">{u}</span>
+                </Bead>
+              ))}
+            </div>
+            {/* GEO: un assistente AI risponde e cita il tuo sito */}
+            <div data-it data-geo className={`${center} flex w-[min(640px,86cqw)] flex-col gap-4`} style={HID}>
+              <Bead as="div" data-gq radius={26} className="cine-fg self-end px-5 py-3.5 text-[clamp(15px,2.1cqw,21px)]">
+                {c.geo.q}
+              </Bead>
+              <Bead as="div" data-ga radius={28} className="cine-fg flex flex-col gap-3 px-6 py-5 text-[clamp(15px,2.1cqw,21px)] leading-[1.45]">
+                <span className="cine-fg2 flex items-center gap-2 text-[0.72em]">
+                  <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
+                  {c.geo.who}
+                </span>
+                <span className="relative block">
+                  <span className="invisible">{c.geo.a}</span>
+                  <span data-gat className="absolute inset-0" />
+                </span>
+                <span data-gsrc className="flex items-center gap-2 self-start rounded-full px-3.5 py-1.5 text-[0.78em] font-medium text-[var(--accent)] ring-1 ring-[var(--accent)]">
+                  <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
+                  {c.find.me[1]}
+                </span>
+              </Bead>
             </div>
             {/* cosa ricevi */}
             {c.gets.items.map(([t], i) => {

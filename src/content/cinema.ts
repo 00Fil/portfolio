@@ -23,6 +23,12 @@ export type Cinema = {
   /** il sito di prima: vecchio, lento */
   old: { brand: string; menu: string[]; hello: string; text: string[]; visits: string };
   ba: [string, string];
+  /** il cliente torna alla ricerca e sceglie il concorrente */
+  rival: { open: string; lost: string };
+  /** chi lavora al prototipo, con il proprio cursore */
+  team: string[];
+  seo: { cap: string; more: [string, string][] };
+  geo: { cap: string; q: string; a: string; who: string };
 };
 
 const IT: Cinema = {
@@ -69,6 +75,10 @@ const IT: Cinema = {
   site: { nav: ["Servizi", "Progetti"], book: "Contattaci", title: ["Il tuo lavoro,", "ben visibile."], badge: "SCOPRI DI PIÙ · SCOPRI DI PIÙ · ", stars: "4,9 · recensioni", since: "Dal 2009" },
   old: { brand: "Marchio s.r.l.", menu: ["Home", "Chi siamo", "Servizi", "Contatti"], hello: "Benvenuti nel nostro sito!", text: ["Siamo leader nel settore dal 2009.", "Sito ottimizzato per Internet Explorer."], visits: "Visitatori: 004127" },
   ba: ["Prima", "Dopo"],
+  rival: { open: "Aperto ora", lost: "Cliente perso" },
+  team: ["Filippo", "Design", "Sviluppo"],
+  seo: { cap: "Su Google, *in cima*.", more: [["Studio Bianchi", "studiobianchi.it"], ["Centro Verdi", "centroverdi.it"]] },
+  geo: { cap: "E l'AI *ti consiglia*.", q: "Chi mi consigli qui vicino?", a: "Ti consiglio La tua attività: risponde subito e ha ottime recensioni.", who: "Assistente AI" },
 };
 
 const EN: Cinema = {
@@ -115,6 +125,10 @@ const EN: Cinema = {
   site: { nav: ["Services", "Projects"], book: "Contact us", title: ["Your work,", "well seen."], badge: "DISCOVER MORE · DISCOVER MORE · ", stars: "4.9 · reviews", since: "Since 2009" },
   old: { brand: "Marchio Ltd.", menu: ["Home", "About us", "Services", "Contact"], hello: "Welcome to our website!", text: ["Industry leaders since 2009.", "Best viewed in Internet Explorer."], visits: "Visitors: 004127" },
   ba: ["Before", "After"],
+  rival: { open: "Open now", lost: "Customer lost" },
+  team: ["Filippo", "Design", "Development"],
+  seo: { cap: "On Google, *on top*.", more: [["Bianchi Studio", "bianchistudio.com"], ["Verdi Centre", "verdicentre.com"]] },
+  geo: { cap: "And AI *recommends you*.", q: "Who do you recommend nearby?", a: "I recommend Your business: quick to reply, with great reviews.", who: "AI assistant" },
 };
 
 export const getCinema = (l: Locale): Cinema => (l === "en" ? EN : IT);
