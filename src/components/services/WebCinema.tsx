@@ -6,12 +6,13 @@ import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 import type { LucideIcon } from "lucide-react";
-import { Frame, MessageCircle, MousePointer2, PenTool, Square, Type, ArrowDown, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
+import { Frame, MessageCircle, MousePointer2, PenTool, Square, Type, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { prefersReducedMotion } from "@/lib/env";
 import { onIntroLift } from "@/lib/intro";
 import { soundOn, onSound, setSound } from "@/lib/sound";
-import { fx, filmMute } from "@/lib/filmsound";
+import { fx, filmMute, cue } from "@/lib/filmsound";
+import { scrollToY } from "@/lib/scroll";
 import { Bead } from "@/components/glass/Bead";
 import { Wordmark } from "@/components/nav/Wordmark";
 import { GradientText } from "@/components/ui/GradientText";
@@ -257,6 +258,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
   const [snd, setSnd] = useState(false);
+  // ogni nuova riproduzione ricostruisce il video da zero: niente resti della volta prima
+  const [run, setRun] = useState(0);
 
   useEffect(() => {
     setSnd(soundOn());
@@ -338,6 +341,10 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       gsap.set($("[data-it]"), { xPercent: -50, yPercent: -50 });
       gsap.set(dev, { width: wide, scale: fit(wide), "--r": "26px", transformPerspective: 1600 });
 
+      // a ogni riproduzione i testi scritti dal video tornano come all'inizio
+      const reset: [string, string][] = [["[data-typed]", ""], ["[data-url]", ""], ["[data-url1]", c.find.me[1]], ["[data-tt1]", c.find.me[1]], ["[data-count]", "0,0 s"], ["[data-gat]", ""], ["[data-fsz]", ""]];
+      reset.forEach(([q, v]) => $(q).forEach((e) => (e.textContent = v)));
+      F.reset();
       // le scene, senza testo: le guida il montaggio qui sotto, un capitolo alla volta
       const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.inOut" } });
 
@@ -355,9 +362,9 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const slam = (g: { a: HTMLElement[]; b: HTMLElement[] }, at: number, deg: number, L: gsap.core.Timeline = tl) => {
         const all = [...g.a, ...g.b];
         if (!all.length) return;
-        L.fromTo(all, { autoAlpha: 0, y: "0.32em", filter: "blur(8px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.6, ease: "power3.out", stagger: 0.07 }, at);
+        L.fromTo(all, { autoAlpha: 0, y: "0.32em", filter: "blur(8px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.45, ease: "power3.out", stagger: 0.045 }, at);
         L.call(() => F.tick(0.8), undefined, at);
-        if (g.b.length) L.call(() => F.pluck(deg + 7, 0.9, 0.5), undefined, at + 0.07 * g.a.length);
+        if (g.b.length) L.call(() => F.pluck(deg + 7, 0.9, 0.5), undefined, at + 0.045 * g.a.length);
       };
       // il testo non sta più sopra la grafica: ogni frase ha il suo schermo, prima della sua scena (vedi il montaggio in fondo)
       const capAt = (..._: number[]) => void _;
@@ -716,14 +723,12 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .call(() => (F.kick(1.2), F.whoosh(0.9, true, 1)), undefined, T(54.8))
         .set(endCard, { autoAlpha: 1 }, T(54.8));
       slam(eg, T(55.0), 0);
-      tl.call(() => (F.chord([0, 2, 4, 7], 1.2)), undefined, T(55.0))
-        .to(endCard, { autoAlpha: 0, y: -30, filter: "blur(10px)", duration: 0.5, ease: "power2.in" }, T(55.0) + 1.7)
+      tl        .to(endCard, { autoAlpha: 0, y: -30, filter: "blur(10px)", duration: 0.5, ease: "power2.in" }, T(55.0) + 1.7)
         .set(one("[data-end2]"), { autoAlpha: 1 }, T(55.0) + 2.1)
         .fromTo(one("[data-logo]"), { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 1.1, ease: "expo.out" }, T(55.0) + 2.1)
-        .call(() => F.chord([0, 2, 4, 7], 1), undefined, T(55.0) + 2.1)
-        .fromTo(one("[data-more]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" }, T(55.0) + 2.9);
+
       punch(51.8, 1.03);
-      tl.set({}, {}, T(55.0) + 4);
+      tl.set({}, {}, T(55.0) + 3.4);
 
       /* Il tempo del video lo muoviamo noi, un fotogramma alla volta e con un passo massimo:
          se il dispositivo rallenta (pagina che carica, telefono sotto sforzo) il video rallenta con lui invece di saltare le scene. */
@@ -738,6 +743,9 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         // parte piano, accelera fino a diventare scie di luce, rallenta e si ferma su di te
         const vb = one("[data-vb]");
         const streak = one("[data-streak]");
+        vb.setAttribute("stdDeviation", "0 0");
+        list.style.filter = "none";
+        streak.style.opacity = "0";
         const endY = () => -(me.offsetTop - (win.offsetHeight - me.offsetHeight) / 2);
         const ease = gsap.parseEase("power4.inOut");
         const run = { p: 0 };
@@ -814,7 +822,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const xcaps = [0, 1, 2, 3].map((i) => one(`[data-capx="${i}"]`));
       const xunits = xcaps.map(split);
       const scene = tl;
-      type Ch = { textOnly?: boolean; u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
+      type Ch = { mood?: "stop" | "drop" | "end"; textOnly?: boolean; u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
       // solo i passaggi che dicono qualcosa: il problema, poi cosa cambia (in cima, veloce, fatto su misura, ogni schermo, lo modifichi tu, l'AI ti cita, tutto compreso)
       const ch: Ch[] = [
         // prima del nostro intervento
@@ -822,16 +830,15 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         { u: xunits[2], el: xcaps[2], sub: farTl, after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
         { u: units[1], el: caps[1], seg: [U(5.7) + 0.02, 5.75], hold: 0 },
         { sub: back, speed: 1.35, hold: 0.4, after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
-        { u: xunits[3], el: xcaps[3], textOnly: true },
+        { u: xunits[3], el: xcaps[3], textOnly: true, mood: "stop" },
         // con il nuovo sito
-        { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.25, after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set([chrome, meter], { autoAlpha: 1 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
+        { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.25, mood: "drop", after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set([chrome, meter], { autoAlpha: 1 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
         { u: units[2], el: caps[2], seg: [6.5, T(11.4)], speed: 0.9 },
         { u: units[3], el: caps[3], seg: [T(11.9), T(18)], speed: 0.75 },
         { u: units[5], el: caps[5], seg: [T(18), T(22.1)] },
         { u: units[8], el: caps[8], seg: [T(31.6), T(40.6)], speed: 1.15 },
         { u: xunits[1], el: xcaps[1], sub: geoTl, speed: 1.25, after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
-        { u: units[9], el: caps[9], seg: [T(41.2), T(49.2)], speed: 1.3 },
-        { seg: [T(54.8), scene.duration()], hold: 0 },
+        { seg: [T(54.8), scene.duration()], hold: 0, mood: "end" },
       ];
       const mt = gsap.timeline({
         paused: true,
@@ -842,23 +849,35 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       let at = 0;
       let pending: ((t: number) => void) | undefined;
       ch.forEach((k, i) => {
+        if (k.mood) {
+          const m = k.mood;
+          const t0 = at + (m === "end" ? 0.2 : 0);
+          mt.call(() => cue(m, t0), undefined, t0);
+        }
         if (k.u && k.el) {
-          mt.to(cam, { autoAlpha: 0, duration: 0.35, ease: "power2.inOut" }, at);
-          pending?.(at + 0.36);
+          mt.to(cam, { autoAlpha: 0, duration: 0.28, ease: "power2.inOut" }, at);
+          pending?.(at + 0.29);
           pending = undefined;
           const words = [...k.u.a, ...k.u.b];
-          const c0 = at + 0.25;
+          const c0 = at + 0.18;
           mt.set(k.el, { autoAlpha: 1 }, c0);
           slam(k.u, c0, i % 5, mt);
-          const c1 = c0 + 0.6 + 0.07 * (words.length - 1) + 0.35 + (k.el.textContent?.length ?? 20) * 0.018;
-          mt.to(words, { autoAlpha: 0, y: "-0.18em", filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, c1);
-          mt.set(k.el, { autoAlpha: 0 }, c1 + 0.4);
-          at = c1 + 0.3;
+          const c1 = c0 + 0.42 + 0.045 * (words.length - 1) + 0.12 + (k.el.textContent?.length ?? 20) * 0.01;
+          mt.to(words, { autoAlpha: 0, y: "-0.18em", filter: "blur(6px)", duration: 0.3, ease: "power2.in" }, c1);
+          mt.set(k.el, { autoAlpha: 0 }, c1 + 0.3);
+          at = c1 + 0.22;
           if (k.textOnly) {
             at += 0.3;
             return;
           }
           mt.fromTo(cam, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.55, ease: "power2.out", immediateRender: false }, at);
+        }
+        if (!k.el && pending) {
+          // capitolo senza frase: la scena di prima si spegne e si mette in ordine qui
+          mt.to(cam, { autoAlpha: 0, duration: 0.3, ease: "power2.inOut" }, at);
+          pending(at + 0.31);
+          pending = undefined;
+          at += 0.35;
         }
         if (k.seg) {
           const [a, b] = k.seg;
@@ -886,6 +905,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           flags.current.playing = false;
           setEnded(true);
           setPlaying(false);
+          // sulla pagina, finita la firma si passa da soli alla prima sezione scritta
+          if (!embed) {
+            const nx = el.nextElementSibling as HTMLElement | null;
+            if (nx && el.getBoundingClientRect().top > -40 && el.getBoundingClientRect().top < innerHeight * 0.4) window.setTimeout(() => scrollToY(nx.getBoundingClientRect().top + scrollY), 500);
+          }
         }
       };
       gsap.ticker.add(drive);
@@ -923,7 +947,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         window.removeEventListener("load", onReady);
       };
     },
-    { scope: root, dependencies: [locale] },
+    { scope: root, dependencies: [locale, run], revertOnUpdate: true },
   );
 
   useEffect(() => {
@@ -947,21 +971,18 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
     (root.current as unknown as { __go: () => void }).__go();
   };
   const replay = () => {
-    const tl = tlRef.current;
-    if (!tl) return;
-    flags.current = { ...flags.current, ended: false, paused: false, playing: true };
+    flags.current = { ...flags.current, ended: false, paused: false, playing: false };
     setEnded(false);
-    setPlaying(true);
     F.reset();
     F.duck(false);
-    tl.time(0);
+    setRun((r) => r + 1);
   };
 
   const center = "absolute left-1/2 top-0";
   return (
     <section ref={root} className={embed ? "relative h-full w-full [container-type:size]" : "relative h-svh min-h-[560px] [container-type:size]"} aria-label={title} style={{ "--ft": "84px", "--fb": "16px" } as CSSProperties}>
       {!embed && <h1 className="sr-only">{title}</h1>}
-      <div data-frame className={embed ? "cine-film cine-acr absolute inset-0 overflow-hidden" : "cine-film cine-acr absolute overflow-hidden rounded-[34px] shadow-[inset_0_0_0_1px_var(--hair-strong)] max-md:left-2 max-md:right-2 md:left-4 md:right-4"} style={embed ? undefined : { top: "var(--ft)", bottom: "var(--fb)" }}>
+      <div key={run} data-frame className={embed ? "cine-film cine-acr absolute inset-0 overflow-hidden" : "cine-film cine-acr absolute overflow-hidden rounded-[34px] shadow-[inset_0_0_0_1px_var(--hair-strong)] max-md:left-2 max-md:right-2 md:left-4 md:right-4"} style={embed ? undefined : { top: "var(--ft)", bottom: "var(--fb)" }}>
         {c.cap.map((t, i) => (
           <p key={t} data-cap={i} className={CAPF} style={HID}>
             <Kw text={t} />
@@ -1199,14 +1220,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           <Kw text={c.end.t} />
         </p>
       </div>
-      <div data-end2 className="absolute inset-0 flex flex-col items-center justify-center gap-14" style={HID}>
+      <div data-end2 className="absolute inset-0 flex flex-col items-center justify-center" style={HID}>
         <div data-logo className="[--logo-size:clamp(46px,10.5cqw,136px)]" style={HID}>
           <Wordmark />
         </div>
-        <span data-more className="cine-fg flex flex-col items-center gap-1 text-[clamp(24px,3.4cqw,40px)]" style={{ ...HID, fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSynthesis: "none" }}>
-          {c.end.more}
-          <ArrowDown size={18} strokeWidth={1.8} className="animate-bounce" />
-        </span>
+
       </div>
       {!embed && !prefersReducedMotion() && (
         <div className="absolute inset-x-0 bottom-3 z-10 flex justify-center px-5">

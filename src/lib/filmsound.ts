@@ -190,6 +190,7 @@ export const fx = {
   },
   /** Riporta la base all'inizio (nuova riproduzione). */
   reset() {
+    resetCues();
     last = -1;
     lastT = 0;
     if (pump && ctx) {
@@ -245,39 +246,67 @@ function music(c: AudioContext) {
   return { out: mbus, pump: pump!, verb: verb!, echo: echo! };
 }
 
-/** Giro in La minore, una battuta per accordo: Am | Fm | Am | Em. Triadi per il pad e fondamentale per il basso. */
-const CH = [
-  { pad: [220, 261.63, 329.63], root: 110 },
-  { pad: [174.61, 207.65, 261.63], root: 87.31 },
-  { pad: [220, 261.63, 329.63], root: 110 },
-  { pad: [164.81, 196, 246.94], root: 82.41 },
-];
-/**
- * Tema: «Nella sala del re della montagna» di Grieg (1875, pubblico dominio), trasposto in La minore.
- * Passo = ottavo (due sedicesimi), valore = semitoni da La4; la melodia suona un'ottava sotto.
+/*
+ * Colonna sonora a 120 bpm, sedicesimi da 0,125 s, una battuta = 2 s. Due tempi, come il racconto:
+ *  A · il problema: La minore (Am F Dm E), pulsazione trattenuta, cassa a metà tempo, un tema che scende;
+ *  stacco · il cliente perso: solo il pad, sospeso;
+ *  B · il nuovo sito: Do maggiore (C G Am F), cassa dritta, battiti di mani, arpeggio e una melodia piena di otto battute;
+ *  fine · un accordo di Do che resta nell'aria.
+ * I passaggi tra le parti li decide il video con fx.cue(): cadono sempre a inizio battuta.
  */
-const LEAD: Record<number, number>[] = [
-  { 0: 0, 2: 2, 4: 3, 6: 5, 8: 7, 10: 3, 12: 7 },
-  { 0: 6, 2: 2, 4: 6, 8: 5, 10: 1, 12: 5 },
-  { 0: 0, 2: 2, 4: 3, 6: 5, 8: 7, 10: 3, 12: 7 },
-  { 0: 12, 2: 10, 4: 7, 6: 3, 8: 7, 10: 10 },
+const N = (m: number) => 440 * 2 ** ((m - 69) / 12); // nota MIDI → Hz
+type Chord = { notes: number[]; root: number };
+const A_CH: Chord[] = [
+  { notes: [57, 60, 64], root: 45 }, // Am
+  { notes: [57, 60, 65], root: 41 }, // F
+  { notes: [57, 62, 65], root: 38 }, // Dm
+  { notes: [56, 59, 64], root: 40 }, // E
 ];
-/** Colpo finale su La: tre note ribattute e la quinta sotto. */
-const FIN: Record<number, number> = { 0: 0, 2: 0, 4: 0, 8: -5 };
-/** Ritmo del basso: sedicesimi su cui cade la fondamentale (sincopato, con salto d'ottava). */
-const BASS = [0, 3, 6, 8, 10, 14];
+const B_CH: Chord[] = [
+  { notes: [60, 64, 67, 71], root: 36 }, // Cmaj7
+  { notes: [59, 62, 67, 69], root: 43 }, // G(add9)
+  { notes: [57, 60, 64, 67], root: 45 }, // Am7
+  { notes: [57, 60, 65, 69], root: 41 }, // F
+];
+/** Tema del problema: poche note, scende. Chiave = sedicesimo, valore = nota MIDI. */
+const A_MEL: Record<number, number>[] = [
+  { 0: 69, 6: 72, 8: 76, 12: 74 },
+  { 0: 72, 4: 69, 8: 65 },
+  { 0: 74, 6: 72, 8: 69, 12: 67 },
+  { 0: 68, 4: 71, 8: 64 },
+];
+/** Melodia del nuovo sito: otto battute, domanda e risposta. */
+const B_MEL: Record<number, number>[] = [
+  { 0: 76, 4: 79, 6: 84, 10: 83, 12: 79 },
+  { 0: 74, 4: 79, 6: 83, 10: 81, 12: 79 },
+  { 0: 72, 4: 76, 6: 81, 10: 79, 12: 76 },
+  { 0: 77, 4: 81, 6: 84, 10: 81, 12: 79 },
+  { 0: 76, 2: 79, 4: 84, 8: 86, 12: 88 },
+  { 0: 86, 4: 83, 8: 79, 12: 83, 14: 86 },
+  { 0: 84, 4: 83, 6: 81, 10: 76 },
+  { 0: 77, 2: 81, 4: 84, 12: 79 },
+];
+/** Arpeggio a sedicesimi: indici nelle note dell'accordo (un'ottava sopra). */
+const ARP = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0, 2, 1, 3];
+
+const cues = { stop: Infinity, drop: Infinity, end: Infinity };
+export function cue(k: keyof typeof cues, t: number) {
+  // la parte cambia alla battuta successiva (o a questa, se è appena iniziata)
+  cues[k] = Math.max(0, Math.ceil(t / 2 - 0.12));
+}
+export function resetCues() {
+  cues.stop = cues.drop = cues.end = Infinity;
+}
 
 type Mus = { out: GainNode; pump: GainNode; verb: ConvolverNode; echo: DelayNode };
 
 function step(c: AudioContext, m: Mus, n: number, at: number) {
   const s = n % 16;
   const bar = Math.floor(n / 16);
-  const ended = bar >= 17;
-  if (ended && s) return;
-  // 0 intro · 1 ingresso della cassa · 2 pieno · 3 stacco (senza cassa, rullo) · 4 colpo finale · 5 coda
-  const sect = bar < 1 ? 0 : bar < 2 ? 1 : bar < 9 ? 2 : bar < 11 ? 3 : bar < 15 ? 2 : bar < 16 ? 4 : 5;
-  const ch = sect >= 4 ? CH[0] : CH[(bar + 2) % 4];
-  /** Voce di sintetizzatore: più oscillatori leggermente scordati, filtro, eco e riverbero. `pumped` la fa respirare con la cassa. */
+  const sect = bar >= cues.end ? "end" : bar >= cues.drop ? "b" : bar >= cues.stop ? "stop" : "a";
+  if (sect === "end" && (bar > cues.end || s)) return;
+  const bb = bar - (Number.isFinite(cues.drop) ? cues.drop : 0); // battute dall'inizio di B
+  const ch = sect === "a" ? A_CH[bar % 4] : sect === "stop" ? A_CH[0] : sect === "end" ? B_CH[0] : B_CH[bb % 4];
   const tone = (fr: number, type: OscillatorType, peak: number, atk: number, dec: number, lp: number, o2: { wet?: number; echo?: number; det?: number[]; pumped?: boolean; lpEnd?: number } = {}) => {
     const { wet = 0.3, echo = 0, det = [0], pumped = false, lpEnd } = o2;
     const g = c.createGain();
@@ -326,53 +355,77 @@ function step(c: AudioContext, m: Mus, n: number, at: number) {
     sn.start(at, Math.random() * 0.8);
     sn.stop(at + dec + 0.03);
   };
-  const kicks = sect === 2 || sect === 4;
-  // respiro: a ogni quarto la parte armonica si abbassa e risale (la cassa "spinge" il resto)
-  if ((kicks || sect === 1) && s % 4 === 0) {
-    const gp = m.pump.gain;
-    gp.setValueAtTime(sect === 1 ? 0.7 : 0.32, at);
-    gp.linearRampToValueAtTime(1, at + 0.24);
+  const lead = (mel: Record<number, number>, peak: number, bright: boolean) => {
+    const mn = mel[s];
+    if (mn === undefined) return;
+    let nx = 16 - s;
+    for (let j = s + 1; j < 16; j++)
+      if (mel[j] !== undefined) {
+        nx = j - s;
+        break;
+      }
+    const dec = Math.min(0.9, Math.max(0.2, nx * 0.125 * 0.9));
+    const fr = N(mn);
+    tone(fr, "sawtooth", peak, 0.01, dec, bright ? 2600 : 1500, { wet: 0.35, echo: 0.2, det: [-7, 7], lpEnd: bright ? 900 : 600 });
+    tone(fr, "triangle", peak * 0.6, 0.006, dec, 3000, { wet: 0.3 });
+  };
+
+  /* fine: un accordo pieno che resta */
+  if (sect === "end") {
+    [36, 48, 60, 64, 67, 71, 74].forEach((k) => tone(N(k), k < 50 ? "sine" : "sawtooth", k < 50 ? 0.22 : 0.05, 0.02, 4.5, 1800, { wet: 0.6, det: k < 50 ? [0] : [-8, 8], lpEnd: 500 }));
+    kickAt(c, m.out, at, 1);
+    burst("highpass", 5000, 0.5, 0.12, 1.4);
+    return;
   }
-  // pad: tre voci a sega scordate, a inizio battuta; si apre da solo con un filtro che sale
-  if (s === 0) ch.pad.forEach((fr) => tone(fr, "sawtooth", sect >= 4 ? 0.05 : 0.036, 0.05, sect >= 4 ? 3.2 : 1.9, 500, { wet: 0.5, det: [-9, 9], pumped: true, lpEnd: sect === 3 ? 600 : 1500 }));
-  if (sect === 5) return;
-  // cassa a quattro; nell'ingresso a metà, nello stacco ferma tranne l'ultimo quarto
-  if (kicks && s % 4 === 0) kickAt(c, m.out, at, s % 8 === 0 ? 1 : 0.88);
-  if (sect === 1 && s % 4 === 0) kickAt(c, m.out, at, 0.5);
-  if (sect === 3 && bar === 10 && s >= 12 && s % 2 === 0) kickAt(c, m.out, at, 0.4 + (s - 12) * 0.1);
-  // battito di mani sul 2 e sul 4; nello stacco un rullo che sale
-  if (kicks && (s === 4 || s === 12)) {
+
+  /* pad: a inizio battuta, sempre */
+  if (s === 0)
+    ch.notes.forEach((k) =>
+      tone(N(k), "sawtooth", sect === "b" ? 0.032 : 0.03, sect === "stop" ? 0.6 : 0.08, sect === "stop" ? 2.6 : 1.9, 500, { wet: 0.55, det: [-9, 9], pumped: sect === "b", lpEnd: sect === "b" ? 1700 : 900 }),
+    );
+  if (sect === "stop") {
+    // sospeso: solo il pad e un battito lontano
+    if (s === 0) tone(N(33), "sine", 0.16, 0.01, 1.2, 200, { wet: 0 });
+    return;
+  }
+
+  if (sect === "a") {
+    // cuore che batte: cassa sull'1 e sull'«e» del 2
+    if (s === 0 || s === 6) kickAt(c, m.out, at, s === 0 ? 0.8 : 0.5);
+    if (s % 4 === 2) burst("highpass", 8000, 0.7, 0.025, 0.04);
+    // pulsazione a ottavi sulla fondamentale, chiusa
+    if (s % 2 === 0) tone(N(ch.root + 12), "sawtooth", 0.06, 0.004, 0.18, 380, { wet: 0.1, lpEnd: 160 });
+    if (s === 0) tone(N(ch.root), "sine", 0.18, 0.01, 1.6, 300, { wet: 0 });
+    if (bar >= 2) lead(A_MEL[bar % 4], 0.07, false);
+    return;
+  }
+
+  /* B: il nuovo sito */
+  if (s % 4 === 0) {
+    const gp = m.pump.gain;
+    gp.setValueAtTime(0.35, at);
+    gp.linearRampToValueAtTime(1, at + 0.24);
+    kickAt(c, m.out, at, s === 0 ? 1 : 0.88);
+  }
+  if (s === 4 || s === 12) {
     burst("bandpass", 1600, 0.8, 0.13, 0.12);
     burst("highpass", 3200, 0.7, 0.05, 0.09);
   }
-  if (sect === 3 && bar === 10 && s >= 8) burst("bandpass", 1800, 0.9, 0.04 + (s - 8) * 0.012, 0.06);
-  // controtempi: piatto aperto sull'«e», chiuso sui sedicesimi
-  if (sect >= 1 && s % 4 === 2) burst("highpass", 7200, 0.7, 0.07, 0.1);
-  else if (sect >= 1 && s % 2 === 1) burst("highpass", 8400, 0.7, sect === 2 ? 0.03 : 0.015, 0.03);
-  // basso: sub sinusoidale più sega filtrata, sincopato; ottava sopra sull'ultimo colpo della battuta
-  if (kicks && BASS.includes(s)) {
-    const up = s === 14 ? 2 : 1;
-    tone(ch.root * up, "sine", 0.2, 0.006, s === 8 ? 0.34 : 0.22, 700, { wet: 0 });
-    tone(ch.root * up, "sawtooth", 0.07, 0.006, 0.2, 420, { wet: 0, lpEnd: 160 });
+  if (s % 4 === 2) burst("highpass", 7200, 0.7, 0.07, 0.1);
+  else if (s % 2 === 1) burst("highpass", 8400, 0.7, 0.025, 0.03);
+  // basso a ottavi, con l'ottava sull'«e»
+  if (s % 2 === 0) {
+    const up = s % 4 === 2 ? 2 : 1;
+    tone(N(ch.root) * up, "sine", 0.18, 0.006, 0.2, 700, { wet: 0 });
+    tone(N(ch.root) * up, "sawtooth", 0.06, 0.006, 0.18, 500, { wet: 0, lpEnd: 160 });
   }
-  // stoccate d'accordo sull'«e» del 2 e del 4, dalla seconda strofa
-  if (sect === 2 && bar >= 4 && (s === 6 || s === 14)) ch.pad.forEach((fr) => tone(fr * 2, "sawtooth", 0.034, 0.004, 0.16, 2600, { wet: 0.25, det: [-7, 7], pumped: true, lpEnd: 900 }));
-  // tema: sega scordata filtrata, pizzicata, con eco a croma puntata. Entra alla terza battuta, un'ottava sopra dopo lo stacco
-  const mel = sect === 4 ? FIN : LEAD[(bar + 2) % 4];
-  const mn = bar >= 2 ? mel[s] : undefined;
-  if (mn !== undefined) {
-    let nx = 16 - s;
-    for (let j = s + 1; j < 16; j++) if (mel[j] !== undefined) { nx = j - s; break; }
-    const dec = Math.min(0.7, Math.max(0.16, nx * 0.125 * 0.85));
-    const fr = 440 * 2 ** ((mn - (sect === 4 ? 0 : 12)) / 12);
-    tone(fr, "sawtooth", 0.1, 0.008, dec, 2200, { wet: 0.3, echo: 0.18, det: [-7, 7], lpEnd: 700 });
-    tone(fr, "square", 0.02, 0.006, dec * 0.8, 2200, { wet: 0.3 });
-    if (bar >= 6 && sect !== 4) tone(fr * 2, "sawtooth", 0.04, 0.006, dec, 2600, { wet: 0.35, det: [-6, 6], lpEnd: 1000 });
-    if (sect === 4) {
-      tone(fr / 2, "sawtooth", 0.09, 0.004, dec + 0.4, 900, { wet: 0.3, det: [-6, 6] });
-      tone(55, "sine", 0.3, 0.004, 1.6, 200, { wet: 0 });
-    }
-  }
+  // arpeggio a sedicesimi, morbido, dalla seconda battuta
+  if (bb >= 1) tone(N(ch.notes[ARP[s] % ch.notes.length] + 12), "square", 0.018, 0.004, 0.12, 2400, { wet: 0.3, echo: 0.12, pumped: true });
+  // melodia: otto battute; al secondo giro raddoppiata all'ottava
+  lead(B_MEL[bb % 8], 0.085, true);
+  if (bb >= 8 && B_MEL[bb % 8][s] !== undefined) tone(N(B_MEL[bb % 8][s] + 12), "triangle", 0.03, 0.006, 0.3, 3200, { wet: 0.4, echo: 0.15 });
+  // piatto all'inizio di ogni frase
+  if (s === 0 && bb % 4 === 0) burst("highpass", 5200, 0.5, 0.1, 1.2);
 }
 
 function kickAt(c: AudioContext, out: GainNode, at: number, vel: number) {
