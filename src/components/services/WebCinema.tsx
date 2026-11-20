@@ -19,7 +19,6 @@ import { getCinema, type Cinema } from "@/content/cinema";
 
 gsap.registerPlugin(SplitText, useGSAP);
 
-const ACC = "#8fd8ff";
 const DISP = { fontWeight: 600, letterSpacing: "-0.055em" } as const;
 const GT = ["#1f8fd0", "#5ec4ff", "#2f6fe0", "#8fd8ff"];
 const cin = (n: string) => `/visual/cinema/${n}.webp`;
@@ -68,9 +67,9 @@ function Tile3D({ Icon, size = 26, className = "" }: { Icon: LucideIcon; size?: 
 
 /**
  * Dissolvenza a particelle: fotografa il sito (immagine, barra e titolo) in una griglia di punti che si staccano da sinistra a destra,
- * salgono e svaniscono, come polvere portata dal vento. `visible` è la frazione di altezza già caricata.
+ * salgono e svaniscono, come polvere portata dal vento.
  */
-function makeDissolve(cv: HTMLCanvasElement, host: HTMLElement, img: HTMLImageElement | null, visible: number) {
+function makeDissolve(cv: HTMLCanvasElement, host: HTMLElement, img: HTMLImageElement | null, old: Cinema["old"]) {
   const W = host.offsetWidth;
   const H = host.offsetHeight;
   const dpr = Math.min(devicePixelRatio || 1, 1.5);
@@ -81,37 +80,52 @@ function makeDissolve(cv: HTMLCanvasElement, host: HTMLElement, img: HTMLImageEl
   oc.width = W;
   oc.height = H;
   const o = oc.getContext("2d", { willReadFrequently: true })!;
-  o.fillStyle = "#0d1115";
+  // la copia del vecchio sito com'è in quel momento: stesse proporzioni di OldSite
+  const serif = (px: number, st = "") => `${st} ${Math.round(px)}px "Times New Roman", Times, serif`;
+  o.fillStyle = "#e8e2d0";
   o.fillRect(0, 0, W, H);
+  o.fillStyle = "#1d2b6b";
+  o.fillRect(0, 0, W, H * 0.14);
+  o.fillStyle = "#ffd200";
+  o.font = serif(H * 0.07, "bold");
+  o.textAlign = "center";
+  o.textBaseline = "middle";
+  o.fillText(old.brand, W / 2, H * 0.07);
+  o.textAlign = "left";
+  o.fillStyle = "#c8c0aa";
+  o.fillRect(0, H * 0.14, W * 0.24, H * 0.86);
+  o.font = serif(H * 0.045);
+  o.fillStyle = "#0000ee";
+  old.menu.forEach((m, i) => {
+    const y = H * (0.22 + i * 0.08);
+    o.fillText(m, W * 0.03, y);
+    o.fillRect(W * 0.03, y + H * 0.022, o.measureText(m).width, 1);
+  });
+  o.fillStyle = "#c00000";
+  o.font = serif(H * 0.05, "italic bold");
+  o.fillText(old.hello, W * 0.28, H * 0.2);
+  const ix = W * 0.28, iy = H * 0.27, iw = W * 0.4, ih = H * 0.42;
+  o.fillStyle = "#888";
+  o.fillRect(ix - 3, iy - 3, iw + 6, ih * 0.66 + 3);
   if (img && img.complete && img.naturalWidth) {
-    const r = Math.max(W / img.naturalWidth, H / img.naturalHeight);
-    const w = img.naturalWidth * r;
-    const h = img.naturalHeight * r;
-    o.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
-  }
-  const g = o.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, "rgba(8,12,16,.6)");
-  g.addColorStop(0.28, "rgba(8,12,16,.1)");
-  g.addColorStop(0.5, "rgba(8,12,16,.3)");
-  g.addColorStop(1, "rgba(8,12,16,.92)");
-  o.fillStyle = g;
-  o.fillRect(0, 0, W, H);
-  const rr = (x: number, y: number, w: number, h: number, r: number, c: string) => {
-    o.fillStyle = c;
+    o.save();
     o.beginPath();
-    o.roundRect(x, y, w, h, r);
-    o.fill();
-  };
-  const u = Math.min(1, W / 520);
-  rr(12, 12, W - 24, 52 * u + 8, 14, "#151a21");
-  rr(W - 120 * u, 20, 100 * u, 52 * u - 8, 10, "#ffffff");
-  [0, 1, 2].forEach((i) => rr(W * 0.42 + i * 70 * u, 34, 46 * u, 8, 4, "rgba(255,255,255,.7)"));
-  rr(24, H * 0.32, W * 0.5, H * 0.09, 8, "#ffffff");
-  rr(24, H * 0.32 + H * 0.12, W * 0.38, H * 0.09, 8, "#ffffff");
-  rr(W - 110 * u, H * 0.16, 84 * u, 84 * u, 42 * u, "#151a21");
+    o.rect(ix, iy, iw, ih * 0.66);
+    o.clip();
+    o.filter = "sepia(.5) saturate(.7) contrast(.85)";
+    const r = Math.max(iw / img.naturalWidth, ih / img.naturalHeight);
+    o.drawImage(img, ix + (iw - img.naturalWidth * r) / 2, iy + (ih - img.naturalHeight * r) / 2, img.naturalWidth * r, img.naturalHeight * r);
+    o.restore();
+  }
+  o.fillStyle = "#222";
+  o.font = serif(H * 0.04);
+  old.text.forEach((t, i) => o.fillText(t, W * 0.28, H * (0.77 + i * 0.065)));
+  o.font = serif(H * 0.035);
+  o.fillStyle = "#555";
+  o.fillText(old.visits, W * 0.72, H * 0.93);
   const S = W < 420 ? 4 : 5;
   const px = o.getImageData(0, 0, W, H).data;
-  const lim = H * visible;
+  const lim = H;
   const P: { x: number; y: number; c: string; d: number; vx: number; vy: number; s: number }[] = [];
   for (let y = 0; y < lim; y += S)
     for (let x = 0; x < W; x += S) {
@@ -154,65 +168,61 @@ const eraseTo = (tl: gsap.core.Timeline, el: Element, text: string, at: number, 
   for (let k = 0; k < 5; k++) tl.call(() => fx.tick(0.5), undefined, at + (dur * k) / 5);
 };
 
-/* ───────────── Il sito d'esempio: superfici piene, angoli interni = angolo esterno − margine ───────────── */
+/* ───────────── Il sito d'esempio, nello stile di questo: vetro chiaro, accento azzurro, la parola chiave nel corsivo del nome ───────────── */
 
-const SOLID = "bg-[#151a21] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08),inset_0_1px_0_rgba(255,255,255,.14)]";
 const R_IN = "calc(var(--r) - var(--i))";
 const R_IN2 = "calc(var(--r) - var(--i) - 6px)";
+const SCRIPT = { fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSynthesis: "none", letterSpacing: "normal" } as const;
+const NAV_H = "clamp(44px,6cqw,60px)";
 
 function MiniSite({ c, children }: { c: Cinema; children?: ReactNode }) {
   return (
-    <div data-site className="@container relative h-full w-full overflow-hidden bg-[#0d1115] text-white" style={{ "--i": "12px" } as CSSProperties}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img data-simg src={cin("lavoro")} alt="" draggable={false} className="absolute inset-0 h-full w-full object-cover" />
-      <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(8,12,16,.6) 0%, rgba(8,12,16,.1) 28%, rgba(8,12,16,.3) 50%, rgba(8,12,16,.92) 100%)" }} />
-      <div data-nav className={`absolute left-[var(--i)] right-[var(--i)] top-[var(--i)] flex h-[clamp(44px,6cqw,60px)] items-center justify-between pl-[clamp(14px,2.4cqw,22px)] pr-[6px] ${SOLID}`} style={{ borderRadius: R_IN }}>
-        <span className="flex items-center gap-2 text-[clamp(14px,2.2cqw,19px)] font-semibold tracking-[-0.01em]">
-          <span className="h-[7px] w-[7px] rounded-full" style={{ background: ACC }} />
+    <div data-site className="ms @container relative h-full w-full overflow-hidden text-[var(--label-primary)]" style={{ "--i": "12px" } as CSSProperties}>
+      <div aria-hidden className="ms-bg absolute inset-0" />
+      <div data-nav className={`ms-glass z-[5] absolute left-[var(--i)] right-[var(--i)] top-[var(--i)] flex items-center justify-between pl-[clamp(16px,2.6cqw,24px)] pr-[6px]`} style={{ borderRadius: R_IN, height: NAV_H }}>
+        <span className="text-[clamp(18px,3.2cqw,30px)] leading-none" style={{ ...SCRIPT, color: "var(--accent)" }}>
           Marchio
         </span>
-        <span className="flex h-full items-center gap-[clamp(14px,3cqw,28px)] py-[6px] text-[clamp(12px,1.6cqw,15px)]">
-          <span className="hidden gap-[clamp(14px,3cqw,28px)] @min-[560px]:flex">
+        <span className="flex h-full items-center gap-[clamp(6px,1.4cqw,14px)] py-[6px] text-[clamp(12px,1.6cqw,15px)]">
+          <span className="hidden gap-[clamp(4px,1cqw,10px)] @min-[560px]:flex">
             {c.site.nav.map((n) => (
-              <span key={n} className="cin-nav">{n}</span>
+              <span key={n} className="cin-nav rounded-full px-[clamp(8px,1.4cqw,14px)] py-1.5 text-[var(--label-secondary)]">
+                {n}
+              </span>
             ))}
           </span>
-          <span className="hidden h-full items-center bg-white px-[clamp(14px,2.4cqw,20px)] font-semibold text-black @min-[560px]:flex" style={{ borderRadius: R_IN2 }}>
+          <span className="hidden h-full items-center bg-[var(--accent)] px-[clamp(14px,2.4cqw,22px)] font-medium text-white @min-[560px]:flex" style={{ borderRadius: R_IN2 }}>
             {c.site.book}
           </span>
-          <span className="cin-menu flex aspect-square h-full items-center justify-center bg-white text-black @min-[560px]:hidden" style={{ borderRadius: R_IN2 }}>
+          <span className="cin-menu flex aspect-square h-full items-center justify-center bg-[var(--accent)] text-white @min-[560px]:hidden" style={{ borderRadius: R_IN2 }}>
             <Menu size={16} strokeWidth={2} />
           </span>
         </span>
       </div>
-      <div data-title className="absolute bottom-[clamp(62px,10cqw,100px)] left-[calc(var(--i)+2cqw)] text-white" style={{ ...DISP, fontSize: "clamp(30px,8.6cqw,100px)", lineHeight: 1.02 }}>
-        <span data-focus className="pointer-events-none absolute -inset-x-[14px] -inset-y-[8px] rounded-[18px] border-2 border-[#8fd8ff]" style={HID} />
-        <span data-sel className="pointer-events-none absolute -inset-x-[8px] bottom-[-4px] top-[50%] origin-left rounded-[10px] bg-[#8fd8ff]/35" style={HID} />
-        <span className="relative block">{c.site.title[0]}</span>
-        <span className="relative block whitespace-nowrap">
-          <span data-l2>{c.site.title[1].replace(".", "")}</span>
-          <span style={{ color: ACC }}>.</span>
+      <div className="ms-hero absolute flex flex-col justify-center gap-[clamp(10px,2.4cqw,24px)]">
+        <span className="flex items-center gap-2 text-[clamp(11px,1.5cqw,14px)] text-[var(--label-secondary)]">
+          <span className="h-[7px] w-[7px] rounded-full bg-[var(--accent)]" />
+          {c.site.since}
         </span>
-      </div>
-      <div className={`absolute right-[calc(var(--i)+2cqw)] top-[clamp(72px,12cqw,120px)] hidden aspect-square w-[clamp(64px,12cqw,116px)] items-center justify-center rounded-full @min-[440px]:flex ${SOLID}`}>
-        <svg viewBox="0 0 100 100" className="absolute inset-0" aria-hidden>
-          <defs>
-            <path id="wcc" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0" />
-          </defs>
-          <text fontSize="9.4" fontWeight="600" letterSpacing="1.8" fill="#fff">
-            <textPath href="#wcc">{c.site.badge}</textPath>
-          </text>
-        </svg>
-        <span className="flex h-[38%] w-[38%] items-center justify-center rounded-full bg-white text-black">
-          <ArrowDown size={16} strokeWidth={2} className="-rotate-[135deg]" />
-        </span>
-      </div>
-      <div className="absolute bottom-[var(--i)] left-[var(--i)] flex gap-2 text-[clamp(11px,1.6cqw,14px)]">
-        {[c.site.stars, c.site.since].map((s) => (
-          <span key={s} className={`flex h-[clamp(32px,4.6cqw,42px)] items-center px-[clamp(12px,2cqw,18px)] ${SOLID}`} style={{ borderRadius: R_IN }}>
-            {s}
+        <div data-title className="relative" style={{ ...DISP, fontSize: "clamp(26px,6.4cqw,80px)", lineHeight: 1.04 }}>
+          <span data-focus className="pointer-events-none absolute -inset-x-[14px] -inset-y-[8px] rounded-[18px] border-2 border-[var(--accent)]" style={HID} />
+          <span data-sel className="pointer-events-none absolute -inset-x-[8px] bottom-[-4px] top-[50%] origin-left rounded-[10px] bg-[var(--accent)]/25" style={HID} />
+          <span className="relative block">{c.site.title[0]}</span>
+          <span className="relative block">
+            <span data-l2 style={{ ...SCRIPT, color: "var(--accent)", fontSize: "1.06em" }}>
+              {c.site.title[1].replace(".", "")}
+            </span>
+            <span style={{ color: "var(--accent)" }}>.</span>
           </span>
-        ))}
+        </div>
+        <span className="flex items-center gap-2 text-[clamp(11px,1.5cqw,14px)] text-[var(--label-secondary)]">
+          <span className="h-[7px] w-[7px] rounded-full bg-[var(--positive)]" />
+          {c.site.stars}
+        </span>
+      </div>
+      <div className="ms-photo absolute overflow-hidden shadow-[0_24px_60px_-30px_rgba(0,0,0,.45)]" style={{ borderRadius: R_IN }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img data-simg src={cin("lavoro")} alt="" draggable={false} className="absolute inset-0 h-full w-full object-cover" />
       </div>
       {children}
     </div>
@@ -221,15 +231,53 @@ function MiniSite({ c, children }: { c: Cinema; children?: ReactNode }) {
 
 /** Lo stesso disegno prima di essere finito: solo le forme, nelle stesse posizioni. */
 function Wire() {
-  const blk = "absolute cine-blk";
   return (
-    <div data-wire className="@container absolute inset-0 z-10 overflow-hidden bg-[var(--bg-sunken)]">
-      <div className={`${blk} left-[var(--i)] right-[var(--i)] top-[var(--i)] h-[clamp(44px,6cqw,60px)]`} style={{ borderRadius: R_IN }} />
-      <div className={`${blk} right-[calc(var(--i)+2cqw)] top-[clamp(72px,12cqw,120px)] hidden aspect-square w-[clamp(64px,12cqw,116px)] rounded-full @min-[440px]:block`} />
-      <div className={`${blk} bottom-[calc(clamp(62px,10cqw,100px)+10.6cqw)] left-[calc(var(--i)+2cqw)] h-[9.6cqw] min-h-[30px] w-[50cqw] rounded-[10px]`} />
-      <div className={`${blk} bottom-[clamp(62px,10cqw,100px)] left-[calc(var(--i)+2cqw)] h-[9.6cqw] min-h-[30px] w-[66cqw] rounded-[10px]`} />
-      <div className={`${blk} bottom-[var(--i)] left-[var(--i)] h-[clamp(32px,4.6cqw,42px)] w-[22cqw]`} style={{ borderRadius: R_IN }} />
-      <div className={`${blk} bottom-[var(--i)] left-[calc(var(--i)+22cqw+8px)] h-[clamp(32px,4.6cqw,42px)] w-[16cqw]`} style={{ borderRadius: R_IN }} />
+    <div data-wire className="ms @container absolute inset-0 z-10 overflow-hidden bg-[var(--bg-sunken)]">
+      <div className="cine-blk absolute left-[var(--i)] right-[var(--i)] top-[var(--i)]" style={{ borderRadius: R_IN, height: NAV_H }} />
+      <div className="ms-hero absolute flex flex-col justify-center gap-[clamp(10px,2.4cqw,24px)]">
+        <div className="cine-blk h-[clamp(10px,1.5cqw,14px)] w-[22%] rounded-full" />
+        <div className="cine-blk h-[clamp(26px,6.6cqw,80px)] w-[88%] rounded-[10px]" />
+        <div className="cine-blk h-[clamp(26px,6.6cqw,80px)] w-[70%] rounded-[10px]" />
+        <div className="cine-blk h-[clamp(10px,1.5cqw,14px)] w-[30%] rounded-full" />
+      </div>
+      <div className="ms-photo cine-blk absolute" style={{ borderRadius: R_IN }} />
+    </div>
+  );
+}
+
+/** Il sito di oggi: vecchio, pesante, arriva a pezzi. Ogni pezzo compare di scatto (data-o). */
+function OldSite({ c }: { c: Cinema }) {
+  const o = c.old;
+  return (
+    <div data-old className="absolute inset-0 overflow-hidden bg-white [container-type:size]" style={{ fontFamily: '"Times New Roman", Times, serif', color: "#222" }}>
+      <div data-o className="absolute inset-0 bg-[#e8e2d0]" />
+      <div data-o className="absolute inset-x-0 top-0 flex h-[14%] items-center justify-center bg-[#1d2b6b] text-[7cqh] font-bold text-[#ffd200]">
+        {o.brand}
+      </div>
+      <div data-o className="absolute bottom-0 left-0 top-[14%] w-[24%] bg-[#c8c0aa]">
+        {o.menu.map((m, i) => (
+          <span key={m} className="absolute left-[12%] whitespace-nowrap text-[4.5cqh] text-[#0000ee] underline" style={{ top: `${(0.22 + i * 0.08 - 0.14) * 100 / 0.86 - 3}%` }}>
+            {m}
+          </span>
+        ))}
+      </div>
+      <div data-o className="absolute left-[28%] top-[16.5%] whitespace-nowrap text-[5cqh] font-bold italic text-[#c00000]">
+        {o.hello}
+      </div>
+      <div data-oimg className="absolute left-[28%] top-[27%] h-[42%] w-[40%] overflow-hidden outline outline-[3px] outline-[#888]" style={{ clipPath: "inset(0 0 100% 0)" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={cin("lavoro")} alt="" draggable={false} className="h-full w-full object-cover" style={{ filter: "sepia(.5) saturate(.7) contrast(.85)" }} />
+      </div>
+      <div data-otext className="absolute left-[28%] top-[24%] text-[4cqh] leading-[1.6]">
+        {o.text.map((t) => (
+          <span key={t} className="block whitespace-nowrap">
+            {t}
+          </span>
+        ))}
+      </div>
+      <div data-o className="absolute left-[72%] top-[90.5%] whitespace-nowrap text-[3.5cqh] text-[#555]">
+        {o.visits}
+      </div>
     </div>
   );
 }
@@ -392,7 +440,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const ry = (i: number) => () => (-40 + i * 92) * k();
       gsap.set(pill, { y: py });
       tl.call(() => F.whoosh(0.6, true, 0.7), undefined, 0)
-        .fromTo(cam, { scale: () => (small() ? 1.2 : 1.5), transformOrigin: aim(() => pill) }, { scale: () => (small() ? 1.2 : 1.5), duration: 0.01 }, 0)
+        .fromTo(cam, { scale: () => (small() ? 1.08 : 1.18), transformOrigin: aim(() => pill) }, { scale: () => (small() ? 1.08 : 1.18), duration: 0.01 }, 0)
         .fromTo(pill, { autoAlpha: 0, scale: 0.86 }, { autoAlpha: 1, scale: 1, duration: 0.8, ease: "back.out(1.4)" }, 0.05);
       typeTo(tl, one("[data-typed]"), c.find.typed, T(0.9), T(2.4), 0);
       tl.to(cam, { scale: 1, duration: 1.2, ease: "expo.inOut" }, T(3));
@@ -406,7 +454,6 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
 
       /* 1 · Se è lento, se ne va: una finestra del browser che carica un pezzo alla volta, sempre in caricamento */
       const chrome = one("[data-chrome]");
-      const bands = $("[data-band]");
       const cnt = one("[data-count]");
       const spin = one("[data-spin]");
       const fav = one("[data-fav]");
@@ -421,10 +468,31 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .call(() => (F.whoosh(0.5, false, 0.8), F.riser(U(6.5))), undefined, U(5.5))
         .fromTo(chrome, { autoAlpha: 0, y: 140 }, { autoAlpha: 1, y: 0, duration: 1.3, ease: "expo.out" }, U(5.7))
         .set(cam, { scale: 1 }, U(5.7));
-      // un pezzo alla volta, a scatti, a intervalli irregolari; l'ultimo non arriva mai
-      [7.4, 9.2, 10.4, 11.2].forEach((b, i) => {
-        tl.set(bands[i], { autoAlpha: 0 }, U(b)).call(() => F.tick(0.7 + i * 0.08), undefined, U(b));
-      });
+      // il sito di oggi: arriva a pezzi, di scatto, a intervalli irregolari; quando arriva la foto il testo salta giù; la foto non finisce mai
+      const sw0 = one("[data-sw]");
+      const oldEl = one("[data-old]");
+      const os = $("[data-o]");
+      const oimg = one("[data-oimg]");
+      const otext = one("[data-otext]");
+      const snap = (els: HTMLElement[], at: number, i: number) => {
+        tl.set(els, { autoAlpha: 1 }, at)
+          .fromTo(els, { y: -7 }, { y: 0, duration: 0.14, ease: "power3.out", immediateRender: false }, at)
+          .call(() => F.tick(0.7 + i * 0.08), undefined, at);
+      };
+      gsap.set(os, { autoAlpha: 0 });
+      gsap.set(otext, { autoAlpha: 0, top: "24%" });
+      gsap.set(oimg, { clipPath: "inset(0% 0% 100% 0%)" });
+      gsap.set(sw0, { autoAlpha: 0 });
+      tl.set(oldEl, { autoAlpha: 1 }, 0).set(sw0, { autoAlpha: 0 }, 0);
+      snap([os[0], os[1]], 3.2, 0);
+      snap([os[2]], 3.65, 1);
+      snap([os[3], otext], 4.1, 2);
+      tl.set(oimg, { clipPath: "inset(0% 0% 66% 0%)" }, 4.6)
+        .set(otext, { top: "74%" }, 4.6)
+        .fromTo(otext, { y: -10 }, { y: 0, duration: 0.16, ease: "power3.out", immediateRender: false }, 4.6)
+        .call(() => F.tick(0.95), undefined, 4.6);
+      tl.set(oimg, { clipPath: "inset(0% 0% 34% 0%)" }, 5.1).call(() => F.tick(1), undefined, 5.1);
+      snap([os[4]], 5.45, 4);
       {
         const o = { n: 0 };
         tl.fromTo(o, { n: 0 }, { n: 10.2, duration: 6.5 - U(5.9), ease: "none", onUpdate: () => void (cnt.textContent = num(o.n)) }, U(5.9));
@@ -440,14 +508,14 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       gsap.set(cv, { autoAlpha: 0 });
       tl.call(
         () => {
-          draw = makeDissolve(cv, content, content.querySelector("img"), 4 / 7);
+          draw = makeDissolve(cv, content, oimg.querySelector("img"), c.old);
           draw(0);
         },
         undefined,
         D0 - 0.05,
       )
         .set(cv, { autoAlpha: 1 }, D0 - 0.02)
-        .set(sw, { autoAlpha: 0 }, D0)
+        .set(oldEl, { autoAlpha: 0 }, D0)
         .call(() => F.whoosh(0.9, false, 0.8), undefined, D0)
         .fromTo(dis, { p: 0 }, { p: 1, duration: 0.8, ease: "none", onUpdate: () => draw?.(dis.p) }, D0)
         .set(cv, { autoAlpha: 0 }, D0 + 0.82);
@@ -467,8 +535,14 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           at2,
         )
           .fromTo(o, { n: 0 }, { n: 0.8, duration: 0.34, ease: "power1.out", onUpdate: () => void (cnt.textContent = num(o.n)) }, at2)
-          .fromTo(sw, { autoAlpha: 0, scale: 1.04 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: "power2.out", immediateRender: false }, at2 + 0.06)
-          .to(bands, { autoAlpha: 0, duration: 0.1, stagger: 0.02, ease: "none" }, at2 + 0.04)
+          // dopo: il sito nuovo entra da sinistra dietro una linea di luce, e l'etichetta cambia
+          .set(sw, { autoAlpha: 1, clipPath: "inset(0% 100% 0% 0%)" }, at2)
+          .to(sw, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.34, ease: "power3.inOut" }, at2 + 0.02)
+          .fromTo(one("[data-wipe]"), { autoAlpha: 1, left: "0%" }, { left: "100%", duration: 0.34, ease: "power3.inOut", immediateRender: false }, at2 + 0.02)
+          .set(one("[data-wipe]"), { autoAlpha: 0 }, at2 + 0.38)
+          .to(one("[data-tag1]"), { autoAlpha: 0, y: -8, duration: 0.18, ease: "power2.in" }, at2)
+          .fromTo(one("[data-tag2]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: "back.out(2)", immediateRender: false }, at2 + 0.16)
+          .to(one("[data-tagdot]"), { backgroundColor: "var(--accent)", duration: 0.2 }, at2)
           .call(() => (F.chord([0, 2, 4, 5], 1), F.whoosh(0.35, true, 0.6)), undefined, at2 + 0.4)
           .to([spin, stop, tt1], { autoAlpha: 0, duration: 0.12 }, at2 + 0.36)
           .fromTo([fav, rl, tt2], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2.2)" }, at2 + 0.38)
@@ -496,7 +570,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .to(cur, { scale: 0.82, duration: 0.08, ease: "power2.out" }, A + 0.55)
           .to(cur, { scale: 1, duration: 0.25, ease: "back.out(3)" }, A + 0.63)
           .call(() => F.tick(1.4), undefined, A + 0.55)
-          .call(() => void gsap.fromTo(navT(), { boxShadow: "0 0 0 0 rgba(255,255,255,0)", backgroundColor: "rgba(255,255,255,0)", borderRadius: 8 }, { boxShadow: "0 0 0 7px rgba(255,255,255,.22)", backgroundColor: "rgba(255,255,255,.22)", duration: 0.18, overwrite: true }), undefined, A + 0.55)
+          .call(() => void gsap.fromTo(navT(), { boxShadow: "0 0 0 0 rgba(94,196,255,0)", backgroundColor: "rgba(94,196,255,0)" }, { boxShadow: "0 0 0 5px rgba(94,196,255,.2)", backgroundColor: "rgba(94,196,255,.2)", duration: 0.18, overwrite: true }), undefined, A + 0.55)
           .fromTo(prog, { scaleX: 0, autoAlpha: 1 }, { scaleX: 1, duration: 0.32, ease: "power2.out" }, A + 0.6)
           .to(prog, { autoAlpha: 0, duration: 0.15 }, A + 0.95)
           .to(sw, { y: 10, autoAlpha: 0.35, duration: 0.14, ease: "power2.in" }, A + 0.62)
@@ -582,6 +656,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .to($("[data-sel]"), { autoAlpha: 0, duration: 0.2, ease: "power1.out" }, T(35.8));
       eraseTo(tl, l2, oldT, T(35.8), 0.45);
       typeTo(tl, l2, c.title[1], T(36.8), T(2.2), 0);
+      l2.textContent = oldT;
       tl.to($("[data-focus]"), { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, T(39.2))
         .fromTo(saved, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, T(39.2))
         .fromTo(one("[data-saved-t]"), { y: 70, scale: 0.9, filter: "blur(10px)" }, { y: 0, scale: 1, filter: "blur(0px)", duration: 0.9, ease: "expo.out" }, T(39.2) + 0.1)
@@ -750,21 +825,21 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         <div data-cam className="absolute inset-0 will-change-transform">
           <div className="absolute inset-x-0 top-[58%] h-0">
             {/* ricerca e risultati */}
-            <Bead as="div" data-it data-pill radius={42} className={`cine-fg ${center} flex h-[clamp(60px,10cqh,84px)] w-[min(860px,88cqw)] items-center gap-4 px-[clamp(20px,3cqw,34px)] text-[clamp(18px,2.6cqw,30px)]`} style={HID}>
+            <Bead as="div" data-it data-pill radius={42} className={`cine-fg ${center} flex h-[clamp(60px,10cqh,84px)] w-[min(720px,76cqw)] items-center gap-4 px-[clamp(20px,3cqw,34px)] text-[clamp(18px,2.6cqw,30px)]`} style={HID}>
               <Search size={26} strokeWidth={1.8} className="cine-fg2 shrink-0" />
               <span data-typed className="tracking-[-0.015em]" />
               <span className="h-[1.1em] w-[2px] animate-pulse bg-[var(--label-primary)]" />
             </Bead>
             {[c.find.me, ...c.find.others].map(([t, u], i) => (
-              <Bead as="div" key={u} data-it data-res radius={34} className={`cine-fg ${center} flex h-[clamp(56px,9cqh,74px)] w-[min(860px,88cqw)] items-center justify-between gap-4 px-[clamp(20px,3cqw,34px)]`} style={HID}>
+              <Bead as="div" key={u} data-it data-res radius={34} className={`cine-fg ${center} flex h-[clamp(56px,9cqh,74px)] w-[min(720px,76cqw)] items-center justify-between gap-4 px-[clamp(20px,3cqw,34px)]`} style={HID}>
                 <span className={`text-[clamp(17px,2.2cqw,26px)] tracking-[-0.02em] ${i ? "cine-fg2" : "font-semibold"}`}>{t}</span>
                 <span className="cine-fg2 text-[clamp(13px,1.5cqw,17px)]">{u}</span>
               </Bead>
             ))}
             {/* il sito, con dentro la barra dell'indirizzo, le notifiche e la conferma */}
-            <div data-it data-dev className={`${center} overflow-hidden bg-[#0d1115] shadow-[0_50px_140px_-40px_rgba(0,0,0,.6)]`} style={{ ...HID, width: 1100, height: 640, borderRadius: "var(--r)" }}>
+            <div data-it data-dev className={`${center} overflow-hidden bg-[var(--bg-canvas)] shadow-[0_50px_140px_-40px_rgba(0,0,0,.4),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, width: 1100, height: 640, borderRadius: "var(--r)" }}>
               <MiniSite c={c}>
-                <div data-ub className="absolute left-[var(--i)] right-[var(--i)] top-[var(--i)] z-20 flex h-[clamp(44px,6cqw,60px)] items-center gap-2.5 overflow-hidden bg-[#f3f4f6] px-[clamp(14px,2.4cqw,22px)] text-[clamp(14px,2cqw,18px)] text-[#111316]" style={{ ...HID, borderRadius: R_IN }}>
+                <div data-ub className="absolute left-[var(--i)] right-[var(--i)] top-[var(--i)] ms-glass z-20 flex h-[clamp(44px,6cqw,60px)] items-center gap-2.5 overflow-hidden px-[clamp(14px,2.4cqw,22px)] text-[clamp(14px,2cqw,18px)] text-[var(--label-primary)]" style={{ ...HID, borderRadius: R_IN }}>
                   <span className="relative block h-[18px] w-[18px] shrink-0">
                     <Lock data-lock1 size={17} strokeWidth={2} className="absolute inset-0 text-[#6b6f76]" />
                     <ShieldCheck data-lock2 size={18} strokeWidth={2} className="absolute inset-0 text-[#1a9e55]" style={HID} />
@@ -777,17 +852,17 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                   <span data-load2 className="absolute inset-x-0 bottom-0 h-[3px] origin-left bg-[var(--accent)]" style={{ transform: "scaleX(0)" }} />
                 </div>
                 {c.clients.items.map(([t, b], i) => (
-                  <div key={b} data-n className="absolute left-[var(--i)] right-[var(--i)] z-20 flex h-[66px] items-center gap-3 bg-[#f3f4f6] p-[10px] text-[#111316] shadow-[0_10px_30px_-12px_rgba(0,0,0,.5)]" style={{ ...HID, top: `calc(var(--i) + ${i * 74}px)`, borderRadius: R_IN }}>
+                  <div key={b} data-n className="absolute left-[var(--i)] right-[var(--i)] z-20 flex h-[66px] items-center gap-3 bg-[var(--bg-surface)] p-[10px] text-[var(--label-primary)] ring-1 ring-[var(--hair-strong)] shadow-[0_10px_30px_-12px_rgba(0,0,0,.5)]" style={{ ...HID, top: `calc(var(--i) + ${i * 74}px)`, borderRadius: R_IN }}>
                     <span className="flex aspect-square h-full shrink-0 items-center justify-center bg-[var(--accent)] text-white" style={{ borderRadius: "calc(var(--r) - var(--i) - 10px)" }}>
                       <Bell size={20} strokeWidth={2} />
                     </span>
                     <span className="block min-w-0 leading-tight">
                       <span className="block truncate text-[15px] font-semibold tracking-[-0.01em]">{t}</span>
-                      <span className="block truncate text-[13px] text-[#5b5f66]">{b}</span>
+                      <span className="block truncate text-[13px] text-[var(--label-secondary)]">{b}</span>
                     </span>
                   </div>
                 ))}
-                <div data-saved className="absolute inset-0 z-20 flex items-center justify-center backdrop-blur-xl" style={{ ...HID, background: "rgba(13,17,21,.42)", backdropFilter: "blur(20px) saturate(1.4)", WebkitBackdropFilter: "blur(20px) saturate(1.4)" }}>
+                <div data-saved className="absolute inset-0 z-20 flex items-center justify-center backdrop-blur-xl" style={{ ...HID, background: "color-mix(in srgb, var(--bg-canvas) 55%, transparent)", backdropFilter: "blur(20px) saturate(1.4)", WebkitBackdropFilter: "blur(20px) saturate(1.4)" }}>
                   <span data-saved-t className="text-[clamp(34px,15cqw,110px)]" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1 }}>
                     <GradientText colors={["#25c06a", "#7df0ae", "#16a05a", "#b5f7cf"]} animationSpeed={8} variant="flow" glow={1}>
                       {c.edit.saved + "!"}
@@ -836,20 +911,27 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                 <EllipsisVertical size={17} strokeWidth={1.7} className="cine-fg2" />
               </div>
               <div className="relative min-h-0 flex-1 bg-[var(--bg-surface)]">
+                <OldSite c={c} />
                 <div data-sw className="absolute inset-0">
                   <MiniSite c={c} />
                 </div>
+                <span data-wipe aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-20 block w-[3px] bg-[var(--accent)] shadow-[0_0_30px_8px_rgba(94,196,255,.55)]" style={HID} />
                 <canvas data-ptc aria-hidden className="pointer-events-none absolute inset-0 h-full w-full" style={HID} />
                 <span data-prog aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[3px] origin-left" style={{ ...HID, background: "var(--accent)" }} />
                 <svg data-cur viewBox="0 0 24 24" width="24" height="24" aria-hidden className="pointer-events-none absolute left-0 top-0 z-20" style={{ ...HID, filter: "drop-shadow(0 2px 3px rgba(0,0,0,.45))" }}>
                   <path d="M5 3l14 8-6 1.6L10.4 19z" fill="#14171c" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
                 </svg>
-                {Array.from({ length: 7 }).map((_, i) => (
-                  <span key={i} data-band className="absolute inset-x-0 bg-[var(--bg-surface)]" style={{ top: `${(i * 100) / 7}%`, height: "calc(100% / 7 + 1px)" }} />
-                ))}
-                <span className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center">
-                  <Bead as="span" radius={999} className="cine-fg flex h-10 items-center gap-2 px-4">
-                    <span data-count className="font-mono text-[15px] tabular-nums">
+                <span className="pointer-events-none absolute inset-x-0 bottom-3 z-30 flex justify-center">
+                  <Bead as="span" radius={999} className="cine-fg flex h-11 items-center gap-2.5 px-4 text-[15px]">
+                    <span data-tagdot className="h-2 w-2 rounded-full" style={{ background: "var(--negative)" }} />
+                    <span className="relative font-medium">
+                      <span data-tag1>{c.ba[0]}</span>
+                      <span data-tag2 className="absolute left-0 top-0" style={HID}>
+                        {c.ba[1]}
+                      </span>
+                    </span>
+                    <span className="h-4 w-px bg-[var(--hair-strong)]" />
+                    <span data-count className="font-mono tabular-nums">
                       0,0 s
                     </span>
                     <Check data-ok size={16} strokeWidth={2.4} style={{ color: "var(--accent)" }} />

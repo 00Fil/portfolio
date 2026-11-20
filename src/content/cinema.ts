@@ -20,6 +20,9 @@ export type Cinema = {
   gets: { q: string; items: [string, string][] };
   promise: { q: string; items: [string, string][] };
   site: { nav: string[]; book: string; title: string[]; badge: string; stars: string; since: string };
+  /** il sito di prima: vecchio, lento */
+  old: { brand: string; menu: string[]; hello: string; text: string[]; visits: string };
+  ba: [string, string];
 };
 
 const IT: Cinema = {
@@ -64,6 +67,8 @@ const IT: Cinema = {
     ],
   },
   site: { nav: ["Servizi", "Progetti"], book: "Contattaci", title: ["Il tuo lavoro,", "ben visibile."], badge: "SCOPRI DI PIÙ · SCOPRI DI PIÙ · ", stars: "4,9 · recensioni", since: "Dal 2009" },
+  old: { brand: "Marchio s.r.l.", menu: ["Home", "Chi siamo", "Servizi", "Contatti"], hello: "Benvenuti nel nostro sito!", text: ["Siamo leader nel settore dal 2009.", "Sito ottimizzato per Internet Explorer."], visits: "Visitatori: 004127" },
+  ba: ["Prima", "Dopo"],
 };
 
 const EN: Cinema = {
@@ -108,6 +113,8 @@ const EN: Cinema = {
     ],
   },
   site: { nav: ["Services", "Projects"], book: "Contact us", title: ["Your work,", "well seen."], badge: "DISCOVER MORE · DISCOVER MORE · ", stars: "4.9 · reviews", since: "Since 2009" },
+  old: { brand: "Marchio Ltd.", menu: ["Home", "About us", "Services", "Contact"], hello: "Welcome to our website!", text: ["Industry leaders since 2009.", "Best viewed in Internet Explorer."], visits: "Visitors: 004127" },
+  ba: ["Before", "After"],
 };
 
 export const getCinema = (l: Locale): Cinema => (l === "en" ? EN : IT);
