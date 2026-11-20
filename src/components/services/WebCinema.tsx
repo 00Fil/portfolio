@@ -145,6 +145,9 @@ function MiniSite({ c, children }: { c: Cinema; children?: ReactNode }) {
 }
 
 /** Lo stesso disegno prima di essere finito, nel file di progetto: le forme nelle stesse posizioni, e il team al lavoro con i suoi cursori. */
+const FAR_N = 46;
+/* posizione (%), spessore e intensità delle scie di luce */
+const STREAKS: [number, number, number][] = [[4, 1, 0.5], [11, 2, 0.8], [19, 1, 0.4], [27, 1, 0.7], [33, 2, 0.5], [41, 1, 0.9], [48, 1, 0.4], [55, 2, 0.7], [62, 1, 0.5], [69, 1, 0.8], [76, 2, 0.4], [83, 1, 0.7], [90, 1, 0.5], [96, 2, 0.6]];
 const TEAM_C = ["#9b6bff", "#14b86e", "#ff7a59"];
 function Wire({ team }: { team: string[] }) {
   return (
@@ -732,16 +735,34 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const win = list.parentElement as HTMLElement;
         const rows = $("[data-fr]");
         const me = rows[rows.length - 1];
+        // parte piano, accelera fino a diventare scie di luce, rallenta e si ferma su di te
+        const vb = one("[data-vb]");
+        const streak = one("[data-streak]");
+        const endY = () => -(me.offsetTop - (win.offsetHeight - me.offsetHeight) / 2);
+        const ease = gsap.parseEase("power4.inOut");
+        const run = { p: 0 };
+        const D = 4.6;
+        const paint = () => {
+          const y = endY() * ease(run.p);
+          const e = 0.004;
+          const v = Math.abs(ease(Math.min(1, run.p + e)) - ease(Math.max(0, run.p - e))) / (2 * e) / 4; // 0…1 circa
+          gsap.set(list, { y, scaleY: 1 + v * 0.06, transformOrigin: `50% ${-y + win.offsetHeight / 2}px` });
+          vb.setAttribute("stdDeviation", `0 ${(v * v * 26).toFixed(2)}`);
+          list.style.filter = v > 0.04 ? "url(#wc-vblur)" : "none";
+          streak.style.opacity = String(Math.max(0, v * 1.3 - 0.35));
+        };
         farTl
           .set([pill, ...res], { autoAlpha: 0 }, 0)
           .set(box, { autoAlpha: 1 }, 0)
           .fromTo(one("[data-fcount]"), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0.05)
           .fromTo(rows.slice(0, 5), { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.08 }, 0.15)
-          .fromTo(list, { y: 0 }, { y: () => -(list.scrollHeight - win.offsetHeight), duration: 2.6, ease: "power2.inOut" }, 1.4)
-          .call(() => F.whoosh(0.6, false, 0.7), undefined, 1.4)
-          .fromTo(me, { boxShadow: "0 0 0 0px rgba(94,196,255,0)" }, { boxShadow: "0 0 0 3px var(--accent)", duration: 0.45, ease: "back.out(2.5)" }, 4.1)
-          .call(() => F.tick(1.2), undefined, 4.1)
-          .set({}, {}, 5.2);
+          .fromTo(run, { p: 0 }, { p: 1, duration: D, ease: "none", onUpdate: paint, onReverseComplete: paint }, 1.2)
+          .call(() => F.riser(D * 0.5), undefined, 1.2)
+          .call(() => F.whoosh(1, false, 1), undefined, 1.2 + D * 0.4)
+          .fromTo(me, { boxShadow: "0 0 0 0px rgba(94,196,255,0)" }, { boxShadow: "0 0 0 3px var(--accent)", duration: 0.45, ease: "back.out(2.5)" }, 1.2 + D)
+          .call(() => F.tick(1.2), undefined, 1.2 + D)
+          .set({}, {}, 1.2 + D + 0.8);
+
       }
 
       /* SEO: i risultati della ricerca, e la tua attività che sale in cima */
@@ -1094,18 +1115,29 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
               <Check data-ok size={22} strokeWidth={2.4} style={{ color: "var(--accent)" }} />
             </div>
             {/* prima: mille risultati, e tu in fondo */}
-            <div data-it data-far className={`${center} w-[min(660px,80cqw)]`} style={HID}>
+            <div data-it data-far className={`${center} w-[min(640px,74cqw)]`} style={HID}>
+              <svg width="0" height="0" className="absolute" aria-hidden>
+                <filter id="wc-vblur" x="0" y="-20%" width="100%" height="140%">
+                  <feGaussianBlur data-vb stdDeviation="0 0" />
+                </filter>
+              </svg>
               <p data-fcount className="cine-fg2 mb-4 pl-1 text-[clamp(13px,1.5cqw,17px)]">
                 {c.far.count}
               </p>
-              <div className="relative overflow-hidden" style={{ height: "calc(5 * (clamp(48px,7.4cqh,62px) + 10px) - 10px)", maskImage: "linear-gradient(transparent, #000 8%, #000 88%, transparent)", WebkitMaskImage: "linear-gradient(transparent, #000 8%, #000 88%, transparent)" }}>
-                <div data-fl className="flex flex-col gap-[10px] pb-[140px]">
-                  {[...c.far.list, c.find.me].map(([t, u], i, all) => (
-                    <Bead as="div" key={u} data-fr radius={28} className="cine-fg flex h-[clamp(48px,7.4cqh,62px)] shrink-0 items-center gap-4 px-[clamp(18px,2.6cqw,30px)]">
-                      <span className="cine-fg2 w-6 font-mono text-[clamp(12px,1.4cqw,15px)] tabular-nums">{i + 1}</span>
-                      <span className={`flex-1 text-[clamp(15px,2cqw,22px)] tracking-[-0.02em] ${i === all.length - 1 ? "font-semibold" : "cine-fg2"}`}>{t}</span>
-                      <span className="cine-fg2 text-[clamp(12px,1.4cqw,16px)]">{u}</span>
-                    </Bead>
+              <div className="relative -mx-4 overflow-hidden px-4" style={{ height: "calc(5 * (clamp(46px,7cqh,60px) + 10px) - 10px)", maskImage: "linear-gradient(transparent, #000 10%, #000 90%, transparent)", WebkitMaskImage: "linear-gradient(transparent, #000 10%, #000 90%, transparent)" }}>
+                <div data-fl className="flex flex-col gap-[10px] will-change-transform">
+                  {Array.from({ length: FAR_N }, (_, i) => (i === FAR_N - 1 ? c.find.me : c.far.list[i % c.far.list.length])).map(([t, u], i) => (
+                    <div key={i} data-fr className={`cine-fg flex h-[clamp(46px,7cqh,60px)] shrink-0 items-center gap-4 rounded-[22px] bg-[var(--bg-surface)] px-[clamp(16px,2.4cqw,28px)] shadow-[0_6px_18px_-12px_rgba(0,0,0,.35)] ring-1 ring-[var(--hair-strong)]`}>
+                      <span className="cine-fg2 w-7 shrink-0 font-mono text-[clamp(12px,1.4cqw,15px)] tabular-nums">{i + 1}</span>
+                      <span className={`min-w-0 flex-1 truncate text-[clamp(15px,2cqw,22px)] tracking-[-0.02em] ${i === FAR_N - 1 ? "font-semibold" : "cine-fg2"}`}>{t}</span>
+                      <span className="cine-fg2 hidden shrink-0 text-[clamp(12px,1.4cqw,16px)] @min-[420px]:inline">{u}</span>
+                    </div>
+                  ))}
+                </div>
+                {/* scie di luce: compaiono solo quando la lista corre */}
+                <div data-streak aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: 0 }}>
+                  {STREAKS.map(([x, w, d], i) => (
+                    <span key={i} className="absolute top-[-10%] h-[120%]" style={{ left: `${x}%`, width: w, opacity: d, background: "linear-gradient(transparent, var(--accent), transparent)" }} />
                   ))}
                 </div>
               </div>
