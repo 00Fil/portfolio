@@ -66,6 +66,9 @@ function Cycler({ items, at, kind }: { items: ReactNode[]; at: number; kind: Kin
   );
 }
 
+/** Le parole in azzurro sono nel font del nome, come "Ciao!" della card. */
+const LOGO = { fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.12em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1 } as const;
+
 /**
  * Hero centrata: tre righe che restano dentro i margini del sito. Nella frase cambiano insieme,
  * a tempo, la copertina di un progetto, una forma e quello che realizzo.
@@ -161,7 +164,7 @@ export function Hero() {
           kind="word"
           at={at % list.length}
           items={list.map((w) => (
-            <span key={w} className="text-[var(--sky)]">
+            <span key={w} className="text-[var(--sky)]" style={LOGO}>
               {w}
             </span>
           ))}
@@ -170,7 +173,7 @@ export function Hero() {
     }
     const em = tok.startsWith("*");
     return (
-      <span key={k} className={`mx-[0.14em] ${em ? "text-[var(--sky)]" : ""}`}>
+      <span key={k} className={`mx-[0.14em] ${em ? "text-[var(--sky)]" : ""}`} style={em ? LOGO : undefined}>
         {em ? tok.slice(1) : tok}
       </span>
     );
