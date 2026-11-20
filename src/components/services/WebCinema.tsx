@@ -292,6 +292,7 @@ const T = (n: number) => (n >= 9.2 ? n + 5 : n) * B;
 const U = (n: number) => n * B;
 const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
 const ICONS_PROMISE = [FileText, UserRound, Tag, LockOpen];
+export const CAPF = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[14ch] -translate-y-1/2 px-6 text-center text-[clamp(38px,7cqw,120px)] font-semibold leading-[1.04] tracking-[-0.05em] cine-fg";
 export const CAP = "pointer-events-none absolute inset-x-0 top-[5%] mx-auto max-w-[19ch] px-6 text-center text-[clamp(30px,4.6cqw,76px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg md:top-[7%] md:max-w-[24ch]";
 
 /** `embed`: dentro una scheda, a misura del contenitore, muto, senza comandi; `play` lo avvia e lo ferma, e in fondo riparte da solo. */
@@ -376,11 +377,12 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const cam = one("[data-cam]");
       const dev = one("[data-dev]");
       const small = () => !embed && innerWidth <= 760;
+      const tight = () => small() || cam.offsetWidth < 820;
       const k = () => (small() ? 0.7 : 1);
       const wide = () => (small() ? 760 : 1100);
       const mid = () => (small() ? 520 : 640);
       const phone = () => 340;
-      const fit = (w: () => number) => () => Math.min(1, (cam.offsetWidth * 0.92) / w(), (cam.offsetHeight * (small() ? 0.54 : 0.64)) / 640);
+      const fit = (w: () => number) => () => Math.min(1, (cam.offsetWidth * 0.92) / w(), (cam.offsetHeight * (small() ? 0.7 : 0.8)) / 640);
       // punto di mira della camera: il centro di un elemento, nelle coordinate della scena
       const aim = (t: () => HTMLElement) => () => {
         const w = cam.getBoundingClientRect();
@@ -391,14 +393,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       gsap.set($("[data-it]"), { xPercent: -50, yPercent: -50 });
       gsap.set(dev, { width: wide, scale: fit(wide), "--r": "26px", transformPerspective: 1600 });
 
-      const tl = gsap.timeline({
-        paused: true,
-        defaults: { ease: "power3.inOut" },
-        onUpdate: () => {
-          if (bar.current) bar.current.style.transform = `scaleX(${tl.progress()})`;
-        },
-      });
-      tlRef.current = tl;
+      // le scene, senza testo: le guida il montaggio qui sotto, un capitolo alla volta
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.inOut" } });
 
       /* didascalie a ritmo: la prima parte colpisce sul battito, la parola chiave arriva subito dopo (un ottavo),
          e tutto esce insieme sul battito successivo */
@@ -410,26 +406,19 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         return k < 0 ? { a: all, b: [] as HTMLElement[] } : { a: all.slice(0, k), b: all.slice(k) };
       };
       const units = caps.map(split);
-      const slam = (g: { a: HTMLElement[]; b: HTMLElement[] }, at: number, deg: number) => {
+      const slam = (g: { a: HTMLElement[]; b: HTMLElement[] }, at: number, deg: number, L: gsap.core.Timeline = tl) => {
         if (g.a.length) {
-          tl.fromTo(g.a, { scale: 1.22, autoAlpha: 0, filter: "blur(10px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 0.42, ease: "expo.out" }, at);
-          tl.call(() => (F.kick(0.9), F.tick(1)), undefined, at);
+          L.fromTo(g.a, { scale: 1.22, autoAlpha: 0, filter: "blur(10px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 0.42, ease: "expo.out" }, at);
+          L.call(() => (F.kick(0.9), F.tick(1)), undefined, at);
         }
         if (g.b.length) {
           const at2 = at + (g.a.length ? 0.25 : 0);
-          tl.fromTo(g.b, { scale: 1.3, autoAlpha: 0, filter: "blur(12px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 0.5, ease: "expo.out" }, at2);
-          tl.call(() => F.pluck(deg + 7, 0.9, 0.5), undefined, at2);
+          L.fromTo(g.b, { scale: 1.3, autoAlpha: 0, filter: "blur(12px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 0.5, ease: "expo.out" }, at2);
+          L.call(() => F.pluck(deg + 7, 0.9, 0.5), undefined, at2);
         }
       };
-      const capAt = (i: number, a0: number, a1: number) => {
-        const u = units[i];
-        const t0 = Math.round(a0 / B) * B;
-        const t1 = Math.round(a1 / B) * B;
-        tl.set(caps[i], { autoAlpha: 1 }, t0);
-        slam(u, t0, i % 5);
-        tl.to([...u.a, ...u.b], { scale: 0.94, autoAlpha: 0, filter: "blur(8px)", duration: 0.28, ease: "power3.in" }, t1 - 0.28);
-        tl.set(caps[i], { autoAlpha: 0 }, t1);
-      };
+      // il testo non sta più sopra la grafica: ogni frase ha il suo schermo, prima della sua scena (vedi il montaggio in fondo)
+      const capAt = (..._: number[]) => void _;
       const cap = (i: number, b0: number, b1: number) => capAt(i, T(b0), T(b1));
       const punch = (b: number, s = 1.02) => tl.fromTo(cam, { scale: s }, { scale: 1, duration: 0.6, ease: "expo.out" }, T(b));
 
@@ -630,7 +619,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .to(nav, { autoAlpha: 0, scale: 0.96, duration: 0.3, ease: "power2.in" }, T(25.9))
         .fromTo(ub, { autoAlpha: 0, scaleX: 0.7 }, { autoAlpha: 1, scaleX: 1, duration: 0.6, ease: "back.out(1.6)" }, T(26.2))
         .call(() => F.whoosh(0.5, true, 0.7), undefined, T(26.2))
-        .fromTo(cam, { scale: 1, transformOrigin: aim(() => ub) }, { scale: () => (small() ? 1.15 : 1.6), duration: 1.1, ease: "expo.inOut" }, T(26.4));
+        .fromTo(cam, { scale: 1, transformOrigin: aim(() => ub) }, { scale: () => (tight() ? 1.12 : 1.6), duration: 1.1, ease: "expo.inOut" }, T(26.4));
       typeTo(tl, one("[data-url]"), c.find.me[1], T(27), T(1.8), 3);
       tl.fromTo(one("[data-load2]"), { scaleX: 0 }, { scaleX: 1, duration: T(1), ease: "power2.inOut" }, T(28.9))
         .to(one("[data-lock1]"), { autoAlpha: 0, scale: 0.6, duration: 0.15, ease: "power2.in" }, T(29.9))
@@ -649,7 +638,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .to(nav, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "power2.out" }, T(31.2))
         .call(() => F.whoosh(0.6, true, 0.8), undefined, T(31.2))
         .to(dev, { width: mid, scale: fit(mid), "--r": "34px", duration: 0.9, ease: "expo.inOut" }, T(31.2))
-        .fromTo(cam, { scale: 1, transformOrigin: aim(() => (small() ? dev : ttl)) }, { scale: () => (small() ? 1.15 : 1.5), duration: 1, ease: "expo.inOut" }, T(33))
+        .fromTo(cam, { scale: 1, transformOrigin: aim(() => (tight() ? dev : ttl)) }, { scale: () => (tight() ? 1.08 : 1.5), duration: 1, ease: "expo.inOut" }, T(33))
         .fromTo($("[data-focus]"), { autoAlpha: 0, scale: 0.94 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, T(34.2))
         .call(() => F.tick(1.3), undefined, T(34.2))
         .fromTo($("[data-sel]"), { autoAlpha: 1, scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.inOut" }, T(34.8))
@@ -668,13 +657,16 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const gs = $("[data-g]");
       const orb = { a: -0.5 };
       const rr = gs.map(() => ({ r: 0 }));
+      // anteprima stretta o telefono: le voci in colonna, e più piccole se serve, così non escono dal riquadro
+      const narrow = () => cam.offsetWidth < 820;
+      const gS = () => (narrow() ? Math.min(1, cam.offsetWidth / 600, cam.offsetHeight / 560) : Math.min(1, cam.offsetWidth / 1250));
       const place = () =>
         gs.forEach((g, i) => {
           const { r } = rr[i];
-          if (small()) gsap.set(g, { x: 0, y: (i - 2.55) * 72 * r });
+          if (narrow()) gsap.set(g, { x: 0, y: (i - 2.55) * 72 * gS() * r });
           else {
             const t = orb.a + (i / gs.length) * Math.PI * 2;
-            gsap.set(g, { x: Math.cos(t) * Math.min(cam.offsetWidth * 0.37, 540) * r, y: Math.sin(t) * Math.min(cam.offsetHeight * 0.3, 210) * r });
+            gsap.set(g, { x: Math.cos(t) * Math.min(cam.offsetWidth * 0.33, 540) * r, y: Math.sin(t) * Math.min(cam.offsetHeight * 0.34, 260) * r });
           }
         });
       place();
@@ -685,7 +677,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       // ogni voce esce dal centro con una molla e si ferma sul suo posto dell'ellisse: niente deformazioni, solo posizione e messa a fuoco
       gs.forEach((g, i) => {
         const at = T(41.2 + i * 0.55);
-        tl.fromTo(g, { autoAlpha: 0, scale: 0.5, filter: "blur(10px)" }, { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.7, ease: "back.out(1.5)" }, at)
+        tl.fromTo(g, { autoAlpha: 0, scale: () => gS() * 0.5, filter: "blur(10px)" }, { autoAlpha: 1, scale: gS, filter: "blur(0px)", duration: 0.7, ease: "back.out(1.5)" }, at)
           .to(rr[i], { r: 1, duration: 1, ease: "expo.out", onUpdate: place }, at)
           .call(() => F.pluck(i + 2, 0.9, 0.5), undefined, at + 0.05);
       });
@@ -698,7 +690,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const pp = (i: number) => {
         const w = ps[i].offsetWidth;
         const h = ps[i].offsetHeight;
-        return small() ? { x: (i % 2 ? 0.5 : -0.5) * (w + 12), y: (i < 2 ? -0.5 : 0.5) * (h + 12) } : { x: (i - 1.5) * (w + 16), y: 0 };
+        return narrow() ? { x: (i % 2 ? 0.5 : -0.5) * (w + 12), y: (i < 2 ? -0.5 : 0.5) * (h + 12) } : { x: (i - 1.5) * (w + 16), y: 0 };
       };
       tl.to(rr, { r: 0, duration: 0.7, ease: "power3.in", onUpdate: place }, T(49.2))
         .to(gs, { autoAlpha: 0, scale: 0.8, filter: "blur(8px)", duration: 0.5, ease: "power2.in" }, T(49.3))
@@ -731,12 +723,55 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
 
       /* Il tempo del video lo muoviamo noi, un fotogramma alla volta e con un passo massimo:
          se il dispositivo rallenta (pagina che carica, telefono sotto sforzo) il video rallenta con lui invece di saltare le scene. */
+      /* montaggio: frase a schermo intero, poi la sua scena a schermo intero */
+      const segs: [number, number][] = [
+        [0, T(5.5)],
+        [T(5.5), 6.5],
+        [6.5, T(11.7)],
+        [T(11.7), T(15.6)],
+        [T(15.6), T(18)],
+        [T(18), T(21.8)],
+        [T(21.8), T(25.8)],
+        [T(25.8), T(31.2)],
+        [T(31.2), T(41.1)],
+        [T(41.1), T(49.8)],
+        [T(49.8), T(54.6)],
+      ];
+      const scene = tl;
+      const mt = gsap.timeline({
+        paused: true,
+        onUpdate: () => {
+          if (bar.current) bar.current.style.transform = `scaleX(${mt.progress()})`;
+        },
+      });
+      let at = 0;
+      const run = (a: number, b: number) => {
+        mt.add(scene.tweenFromTo(a, b, { duration: b - a, ease: "none", immediateRender: false }), at);
+        at += b - a;
+      };
+      segs.forEach(([a, b], i) => {
+        const u = units[i];
+        if (!u) return run(a, b);
+        mt.to(cam, { autoAlpha: 0, duration: 0.35, ease: "power2.in" }, at);
+        const c0 = at + 0.3;
+        mt.set(caps[i], { autoAlpha: 1 }, c0);
+        slam(u, c0, i % 5, mt);
+        const len = Math.max(1.5, 1.1 + caps[i].textContent!.length * 0.035);
+        mt.to([...u.a, ...u.b], { scale: 0.94, autoAlpha: 0, filter: "blur(8px)", duration: 0.3, ease: "power3.in" }, c0 + len);
+        mt.set(caps[i], { autoAlpha: 0 }, c0 + len + 0.3);
+        at = c0 + len + 0.3;
+        mt.fromTo(cam, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out", immediateRender: false }, at);
+        run(a, b);
+      });
+      run(T(54.6), scene.duration());
+      tlRef.current = mt;
+
       const drive = (_t: number, dt: number) => {
         if (!flags.current.playing) return;
-        const next = Math.min(tl.duration(), tl.time() + Math.min(dt, 34) / 1000);
-        tl.time(next);
+        const next = Math.min(mt.duration(), mt.time() + Math.min(dt, 34) / 1000);
+        mt.time(next);
         F.sync(next, true);
-        if (next >= tl.duration()) {
+        if (next >= mt.duration()) {
           flags.current.ended = true;
           flags.current.playing = false;
           setEnded(true);
@@ -818,12 +853,12 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       {!embed && <h1 className="sr-only">{title}</h1>}
       <div data-frame className={embed ? "cine-film cine-acr absolute inset-0 overflow-hidden" : "cine-film cine-acr absolute overflow-hidden rounded-[34px] shadow-[inset_0_0_0_1px_var(--hair-strong)] max-md:left-2 max-md:right-2 md:left-4 md:right-4"} style={embed ? undefined : { top: "var(--ft)", bottom: "var(--fb)" }}>
         {c.cap.map((t, i) => (
-          <p key={t} data-cap={i} className={CAP} style={HID}>
+          <p key={t} data-cap={i} className={CAPF} style={HID}>
             <Kw text={t} />
           </p>
         ))}
         <div data-cam className="absolute inset-0 will-change-transform">
-          <div className="absolute inset-x-0 top-[58%] h-0">
+          <div className="absolute inset-x-0 top-[50%] h-0">
             {/* ricerca e risultati */}
             <Bead as="div" data-it data-pill radius={42} className={`cine-fg ${center} flex h-[clamp(60px,10cqh,84px)] w-[min(720px,76cqw)] items-center gap-4 px-[clamp(20px,3cqw,34px)] text-[clamp(18px,2.6cqw,30px)]`} style={HID}>
               <Search size={26} strokeWidth={1.8} className="cine-fg2 shrink-0" />
@@ -874,7 +909,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
               </MiniSite>
             </div>
             {/* il browser: prima carica lento, poi tutto insieme */}
-            <div data-it data-chrome className={`${center} w-[min(92cqw,calc(min(58cqh,440px)*1.58))] aspect-[1.58] max-md:aspect-[.82] flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
+            <div data-it data-chrome className={`${center} w-[min(92cqw,calc(min(72cqh,600px)*1.58))] aspect-[1.58] max-md:aspect-[.82] flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
               <div className="flex h-[38px] shrink-0 items-end gap-3 bg-[color-mix(in_srgb,var(--label-primary)_9%,var(--bg-canvas))] px-3">
                 <span className="mb-[13px] flex gap-[7px]">
                   {["#ff5f57", "#febc2e", "#28c840"].map((k) => (
