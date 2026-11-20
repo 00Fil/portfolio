@@ -100,6 +100,63 @@ export const fx = {
     s.start(t);
     s.stop(t + dur * 1.2);
   },
+  /** Lo sbuffo di chi si è stufato di aspettare: «pff…», aria tra le labbra che scende e si spegne, con un filo di voce. */
+  sigh(vel = 1) {
+    const c = ac();
+    if (!c || !bus || !noise) return;
+    const t = c.currentTime;
+    // la «p»: un piccolo colpo d'aria chiuso
+    const p0 = c.createBufferSource();
+    p0.buffer = noise;
+    const pl = c.createBiquadFilter();
+    pl.type = "lowpass";
+    pl.frequency.value = 420;
+    const pg = c.createGain();
+    pg.gain.setValueAtTime(0.0001, t);
+    pg.gain.linearRampToValueAtTime(0.5 * vel, t + 0.006);
+    pg.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+    p0.connect(pl).connect(pg).connect(bus);
+    p0.start(t, 0.3);
+    p0.stop(t + 0.1);
+    // il soffio: rumore attraverso due formanti che scendono
+    const s = c.createBufferSource();
+    s.buffer = noise;
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t + 0.02);
+    g.gain.linearRampToValueAtTime(0.42 * vel, t + 0.12);
+    g.gain.setValueAtTime(0.42 * vel, t + 0.3);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.15);
+    [
+      [1500, 520, 1.4],
+      [2600, 1300, 2.2],
+    ].forEach(([a, b, q]) => {
+      const f = c.createBiquadFilter();
+      f.type = "bandpass";
+      f.Q.value = q;
+      f.frequency.setValueAtTime(a, t);
+      f.frequency.exponentialRampToValueAtTime(b, t + 1.1);
+      s.connect(f).connect(g);
+    });
+    g.connect(bus);
+    s.start(t + 0.02, 0.5);
+    s.stop(t + 1.2);
+    // un filo di voce sotto, che cala: «uff»
+    const o = c.createOscillator();
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(165, t + 0.1);
+    o.frequency.exponentialRampToValueAtTime(105, t + 0.95);
+    const vf = c.createBiquadFilter();
+    vf.type = "bandpass";
+    vf.frequency.value = 650;
+    vf.Q.value = 3;
+    const vg = c.createGain();
+    vg.gain.setValueAtTime(0.0001, t + 0.1);
+    vg.gain.linearRampToValueAtTime(0.05 * vel, t + 0.25);
+    vg.gain.exponentialRampToValueAtTime(0.0001, t + 0.95);
+    o.connect(vf).connect(vg).connect(bus);
+    o.start(t + 0.1);
+    o.stop(t + 1);
+  },
   /** Salita di tensione prima di un colpo. */
   riser(dur = 1.6) {
     const c = ac();

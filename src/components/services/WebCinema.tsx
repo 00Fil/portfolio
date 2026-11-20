@@ -166,7 +166,7 @@ function Wire({ team }: { team: string[] }) {
         {["-left-[5px] -top-[5px]", "-right-[5px] -top-[5px]", "-left-[5px] -bottom-[5px]", "-right-[5px] -bottom-[5px]"].map((p) => (
           <span key={p} className={`absolute h-2 w-2 border-2 border-[var(--accent)] bg-white ${p}`} />
         ))}
-        <span data-fsz className="absolute left-1/2 top-[calc(100%+8px)] -translate-x-1/2 whitespace-nowrap rounded-[6px] bg-[var(--accent)] px-2 py-0.5 font-mono text-[11px] text-white" />
+        <span data-fsz className="absolute left-1/2 top-[calc(100%+8px)] -translate-x-1/2 whitespace-nowrap rounded-[6px] bg-[var(--accent)] px-2 py-0.5 text-[11px] font-semibold tabular-nums text-white" />
       </div>
       {/* strumenti, in basso come nel file di progetto */}
       <div data-fbar className="absolute bottom-[calc(var(--i)+10px)] left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-[14px] bg-[var(--bg-surface)] p-1.5 shadow-[0_12px_30px_-12px_rgba(0,0,0,.35)] ring-1 ring-[var(--hair-strong)]">
@@ -360,11 +360,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const units = caps.map(split);
       // le parole entrano una alla volta, morbide: salgono appena e si mettono a fuoco
       const slam = (g: { a: HTMLElement[]; b: HTMLElement[] }, at: number, deg: number, L: gsap.core.Timeline = tl) => {
-        const all = [...g.a, ...g.b];
-        if (!all.length) return;
-        L.fromTo(all, { autoAlpha: 0, y: "0.32em", filter: "blur(8px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.45, ease: "power3.out", stagger: 0.045 }, at);
+        if (g.a.length) L.fromTo(g.a, { autoAlpha: 0, yPercent: 70, filter: "blur(6px)" }, { autoAlpha: 1, yPercent: 0, filter: "blur(0px)", duration: 0.6, ease: "expo.out", stagger: 0.035 }, at);
+        const kt = at + 0.035 * g.a.length;
+        if (g.b.length) L.fromTo(g.b, { autoAlpha: 0, scale: 0.86, filter: "blur(12px)" }, { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.7, ease: "expo.out" }, kt);
         L.call(() => F.tick(0.8), undefined, at);
-        if (g.b.length) L.call(() => F.pluck(deg + 7, 0.9, 0.5), undefined, at + 0.045 * g.a.length);
+        if (g.b.length) L.call(() => F.pluck(deg + 7, 0.9, 0.5), undefined, kt);
       };
       // il testo non sta più sopra la grafica: ogni frase ha il suo schermo, prima della sua scena (vedi il montaggio in fondo)
       const capAt = (..._: number[]) => void _;
@@ -394,7 +394,6 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const chrome = one("[data-chrome]");
       const cnt = one("[data-count]");
       const meter = one("[data-meter]");
-      gsap.set(meter, { y: () => chrome.offsetHeight / 2 + 36 });
       const spin = one("[data-spin]");
       const fav = one("[data-fav]");
       const stop = one("[data-stop]");
@@ -445,6 +444,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       /* 1b · Il cliente non aspetta: torna alla ricerca e apre il secondo risultato. Montato a parte, tra una scena e l'altra. */
       const back = gsap.timeline({ paused: true });
       {
+        back.call(() => F.sigh(1), undefined, 0.05);
         const cur = one("[data-cur]");
         const gres = one("[data-gres]");
         const rival = one("[data-rival]");
@@ -826,18 +826,18 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       // solo i passaggi che dicono qualcosa: il problema, poi cosa cambia (in cima, veloce, fatto su misura, ogni schermo, lo modifichi tu, l'AI ti cita, tutto compreso)
       const ch: Ch[] = [
         // prima del nostro intervento
-        { u: units[0], el: caps[0], seg: [0, T(3)] },
-        { u: xunits[2], el: xcaps[2], sub: farTl, after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
+        { u: units[0], el: caps[0], seg: [0, T(3)], speed: 1.3 },
+        { u: xunits[2], el: xcaps[2], sub: farTl, speed: 1.2, after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
         { u: units[1], el: caps[1], seg: [U(5.7) + 0.02, 5.75], hold: 0 },
-        { sub: back, speed: 1.35, hold: 0.4, after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
+        { sub: back, speed: 1.6, hold: 0.25, after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
         { u: xunits[3], el: xcaps[3], textOnly: true, mood: "stop" },
         // con il nuovo sito
-        { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.25, mood: "drop", after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set([chrome, meter], { autoAlpha: 1 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
-        { u: units[2], el: caps[2], seg: [6.5, T(11.4)], speed: 0.9 },
-        { u: units[3], el: caps[3], seg: [T(11.9), T(18)], speed: 0.75 },
-        { u: units[5], el: caps[5], seg: [T(18), T(22.1)] },
-        { u: units[8], el: caps[8], seg: [T(31.6), T(40.6)], speed: 1.15 },
-        { u: xunits[1], el: xcaps[1], sub: geoTl, speed: 1.25, after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
+        { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.55, mood: "drop", after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set([chrome, meter], { autoAlpha: 1 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
+        { u: units[2], el: caps[2], seg: [6.5, T(11.4)], speed: 1.15 },
+        { u: units[3], el: caps[3], seg: [T(11.9), T(18)], speed: 1 },
+        { u: units[5], el: caps[5], seg: [T(18), T(22.1)], speed: 1.3 },
+        { u: units[8], el: caps[8], seg: [T(31.6), T(40.6)], speed: 1.45 },
+        { u: xunits[1], el: xcaps[1], sub: geoTl, speed: 1.5, after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
         { seg: [T(54.8), scene.duration()], hold: 0, mood: "end" },
       ];
       const mt = gsap.timeline({
@@ -848,49 +848,64 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       });
       let at = 0;
       let pending: ((t: number) => void) | undefined;
+      // tutto cade sulla griglia della musica: ottavi a 120 bpm (0,25 s)
+      const q8 = (t: number) => Math.ceil(t * 4 - 1e-6) / 4;
+      const r8 = (t: number) => Math.max(0.5, Math.round(t * 4) / 4);
+      const rig = one("[data-rig]");
+      // ogni scena entra con un movimento di camera diverso, poi la camera continua a muoversi piano
+      const moves = [
+        { scale: 1.3, rotation: -4, yPercent: 8 },
+        { scale: 0.78, rotation: 3, xPercent: -6 },
+        { scale: 1.22, rotation: 0, xPercent: 8 },
+        { scale: 1.35, rotation: 5, yPercent: -6 },
+        { scale: 0.82, rotation: -3, yPercent: 6 },
+      ];
+      const shoot = (i: number, t: number, d: number) => {
+        const m = moves[i % moves.length];
+        mt.fromTo(rig, { xPercent: 0, yPercent: 0, ...m }, { scale: 1, rotation: 0, xPercent: 0, yPercent: 0, duration: 0.9, ease: "expo.out", immediateRender: false }, t);
+        if (d > 1.2) mt.to(rig, { scale: i % 2 ? 0.96 : 1.05, rotation: i % 2 ? -1 : 1, duration: d - 0.9, ease: "sine.inOut" }, t + 0.9);
+      };
       ch.forEach((k, i) => {
+        at = q8(at);
         if (k.mood) {
           const m = k.mood;
-          const t0 = at + (m === "end" ? 0.2 : 0);
+          const t0 = at + (m === "end" ? 0.25 : 0);
           mt.call(() => cue(m, t0), undefined, t0);
         }
+        let shot = -1;
         if (k.u && k.el) {
-          mt.to(cam, { autoAlpha: 0, duration: 0.28, ease: "power2.inOut" }, at);
-          pending?.(at + 0.29);
+          mt.to(cam, { autoAlpha: 0, duration: 0.22, ease: "power2.in" }, at);
+          pending?.(at + 0.23);
           pending = undefined;
           const words = [...k.u.a, ...k.u.b];
-          const c0 = at + 0.18;
+          const c0 = q8(at + 0.2);
           mt.set(k.el, { autoAlpha: 1 }, c0);
           slam(k.u, c0, i % 5, mt);
-          const c1 = c0 + 0.42 + 0.045 * (words.length - 1) + 0.12 + (k.el.textContent?.length ?? 20) * 0.01;
-          mt.to(words, { autoAlpha: 0, y: "-0.18em", filter: "blur(6px)", duration: 0.3, ease: "power2.in" }, c1);
-          mt.set(k.el, { autoAlpha: 0 }, c1 + 0.3);
-          at = c1 + 0.22;
+          const c1 = q8(c0 + 0.5 + 0.035 * (words.length - 1) + (k.el.textContent?.length ?? 20) * 0.009);
+          if (k.u.a.length) mt.to(k.u.a, { autoAlpha: 0, yPercent: -60, filter: "blur(6px)", duration: 0.25, ease: "power3.in", stagger: 0.015 }, c1);
+          if (k.u.b.length) mt.to(k.u.b, { autoAlpha: 0, scale: 1.08, filter: "blur(10px)", duration: 0.25, ease: "power3.in" }, c1);
+          mt.set(k.el, { autoAlpha: 0 }, c1 + 0.25);
+          at = c1 + 0.25;
           if (k.textOnly) {
-            at += 0.3;
+            at += 0.25;
             return;
           }
-          mt.fromTo(cam, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.55, ease: "power2.out", immediateRender: false }, at);
+          mt.fromTo(cam, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "power2.out", immediateRender: false }, at);
+          shot = i;
         }
         if (!k.el && pending) {
-          // capitolo senza frase: la scena di prima si spegne e si mette in ordine qui
-          mt.to(cam, { autoAlpha: 0, duration: 0.3, ease: "power2.inOut" }, at);
-          pending(at + 0.31);
+          mt.to(cam, { autoAlpha: 0, duration: 0.22, ease: "power2.in" }, at);
+          pending(at + 0.23);
           pending = undefined;
-          at += 0.35;
+          at = q8(at + 0.25);
         }
-        if (k.seg) {
-          const [a, b] = k.seg;
-          const d = (b - a) / (k.speed ?? 1);
-          mt.add(scene.tweenFromTo(a, b, { duration: d, ease: "none", immediateRender: false }), at);
-          at += d;
-        }
-        if (k.sub) {
-          const d = k.sub.duration() / (k.speed ?? 1);
-          mt.add(k.sub.tweenFromTo(0, k.sub.duration(), { duration: d, ease: "none", immediateRender: false }), at);
-          at += d;
-        }
-        at += k.hold ?? 0.6;
+        let d = 0;
+        if (k.seg) d = r8((k.seg[1] - k.seg[0]) / (k.speed ?? 1));
+        if (k.sub) d = r8(k.sub.duration() / (k.speed ?? 1));
+        if (shot >= 0) shoot(shot, at, d);
+        if (k.seg) mt.add(scene.tweenFromTo(k.seg[0], k.seg[1], { duration: d, ease: "none", immediateRender: false }), at);
+        if (k.sub) mt.add(k.sub.tweenFromTo(0, k.sub.duration(), { duration: d, ease: "none", immediateRender: false }), at);
+        at += d + (k.hold ?? 0.35);
         if (k.after) pending = k.after;
       });
       tlRef.current = mt;
@@ -993,6 +1008,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             <Kw text={t} />
           </p>
         ))}
+        <div data-rig className="absolute inset-0 will-change-transform">
         <div data-cam className="absolute inset-0 will-change-transform">
           <div className="absolute inset-x-0 top-[50%] h-0">
             {/* ricerca e risultati */}
@@ -1045,7 +1061,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
               </MiniSite>
             </div>
             {/* il browser: prima carica lento, poi tutto insieme */}
-            <div data-it data-chrome className={`${center} w-[min(92cqw,calc(min(54cqh,500px)*1.58))] aspect-[1.58] max-md:aspect-[.82] flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
+            <div data-it className={`${center} flex flex-col items-center gap-[clamp(16px,3cqh,32px)]`}>
+              <div data-chrome className={`relative w-[min(88cqw,calc(min(46cqh,440px)*1.58))] aspect-[1.58] max-md:aspect-[.82] flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
               <div className="flex h-[38px] shrink-0 items-end gap-3 bg-[color-mix(in_srgb,var(--label-primary)_9%,var(--bg-canvas))] px-3">
                 <span className="mb-[13px] flex gap-[7px]">
                   {["#ff5f57", "#febc2e", "#28c840"].map((k) => (
@@ -1119,18 +1136,19 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
               </div>
             </div>
             {/* sotto la finestra: prima o dopo, e quanto ci mette. Testo, non una scheda */}
-            <div data-it data-meter className={`${center} cine-fg flex items-center gap-3 whitespace-nowrap text-[clamp(18px,2.2cqw,28px)]`} style={HID}>
-              <span data-tagdot className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--negative)" }} />
-              <span className="relative font-semibold tracking-[-0.02em]">
-                <span data-tag1>{c.ba[0]}</span>
-                <span data-tag2 className="absolute left-0 top-0" style={HID}>
-                  {c.ba[1]}
+              <div data-meter className={`cine-fg flex items-center gap-[0.4em] whitespace-nowrap text-[clamp(34px,5.4cqw,80px)] font-semibold leading-none tracking-[-0.045em]`} style={HID}>
+                <span data-tagdot className="h-[0.3em] w-[0.3em] rounded-full" style={{ background: "var(--negative)" }} />
+                <span className="relative font-semibold tracking-[-0.02em]">
+                  <span data-tag1>{c.ba[0]}</span>
+                  <span data-tag2 className="absolute left-0 top-0" style={HID}>
+                    {c.ba[1]}
+                  </span>
                 </span>
-              </span>
-              <span data-count className="cine-fg2 font-mono tabular-nums">
-                0,0 s
-              </span>
-              <Check data-ok size={22} strokeWidth={2.4} style={{ color: "var(--accent)" }} />
+                <span data-count className="tabular-nums">
+                  0,0 s
+                </span>
+                <Check data-ok size={"0.8em" as unknown as number} strokeWidth={2.6} style={{ color: "var(--accent)" }} />
+              </div>
             </div>
             {/* prima: mille risultati, e tu in fondo */}
             <div data-it data-far className={`${center} w-[min(640px,74cqw)]`} style={HID}>
@@ -1139,14 +1157,14 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                   <feGaussianBlur data-vb stdDeviation="0 0" />
                 </filter>
               </svg>
-              <p data-fcount className="cine-fg2 mb-4 pl-1 text-[clamp(13px,1.5cqw,17px)]">
+              <p data-fcount className="cine-fg mb-6 text-center text-[clamp(30px,4.4cqw,64px)] font-semibold leading-none tracking-[-0.045em]">
                 {c.far.count}
               </p>
-              <div className="relative -mx-4 overflow-hidden px-4" style={{ height: "calc(5 * (clamp(46px,7cqh,60px) + 10px) - 10px)", maskImage: "linear-gradient(transparent, #000 10%, #000 90%, transparent)", WebkitMaskImage: "linear-gradient(transparent, #000 10%, #000 90%, transparent)" }}>
+              <div className="relative -mx-4 overflow-hidden px-4" style={{ height: "calc(4 * (clamp(46px,7cqh,60px) + 10px) - 10px)", maskImage: "linear-gradient(transparent, #000 10%, #000 90%, transparent)", WebkitMaskImage: "linear-gradient(transparent, #000 10%, #000 90%, transparent)" }}>
                 <div data-fl className="flex flex-col gap-[10px] will-change-transform">
                   {Array.from({ length: FAR_N }, (_, i) => (i === FAR_N - 1 ? c.find.me : c.far.list[i % c.far.list.length])).map(([t, u], i) => (
                     <div key={i} data-fr className={`cine-fg flex h-[clamp(46px,7cqh,60px)] shrink-0 items-center gap-4 rounded-[22px] bg-[var(--bg-surface)] px-[clamp(16px,2.4cqw,28px)] shadow-[0_6px_18px_-12px_rgba(0,0,0,.35)] ring-1 ring-[var(--hair-strong)]`}>
-                      <span className="cine-fg2 w-7 shrink-0 font-mono text-[clamp(12px,1.4cqw,15px)] tabular-nums">{i + 1}</span>
+                      <span className="cine-fg2 w-7 shrink-0 text-[clamp(12px,1.4cqw,15px)] font-medium tabular-nums">{i + 1}</span>
                       <span className={`min-w-0 flex-1 truncate text-[clamp(15px,2cqw,22px)] tracking-[-0.02em] ${i === FAR_N - 1 ? "font-semibold" : "cine-fg2"}`}>{t}</span>
                       <span className="cine-fg2 hidden shrink-0 text-[clamp(12px,1.4cqw,16px)] @min-[420px]:inline">{u}</span>
                     </div>
@@ -1163,7 +1181,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             {/* SEO: la tua attività sale in cima ai risultati */}
             <div data-it data-seo className={`${center} w-[min(660px,80cqw)]`} style={{ ...HID, height: "calc(5 * (clamp(54px,8.4cqh,70px) + 12px) - 12px)" }}>
               {[1, 2, 3, 4, 5].map((n, i) => (
-                <span key={n} className="cine-fg2 absolute -left-10 flex w-6 items-center justify-end font-mono text-[clamp(13px,1.5cqw,17px)] tabular-nums" style={{ top: `calc(${i} * (clamp(54px,8.4cqh,70px) + 12px))`, height: "clamp(54px,8.4cqh,70px)" }}>
+                <span key={n} className="cine-fg2 absolute -left-10 flex w-6 items-center justify-end text-[clamp(13px,1.5cqw,17px)] font-medium tabular-nums" style={{ top: `calc(${i} * (clamp(54px,8.4cqh,70px) + 12px))`, height: "clamp(54px,8.4cqh,70px)" }}>
                   {n}
                 </span>
               ))}
@@ -1188,7 +1206,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                   <span className="invisible">{c.geo.a}</span>
                   <span data-gat className="absolute inset-0" />
                 </span>
-                <span data-gsrc className="flex items-center gap-2 self-start rounded-full px-3.5 py-1.5 text-[0.78em] font-medium text-[var(--accent)] ring-1 ring-[var(--accent)]">
+                <span data-gsrc className="flex items-center gap-2 self-start rounded-full px-4 py-2 text-[1.05em] font-medium text-[var(--accent)] ring-1 ring-[var(--accent)]">
                   <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
                   {c.find.me[1]}
                 </span>
@@ -1215,6 +1233,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             ))}
           </div>
         </div>
+      </div>
       <div data-end className="absolute inset-0 flex flex-col items-center justify-center" style={HID}>
         <p data-eh className="mx-auto max-w-[14ch] px-6 text-center text-[clamp(38px,6.6cqw,108px)] font-medium leading-[1.04] tracking-[-0.05em] cine-fg">
           <Kw text={c.end.t} />
