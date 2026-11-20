@@ -7,6 +7,9 @@ import { soundOn } from "./sound";
  * scura: pad a sega, basso sincopato con sub, cassa a quattro che fa "respirare" il resto, colpo finale su La.
  */
 let ctx: AudioContext | null = null;
+let muted = false;
+/** Per i film dentro le schede: niente suono, anche se è acceso. */
+export const filmMute = (m: boolean) => void (muted = m);
 let bus: GainNode | null = null;
 let noise: AudioBuffer | null = null;
 
@@ -15,7 +18,7 @@ const PENT = [0, 3, 5, 7, 10];
 export const fq = (d: number, base = 220) => base * 2 ** ((PENT[((d % 5) + 5) % 5] + 12 * Math.floor(d / 5)) / 12);
 
 function ac() {
-  if (!soundOn()) return null;
+  if (!soundOn() || muted) return null;
   if (!ctx) {
     const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     ctx = new AC();

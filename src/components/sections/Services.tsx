@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState, type CSSProperties, type MouseEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowUpRight } from "lucide-react";
@@ -12,6 +13,8 @@ import { SectionHead } from "./SectionHead";
 import { GooDefs, ServiceVisual, type WidgetText } from "./ServiceWidgets";
 import { Bead } from "@/components/glass/Bead";
 import { ServiceBg } from "./ServiceBg";
+
+const WebCinema = dynamic(() => import("@/components/services/WebCinema").then((m) => m.WebCinema), { ssr: false });
 
 /* Ingombro di ogni servizio nella griglia a 4 colonne. */
 const SPAN: Record<string, [number, number]> = {
@@ -46,13 +49,20 @@ function Body({ s, w, locale, open, still = false }: { s: Service; w: WidgetText
   const bleed = { inset: "calc(var(--mb-pad, 20px) * -1)" };
   // su computer lavora solo la scheda sotto il cursore: il fondale si muove e lo spot riparte da capo a ogni passaggio
   const [hover, setHover] = useState(false);
+  // il film del servizio si monta al primo passaggio e poi resta: si ferma e riparte con il cursore
+  const [seen, setSeen] = useState(false);
+  const film = s.key === "web" && !still;
   return (
-    <div className="theme-dark relative h-full" onPointerEnter={() => !still && setHover(true)} onPointerLeave={() => setHover(false)}>
+    <div className="theme-dark relative h-full" onPointerEnter={() => {
+        if (still) return;
+        setHover(true);
+        setSeen(true);
+      }} onPointerLeave={() => setHover(false)}>
       <div aria-hidden className="pointer-events-none absolute overflow-hidden" style={bleed}>
         <ServiceBg k={s.key} live={!still} still={still} paused={!hover} />
       </div>
       <div className="svc-vis absolute overflow-hidden" style={bleed}>
-        <ServiceVisual k={s.key} t={w} max={1.2} play={still ? undefined : hover} />
+        {film ? seen && <WebCinema title={s.title[locale]} embed play={hover} /> : <ServiceVisual k={s.key} t={w} max={1.2} play={still ? undefined : hover} />}
       </div>
       <div className="svc-rest pointer-events-none absolute flex flex-col items-center justify-center px-8 text-center" style={bleed}>
         <span className="flex items-center gap-2.5 font-mono text-[11.5px] uppercase tracking-[0.16em] text-white/75">
