@@ -36,7 +36,7 @@ export type Cinema = {
 const IT: Cinema = {
   cue: "Scorri",
   end: { t: "Il tuo sito, *fatto bene*.", more: "Scopri i dettagli", cta: "Parliamone" },
-  cap: ["Un cliente ti *cerca*.", "Ti trova, ma è *lento*.", "E si aprirà in *0,8 secondi*.", "Prima lo *disegneremo*.", "Poi lo *costruiremo*.", "Perfetto su *ogni schermo*.", "Arriveranno i *clienti*.", "Online, *al sicuro*.", "Lo *cambierai tu*.", "Tutto *compreso*.", "Senza *sorprese*."],
+  cap: ["Un cliente ti *cerca*.", "Ti trova, ma è *lento*.", "E si aprirà in *0,8 secondi*.", "Lo costruiremo *su misura*.", "Poi lo *costruiremo*.", "Perfetto su *ogni schermo*.", "Arriveranno i *clienti*.", "Online, *al sicuro*.", "Lo *cambierai tu*.", "Tutto *compreso*.", "Senza *sorprese*."],
   title: ["Il tuo lavoro,", "sempre aggiornato"],
   ctl: { play: "Riproduci", pause: "Pausa", replay: "Rivedi", on: "Audio attivo", off: "Audio spento" },
   find: { q: "Un nuovo cliente ti cerca. Cosa trova?", typed: "chi può aiutarmi qui vicino", loading: "Sta caricando…", a: "Se il sito è lento o confuso, ne sceglie un altro.", me: ["La tua attività", "latuaattivita.it"], others: [["Un’altra attività", "unaltra.it"], ["Un’altra ancora", "unaltraancora.it"]] },
@@ -87,7 +87,7 @@ const IT: Cinema = {
 const EN: Cinema = {
   cue: "Scroll",
   end: { t: "Your site, *done right*.", more: "See the details", cta: "Let’s talk" },
-  cap: ["A customer is *looking* for you.", "They find you, but it’s *slow*.", "And it will open in *0.8 seconds*.", "First, we’ll *design* it.", "Then, we’ll *build* it.", "Perfect on *every screen*.", "*Customers* will arrive.", "Online, and *safe*.", "*You’ll* change it.", "Everything *included*.", "No *surprises*."],
+  cap: ["A customer is *looking* for you.", "They find you, but it’s *slow*.", "And it will open in *0.8 seconds*.", "We’ll build it *just for you*.", "Then, we’ll *build* it.", "Perfect on *every screen*.", "*Customers* will arrive.", "Online, and *safe*.", "*You’ll* change it.", "Everything *included*.", "No *surprises*."],
   title: ["Your work,", "always current"],
   ctl: { play: "Play", pause: "Pause", replay: "Replay", on: "Sound on", off: "Sound off" },
   find: { q: "A new customer is looking for you. What do they find?", typed: "who can help me nearby", loading: "Loading…", a: "If the site is slow or confusing, they pick another one.", me: ["Your business", "yourbusiness.com"], others: [["Another business", "another.com"], ["One more", "onemore.com"]] },

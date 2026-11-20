@@ -355,9 +355,9 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const slam = (g: { a: HTMLElement[]; b: HTMLElement[] }, at: number, deg: number, L: gsap.core.Timeline = tl) => {
         const all = [...g.a, ...g.b];
         if (!all.length) return;
-        L.fromTo(all, { autoAlpha: 0, y: "0.32em", filter: "blur(8px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.8, ease: "power3.out", stagger: 0.1 }, at);
+        L.fromTo(all, { autoAlpha: 0, y: "0.32em", filter: "blur(8px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.6, ease: "power3.out", stagger: 0.07 }, at);
         L.call(() => F.tick(0.8), undefined, at);
-        if (g.b.length) L.call(() => F.pluck(deg + 7, 0.9, 0.5), undefined, at + 0.1 * g.a.length);
+        if (g.b.length) L.call(() => F.pluck(deg + 7, 0.9, 0.5), undefined, at + 0.07 * g.a.length);
       };
       // il testo non sta più sopra la grafica: ogni frase ha il suo schermo, prima della sua scena (vedi il montaggio in fondo)
       const capAt = (..._: number[]) => void _;
@@ -741,7 +741,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const endY = () => -(me.offsetTop - (win.offsetHeight - me.offsetHeight) / 2);
         const ease = gsap.parseEase("power4.inOut");
         const run = { p: 0 };
-        const D = 4.6;
+        const D = 3.4;
         const paint = () => {
           const y = endY() * ease(run.p);
           const e = 0.004;
@@ -756,12 +756,12 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .set(box, { autoAlpha: 1 }, 0)
           .fromTo(one("[data-fcount]"), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0.05)
           .fromTo(rows.slice(0, 5), { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.08 }, 0.15)
-          .fromTo(run, { p: 0 }, { p: 1, duration: D, ease: "none", onUpdate: paint, onReverseComplete: paint }, 1.2)
-          .call(() => F.riser(D * 0.5), undefined, 1.2)
-          .call(() => F.whoosh(1, false, 1), undefined, 1.2 + D * 0.4)
-          .fromTo(me, { boxShadow: "0 0 0 0px rgba(94,196,255,0)" }, { boxShadow: "0 0 0 3px var(--accent)", duration: 0.45, ease: "back.out(2.5)" }, 1.2 + D)
-          .call(() => F.tick(1.2), undefined, 1.2 + D)
-          .set({}, {}, 1.2 + D + 0.8);
+          .fromTo(run, { p: 0 }, { p: 1, duration: D, ease: "none", onUpdate: paint, onReverseComplete: paint }, 0.8)
+          .call(() => F.riser(D * 0.5), undefined, 0.8)
+          .call(() => F.whoosh(1, false, 1), undefined, 0.8 + D * 0.4)
+          .fromTo(me, { boxShadow: "0 0 0 0px rgba(94,196,255,0)" }, { boxShadow: "0 0 0 3px var(--accent)", duration: 0.45, ease: "back.out(2.5)" }, 0.8 + D)
+          .call(() => F.tick(1.2), undefined, 0.8 + D)
+          .set({}, {}, 0.8 + D + 0.7);
 
       }
 
@@ -815,25 +815,22 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const xunits = xcaps.map(split);
       const scene = tl;
       type Ch = { textOnly?: boolean; u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
+      // solo i passaggi che dicono qualcosa: il problema, poi cosa cambia (in cima, veloce, fatto su misura, ogni schermo, lo modifichi tu, l'AI ti cita, tutto compreso)
       const ch: Ch[] = [
         // prima del nostro intervento
         { u: units[0], el: caps[0], seg: [0, T(3)] },
         { u: xunits[2], el: xcaps[2], sub: farTl, after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
-        { u: units[1], el: caps[1], seg: [U(5.7), 5.75], hold: 0 },
-        { sub: back, after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
+        { u: units[1], el: caps[1], seg: [U(5.7) + 0.02, 5.75], hold: 0 },
+        { sub: back, speed: 1.35, hold: 0.4, after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
         { u: xunits[3], el: xcaps[3], textOnly: true },
         // con il nuovo sito
-        { u: xunits[0], el: xcaps[0], sub: seoTl, after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set([chrome, meter], { autoAlpha: 1 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
-        { u: units[2], el: caps[2], seg: [6.5, T(11.4)], speed: 0.75 },
-        { u: units[3], el: caps[3], seg: [T(11.9), T(15.6)], speed: 0.5 },
-        { u: units[4], el: caps[4], seg: [T(15.6), T(18)], speed: 0.8 },
-        { u: units[5], el: caps[5], seg: [T(18), T(22.1)], speed: 0.85 },
-        { u: units[6], el: caps[6], seg: [T(22.1), T(25.4)] },
-        { u: units[7], el: caps[7], seg: [T(25.4), T(31)] },
-        { u: units[8], el: caps[8], seg: [T(31), T(40.6)] },
-        { u: xunits[1], el: xcaps[1], sub: geoTl, after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
-        { u: units[9], el: caps[9], seg: [T(41.2), T(49.2)] },
-        { u: units[10], el: caps[10], seg: [T(49.8), T(54.2)] },
+        { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.25, after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set([chrome, meter], { autoAlpha: 1 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
+        { u: units[2], el: caps[2], seg: [6.5, T(11.4)], speed: 0.9 },
+        { u: units[3], el: caps[3], seg: [T(11.9), T(18)], speed: 0.75 },
+        { u: units[5], el: caps[5], seg: [T(18), T(22.1)] },
+        { u: units[8], el: caps[8], seg: [T(31.6), T(40.6)], speed: 1.15 },
+        { u: xunits[1], el: xcaps[1], sub: geoTl, speed: 1.25, after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
+        { u: units[9], el: caps[9], seg: [T(41.2), T(49.2)], speed: 1.3 },
         { seg: [T(54.8), scene.duration()], hold: 0 },
       ];
       const mt = gsap.timeline({
@@ -846,17 +843,17 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       let pending: ((t: number) => void) | undefined;
       ch.forEach((k, i) => {
         if (k.u && k.el) {
-          mt.to(cam, { autoAlpha: 0, duration: 0.45, ease: "power2.inOut" }, at);
-          pending?.(at + 0.46);
+          mt.to(cam, { autoAlpha: 0, duration: 0.35, ease: "power2.inOut" }, at);
+          pending?.(at + 0.36);
           pending = undefined;
           const words = [...k.u.a, ...k.u.b];
-          const c0 = at + 0.35;
+          const c0 = at + 0.25;
           mt.set(k.el, { autoAlpha: 1 }, c0);
           slam(k.u, c0, i % 5, mt);
-          const c1 = c0 + 0.8 + 0.1 * (words.length - 1) + 0.6 + (k.el.textContent?.length ?? 20) * 0.022;
-          mt.to(words, { autoAlpha: 0, y: "-0.18em", filter: "blur(6px)", duration: 0.5, ease: "power2.in" }, c1);
-          mt.set(k.el, { autoAlpha: 0 }, c1 + 0.5);
-          at = c1 + 0.4;
+          const c1 = c0 + 0.6 + 0.07 * (words.length - 1) + 0.35 + (k.el.textContent?.length ?? 20) * 0.018;
+          mt.to(words, { autoAlpha: 0, y: "-0.18em", filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, c1);
+          mt.set(k.el, { autoAlpha: 0 }, c1 + 0.4);
+          at = c1 + 0.3;
           if (k.textOnly) {
             at += 0.3;
             return;
@@ -870,11 +867,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           at += d;
         }
         if (k.sub) {
-          const d = k.sub.duration();
-          mt.add(k.sub.tweenFromTo(0, d, { duration: d, ease: "none", immediateRender: false }), at);
+          const d = k.sub.duration() / (k.speed ?? 1);
+          mt.add(k.sub.tweenFromTo(0, k.sub.duration(), { duration: d, ease: "none", immediateRender: false }), at);
           at += d;
         }
-        at += k.hold ?? 1;
+        at += k.hold ?? 0.6;
         if (k.after) pending = k.after;
       });
       tlRef.current = mt;
