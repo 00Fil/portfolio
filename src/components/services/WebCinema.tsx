@@ -25,7 +25,8 @@ const cin = (n: string) => `/visual/cinema/${n}.webp`;
 const HID = { visibility: "hidden" as const, opacity: 0 };
 type Q = (s: string) => HTMLElement[];
 
-/** Le parole tra asterischi diventano parole chiave, riempite dal gradiente animato. */
+/** Le parole tra asterischi diventano parole chiave, riempite dal gradiente animato. Con "!" davanti (*!perso*) il gradiente è rosso: una cosa che si perde. */
+const GT_RED = ["#d92d20", "#ff6b5e", "#b42318", "#ff8a80"];
 export function Kw({ text }: { text: string }) {
   const parts = text.split("*");
   return (
@@ -33,10 +34,12 @@ export function Kw({ text }: { text: string }) {
       {parts.map((p, i) => {
         if (i % 2) {
           const m = /^[.,!?;:]+/.exec(parts[i + 1] ?? "");
+          const red = p.startsWith("!");
+          const w = red ? p.slice(1) : p;
           return (
-            <span key={i} data-kw className="inline-block" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.2em 0.34em 0.5em", margin: "-0.2em -0.34em -0.5em" }}>
-              <GradientText colors={GT} animationSpeed={8} variant="flow" glow={1}>
-                {p + (m ? m[0] : "")}
+            <span key={i} data-kw className="inline-block" style={{ ...(red ? { "--gt-glow-color": "#ff5a52" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.2em 0.34em 0.5em", margin: "-0.2em -0.34em -0.5em" }}>
+              <GradientText colors={red ? GT_RED : GT} animationSpeed={8} variant="flow" glow={1}>
+                {w + (m ? m[0] : "")}
               </GradientText>
             </span>
           );
@@ -380,6 +383,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       /* 1 · Se è lento, se ne va: una finestra del browser che carica un pezzo alla volta, sempre in caricamento */
       const chrome = one("[data-chrome]");
       const cnt = one("[data-count]");
+      const meter = one("[data-meter]");
+      gsap.set(meter, { y: () => chrome.offsetHeight / 2 + 36 });
       const spin = one("[data-spin]");
       const fav = one("[data-fav]");
       const stop = one("[data-stop]");
@@ -392,6 +397,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       tl.set([pill, ...res], { autoAlpha: 0 }, U(5.7))
         .call(() => (F.whoosh(0.5, false, 0.8), F.riser(U(6.5))), undefined, U(5.5))
         .fromTo(chrome, { autoAlpha: 0, y: 140 }, { autoAlpha: 1, y: 0, duration: 1.3, ease: "expo.out" }, U(5.7))
+        .fromTo(meter, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, U(5.7) + 0.7)
         .set(cam, { scale: 1 }, U(5.7));
       // il sito di oggi: arriva a pezzi, di scatto, a intervalli irregolari; quando arriva la foto il testo salta giù; la foto non finisce mai
       const sw0 = one("[data-sw]");
@@ -433,7 +439,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const gres = one("[data-gres]");
         const rival = one("[data-rival]");
         const url1 = one("[data-url1]");
-        const second = one('[data-gr="1"] [data-grt]');
+        const second = one('[data-gr="0"] [data-grt]');
         // un punto di un elemento qualsiasi della finestra, nelle coordinate del contenuto (la finestra può essere scalata)
         const at = (e: () => HTMLElement, fx = 0.5, fy = 0.6) => () => {
           const a = content.getBoundingClientRect();
@@ -462,12 +468,12 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .set(gres, { autoAlpha: 0 }, 3.95)
           .set(rival, { autoAlpha: 1 }, 3.95)
           .call(() => void (url1.textContent = c.find.others[0][1]), undefined, 3.95)
+          .call(() => void (tt1.textContent = c.find.others[0][0]), undefined, 3.95)
+          .call(() => void (tt1.textContent = c.find.me[1]), undefined, 3.94)
           .call(() => void (url1.textContent = c.find.typed), undefined, 3.94)
           .fromTo(rival.children, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.08, immediateRender: false }, 3.95)
           .to(cur, { autoAlpha: 0, duration: 0.3 }, 4.2)
-          // l'etichetta in basso: non conta più i secondi, dice cosa è successo
-          .to([cnt, one("[data-sep]"), one("[data-tag1]")], { autoAlpha: 0, duration: 0.2 }, 4.0)
-          .fromTo(one("[data-tag3]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: "back.out(2)", immediateRender: false }, 4.15)
+          .to(one("[data-meter]"), { autoAlpha: 0, duration: 0.25 }, 3.95)
           .call(() => F.chord([0, 1, 3], 0.6), undefined, 4.1)
           .set({}, {}, 6.2);
       }
@@ -536,7 +542,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       /* 3 · Prima lo disegniamo: la camera entra nell'anello, dal fondo emerge la pagina inclinata */
       const wireBits = $("[data-wb]");
       tl.call(() => F.whoosh(0.8, true, 1), undefined, T(11.5))
-        .set(chrome, { autoAlpha: 0 }, T(11.9))
+        .set([chrome, meter], { autoAlpha: 0 }, T(11.9))
         .fromTo(dev, { autoAlpha: 0, rotationX: 40, y: 160, scale: () => fit(wide)() * 0.7 }, { autoAlpha: 1, rotationX: 0, y: 0, scale: fit(wide), duration: 1.5, ease: "expo.out" }, T(11.9))
         .fromTo(wireBits, { autoAlpha: 0, scale: 0.86, y: 16 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.7)", stagger: T(0.4) }, T(12.6));
       wireBits.forEach((_, i) => tl.call(() => F.pluck(i * 2, 0.7, 0.3), undefined, T(12.6) + i * T(0.4)));
@@ -718,6 +724,26 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
 
       /* Il tempo del video lo muoviamo noi, un fotogramma alla volta e con un passo massimo:
          se il dispositivo rallenta (pagina che carica, telefono sotto sforzo) il video rallenta con lui invece di saltare le scene. */
+      /* Prima: mille risultati, e la tua attività è in fondo; la lista scorre per trovarla */
+      const farTl = gsap.timeline({ paused: true });
+      {
+        const box = one("[data-far]");
+        const list = one("[data-fl]");
+        const win = list.parentElement as HTMLElement;
+        const rows = $("[data-fr]");
+        const me = rows[rows.length - 1];
+        farTl
+          .set([pill, ...res], { autoAlpha: 0 }, 0)
+          .set(box, { autoAlpha: 1 }, 0)
+          .fromTo(one("[data-fcount]"), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0.05)
+          .fromTo(rows.slice(0, 5), { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.08 }, 0.15)
+          .fromTo(list, { y: 0 }, { y: () => -(list.scrollHeight - win.offsetHeight), duration: 2.6, ease: "power2.inOut" }, 1.4)
+          .call(() => F.whoosh(0.6, false, 0.7), undefined, 1.4)
+          .fromTo(me, { boxShadow: "0 0 0 0px rgba(94,196,255,0)" }, { boxShadow: "0 0 0 3px var(--accent)", duration: 0.45, ease: "back.out(2.5)" }, 4.1)
+          .call(() => F.tick(1.2), undefined, 4.1)
+          .set({}, {}, 5.2);
+      }
+
       /* SEO: i risultati della ricerca, e la tua attività che sale in cima */
       const seoTl = gsap.timeline({ paused: true });
       {
@@ -726,7 +752,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const me = rows[rows.length - 1];
         const rh = () => rows[0].offsetHeight + 12;
         seoTl
-          .set(dev, { autoAlpha: 0 }, 0)
+          .set([dev, chrome, meter], { autoAlpha: 0 }, 0)
           .set(box, { autoAlpha: 1 }, 0)
           .set(rows, { y: (i: number) => i * rh() }, 0)
           .fromTo(rows, { autoAlpha: 0, scale: 0.95 }, { autoAlpha: 1, scale: 1, duration: 0.6, ease: "power3.out", stagger: 0.09 }, 0.05)
@@ -745,7 +771,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const box = one("[data-geo]");
         const src = one("[data-gsrc]");
         geoTl
-          .set(one("[data-seo]"), { autoAlpha: 0 }, 0)
+          .set([one("[data-seo]"), dev], { autoAlpha: 0 }, 0)
           .set(box, { autoAlpha: 1 }, 0)
           .fromTo(one("[data-gq]"), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.1)
           .fromTo(one("[data-ga]"), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.9)
@@ -764,20 +790,19 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       }
 
       /* montaggio: la frase a schermo intero, poi la sua scena a schermo intero, poi un attimo fermi sul finale */
-      const xcaps = [0, 1].map((i) => one(`[data-capx="${i}"]`));
+      const xcaps = [0, 1, 2, 3].map((i) => one(`[data-capx="${i}"]`));
       const xunits = xcaps.map(split);
       const scene = tl;
-      type Ch = { u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
+      type Ch = { textOnly?: boolean; u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
       const ch: Ch[] = [
-        { u: units[0], el: caps[0], seg: [0, T(5.1)] },
+        // prima del nostro intervento
+        { u: units[0], el: caps[0], seg: [0, T(3)] },
+        { u: xunits[2], el: xcaps[2], sub: farTl, after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
         { u: units[1], el: caps[1], seg: [U(5.7), 5.75], hold: 0 },
-        {
-          sub: back,
-          after: (t) =>
-            void mt
-              .set([one("[data-rival]"), one("[data-tag3]"), one("[data-cur]")], { autoAlpha: 0 }, t)
-              .set([cnt, one("[data-sep]"), one("[data-tag1]")], { autoAlpha: 1 }, t),
-        },
+        { sub: back, after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
+        { u: xunits[3], el: xcaps[3], textOnly: true },
+        // con il nuovo sito
+        { u: xunits[0], el: xcaps[0], sub: seoTl, after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set([chrome, meter], { autoAlpha: 1 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
         { u: units[2], el: caps[2], seg: [6.5, T(11.4)], speed: 0.75 },
         { u: units[3], el: caps[3], seg: [T(11.9), T(15.6)], speed: 0.5 },
         { u: units[4], el: caps[4], seg: [T(15.6), T(18)], speed: 0.8 },
@@ -785,7 +810,6 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         { u: units[6], el: caps[6], seg: [T(22.1), T(25.4)] },
         { u: units[7], el: caps[7], seg: [T(25.4), T(31)] },
         { u: units[8], el: caps[8], seg: [T(31), T(40.6)] },
-        { u: xunits[0], el: xcaps[0], sub: seoTl },
         { u: xunits[1], el: xcaps[1], sub: geoTl, after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
         { u: units[9], el: caps[9], seg: [T(41.2), T(49.2)] },
         { u: units[10], el: caps[10], seg: [T(49.8), T(54.2)] },
@@ -812,6 +836,10 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           mt.to(words, { autoAlpha: 0, y: "-0.18em", filter: "blur(6px)", duration: 0.5, ease: "power2.in" }, c1);
           mt.set(k.el, { autoAlpha: 0 }, c1 + 0.5);
           at = c1 + 0.4;
+          if (k.textOnly) {
+            at += 0.3;
+            return;
+          }
           mt.fromTo(cam, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.55, ease: "power2.out", immediateRender: false }, at);
         }
         if (k.seg) {
@@ -921,7 +949,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             <Kw text={t} />
           </p>
         ))}
-        {[c.seo.cap, c.geo.cap].map((t, i) => (
+        {[c.seo.cap, c.geo.cap, c.far.cap, c.far.lost].map((t, i) => (
           <p key={t} data-capx={i} className={CAPF} style={HID}>
             <Kw text={t} />
           </p>
@@ -978,7 +1006,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
               </MiniSite>
             </div>
             {/* il browser: prima carica lento, poi tutto insieme */}
-            <div data-it data-chrome className={`${center} w-[min(92cqw,calc(min(72cqh,600px)*1.58))] aspect-[1.58] max-md:aspect-[.82] flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
+            <div data-it data-chrome className={`${center} w-[min(92cqw,calc(min(54cqh,500px)*1.58))] aspect-[1.58] max-md:aspect-[.82] flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
               <div className="flex h-[38px] shrink-0 items-end gap-3 bg-[color-mix(in_srgb,var(--label-primary)_9%,var(--bg-canvas))] px-3">
                 <span className="mb-[13px] flex gap-[7px]">
                   {["#ff5f57", "#febc2e", "#28c840"].map((k) => (
@@ -1023,7 +1051,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                     {c.find.typed}
                   </div>
                   <div className="mt-[6cqh] flex flex-col gap-[5cqh]">
-                    {[c.find.me, ...c.find.others].map(([t, u], i) => (
+                    {[...c.find.others, c.find.me].map(([t, u], i) => (
                       <div key={u} data-gr={i}>
                         <span className="block text-[clamp(10px,3cqh,13px)] text-[var(--label-secondary)]">{u}</span>
                         <span data-grt className="block text-[clamp(14px,5cqh,22px)] font-medium text-[var(--accent)] underline-offset-4">
@@ -1049,25 +1077,37 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                 <svg data-cur viewBox="0 0 24 24" width="24" height="24" aria-hidden className="pointer-events-none absolute left-0 top-0 z-20" style={{ ...HID, filter: "drop-shadow(0 2px 3px rgba(0,0,0,.45))" }}>
                   <path d="M5 3l14 8-6 1.6L10.4 19z" fill="#14171c" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
                 </svg>
-                <span className="pointer-events-none absolute inset-x-0 bottom-3 z-30 flex justify-center">
-                  <Bead as="span" radius={999} className="cine-fg flex h-11 items-center gap-2.5 px-4 text-[15px]">
-                    <span data-tagdot className="h-2 w-2 rounded-full" style={{ background: "var(--negative)" }} />
-                    <span className="relative font-medium">
-                      <span data-tag1>{c.ba[0]}</span>
-                      <span data-tag2 className="absolute left-0 top-0" style={HID}>
-                        {c.ba[1]}
-                      </span>
-                      <span data-tag3 className="absolute left-0 top-0 whitespace-nowrap" style={HID}>
-                        {c.rival.lost}
-                      </span>
-                    </span>
-                    <span data-sep className="h-4 w-px bg-[var(--hair-strong)]" />
-                    <span data-count className="font-mono tabular-nums">
-                      0,0 s
-                    </span>
-                    <Check data-ok size={16} strokeWidth={2.4} style={{ color: "var(--accent)" }} />
-                  </Bead>
+              </div>
+            </div>
+            {/* sotto la finestra: prima o dopo, e quanto ci mette. Testo, non una scheda */}
+            <div data-it data-meter className={`${center} cine-fg flex items-center gap-3 whitespace-nowrap text-[clamp(18px,2.2cqw,28px)]`} style={HID}>
+              <span data-tagdot className="h-2.5 w-2.5 rounded-full" style={{ background: "var(--negative)" }} />
+              <span className="relative font-semibold tracking-[-0.02em]">
+                <span data-tag1>{c.ba[0]}</span>
+                <span data-tag2 className="absolute left-0 top-0" style={HID}>
+                  {c.ba[1]}
                 </span>
+              </span>
+              <span data-count className="cine-fg2 font-mono tabular-nums">
+                0,0 s
+              </span>
+              <Check data-ok size={22} strokeWidth={2.4} style={{ color: "var(--accent)" }} />
+            </div>
+            {/* prima: mille risultati, e tu in fondo */}
+            <div data-it data-far className={`${center} w-[min(660px,80cqw)]`} style={HID}>
+              <p data-fcount className="cine-fg2 mb-4 pl-1 text-[clamp(13px,1.5cqw,17px)]">
+                {c.far.count}
+              </p>
+              <div className="relative overflow-hidden" style={{ height: "calc(5 * (clamp(48px,7.4cqh,62px) + 10px) - 10px)", maskImage: "linear-gradient(transparent, #000 8%, #000 88%, transparent)", WebkitMaskImage: "linear-gradient(transparent, #000 8%, #000 88%, transparent)" }}>
+                <div data-fl className="flex flex-col gap-[10px] pb-[140px]">
+                  {[...c.far.list, c.find.me].map(([t, u], i, all) => (
+                    <Bead as="div" key={u} data-fr radius={28} className="cine-fg flex h-[clamp(48px,7.4cqh,62px)] shrink-0 items-center gap-4 px-[clamp(18px,2.6cqw,30px)]">
+                      <span className="cine-fg2 w-6 font-mono text-[clamp(12px,1.4cqw,15px)] tabular-nums">{i + 1}</span>
+                      <span className={`flex-1 text-[clamp(15px,2cqw,22px)] tracking-[-0.02em] ${i === all.length - 1 ? "font-semibold" : "cine-fg2"}`}>{t}</span>
+                      <span className="cine-fg2 text-[clamp(12px,1.4cqw,16px)]">{u}</span>
+                    </Bead>
+                  ))}
+                </div>
               </div>
             </div>
             {/* SEO: la tua attività sale in cima ai risultati */}

@@ -28,13 +28,15 @@ export type Cinema = {
   /** chi lavora al prototipo, con il proprio cursore */
   team: string[];
   seo: { cap: string; more: [string, string][] };
+  /** prima: il cliente deve scorrere tra mille risultati per trovarti */
+  far: { cap: string; count: string; list: [string, string][]; lost: string };
   geo: { cap: string; q: string; a: string; who: string };
 };
 
 const IT: Cinema = {
   cue: "Scorri",
   end: { t: "Il tuo sito, *fatto bene*.", more: "Scopri i dettagli", cta: "Parliamone" },
-  cap: ["Un cliente ti *cerca*.", "Se è *lento*, se ne va.", "Il tuo si apre in *0,8 secondi*.", "Prima lo *disegniamo*.", "Poi lo *costruiamo*.", "Perfetto su *ogni schermo*.", "Arrivano i *clienti*.", "Online, *al sicuro*.", "Lo *cambi tu*.", "Tutto *compreso*.", "Senza *sorprese*."],
+  cap: ["Un cliente ti *cerca*.", "Ti trova, ma è *lento*.", "E si aprirà in *0,8 secondi*.", "Prima lo *disegneremo*.", "Poi lo *costruiremo*.", "Perfetto su *ogni schermo*.", "Arriveranno i *clienti*.", "Online, *al sicuro*.", "Lo *cambierai tu*.", "Tutto *compreso*.", "Senza *sorprese*."],
   title: ["Il tuo lavoro,", "sempre aggiornato"],
   ctl: { play: "Riproduci", pause: "Pausa", replay: "Rivedi", on: "Audio attivo", off: "Audio spento" },
   find: { q: "Un nuovo cliente ti cerca. Cosa trova?", typed: "chi può aiutarmi qui vicino", loading: "Sta caricando…", a: "Se il sito è lento o confuso, ne sceglie un altro.", me: ["La tua attività", "latuaattivita.it"], others: [["Un’altra attività", "unaltra.it"], ["Un’altra ancora", "unaltraancora.it"]] },
@@ -77,14 +79,15 @@ const IT: Cinema = {
   ba: ["Prima", "Dopo"],
   rival: { open: "Aperto ora", lost: "Cliente perso" },
   team: ["Filippo", "Design", "Sviluppo"],
-  seo: { cap: "Su Google, *in cima*.", more: [["Studio Bianchi", "studiobianchi.it"], ["Centro Verdi", "centroverdi.it"]] },
-  geo: { cap: "E l'AI *ti consiglia*.", q: "Chi mi consigli qui vicino?", a: "Ti consiglio La tua attività: risponde subito e ha ottime recensioni.", who: "Assistente AI" },
+  far: { cap: "Ma sei *in fondo*.", count: "Circa 1.240.000 risultati", list: [["Rossi Impianti", "rossimpianti.it"], ["Ferri & Co.", "ferrieco.it"], ["Casa Nova", "casanova.it"], ["Punto Servizi", "puntoservizi.it"], ["Gallo Group", "gallogroup.it"], ["Moretti Lab", "morettilab.it"], ["Studio Conti", "studioconti.it"], ["Officina Riva", "officinariva.it"]], lost: "Cliente *!perso*." },
+  seo: { cap: "Con il nuovo sito sarai *in cima*.", more: [["Studio Bianchi", "studiobianchi.it"], ["Centro Verdi", "centroverdi.it"]] },
+  geo: { cap: "E l'AI *ti consiglierà*.", q: "Chi mi consigli qui vicino?", a: "Ti consiglio La tua attività: risponde subito e ha ottime recensioni.", who: "Assistente AI" },
 };
 
 const EN: Cinema = {
   cue: "Scroll",
   end: { t: "Your site, *done right*.", more: "See the details", cta: "Let’s talk" },
-  cap: ["A customer is *looking* for you.", "If it’s *slow*, they leave.", "Yours opens in *0.8 seconds*.", "First, we *design* it.", "Then, we *build* it.", "Perfect on *every screen*.", "*Customers* arrive.", "Online, and *safe*.", "*You* change it.", "Everything *included*.", "No *surprises*."],
+  cap: ["A customer is *looking* for you.", "They find you, but it’s *slow*.", "And it will open in *0.8 seconds*.", "First, we’ll *design* it.", "Then, we’ll *build* it.", "Perfect on *every screen*.", "*Customers* will arrive.", "Online, and *safe*.", "*You’ll* change it.", "Everything *included*.", "No *surprises*."],
   title: ["Your work,", "always current"],
   ctl: { play: "Play", pause: "Pause", replay: "Replay", on: "Sound on", off: "Sound off" },
   find: { q: "A new customer is looking for you. What do they find?", typed: "who can help me nearby", loading: "Loading…", a: "If the site is slow or confusing, they pick another one.", me: ["Your business", "yourbusiness.com"], others: [["Another business", "another.com"], ["One more", "onemore.com"]] },
@@ -127,8 +130,9 @@ const EN: Cinema = {
   ba: ["Before", "After"],
   rival: { open: "Open now", lost: "Customer lost" },
   team: ["Filippo", "Design", "Development"],
-  seo: { cap: "On Google, *on top*.", more: [["Bianchi Studio", "bianchistudio.com"], ["Verdi Centre", "verdicentre.com"]] },
-  geo: { cap: "And AI *recommends you*.", q: "Who do you recommend nearby?", a: "I recommend Your business: quick to reply, with great reviews.", who: "AI assistant" },
+  far: { cap: "But you’re *buried*.", count: "About 1,240,000 results", list: [["Rossi Impianti", "rossimpianti.com"], ["Ferri & Co.", "ferrieco.com"], ["Casa Nova", "casanova.com"], ["Punto Servizi", "puntoservizi.com"], ["Gallo Group", "gallogroup.com"], ["Moretti Lab", "morettilab.com"], ["Studio Conti", "studioconti.com"], ["Officina Riva", "officinariva.com"]], lost: "Customer *!lost*." },
+  seo: { cap: "With the new site, you’ll be *on top*.", more: [["Bianchi Studio", "bianchistudio.com"], ["Verdi Centre", "verdicentre.com"]] },
+  geo: { cap: "And AI will *recommend you*.", q: "Who do you recommend nearby?", a: "I recommend Your business: quick to reply, with great reviews.", who: "AI assistant" },
 };
 
 export const getCinema = (l: Locale): Cinema => (l === "en" ? EN : IT);
