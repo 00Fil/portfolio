@@ -19,6 +19,7 @@ import { SHOTS, ShotView } from "@/components/sections/Spots";
 import type { ServiceStory } from "@/content/stories";
 import { Bento, Changes, Faq, How, Promise, Proof, Timeline, type Story } from "./ServiceStory";
 import { WebCinema } from "./WebCinema";
+import { SeoCinema } from "./SeoCinema";
 import { WebPage } from "./WebPage";
 import { getWebCopy } from "@/content/webpage";
 import { useLocale } from "next-intl";
@@ -319,6 +320,8 @@ export function ServiceDetail(p: ServiceDetailProps) {
           <WebCinema title={tale.hero.title || p.title} />
           <WebPage locale={locale} copy={getWebCopy(locale as "it" | "en")} tale={tale} proof={p.proof ?? []} github={p.github} ctaLabel={p.t.cta} ctaLead={p.t.ctaLead} />
         </>
+      ) : k === "seo" && tale ? (
+        <SeoCinema title={tale.hero.title || p.title} />
       ) : (
         <Hero {...p} />
       )}

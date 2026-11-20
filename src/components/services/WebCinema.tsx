@@ -27,7 +27,7 @@ const HID = { visibility: "hidden" as const, opacity: 0 };
 type Q = (s: string) => HTMLElement[];
 
 /** Le parole tra asterischi diventano parole chiave, riempite dal gradiente animato. */
-function Kw({ text }: { text: string }) {
+export function Kw({ text }: { text: string }) {
   const parts = text.split("*");
   return (
     <>
@@ -244,7 +244,7 @@ const T = (n: number) => (n >= 9.2 ? n + 5 : n) * B;
 const U = (n: number) => n * B;
 const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
 const ICONS_PROMISE = [FileText, UserRound, Tag, LockOpen];
-const CAP = "pointer-events-none absolute inset-x-0 top-[5%] mx-auto max-w-[19ch] px-6 text-center text-[clamp(30px,4.6cqw,76px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg md:top-[7%] md:max-w-[24ch]";
+export const CAP = "pointer-events-none absolute inset-x-0 top-[5%] mx-auto max-w-[19ch] px-6 text-center text-[clamp(30px,4.6cqw,76px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg md:top-[7%] md:max-w-[24ch]";
 
 /** `embed`: dentro una scheda, a misura del contenitore, muto, senza comandi; `play` lo avvia e lo ferma, e in fondo riparte da solo. */
 export function WebCinema({ title, embed = false, play = true }: { title: string; embed?: boolean; play?: boolean }) {

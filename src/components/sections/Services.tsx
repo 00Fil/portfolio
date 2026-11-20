@@ -16,6 +16,8 @@ import { ServiceBg } from "./ServiceBg";
 
 const WebCinema = dynamic(() => import("@/components/services/WebCinema").then((m) => m.WebCinema), { ssr: false });
 
+const SeoCinema = dynamic(() => import("@/components/services/SeoCinema").then((m) => m.SeoCinema), { ssr: false });
+
 /* Ingombro di ogni servizio nella griglia a 4 colonne. */
 const SPAN: Record<string, [number, number]> = {
   web: [2, 2],
@@ -51,7 +53,7 @@ function Body({ s, w, locale, open, still = false }: { s: Service; w: WidgetText
   const [hover, setHover] = useState(false);
   // il film del servizio si monta al primo passaggio e poi resta: si ferma e riparte con il cursore
   const [seen, setSeen] = useState(false);
-  const film = s.key === "web" && !still;
+  const film = (s.key === "web" || s.key === "seo") && !still;
   return (
     <div className="theme-dark relative h-full" onPointerEnter={() => {
         if (still) return;
@@ -62,7 +64,7 @@ function Body({ s, w, locale, open, still = false }: { s: Service; w: WidgetText
         <ServiceBg k={s.key} live={!still} still={still} paused={!hover} />
       </div>
       <div className="svc-vis absolute overflow-hidden" style={bleed}>
-        {film ? seen && <WebCinema title={s.title[locale]} embed play={hover} /> : <ServiceVisual k={s.key} t={w} max={1.2} play={still ? undefined : hover} />}
+        {film ? seen && (s.key === "web" ? <WebCinema title={s.title[locale]} embed play={hover} /> : <SeoCinema title={s.title[locale]} embed play={hover} />) : <ServiceVisual k={s.key} t={w} max={1.2} play={still ? undefined : hover} />}
       </div>
       <div className="svc-rest pointer-events-none absolute flex flex-col items-center justify-center px-8 text-center" style={bleed}>
         <span className="flex items-center gap-2.5 font-mono text-[11.5px] uppercase tracking-[0.16em] text-white/75">
