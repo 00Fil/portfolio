@@ -577,6 +577,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .to(one("[data-tag1]"), { autoAlpha: 0, y: -8, duration: 0.18, ease: "power2.in" }, at2)
           .fromTo(one("[data-tag2]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: "back.out(2)", immediateRender: false }, at2 + 0.16)
           .to(one("[data-tagdot]"), { backgroundColor: "var(--accent)", duration: 0.2 }, at2)
+          .fromTo(meter, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: "expo.out", immediateRender: false }, at2 + 0.3)
           .call(() => (F.chord([0, 2, 4, 5], 1), F.whoosh(0.35, true, 0.6)), undefined, at2 + 0.4)
           .to([spin, stop, tt1], { autoAlpha: 0, duration: 0.12 }, at2 + 0.36)
           .fromTo([fav, rl, tt2], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2.2)" }, at2 + 0.38)
@@ -846,21 +847,36 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const box = one("[data-seo]");
         const rows = $("[data-sr]");
         const me = rows[rows.length - 1];
-        const rh = () => rows[0].offsetHeight + 28;
+        // sale in cima: la tua attività va al posto del primo, gli altri scendono di un posto
+        const up = () => rows[0].offsetTop - me.offsetTop;
+        const down = () => me.offsetHeight + 24;
         seoTl
           .set([dev, chrome, meter], { autoAlpha: 0 }, 0)
           .set(box, { autoAlpha: 1 }, 0)
-          .set(rows, { y: (i: number) => i * rh() }, 0)
-          .fromTo(rows, { autoAlpha: 0, scale: 0.95 }, { autoAlpha: 1, scale: 1, duration: 0.6, ease: "power3.out", stagger: 0.09 }, 0.05)
-          .to(me, { opacity: 0.55, duration: 0.4 }, 0.8);
-        rows.slice(0, -1).forEach((r, i) => seoTl.to(r, { y: () => (i + 1) * rh(), duration: 1.5, ease: "power3.inOut" }, 1.5 + 0.05 * (rows.length - 2 - i)));
+          .fromTo(rows, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.08 }, 0.05)
+          .to(me, { opacity: 0.6, duration: 0.3 }, 0.7);
+        rows.slice(0, -1).forEach((r, i) => seoTl.to(r, { y: down, duration: 1.1, ease: "expo.inOut" }, 1.2 + 0.04 * (rows.length - 2 - i)));
         seoTl
-          .to(me, { y: 0, opacity: 1, duration: 1.5, ease: "power3.inOut" }, 1.5)
-          .call(() => F.whoosh(0.5, true, 0.6), undefined, 1.5)
-          .fromTo(one("[data-sveil]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 3.0)
-          .fromTo(me.querySelector("[data-bub]"), { autoAlpha: 0, scale: 0.9 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 3.05)
-          .call(() => F.chord([0, 2, 4, 5], 0.8), undefined, 3.0)
-          .set({}, {}, 4.2);
+          .to(me, { y: up, opacity: 1, duration: 1.1, ease: "expo.inOut" }, 1.2)
+          .call(() => F.whoosh(0.5, true, 0.6), undefined, 1.2)
+          .fromTo(one("[data-sveil]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 2.4)
+          .fromTo(me.querySelector("[data-bub]"), { autoAlpha: 0, scale: 0.9 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 2.45)
+          .call(() => F.chord([0, 2, 4, 5], 0.8), undefined, 2.4)
+          .set({}, {}, 3.6);
+      }
+      /* Ogni schermo: computer, poi tablet e telefono che arrivano ai lati */
+      const devsTl = gsap.timeline({ paused: true });
+      {
+        const box = one("[data-devs]");
+        devsTl
+          .set([dev, box], { autoAlpha: 0 }, 0)
+          .set(box, { autoAlpha: 1 }, 0)
+          .fromTo(one("[data-dpc]"), { autoAlpha: 0, y: 80, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.9, ease: "expo.out" }, 0.05)
+          .fromTo(one("[data-dtab]"), { autoAlpha: 0, x: -160, scale: 0.92 }, { autoAlpha: 1, x: 0, scale: 1, duration: 0.9, ease: "expo.out" }, 0.55)
+          .call(() => F.whoosh(0.45, true, 0.6), undefined, 0.55)
+          .fromTo(one("[data-dphone]"), { autoAlpha: 0, x: 160, y: 40, scale: 0.92 }, { autoAlpha: 1, x: 0, y: 0, scale: 1, duration: 0.9, ease: "expo.out" }, 0.85)
+          .call(() => F.whoosh(0.45, true, 0.6), undefined, 0.85)
+          .set({}, {}, 2.9);
       }
       /* GEO: chiedi a un assistente AI, e ti consiglia */
       const geoTl = gsap.timeline({ paused: true });
@@ -887,7 +903,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       // il secondo tempo del cliente che se ne va: i secondi continuano a salire finché non torna indietro
       {
         const o = { n: 8 };
-        back.fromTo(o, { n: 8 }, { n: 10.3, duration: 3.9, ease: "none", onUpdate: () => void (cnt.textContent = num(o.n)) }, 0);
+        back.fromTo(o, { n: 8 }, { n: 8.8, duration: 1.4, ease: "none", onUpdate: () => void (cnt.textContent = num(o.n)) }, 0);
       }
 
       /* montaggio: la frase a schermo intero, poi la sua scena a schermo intero, poi un attimo fermi sul finale */
@@ -904,10 +920,10 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         { sub: back, speed: 1.6, hold: 0.25, after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
         { u: xunits[3], el: xcaps[3], textOnly: true, mood: "stop" },
         // con il nuovo sito
-        { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.55, mood: "rise", after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set([chrome, meter], { autoAlpha: 1 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
+        { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.55, mood: "rise", after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set(chrome, { autoAlpha: 1 }, t).set(meter, { autoAlpha: 0 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
         { u: units[2], el: caps[2], seg: [6.5, T(11.4)], speed: 1.15, mood: "drive" },
         { u: units[3], el: caps[3], seg: [T(11.9), T(18)], speed: 1 },
-        { u: units[5], el: caps[5], seg: [T(18), T(22.1)], speed: 1.3 },
+        { u: units[5], el: caps[5], sub: devsTl, after: (t) => void mt.set(one("[data-devs]"), { autoAlpha: 0 }, t).set(dev, { autoAlpha: 1 }, t) },
         { u: units[8], el: caps[8], seg: [T(31.6), T(40.6)], speed: 1.45, mood: "light" },
         { u: xunits[1], el: xcaps[1], sub: geoTl, speed: 1.5, after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
         { seg: [T(54.8), scene.duration()], hold: 0, mood: "end" },
@@ -920,6 +936,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       });
       let at = 0;
       let pending: ((t: number) => void) | undefined;
+      let cstyle = 0;
       // tutto cade sulla griglia della musica: ottavi a 120 bpm (0,25 s)
       const q8 = (t: number) => Math.ceil(t * 4 - 1e-6) / 4;
       const r8 = (t: number) => Math.max(0.5, Math.round(t * 4) / 4);
@@ -951,13 +968,30 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           pending = undefined;
           const words = [...k.u.a, ...k.u.b];
           const c0 = q8(at + 0.2);
-          mt.set(k.el, { autoAlpha: 1 }, c0);
-          slam(k.u, c0, i % 5, mt);
-          const c1 = q8(c0 + 0.5 + 0.035 * (words.length - 1) + (k.el.textContent?.length ?? 20) * 0.009);
-          if (k.u.a.length) mt.to(k.u.a, { autoAlpha: 0, yPercent: -60, filter: "blur(6px)", duration: 0.25, ease: "power3.in", stagger: 0.015 }, c1);
-          if (k.u.b.length) mt.to(k.u.b, { autoAlpha: 0, scale: 1.08, filter: "blur(10px)", duration: 0.25, ease: "power3.in" }, c1);
-          mt.set(k.el, { autoAlpha: 0 }, c1 + 0.25);
-          at = c1 + 0.25;
+          const el = k.el;
+          mt.set(el, { autoAlpha: 1 }, c0);
+          // ogni frase entra in un modo diverso: salita, zoom indietro, zoom attraverso, spaziatura che si chiude, tendina
+          const style = cstyle++ % 5;
+          const glow = "inset(-40% -12% -40% -12%)";
+          if (style === 0) slam(k.u, c0, i % 5, mt);
+          else {
+            mt.set(words, { autoAlpha: 1, yPercent: 0, scale: 1, filter: "blur(0px)" }, c0);
+            if (style === 1) mt.fromTo(el, { scale: 2.6, filter: "blur(18px)", autoAlpha: 0 }, { scale: 1, filter: "blur(0px)", autoAlpha: 1, duration: 0.75, ease: "expo.out" }, c0);
+            if (style === 2) mt.fromTo(el, { scale: 0.55, filter: "blur(8px)", autoAlpha: 0 }, { scale: 1, filter: "blur(0px)", autoAlpha: 1, duration: 0.7, ease: "expo.out" }, c0);
+            if (style === 3) mt.fromTo(el, { letterSpacing: "0.35em", filter: "blur(10px)", autoAlpha: 0 }, { letterSpacing: "-0.05em", filter: "blur(0px)", autoAlpha: 1, duration: 0.85, ease: "expo.out" }, c0);
+            if (style === 4) mt.fromTo(el, { clipPath: "inset(-40% 112% -40% -12%)", x: -30 }, { clipPath: glow, x: 0, duration: 0.7, ease: "expo.inOut" }, c0);
+            mt.call(() => F.tick(0.8), undefined, c0);
+          }
+          const c1 = q8(c0 + 0.5 + 0.035 * (words.length - 1) + (el.textContent?.length ?? 20) * 0.009);
+          if (style === 2) mt.to(el, { scale: 6, autoAlpha: 0, filter: "blur(6px)", duration: 0.32, ease: "power3.in" }, c1);
+          else if (style === 1) mt.to(el, { scale: 0.7, autoAlpha: 0, filter: "blur(8px)", duration: 0.28, ease: "power3.in" }, c1);
+          else if (style === 4) mt.to(el, { clipPath: "inset(-40% -12% -40% 112%)", x: 30, duration: 0.3, ease: "expo.in" }, c1);
+          else {
+            if (k.u.a.length) mt.to(k.u.a, { autoAlpha: 0, yPercent: -60, filter: "blur(6px)", duration: 0.25, ease: "power3.in", stagger: 0.015 }, c1);
+            if (k.u.b.length) mt.to(k.u.b, { autoAlpha: 0, scale: 1.08, filter: "blur(10px)", duration: 0.25, ease: "power3.in" }, c1);
+          }
+          mt.set(el, { autoAlpha: 0 }, c1 + 0.32);
+          at = c1 + 0.32;
           if (k.textOnly) {
             at += 0.25;
             return;
@@ -1253,6 +1287,26 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                 </div>
               </div>
             </div>
+            {/* ogni schermo: il sito vero (la hero di questo portfolio) su computer, tablet e telefono */}
+            <div data-it data-devs className={center} style={HID}>
+              <div data-gfit className="relative flex h-[560px] w-[1040px] items-end justify-center">
+                <div data-dtab className="relative z-10 mb-[6px] mr-[-60px] w-[250px] rounded-[26px] bg-[#16181c] p-[9px] shadow-[0_30px_80px_-30px_rgba(0,0,0,.55)]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={cin("hero-tablet")} alt="" draggable={false} className="block w-full rounded-[18px]" />
+                </div>
+                <div data-dpc className="relative flex flex-col items-center">
+                  <div className="w-[620px] rounded-t-[20px] bg-[#16181c] p-[10px] pb-[12px] shadow-[0_40px_100px_-40px_rgba(0,0,0,.55)]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={cin("hero-desktop")} alt="" draggable={false} className="block w-full rounded-[10px]" />
+                  </div>
+                  <div className="h-[16px] w-[720px] rounded-b-[16px] bg-gradient-to-b from-[#e4e5e9] to-[#b9bbc2] shadow-[0_20px_40px_-18px_rgba(0,0,0,.5)]" />
+                </div>
+                <div data-dphone className="relative z-10 mb-[-10px] ml-[-70px] w-[150px] rounded-[30px] bg-[#16181c] p-[6px] shadow-[0_30px_70px_-26px_rgba(0,0,0,.6)]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={cin("hero-phone")} alt="" draggable={false} className="block w-full rounded-[25px]" />
+                </div>
+              </div>
+            </div>
             {/* SEO: la stessa pagina di Google, e la tua attività sale in cima */}
             <div data-it data-seo className={center} style={HID}>
               <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5" style={ARIAL}>
@@ -1260,10 +1314,10 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                   <GLogo size={32} />
                   <GBox q={c.find.typed} w={560} />
                 </div>
-                <div className="absolute inset-x-0 bottom-0 top-[100px]">
+                <div className="absolute inset-x-0 bottom-0 top-[84px] flex flex-col gap-[24px] pl-[118px] pt-6">
                   <Veil data-sveil />
-                  {[...c.find.others, ...c.seo.more, c.find.me].map(([t, u], i, all) => (
-                    <GResult key={u} data-sr me={i === all.length - 1} name={t} url={u} title={i === all.length - 1 ? c.far.mine : `${t} · ${c.far.title}`} snip={c.far.snip} style={{ position: "absolute", left: 118, top: 0 }} />
+                  {[...c.find.others, c.seo.more[0], c.find.me].map(([t, u], i, all) => (
+                    <GResult key={u} data-sr me={i === all.length - 1} name={t} url={u} title={i === all.length - 1 ? c.far.mine : `${t} · ${c.far.title}`} snip={c.far.snip} />
                   ))}
                 </div>
               </div>
