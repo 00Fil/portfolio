@@ -29,8 +29,8 @@ export type Cinema = {
   team: string[];
   seo: { cap: string; more: [string, string][] };
   /** prima: il cliente deve scorrere tra mille risultati per trovarti */
-  far: { cap: string; count: string; list: [string, string][]; lost: string };
-  geo: { cap: string; q: string; a: string; who: string };
+  far: { cap: string; count: string; list: [string, string][]; lost: string; mine: string; title: string; snip: string };
+  geo: { cap: string; q: string; a: string; who: string; reply: string };
 };
 
 const IT: Cinema = {
@@ -79,9 +79,9 @@ const IT: Cinema = {
   ba: ["Prima", "Dopo"],
   rival: { open: "Aperto ora", lost: "Cliente perso" },
   team: ["Filippo", "Design", "Sviluppo"],
-  far: { cap: "Ma sei *in fondo*.", count: "Circa 1.240.000 risultati", list: [["Rossi Impianti", "rossimpianti.it"], ["Ferri & Co.", "ferrieco.it"], ["Casa Nova", "casanova.it"], ["Punto Servizi", "puntoservizi.it"], ["Gallo Group", "gallogroup.it"], ["Moretti Lab", "morettilab.it"], ["Studio Conti", "studioconti.it"], ["Officina Riva", "officinariva.it"]], lost: "Cliente *!perso*." },
+  far: { cap: "Ma sei *in fondo*.", count: "Circa 1.240.000 risultati (0,42 secondi)", list: [["Rossi Impianti", "rossimpianti.it"], ["Ferri & Co.", "ferrieco.it"], ["Casa Nova", "casanova.it"], ["Punto Servizi", "puntoservizi.it"], ["Gallo Group", "gallogroup.it"], ["Moretti Lab", "morettilab.it"], ["Studio Conti", "studioconti.it"], ["Officina Riva", "officinariva.it"]], lost: "Cliente *!perso*.", mine: "La tua attività · Sito ufficiale", title: "Servizi e preventivi", snip: "Professionisti in zona, preventivi gratuiti e assistenza rapida. Scopri i servizi." },
   seo: { cap: "Con il nuovo sito sarai *in cima*.", more: [["Studio Bianchi", "studiobianchi.it"], ["Centro Verdi", "centroverdi.it"]] },
-  geo: { cap: "E l'AI *ti consiglierà*.", q: "Chi mi consigli qui vicino?", a: "Ti consiglio La tua attività: risponde subito e ha ottime recensioni.", who: "Assistente AI" },
+  geo: { cap: "E l'AI *ti consiglierà*.", q: "Chi mi consigli qui vicino?", a: "Ti consiglio La tua attività: risponde subito e ha ottime recensioni.", who: "Assistente AI", reply: "Rispondi…" },
 };
 
 const EN: Cinema = {
@@ -130,9 +130,9 @@ const EN: Cinema = {
   ba: ["Before", "After"],
   rival: { open: "Open now", lost: "Customer lost" },
   team: ["Filippo", "Design", "Development"],
-  far: { cap: "But you’re *buried*.", count: "About 1,240,000 results", list: [["Rossi Impianti", "rossimpianti.com"], ["Ferri & Co.", "ferrieco.com"], ["Casa Nova", "casanova.com"], ["Punto Servizi", "puntoservizi.com"], ["Gallo Group", "gallogroup.com"], ["Moretti Lab", "morettilab.com"], ["Studio Conti", "studioconti.com"], ["Officina Riva", "officinariva.com"]], lost: "Customer *!lost*." },
+  far: { cap: "But you’re *buried*.", count: "About 1,240,000 results (0.42 seconds)", list: [["Rossi Impianti", "rossimpianti.com"], ["Ferri & Co.", "ferrieco.com"], ["Casa Nova", "casanova.com"], ["Punto Servizi", "puntoservizi.com"], ["Gallo Group", "gallogroup.com"], ["Moretti Lab", "morettilab.com"], ["Studio Conti", "studioconti.com"], ["Officina Riva", "officinariva.com"]], lost: "Customer *!lost*.", mine: "Your business · Official site", title: "Services and quotes", snip: "Local professionals, free quotes and quick support. See our services." },
   seo: { cap: "With the new site, you’ll be *on top*.", more: [["Bianchi Studio", "bianchistudio.com"], ["Verdi Centre", "verdicentre.com"]] },
-  geo: { cap: "And AI will *recommend you*.", q: "Who do you recommend nearby?", a: "I recommend Your business: quick to reply, with great reviews.", who: "AI assistant" },
+  geo: { cap: "And AI will *recommend you*.", q: "Who do you recommend nearby?", a: "I recommend Your business: quick to reply, with great reviews.", who: "AI assistant", reply: "Reply…" },
 };
 
 export const getCinema = (l: Locale): Cinema => (l === "en" ? EN : IT);

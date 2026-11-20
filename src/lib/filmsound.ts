@@ -45,27 +45,31 @@ const env = (g: GainNode, t: number, peak: number, atk: number, dec: number) => 
 };
 
 export const fx = {
-  /** Nota pizzicata: per i tasti, le comparse, i passaggi. */
-  pluck(deg: number, vel = 1, dec = 0.32) {
+  /** Tocco: un piccolo colpo morbido (aria e un tonfo leggero), per i tasti e le comparse. Niente note: la melodia è della musica. */
+  pluck(_deg = 0, vel = 1, _dec = 0) {
     const c = ac();
-    if (!c || !bus) return;
+    if (!c || !bus || !noise) return;
     const t = c.currentTime;
-    const g = c.createGain();
+    const s = c.createBufferSource();
+    s.buffer = noise;
     const f = c.createBiquadFilter();
-    f.type = "lowpass";
-    f.frequency.value = 2600;
-    env(g, t, 0.13 * vel, 0.004, dec);
-    g.connect(f).connect(bus);
-    for (const [m, ty, k] of [[1, "triangle", 1], [2, "sine", 0.4]] as const) {
-      const o = c.createOscillator();
-      o.type = ty;
-      o.frequency.value = fq(deg) * m;
-      const og = c.createGain();
-      og.gain.value = k;
-      o.connect(og).connect(g);
-      o.start(t);
-      o.stop(t + dec + 0.05);
-    }
+    f.type = "bandpass";
+    f.frequency.value = 2400;
+    f.Q.value = 0.9;
+    const g = c.createGain();
+    env(g, t, 0.05 * vel, 0.002, 0.05);
+    s.connect(f).connect(g).connect(bus);
+    s.start(t, Math.random());
+    s.stop(t + 0.08);
+    const o = c.createOscillator();
+    const og = c.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(190, t);
+    o.frequency.exponentialRampToValueAtTime(90, t + 0.06);
+    env(og, t, 0.08 * vel, 0.002, 0.07);
+    o.connect(og).connect(bus);
+    o.start(t);
+    o.stop(t + 0.1);
   },
   /** Colpo basso sul ritmo. */
   kick(vel = 1) {
@@ -188,25 +192,13 @@ export const fx = {
     o.stop(t + dur + 0.1);
   },
   /** Accordo di conferma: tre note insieme, lunghe. */
-  chord(degs = [0, 2, 4, 5], vel = 1) {
-    degs.forEach((d, i) => this.pluck(d + 5, 0.8 * vel, 1.1 + i * 0.1));
-    this.kick(0.7 * vel);
+  chord(_degs: number[] = [], vel = 1) {
+    // gli accordi li suona la musica: qui solo l'impatto
+    this.kick(0.6 * vel);
   },
   /** Campanello di una notifica. */
-  bell(deg = 7, vel = 1) {
-    const c = ac();
-    if (!c || !bus) return;
-    const t = c.currentTime;
-    for (const [m, k, d] of [[1, 1, 0.9], [2.76, 0.35, 0.5], [5.4, 0.15, 0.3]] as const) {
-      const o = c.createOscillator();
-      const g = c.createGain();
-      o.type = "sine";
-      o.frequency.value = fq(deg, 440) * m;
-      env(g, t, 0.07 * k * vel, 0.003, d);
-      o.connect(g).connect(bus);
-      o.start(t);
-      o.stop(t + d + 0.05);
-    }
+  bell(_deg = 7, vel = 1) {
+    this.pluck(0, vel);
   },
   /** Tocco secco: un clic. */
   tick(vel = 1) {
@@ -304,185 +296,238 @@ function music(c: AudioContext) {
 }
 
 /*
- * Colonna sonora a 120 bpm, sedicesimi da 0,125 s, una battuta = 2 s. Due tempi, come il racconto:
- *  A · il problema: La minore (Am F Dm E), pulsazione trattenuta, cassa a metà tempo, un tema che scende;
- *  stacco · il cliente perso: solo il pad, sospeso;
- *  B · il nuovo sito: Do maggiore (C G Am F), cassa dritta, battiti di mani, arpeggio e una melodia piena di otto battute;
- *  fine · un accordo di Do che resta nell'aria.
- * I passaggi tra le parti li decide il video con fx.cue(): cadono sempre a inizio battuta.
+ * Colonna sonora a 120 bpm (battuta = 2 s, sedicesimo = 0,125 s), costruita come quelle degli spot in motion graphics:
+ * pad caldi, pianoforte, sub, pluck filtrati con il respiro della cassa, impatti e salite nei passaggi.
+ * L'umore segue la scena che si sta guardando; il video lo chiede con cue(), e cambia sul battito successivo.
+ *   calm   · la ricerca: piano e pad, sospeso
+ *   doubt  · in fondo ai risultati: minore, pulsazione bassa, un orologio
+ *   tense  · il sito lento: bordone, battito del cuore, ticchettio
+ *   stop   · cliente perso: un colpo, poi solo la coda del riverbero
+ *   rise   · il nuovo sito: maggiore, il piano accelera, sale
+ *   drive  · veloce, costruito, ogni schermo: cassa dritta, basso che respira, melodia
+ *   light  · lo cambi tu, l'AI ti consiglia: più leggero, piano in primo piano
+ *   end    · accordo pieno che resta
  */
-const N = (m: number) => 440 * 2 ** ((m - 69) / 12); // nota MIDI → Hz
+export type Mood = "calm" | "doubt" | "tense" | "stop" | "rise" | "drive" | "light" | "end";
+const N = (m: number) => 440 * 2 ** ((m - 69) / 12);
 type Chord = { notes: number[]; root: number };
-const A_CH: Chord[] = [
-  { notes: [57, 60, 64], root: 45 }, // Am
-  { notes: [57, 60, 65], root: 41 }, // F
-  { notes: [57, 62, 65], root: 38 }, // Dm
-  { notes: [56, 59, 64], root: 40 }, // E
-];
-const B_CH: Chord[] = [
-  { notes: [60, 64, 67, 71], root: 36 }, // Cmaj7
-  { notes: [59, 62, 67, 69], root: 43 }, // G(add9)
-  { notes: [57, 60, 64, 67], root: 45 }, // Am7
-  { notes: [57, 60, 65, 69], root: 41 }, // F
-];
-/** Tema del problema: poche note, scende. Chiave = sedicesimo, valore = nota MIDI. */
-const A_MEL: Record<number, number>[] = [
-  { 0: 69, 6: 72, 8: 76, 12: 74 },
-  { 0: 72, 4: 69, 8: 65 },
-  { 0: 74, 6: 72, 8: 69, 12: 67 },
-  { 0: 68, 4: 71, 8: 64 },
-];
-/** Melodia del nuovo sito: otto battute, domanda e risposta. */
-const B_MEL: Record<number, number>[] = [
-  { 0: 76, 4: 79, 6: 84, 10: 83, 12: 79 },
-  { 0: 74, 4: 79, 6: 83, 10: 81, 12: 79 },
-  { 0: 72, 4: 76, 6: 81, 10: 79, 12: 76 },
-  { 0: 77, 4: 81, 6: 84, 10: 81, 12: 79 },
+const C = (root: number, ...notes: number[]): Chord => ({ root, notes });
+const PROG: Record<"a" | "b" | "c", Chord[]> = {
+  // calm: Fmaj7 Am7 Dm9 G6
+  a: [C(41, 57, 60, 64, 65), C(45, 57, 60, 64, 67), C(38, 57, 60, 62, 65), C(43, 55, 59, 62, 64)],
+  // doubt / tense: Dm Bb Gm A
+  b: [C(38, 57, 62, 65), C(34, 58, 62, 65), C(43, 58, 62, 67), C(45, 57, 61, 64)],
+  // nuovo sito: C G/B Am F
+  c: [C(36, 60, 64, 67, 71), C(35, 59, 62, 67, 69), C(45, 60, 64, 67, 69), C(41, 60, 65, 69, 72)],
+};
+const GROUP: Record<Mood, "a" | "b" | "c"> = { calm: "a", doubt: "b", tense: "b", stop: "b", rise: "c", drive: "c", light: "c", end: "c" };
+/** Melodia del nuovo sito, otto battute (nota MIDI per sedicesimo). */
+const MEL: Record<number, number>[] = [
+  { 0: 76, 3: 79, 6: 84, 10: 83, 12: 79 },
+  { 0: 74, 3: 79, 6: 83, 10: 81, 12: 79 },
+  { 0: 72, 3: 76, 6: 81, 10: 79, 12: 76 },
+  { 0: 77, 3: 81, 6: 84, 10: 81, 12: 79 },
   { 0: 76, 2: 79, 4: 84, 8: 86, 12: 88 },
   { 0: 86, 4: 83, 8: 79, 12: 83, 14: 86 },
   { 0: 84, 4: 83, 6: 81, 10: 76 },
   { 0: 77, 2: 81, 4: 84, 12: 79 },
 ];
-/** Arpeggio a sedicesimi: indici nelle note dell'accordo (un'ottava sopra). */
-const ARP = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0, 2, 1, 3];
 
-const cues = { stop: Infinity, drop: Infinity, end: Infinity };
-export function cue(k: keyof typeof cues, t: number) {
-  // la parte cambia alla battuta successiva (o a questa, se è appena iniziata)
-  cues[k] = Math.max(0, Math.ceil(t / 2 - 0.12));
+let cues: { beat: number; mood: Mood }[] = [];
+/** Il video chiede un umore al tempo t (secondi del film): parte sul battito successivo. */
+export function cue(mood: Mood, t: number) {
+  const beat = Math.max(0, Math.ceil(t * 2 - 0.08));
+  cues = cues.filter((q) => q.beat < beat).concat({ beat, mood });
 }
 export function resetCues() {
-  cues.stop = cues.drop = cues.end = Infinity;
+  cues = [];
 }
+const moodAt = (beat: number): { mood: Mood; since: number } => {
+  let m: Mood = "calm";
+  let since = 0;
+  for (const q of cues) if (q.beat <= beat) (m = q.mood), (since = q.beat);
+  return { mood: m, since };
+};
+/** Prima battuta del gruppo armonico in corso (per far ripartire il giro da capo quando cambia tonalità). */
+const groupStart = (beat: number, g: "a" | "b" | "c") => {
+  let st = 0;
+  let prev: "a" | "b" | "c" | null = null;
+  for (const q of cues) {
+    if (q.beat > beat) break;
+    const gg = GROUP[q.mood];
+    if (gg !== prev) st = q.beat;
+    prev = gg;
+  }
+  return prev === g ? st : 0;
+};
 
 type Mus = { out: GainNode; pump: GainNode; verb: ConvolverNode; echo: DelayNode };
 
 function step(c: AudioContext, m: Mus, n: number, at: number) {
   const s = n % 16;
-  const bar = Math.floor(n / 16);
-  const sect = bar >= cues.end ? "end" : bar >= cues.drop ? "b" : bar >= cues.stop ? "stop" : "a";
-  if (sect === "end" && (bar > cues.end || s)) return;
-  const bb = bar - (Number.isFinite(cues.drop) ? cues.drop : 0); // battute dall'inizio di B
-  const ch = sect === "a" ? A_CH[bar % 4] : sect === "stop" ? A_CH[0] : sect === "end" ? B_CH[0] : B_CH[bb % 4];
-  const tone = (fr: number, type: OscillatorType, peak: number, atk: number, dec: number, lp: number, o2: { wet?: number; echo?: number; det?: number[]; pumped?: boolean; lpEnd?: number } = {}) => {
-    const { wet = 0.3, echo = 0, det = [0], pumped = false, lpEnd } = o2;
-    const g = c.createGain();
+  const beat = Math.floor(n / 4);
+  const { mood, since } = moodAt(beat);
+  const g = GROUP[mood];
+  const st = groupStart(beat, g);
+  const bar = Math.max(0, Math.floor((beat - st) / 4));
+  const ch = PROG[g][bar % 4];
+  const fresh = beat === since && n % 4 === 0; // primo battito del nuovo umore
+
+  const voice = (fr: number, type: OscillatorType, peak: number, atk: number, dec: number, lp: number, o2: { wet?: number; echo?: number; det?: number[]; pumped?: boolean; lpEnd?: number; when?: number } = {}) => {
+    const { wet = 0.3, echo = 0, det = [0], pumped = false, lpEnd, when = 0 } = o2;
+    const t = at + when;
+    const gn = c.createGain();
     const f = c.createBiquadFilter();
     f.type = "lowpass";
-    f.frequency.setValueAtTime(lp, at);
-    if (lpEnd) f.frequency.exponentialRampToValueAtTime(lpEnd, at + atk + dec);
-    g.gain.setValueAtTime(0.0001, at);
-    g.gain.linearRampToValueAtTime(peak / Math.sqrt(det.length), at + atk);
-    g.gain.exponentialRampToValueAtTime(0.0001, at + atk + dec);
-    f.connect(g);
-    g.connect(pumped ? m.pump : m.out);
+    f.frequency.setValueAtTime(lp, t);
+    if (lpEnd) f.frequency.exponentialRampToValueAtTime(lpEnd, t + atk + dec);
+    gn.gain.setValueAtTime(0.0001, t);
+    gn.gain.linearRampToValueAtTime(peak / Math.sqrt(det.length), t + atk);
+    gn.gain.exponentialRampToValueAtTime(0.0001, t + atk + dec);
+    f.connect(gn);
+    gn.connect(pumped ? m.pump : m.out);
     for (const d of det) {
       const o = c.createOscillator();
       o.type = type;
       o.frequency.value = fr;
       o.detune.value = d;
       o.connect(f);
-      o.start(at);
-      o.stop(at + atk + dec + 0.05);
+      o.start(t);
+      o.stop(t + atk + dec + 0.05);
     }
     if (wet) {
       const w = c.createGain();
       w.gain.value = wet;
-      g.connect(w).connect(m.verb);
+      gn.connect(w).connect(m.verb);
     }
     if (echo) {
       const e = c.createGain();
       e.gain.value = echo;
-      g.connect(e).connect(m.echo);
+      gn.connect(e).connect(m.echo);
     }
   };
-  const burst = (type: BiquadFilterType, fr: number, q: number, peak: number, dec: number) => {
+  const noiseHit = (type: BiquadFilterType, fr: number, q: number, peak: number, dec: number, when = 0) => {
     if (!noise) return;
+    const t = at + when;
     const sn = c.createBufferSource();
     sn.buffer = noise;
     const f = c.createBiquadFilter();
     f.type = type;
     f.frequency.value = fr;
     f.Q.value = q;
-    const g = c.createGain();
-    g.gain.setValueAtTime(0.0001, at);
-    g.gain.linearRampToValueAtTime(peak, at + 0.002);
-    g.gain.exponentialRampToValueAtTime(0.0001, at + dec);
-    sn.connect(f).connect(g).connect(m.out);
-    sn.start(at, Math.random() * 0.8);
-    sn.stop(at + dec + 0.03);
+    const gn = c.createGain();
+    gn.gain.setValueAtTime(0.0001, t);
+    gn.gain.linearRampToValueAtTime(peak, t + 0.002);
+    gn.gain.exponentialRampToValueAtTime(0.0001, t + dec);
+    sn.connect(f).connect(gn).connect(m.out);
+    sn.start(t, Math.random() * 0.8);
+    sn.stop(t + dec + 0.03);
   };
-  const lead = (mel: Record<number, number>, peak: number, bright: boolean) => {
-    const mn = mel[s];
-    if (mn === undefined) return;
-    let nx = 16 - s;
-    for (let j = s + 1; j < 16; j++)
-      if (mel[j] !== undefined) {
-        nx = j - s;
-        break;
-      }
-    const dec = Math.min(0.9, Math.max(0.2, nx * 0.125 * 0.9));
-    const fr = N(mn);
-    tone(fr, "sawtooth", peak, 0.01, dec, bright ? 2600 : 1500, { wet: 0.35, echo: 0.2, det: [-7, 7], lpEnd: bright ? 900 : 600 });
-    tone(fr, "triangle", peak * 0.6, 0.006, dec, 3000, { wet: 0.3 });
+  /** Pianoforte: armoniche che si spengono a velocità diverse, attacco morbido. */
+  const piano = (k: number, vel: number, dur = 1.6, when = 0) => {
+    const fr = N(k);
+    [
+      [1, 1, 1],
+      [2, 0.42, 0.6],
+      [3, 0.18, 0.4],
+      [4, 0.08, 0.28],
+    ].forEach(([h, a, d]) => voice(fr * h, "sine", 0.07 * vel * a, 0.004, dur * d, 4200, { wet: 0.38, when }));
   };
-
-  /* fine: un accordo pieno che resta */
-  if (sect === "end") {
-    [36, 48, 60, 64, 67, 71, 74].forEach((k) => tone(N(k), k < 50 ? "sine" : "sawtooth", k < 50 ? 0.22 : 0.05, 0.02, 4.5, 1800, { wet: 0.6, det: k < 50 ? [0] : [-8, 8], lpEnd: 500 }));
-    kickAt(c, m.out, at, 1);
-    burst("highpass", 5000, 0.5, 0.12, 1.4);
-    return;
-  }
-
-  /* pad: a inizio battuta, sempre */
-  if (s === 0)
-    ch.notes.forEach((k) =>
-      tone(N(k), "sawtooth", sect === "b" ? 0.032 : 0.03, sect === "stop" ? 0.6 : 0.08, sect === "stop" ? 2.6 : 1.9, 500, { wet: 0.55, det: [-9, 9], pumped: sect === "b", lpEnd: sect === "b" ? 1700 : 900 }),
-    );
-  if (sect === "stop") {
-    // sospeso: solo il pad e un battito lontano
-    if (s === 0) tone(N(33), "sine", 0.16, 0.01, 1.2, 200, { wet: 0 });
-    return;
-  }
-
-  if (sect === "a") {
-    // cuore che batte: cassa sull'1 e sull'«e» del 2
-    if (s === 0 || s === 6) kickAt(c, m.out, at, s === 0 ? 0.8 : 0.5);
-    if (s % 4 === 2) burst("highpass", 8000, 0.7, 0.025, 0.04);
-    // pulsazione a ottavi sulla fondamentale, chiusa
-    if (s % 2 === 0) tone(N(ch.root + 12), "sawtooth", 0.06, 0.004, 0.18, 380, { wet: 0.1, lpEnd: 160 });
-    if (s === 0) tone(N(ch.root), "sine", 0.18, 0.01, 1.6, 300, { wet: 0 });
-    if (bar >= 2) lead(A_MEL[bar % 4], 0.07, false);
-    return;
-  }
-
-  /* B: il nuovo sito */
-  if (s % 4 === 0) {
+  /** Pluck da spot: sega filtrata che si chiude subito, con il respiro della cassa e un'eco. */
+  const pluck = (k: number, vel: number) => voice(N(k), "sawtooth", 0.07 * vel, 0.003, 0.32, 3400, { wet: 0.25, echo: 0.18, det: [-8, 8], pumped: true, lpEnd: 380 });
+  const pad = (lp: number, lpEnd: number, peak = 0.026, pumped = false) =>
+    ch.notes.forEach((k) => voice(N(k), "sawtooth", peak, 0.35, 2.1, lp, { wet: 0.55, det: [-10, 10], pumped, lpEnd }));
+  const sub = (peak: number, dec: number, oct = 0) => voice(N(ch.root + 12 * oct), "sine", peak, 0.008, dec, 400, { wet: 0 });
+  const pumpIt = (depth: number) => {
     const gp = m.pump.gain;
-    gp.setValueAtTime(0.35, at);
-    gp.linearRampToValueAtTime(1, at + 0.24);
-    kickAt(c, m.out, at, s === 0 ? 1 : 0.88);
+    gp.setValueAtTime(depth, at);
+    gp.linearRampToValueAtTime(1, at + 0.26);
+  };
+  const impact = (v: number) => {
+    kickAt(c, m.out, at, 1.1 * v);
+    voice(N(28), "sine", 0.32 * v, 0.005, 1.6, 300, { wet: 0.2 });
+    noiseHit("lowpass", 900, 0.6, 0.22 * v, 1.2);
+    noiseHit("highpass", 4000, 0.5, 0.06 * v, 1.6);
+  };
+
+  if (mood === "end") {
+    if (!fresh || beat !== since) return;
+    impact(1);
+    [36, 48, 55, 60, 64, 67, 71, 74].forEach((k, i) => (k < 50 ? voice(N(k), "sine", 0.2, 0.01, 4.5, 300, { wet: 0.4 }) : piano(k, 1.1, 4, i * 0.012)));
+    PROG.c[0].notes.forEach((k) => voice(N(k), "sawtooth", 0.03, 0.4, 4.5, 1200, { wet: 0.7, det: [-10, 10], lpEnd: 400 }));
+    return;
   }
-  if (s === 4 || s === 12) {
-    burst("bandpass", 1600, 0.8, 0.13, 0.12);
-    burst("highpass", 3200, 0.7, 0.05, 0.09);
+  if (mood === "stop") {
+    if (fresh) impact(1.2);
+    return;
   }
-  if (s % 4 === 2) burst("highpass", 7200, 0.7, 0.07, 0.1);
-  else if (s % 2 === 1) burst("highpass", 8400, 0.7, 0.025, 0.03);
-  // basso a ottavi, con l'ottava sull'«e»
-  if (s % 2 === 0) {
-    const up = s % 4 === 2 ? 2 : 1;
-    tone(N(ch.root) * up, "sine", 0.18, 0.006, 0.2, 700, { wet: 0 });
-    tone(N(ch.root) * up, "sawtooth", 0.06, 0.006, 0.18, 500, { wet: 0, lpEnd: 160 });
+
+  if (mood === "calm") {
+    if (s === 0) {
+      pad(700, 1100, 0.022);
+      ch.notes.forEach((k, i) => piano(k, 0.9, 2.2, i * 0.025));
+      sub(0.12, 1.8, 1);
+    }
+    if (s === 8) piano(ch.notes[ch.notes.length - 1] + 12, 0.6, 1.2);
+    if (s === 12) piano(ch.notes[1] + 12, 0.45, 1);
+    return;
   }
-  // arpeggio a sedicesimi, morbido, dalla seconda battuta
-  if (bb >= 1) tone(N(ch.notes[ARP[s] % ch.notes.length] + 12), "square", 0.018, 0.004, 0.12, 2400, { wet: 0.3, echo: 0.12, pumped: true });
-  // melodia: otto battute; al secondo giro raddoppiata all'ottava
-  lead(B_MEL[bb % 8], 0.085, true);
-  if (bb >= 8 && B_MEL[bb % 8][s] !== undefined) tone(N(B_MEL[bb % 8][s] + 12), "triangle", 0.03, 0.006, 0.3, 3200, { wet: 0.4, echo: 0.15 });
-  // piatto all'inizio di ogni frase
-  if (s === 0 && bb % 4 === 0) burst("highpass", 5200, 0.5, 0.1, 1.2);
+
+  if (mood === "doubt" || mood === "tense") {
+    const tense = mood === "tense";
+    if (s === 0) {
+      pad(tense ? 500 : 650, tense ? 380 : 800, 0.026);
+      sub(0.16, 1.9);
+      if (tense) voice(N(ch.root + 12), "sawtooth", 0.05, 0.6, 1.8, 260, { wet: 0.3, det: [-14, 14], lpEnd: 520 }); // bordone che si apre
+    }
+    // pulsazione bassa a ottavi, chiusa
+    if (s % 2 === 0) voice(N(ch.root + 12), "sawtooth", tense ? 0.05 : 0.04, 0.004, 0.16, 340, { wet: 0.05, lpEnd: 140 });
+    // orologio: un colpetto secco su ogni battito, più fitto quando cresce la tensione
+    if (s % 4 === 0 || (tense && s % 2 === 0)) noiseHit("bandpass", tense ? 3800 : 3000, 6, tense ? 0.05 : 0.035, 0.03);
+    // cuore: due colpi
+    if (tense && (s === 0 || s === 3)) kickAt(c, m.out, at, s === 0 ? 0.75 : 0.5);
+    if (!tense && s === 0) kickAt(c, m.out, at, 0.45);
+    if (!tense && s === 8) piano(ch.notes[2] + 12, 0.5, 1.4);
+    return;
+  }
+
+  // gruppo del nuovo sito
+  if (mood === "rise") {
+    if (fresh) impact(0.6);
+    if (s === 0) pad(900, 2400, 0.024);
+    // il piano ribatte l'accordo a ottavi e cresce
+    if (s % 2 === 0) ch.notes.forEach((k, i) => piano(k + 12, 0.35 + 0.08 * (s / 2) + 0.15 * bar, 0.5, i * 0.008));
+    if (s === 0) sub(0.15, 1.6);
+    if (bar >= 1 && s % 4 === 0) kickAt(c, m.out, at, 0.7);
+    if (s === 12) noiseHit("highpass", 2000, 0.6, 0.05, 0.5);
+    return;
+  }
+
+  const drive = mood === "drive";
+  if (fresh && drive) impact(0.8);
+  if (s === 0) pad(drive ? 1100 : 900, drive ? 2600 : 1800, 0.026, true);
+  if (s % 4 === 0 && (drive || s % 8 === 0)) {
+    pumpIt(drive ? 0.3 : 0.55);
+    kickAt(c, m.out, at, s === 0 ? 1 : 0.85);
+  }
+  if (drive && (s === 4 || s === 12)) {
+    noiseHit("bandpass", 1500, 0.8, 0.12, 0.13);
+    noiseHit("highpass", 3200, 0.7, 0.05, 0.1);
+  }
+  if (s % 4 === 2) noiseHit("highpass", 7600, 0.7, drive ? 0.06 : 0.04, 0.09);
+  else if (drive && s % 2 === 1) noiseHit("highpass", 9000, 0.7, 0.018, 0.03);
+  // basso che respira: sul controtempo
+  if (s % 4 === 2) {
+    voice(N(ch.root + 12), "sine", 0.17, 0.006, 0.22, 600, { wet: 0 });
+    voice(N(ch.root + 12), "sawtooth", 0.05, 0.006, 0.2, 700, { wet: 0, lpEnd: 180 });
+  }
+  const mel = MEL[bar % 8][s];
+  if (mel !== undefined) {
+    if (drive) pluck(mel, 1);
+    else piano(mel, 0.9, 1.2);
+  }
+  if (!drive && s === 0) ch.notes.forEach((k, i) => piano(k, 0.5, 1.8, i * 0.02));
+  if (s === 0 && bar % 4 === 0) noiseHit("highpass", 5200, 0.5, 0.08, 1.4);
 }
 
 function kickAt(c: AudioContext, out: GainNode, at: number, vel: number) {

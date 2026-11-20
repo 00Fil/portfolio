@@ -6,12 +6,12 @@ import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 import type { LucideIcon } from "lucide-react";
-import { Frame, MessageCircle, MousePointer2, PenTool, Square, Type, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
+import { ArrowUp, Frame, MessageCircle, MousePointer2, PenTool, Square, Type, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { prefersReducedMotion } from "@/lib/env";
 import { onIntroLift } from "@/lib/intro";
 import { soundOn, onSound, setSound } from "@/lib/sound";
-import { fx, filmMute, cue } from "@/lib/filmsound";
+import { fx, filmMute, cue, type Mood } from "@/lib/filmsound";
 import { scrollToY } from "@/lib/scroll";
 import { Bead } from "@/components/glass/Bead";
 import { Wordmark } from "@/components/nav/Wordmark";
@@ -228,6 +228,70 @@ function OldSite({ c }: { c: Cinema }) {
   );
 }
 
+/* ───────────── Le interfacce vere: la ricerca di Google e l'app di Claude, ridisegnate per il video ───────────── */
+const G_COL = ["#4285F4", "#EA4335", "#FBBC05", "#4285F4", "#34A853", "#EA4335"];
+const ARIAL = { fontFamily: "Arial, Helvetica, sans-serif" } as const;
+function GLogo({ size }: { size: number }) {
+  return (
+    <span className="inline-block select-none font-medium leading-none" style={{ fontSize: size, letterSpacing: "-0.03em", ...ARIAL }}>
+      {"Google".split("").map((ch, i) => (
+        <span key={i} style={{ color: G_COL[i] }}>
+          {ch}
+        </span>
+      ))}
+    </span>
+  );
+}
+function GBox({ q, w, h = 46, typed = false }: { q: string; w: number; h?: number; typed?: boolean }) {
+  return (
+    <span className="flex items-center gap-3 rounded-full bg-white px-5 text-[#202124] shadow-[0_1px_6px_rgba(32,33,36,.28)]" style={{ width: w, height: h, fontSize: h * 0.36, ...ARIAL }}>
+      <Search size={h * 0.4} strokeWidth={2} className="shrink-0 text-[#9aa0a6]" />
+      {typed ? (
+        <>
+          <span data-typed />
+          <span className="h-[1.1em] w-[1.5px] animate-pulse bg-[#202124]" />
+        </>
+      ) : (
+        <span className="truncate">{q}</span>
+      )}
+    </span>
+  );
+}
+/** Un risultato di Google: sito, indirizzo, titolo blu, descrizione. `me` gli mette dietro la bolla di vetro per evidenziarlo. */
+function GResult({ name, url, title, snip, me = false, ...rest }: { name: string; url: string; title: string; snip: string; me?: boolean } & Record<string, unknown>) {
+  return (
+    <div {...rest} className={`relative w-[600px] ${me ? "z-20" : ""}`} style={ARIAL}>
+      {me && <Bead as="span" data-bub radius={26} className="absolute -inset-x-6 -inset-y-4 -z-10" style={HID} />}
+      <span className="flex items-center gap-3">
+        <span className="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#f1f3f4] text-[13px] font-bold text-[#5f6368]">{name[0]}</span>
+        <span className="leading-tight">
+          <span className="block text-[14px] text-[#202124]">{name}</span>
+          <span className="block text-[12px] text-[#4d5156]">https://{url}</span>
+        </span>
+      </span>
+      <span className="mt-1.5 block text-[20px] leading-tight text-[#1a0dab]">{title}</span>
+      <span className="mt-1 block text-[14px] leading-snug text-[#4d5156]">{snip}</span>
+    </div>
+  );
+}
+/** Il velo: lo stesso gradiente blu della firma, leggero, sopra tutto quello che non conta. */
+function Veil({ ...rest }: Record<string, unknown>) {
+  return <span {...rest} aria-hidden className="pointer-events-none absolute inset-0 z-10" style={{ ...HID, background: "linear-gradient(135deg, rgba(31,143,208,.34), rgba(94,196,255,.24) 45%, rgba(47,111,224,.34))" }} />;
+}
+/** La stella di Claude. */
+function Spark({ size = 22 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden className="shrink-0">
+      {Array.from({ length: 12 }, (_, i) => {
+        const a = (i / 12) * Math.PI * 2;
+        const r = i % 2 ? 7.4 : 10.4;
+        const f = (v: number) => Math.round(v * 100) / 100;
+        return <line key={i} x1={f(12 + Math.cos(a) * 2.2)} y1={f(12 + Math.sin(a) * 2.2)} x2={f(12 + Math.cos(a) * r)} y2={f(12 + Math.sin(a) * r)} stroke="#d97757" strokeWidth={2.4} strokeLinecap="round" />;
+      })}
+    </svg>
+  );
+}
+
 /* ───────────── Il video ─────────────
    Un oggetto solo che cambia forma, una camera che si avvicina e si allontana, una colonna sonora a 120 battiti.
    Nessun movimento lineare: ogni passaggio ha la sua curva. */
@@ -342,7 +406,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       gsap.set(dev, { width: wide, scale: fit(wide), "--r": "26px", transformPerspective: 1600 });
 
       // a ogni riproduzione i testi scritti dal video tornano come all'inizio
-      const reset: [string, string][] = [["[data-typed]", ""], ["[data-url]", ""], ["[data-url1]", c.find.me[1]], ["[data-tt1]", c.find.me[1]], ["[data-count]", "0,0 s"], ["[data-gat]", ""], ["[data-fsz]", ""]];
+      const reset: [string, string][] = [["[data-typed]", ""], ["[data-url]", ""], ["[data-url1]", c.find.me[1]], ["[data-tt1]", c.find.me[1]], ["[data-count]", "0,0 s"], ["[data-gat1]", ""], ["[data-gat2]", ""], ["[data-gat3]", ""], ["[data-fsz]", ""]];
       reset.forEach(([q, v]) => $(q).forEach((e) => (e.textContent = v)));
       F.reset();
       // le scene, senza testo: le guida il montaggio qui sotto, un capitolo alla volta
@@ -374,7 +438,9 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       /* 0 · Un cliente ti cerca: la camera parte vicina alla barra e si allontana mentre arrivano i risultati */
       const pill = one("[data-pill]");
       const res = $("[data-res]");
-      const py = () => -150 * k();
+      const py = () => 0;
+      // le interfacce disegnate a misura fissa si adattano al riquadro (anche nell'anteprima)
+      $("[data-gfit]").forEach((e) => gsap.set(e, { scale: () => Math.min(1, (cam.offsetWidth * 0.9) / e.offsetWidth, (cam.offsetHeight * 0.84) / e.offsetHeight) }));
       const ry = (i: number) => () => (-40 + i * 92) * k();
       gsap.set(pill, { y: py });
       tl.call(() => F.whoosh(0.6, true, 0.7), undefined, 0)
@@ -553,7 +619,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const wireBits = $("[data-wb]");
       tl.call(() => F.whoosh(0.8, true, 1), undefined, T(11.5))
         .set([chrome, meter], { autoAlpha: 0 }, T(11.9))
-        .fromTo(dev, { autoAlpha: 0, rotationX: 40, y: 160, scale: () => fit(wide)() * 0.7 }, { autoAlpha: 1, rotationX: 0, y: 0, scale: fit(wide), duration: 1.5, ease: "expo.out" }, T(11.9))
+        .fromTo(dev, { autoAlpha: 0, y: 160, scale: () => fit(wide)() * 0.7 }, { autoAlpha: 1, y: 0, scale: fit(wide), duration: 1.5, ease: "expo.out" }, T(11.9))
         .fromTo(wireBits, { autoAlpha: 0, scale: 0.86, y: 16 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.7)", stagger: T(0.4) }, T(12.6));
       wireBits.forEach((_, i) => tl.call(() => F.pluck(i * 2, 0.7, 0.3), undefined, T(12.6) + i * T(0.4)));
       // il team nel file di progetto: ogni cursore va sul pezzo che sta disegnando, la selezione lo segue
@@ -606,8 +672,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const shape = (b: number, w: () => number, r: string, turn: number) => {
         tl.call(() => (F.whoosh(0.6, false, 0.9), F.tick(1)), undefined, T(b))
           .to(dev, { width: w, scale: fit(w), "--r": r, duration: 1.1, ease: "expo.inOut" }, T(b))
-          .to(dev, { rotationY: turn, duration: 0.55, ease: "power2.out" }, T(b))
-          .to(dev, { rotationY: 0, duration: 0.8, ease: "power3.inOut" }, T(b) + 0.55);
+          ;
+        void turn;
       };
       shape(18, mid, "34px", -16);
       shape(19.9, phone, "48px", 16);
@@ -616,7 +682,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
 
       /* 6 · Arrivano i clienti: il telefono si inclina, le notifiche scendono dall'alto */
       const ns = $("[data-n]");
-      tl.to(dev, { rotationX: 10, rotationY: -14, duration: 1.4, ease: "sine.inOut" }, T(21.6));
+      
       ns.forEach((n, i) => {
         const at = T(22.2 + i * 1);
         tl.fromTo(n, { autoAlpha: 0, y: -50, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "back.out(1.4)" }, at).call(() => F.bell(7 + i * 2, 1), undefined, at);
@@ -627,7 +693,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const nav = one("[data-nav]");
       const ub = one("[data-ub]");
       tl.to(ns, { x: 140, autoAlpha: 0, duration: 0.45, stagger: 0.05, ease: "power2.in" }, T(25.4))
-        .to(dev, { rotationX: 0, rotationY: 0, duration: 0.9, ease: "expo.inOut" }, T(25.5))
+        
         .to(nav, { autoAlpha: 0, scale: 0.96, duration: 0.3, ease: "power2.in" }, T(25.9))
         .fromTo(ub, { autoAlpha: 0, scaleX: 0.7 }, { autoAlpha: 1, scaleX: 1, duration: 0.6, ease: "back.out(1.6)" }, T(26.2))
         .call(() => F.whoosh(0.5, true, 0.7), undefined, T(26.2))
@@ -767,7 +833,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .fromTo(run, { p: 0 }, { p: 1, duration: D, ease: "none", onUpdate: paint, onReverseComplete: paint }, 0.8)
           .call(() => F.riser(D * 0.5), undefined, 0.8)
           .call(() => F.whoosh(1, false, 1), undefined, 0.8 + D * 0.4)
-          .fromTo(me, { boxShadow: "0 0 0 0px rgba(94,196,255,0)" }, { boxShadow: "0 0 0 3px var(--accent)", duration: 0.45, ease: "back.out(2.5)" }, 0.8 + D)
+          .fromTo(one("[data-veil]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 0.8 + D)
+          .fromTo(me.querySelector("[data-bub]"), { autoAlpha: 0, scale: 0.9 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 0.85 + D)
           .call(() => F.tick(1.2), undefined, 0.8 + D)
           .set({}, {}, 0.8 + D + 0.7);
 
@@ -779,7 +846,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const box = one("[data-seo]");
         const rows = $("[data-sr]");
         const me = rows[rows.length - 1];
-        const rh = () => rows[0].offsetHeight + 12;
+        const rh = () => rows[0].offsetHeight + 28;
         seoTl
           .set([dev, chrome, meter], { autoAlpha: 0 }, 0)
           .set(box, { autoAlpha: 1 }, 0)
@@ -790,7 +857,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         seoTl
           .to(me, { y: 0, opacity: 1, duration: 1.5, ease: "power3.inOut" }, 1.5)
           .call(() => F.whoosh(0.5, true, 0.6), undefined, 1.5)
-          .fromTo(me, { boxShadow: "0 0 0 0px rgba(94,196,255,0)" }, { boxShadow: "0 0 0 3px var(--accent)", duration: 0.5, ease: "back.out(2.5)" }, 3.0)
+          .fromTo(one("[data-sveil]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 3.0)
+          .fromTo(me.querySelector("[data-bub]"), { autoAlpha: 0, scale: 0.9 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 3.05)
           .call(() => F.chord([0, 2, 4, 5], 0.8), undefined, 3.0)
           .set({}, {}, 4.2);
       }
@@ -803,12 +871,16 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .set([one("[data-seo]"), dev], { autoAlpha: 0 }, 0)
           .set(box, { autoAlpha: 1 }, 0)
           .fromTo(one("[data-gq]"), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.1)
-          .fromTo(one("[data-ga]"), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.9)
+          .fromTo(one("[data-ga]"), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out", clearProps: "transform" }, 0.9)
           .set(src, { autoAlpha: 0 }, 0);
-        typeTo(geoTl, one("[data-gat]"), c.geo.a, 1.4, 2.2, 2);
+        const [pre, post] = c.geo.a.split(c.find.me[0]);
+        typeTo(geoTl, one("[data-gat1]"), pre, 1.4, 0.7, 2);
+        typeTo(geoTl, one("[data-gat2]"), c.find.me[0], 2.1, 0.5, 4);
+        typeTo(geoTl, one("[data-gat3]"), post ?? "", 2.6, 1.0, 6);
         geoTl
           .fromTo(src, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(2.4)" }, 3.75)
-          .fromTo(src, { boxShadow: "0 0 0 0 rgba(94,196,255,0)" }, { boxShadow: "0 0 26px 2px rgba(94,196,255,.55)", duration: 0.6, ease: "power2.out" }, 3.9)
+          .fromTo(one("[data-cveil]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 3.95)
+          .fromTo(one("[data-bub2]"), { autoAlpha: 0, scale: 0.9 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 4.0)
           .call(() => F.chord([0, 2, 4, 7], 0.8), undefined, 3.75)
           .set({}, {}, 5.4);
       }
@@ -822,21 +894,21 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const xcaps = [0, 1, 2, 3].map((i) => one(`[data-capx="${i}"]`));
       const xunits = xcaps.map(split);
       const scene = tl;
-      type Ch = { mood?: "stop" | "drop" | "end"; textOnly?: boolean; u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
+      type Ch = { mood?: Mood; textOnly?: boolean; u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
       // solo i passaggi che dicono qualcosa: il problema, poi cosa cambia (in cima, veloce, fatto su misura, ogni schermo, lo modifichi tu, l'AI ti cita, tutto compreso)
       const ch: Ch[] = [
         // prima del nostro intervento
-        { u: units[0], el: caps[0], seg: [0, T(3)], speed: 1.3 },
-        { u: xunits[2], el: xcaps[2], sub: farTl, speed: 1.2, after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
-        { u: units[1], el: caps[1], seg: [U(5.7) + 0.02, 5.75], hold: 0 },
+        { u: units[0], el: caps[0], seg: [0, T(3)], speed: 1.3, mood: "calm" },
+        { u: xunits[2], el: xcaps[2], sub: farTl, speed: 1.2, mood: "doubt", after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
+        { u: units[1], el: caps[1], seg: [U(5.7) + 0.02, 5.75], hold: 0, mood: "tense" },
         { sub: back, speed: 1.6, hold: 0.25, after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
         { u: xunits[3], el: xcaps[3], textOnly: true, mood: "stop" },
         // con il nuovo sito
-        { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.55, mood: "drop", after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set([chrome, meter], { autoAlpha: 1 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
-        { u: units[2], el: caps[2], seg: [6.5, T(11.4)], speed: 1.15 },
+        { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.55, mood: "rise", after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set([chrome, meter], { autoAlpha: 1 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
+        { u: units[2], el: caps[2], seg: [6.5, T(11.4)], speed: 1.15, mood: "drive" },
         { u: units[3], el: caps[3], seg: [T(11.9), T(18)], speed: 1 },
         { u: units[5], el: caps[5], seg: [T(18), T(22.1)], speed: 1.3 },
-        { u: units[8], el: caps[8], seg: [T(31.6), T(40.6)], speed: 1.45 },
+        { u: units[8], el: caps[8], seg: [T(31.6), T(40.6)], speed: 1.45, mood: "light" },
         { u: xunits[1], el: xcaps[1], sub: geoTl, speed: 1.5, after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
         { seg: [T(54.8), scene.duration()], hold: 0, mood: "end" },
       ];
@@ -854,22 +926,22 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const rig = one("[data-rig]");
       // ogni scena entra con un movimento di camera diverso, poi la camera continua a muoversi piano
       const moves = [
-        { scale: 1.3, rotation: -4, yPercent: 8 },
-        { scale: 0.78, rotation: 3, xPercent: -6 },
-        { scale: 1.22, rotation: 0, xPercent: 8 },
-        { scale: 1.35, rotation: 5, yPercent: -6 },
-        { scale: 0.82, rotation: -3, yPercent: 6 },
+        { scale: 1.3, yPercent: 8 },
+        { scale: 0.8, xPercent: -6 },
+        { scale: 1.22, xPercent: 8 },
+        { scale: 1.32, yPercent: -6 },
+        { scale: 0.84, yPercent: 6 },
       ];
       const shoot = (i: number, t: number, d: number) => {
         const m = moves[i % moves.length];
-        mt.fromTo(rig, { xPercent: 0, yPercent: 0, ...m }, { scale: 1, rotation: 0, xPercent: 0, yPercent: 0, duration: 0.9, ease: "expo.out", immediateRender: false }, t);
-        if (d > 1.2) mt.to(rig, { scale: i % 2 ? 0.96 : 1.05, rotation: i % 2 ? -1 : 1, duration: d - 0.9, ease: "sine.inOut" }, t + 0.9);
+        mt.fromTo(rig, { xPercent: 0, yPercent: 0, ...m }, { scale: 1, xPercent: 0, yPercent: 0, duration: 0.9, ease: "expo.out", immediateRender: false }, t);
+        if (d > 1.2) mt.to(rig, { scale: i % 2 ? 0.96 : 1.05, duration: d - 0.9, ease: "sine.inOut" }, t + 0.9);
       };
       ch.forEach((k, i) => {
         at = q8(at);
         if (k.mood) {
           const m = k.mood;
-          const t0 = at + (m === "end" ? 0.25 : 0);
+          const t0 = at;
           mt.call(() => cue(m, t0), undefined, t0);
         }
         let shot = -1;
@@ -1011,17 +1083,15 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         <div data-rig className="absolute inset-0 will-change-transform">
         <div data-cam className="absolute inset-0 will-change-transform">
           <div className="absolute inset-x-0 top-[50%] h-0">
-            {/* ricerca e risultati */}
-            <Bead as="div" data-it data-pill radius={42} className={`cine-fg ${center} flex h-[clamp(60px,10cqh,84px)] w-[min(720px,76cqw)] items-center gap-4 px-[clamp(20px,3cqw,34px)] text-[clamp(18px,2.6cqw,30px)]`} style={HID}>
-              <Search size={26} strokeWidth={1.8} className="cine-fg2 shrink-0" />
-              <span data-typed className="tracking-[-0.015em]" />
-              <span className="h-[1.1em] w-[2px] animate-pulse bg-[var(--label-primary)]" />
-            </Bead>
-            {[c.find.me, ...c.find.others].map(([t, u], i) => (
-              <Bead as="div" key={u} data-it data-res radius={34} className={`cine-fg ${center} flex h-[clamp(56px,9cqh,74px)] w-[min(720px,76cqw)] items-center justify-between gap-4 px-[clamp(20px,3cqw,34px)]`} style={HID}>
-                <span className={`text-[clamp(17px,2.2cqw,26px)] tracking-[-0.02em] ${i ? "cine-fg2" : "font-semibold"}`}>{t}</span>
-                <span className="cine-fg2 text-[clamp(13px,1.5cqw,17px)]">{u}</span>
-              </Bead>
+            {/* la home di Google: il cliente scrive */}
+            <div data-it data-pill className={`${center} flex flex-col items-center gap-8`} style={HID}>
+              <span data-gfit className="flex flex-col items-center gap-8">
+                <GLogo size={92} />
+                <GBox q="" w={620} h={54} typed />
+              </span>
+            </div>
+            {[c.find.me, ...c.find.others].map(([t, u]) => (
+              <span key={u} data-it data-res className={center} style={HID} />
             ))}
             {/* il sito, con dentro la barra dell'indirizzo, le notifiche e la conferma */}
             <div data-it data-dev className={`${center} overflow-hidden bg-[var(--bg-canvas)] shadow-[0_50px_140px_-40px_rgba(0,0,0,.4),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, width: 1100, height: 640, borderRadius: "var(--r)" }}>
@@ -1101,16 +1171,19 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
               <div className="relative min-h-0 flex-1 bg-[var(--bg-surface)]">
                 <OldSite c={c} />
                 {/* la ricerca, di nuovo: il cliente torna indietro */}
-                <div data-gres className="absolute inset-0 z-[5] bg-[var(--bg-surface)] px-[6%] pt-[5%] text-[var(--label-primary)] [container-type:size]" style={HID}>
-                  <div className="flex h-[11cqh] min-h-[30px] w-[min(520px,80%)] items-center gap-2.5 rounded-full px-4 text-[clamp(11px,3.6cqh,16px)] ring-1 ring-[var(--hair-strong)]">
+                <div data-gres className="absolute inset-0 z-[5] bg-white px-[6%] pt-[5%] text-[#202124] [container-type:size]" style={{ ...HID, ...ARIAL }}>
+                  <div className="mb-[4cqh]">
+                    <GLogo size={24} />
+                  </div>
+                  <div className="flex h-[11cqh] min-h-[30px] w-[min(520px,80%)] items-center gap-2.5 rounded-full px-4 text-[clamp(11px,3.6cqh,16px)] shadow-[0_1px_6px_rgba(32,33,36,.28)]">
                     <Search size={15} strokeWidth={1.8} className="shrink-0 text-[var(--label-secondary)]" />
                     {c.find.typed}
                   </div>
                   <div className="mt-[6cqh] flex flex-col gap-[5cqh]">
                     {[...c.find.others, c.find.me].map(([t, u], i) => (
                       <div key={u} data-gr={i}>
-                        <span className="block text-[clamp(10px,3cqh,13px)] text-[var(--label-secondary)]">{u}</span>
-                        <span data-grt className="block text-[clamp(14px,5cqh,22px)] font-medium text-[var(--accent)] underline-offset-4">
+                        <span className="block text-[clamp(10px,3cqh,13px)] text-[#4d5156]">https://{u}</span>
+                        <span data-grt className="block text-[clamp(14px,5cqh,22px)] text-[#1a0dab] underline-offset-4">
                           {t}
                         </span>
                       </div>
@@ -1150,67 +1223,97 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                 <Check data-ok size={"0.8em" as unknown as number} strokeWidth={2.6} style={{ color: "var(--accent)" }} />
               </div>
             </div>
-            {/* prima: mille risultati, e tu in fondo */}
-            <div data-it data-far className={`${center} w-[min(640px,74cqw)]`} style={HID}>
+            {/* prima: la pagina dei risultati di Google, e tu in fondo */}
+            <div data-it data-far className={center} style={HID}>
               <svg width="0" height="0" className="absolute" aria-hidden>
                 <filter id="wc-vblur" x="0" y="-20%" width="100%" height="140%">
                   <feGaussianBlur data-vb stdDeviation="0 0" />
                 </filter>
               </svg>
-              <p data-fcount className="cine-fg mb-6 text-center text-[clamp(30px,4.4cqw,64px)] font-semibold leading-none tracking-[-0.045em]">
-                {c.far.count}
-              </p>
-              <div className="relative -mx-4 overflow-hidden px-4" style={{ height: "calc(4 * (clamp(46px,7cqh,60px) + 10px) - 10px)", maskImage: "linear-gradient(transparent, #000 10%, #000 90%, transparent)", WebkitMaskImage: "linear-gradient(transparent, #000 10%, #000 90%, transparent)" }}>
-                <div data-fl className="flex flex-col gap-[10px] will-change-transform">
-                  {Array.from({ length: FAR_N }, (_, i) => (i === FAR_N - 1 ? c.find.me : c.far.list[i % c.far.list.length])).map(([t, u], i) => (
-                    <div key={i} data-fr className={`cine-fg flex h-[clamp(46px,7cqh,60px)] shrink-0 items-center gap-4 rounded-[22px] bg-[var(--bg-surface)] px-[clamp(16px,2.4cqw,28px)] shadow-[0_6px_18px_-12px_rgba(0,0,0,.35)] ring-1 ring-[var(--hair-strong)]`}>
-                      <span className="cine-fg2 w-7 shrink-0 text-[clamp(12px,1.4cqw,15px)] font-medium tabular-nums">{i + 1}</span>
-                      <span className={`min-w-0 flex-1 truncate text-[clamp(15px,2cqw,22px)] tracking-[-0.02em] ${i === FAR_N - 1 ? "font-semibold" : "cine-fg2"}`}>{t}</span>
-                      <span className="cine-fg2 hidden shrink-0 text-[clamp(12px,1.4cqw,16px)] @min-[420px]:inline">{u}</span>
-                    </div>
-                  ))}
+              <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5" style={ARIAL}>
+                <div className="relative z-30 flex h-[84px] items-center gap-7 border-b border-[#ebebeb] bg-white px-8">
+                  <GLogo size={32} />
+                  <GBox q={c.find.typed} w={560} />
                 </div>
-                {/* scie di luce: compaiono solo quando la lista corre */}
-                <div data-streak aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: 0 }}>
-                  {STREAKS.map(([x, w, d], i) => (
-                    <span key={i} className="absolute top-[-10%] h-[120%]" style={{ left: `${x}%`, width: w, opacity: d, background: "linear-gradient(transparent, var(--accent), transparent)" }} />
+                <p data-fcount className="relative z-30 bg-white pb-3 pl-[118px] pt-3 text-[13px] text-[#70757a]">
+                  {c.far.count}
+                </p>
+                <div className="absolute inset-x-0 bottom-0 top-[124px] overflow-hidden">
+                  <div data-fl className="relative flex flex-col gap-[30px] pb-[200px] pl-[118px] pt-2 will-change-transform">
+                    <Veil data-veil />
+                    {Array.from({ length: FAR_N }, (_, i) => (i === FAR_N - 1 ? c.find.me : c.far.list[i % c.far.list.length])).map(([t, u], i) => (
+                      <GResult key={i} data-fr me={i === FAR_N - 1} name={t} url={u} title={i === FAR_N - 1 ? c.far.mine : `${t} · ${c.far.title}`} snip={c.far.snip} />
+                    ))}
+                  </div>
+                  <div data-streak aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: 0 }}>
+                    {STREAKS.map(([x, w, d], i) => (
+                      <span key={i} className="absolute top-[-10%] h-[120%]" style={{ left: `${x}%`, width: w, opacity: d, background: "linear-gradient(transparent, #4285F4, transparent)" }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* SEO: la stessa pagina di Google, e la tua attività sale in cima */}
+            <div data-it data-seo className={center} style={HID}>
+              <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5" style={ARIAL}>
+                <div className="relative z-30 flex h-[84px] items-center gap-7 border-b border-[#ebebeb] bg-white px-8">
+                  <GLogo size={32} />
+                  <GBox q={c.find.typed} w={560} />
+                </div>
+                <div className="absolute inset-x-0 bottom-0 top-[100px]">
+                  <Veil data-sveil />
+                  {[...c.find.others, ...c.seo.more, c.find.me].map(([t, u], i, all) => (
+                    <GResult key={u} data-sr me={i === all.length - 1} name={t} url={u} title={i === all.length - 1 ? c.far.mine : `${t} · ${c.far.title}`} snip={c.far.snip} style={{ position: "absolute", left: 118, top: 0 }} />
                   ))}
                 </div>
               </div>
             </div>
-            {/* SEO: la tua attività sale in cima ai risultati */}
-            <div data-it data-seo className={`${center} w-[min(660px,80cqw)]`} style={{ ...HID, height: "calc(5 * (clamp(54px,8.4cqh,70px) + 12px) - 12px)" }}>
-              {[1, 2, 3, 4, 5].map((n, i) => (
-                <span key={n} className="cine-fg2 absolute -left-10 flex w-6 items-center justify-end text-[clamp(13px,1.5cqw,17px)] font-medium tabular-nums" style={{ top: `calc(${i} * (clamp(54px,8.4cqh,70px) + 12px))`, height: "clamp(54px,8.4cqh,70px)" }}>
-                  {n}
-                </span>
-              ))}
-              {[...c.find.others, ...c.seo.more, c.find.me].map(([t, u], i, all) => (
-                <Bead as="div" key={u} data-sr radius={30} className="cine-fg absolute inset-x-0 top-0 flex h-[clamp(54px,8.4cqh,70px)] items-center justify-between gap-4 px-[clamp(18px,2.6cqw,30px)]">
-                  <span className={`text-[clamp(16px,2.1cqw,24px)] tracking-[-0.02em] ${i === all.length - 1 ? "font-semibold" : "cine-fg2"}`}>{t}</span>
-                  <span className="cine-fg2 text-[clamp(12px,1.4cqw,16px)]">{u}</span>
-                </Bead>
-              ))}
-            </div>
-            {/* GEO: un assistente AI risponde e cita il tuo sito */}
-            <div data-it data-geo className={`${center} flex w-[min(640px,86cqw)] flex-col gap-4`} style={HID}>
-              <Bead as="div" data-gq radius={26} className="cine-fg self-end px-5 py-3.5 text-[clamp(15px,2.1cqw,21px)]">
-                {c.geo.q}
-              </Bead>
-              <Bead as="div" data-ga radius={28} className="cine-fg flex flex-col gap-3 px-6 py-5 text-[clamp(15px,2.1cqw,21px)] leading-[1.45]">
-                <span className="cine-fg2 flex items-center gap-2 text-[0.72em]">
-                  <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
-                  {c.geo.who}
-                </span>
-                <span className="relative block">
-                  <span className="invisible">{c.geo.a}</span>
-                  <span data-gat className="absolute inset-0" />
-                </span>
-                <span data-gsrc className="flex items-center gap-2 self-start rounded-full px-4 py-2 text-[1.05em] font-medium text-[var(--accent)] ring-1 ring-[var(--accent)]">
-                  <span className="h-2 w-2 rounded-full bg-[var(--accent)]" />
-                  {c.find.me[1]}
-                </span>
-              </Bead>
+            {/* GEO: l'app di Claude risponde e cita il tuo sito */}
+            <div data-it data-geo className={center} style={HID}>
+              <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-[#faf9f5] text-[#141413] shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5">
+                <Veil data-cveil />
+                <div className="flex h-[58px] items-center gap-2.5 px-6">
+                  <Spark size={20} />
+                  <span className="text-[17px] font-medium" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+                    Claude
+                  </span>
+                </div>
+                <div className="mx-auto flex w-[600px] flex-col pt-6">
+                  <div data-gq className="max-w-[80%] self-end rounded-[18px] bg-[#f0eee6] px-4 py-3 text-[16px]">
+                    {c.geo.q}
+                  </div>
+                  <div data-ga className="mt-7 flex gap-3.5">
+                    <span className="mt-1">
+                      <Spark size={24} />
+                    </span>
+                    <div className="flex flex-col items-start gap-3">
+                      <p className="relative text-[18px] leading-[1.6]" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+                        <span className="invisible">
+                          {c.geo.a.split(c.find.me[0])[0]}
+                          <strong className="font-semibold">{c.find.me[0]}</strong>
+                          {c.geo.a.split(c.find.me[0])[1]}
+                        </span>
+                        <span className="absolute inset-0">
+                          <span data-gat1 />
+                          <strong data-gat2 className="font-semibold" />
+                          <span data-gat3 />
+                        </span>
+                      </p>
+                      <span data-gsrc className="relative z-20 inline-flex items-center gap-2 rounded-[10px] border border-[#e5e2d9] bg-white px-3 py-1.5 text-[14px]">
+                        <Bead as="span" data-bub2 radius={18} className="absolute -inset-x-4 -inset-y-3 -z-10" style={HID} />
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--accent)] text-[11px] font-bold text-white">{c.find.me[0][0]}</span>
+                        {c.find.me[1]}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute bottom-6 left-1/2 flex h-[58px] w-[600px] -translate-x-1/2 items-center justify-between rounded-[18px] bg-white pl-5 pr-2.5 text-[15px] text-[#8a8780] ring-1 ring-[#e5e2d9]">
+                  {c.geo.reply}
+                  <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#d97757] text-white">
+                    <ArrowUp size={18} strokeWidth={2.4} />
+                  </span>
+                </div>
+              </div>
             </div>
             {/* cosa ricevi */}
             {c.gets.items.map(([t], i) => {
