@@ -161,6 +161,38 @@ export const fx = {
     o.start(t + 0.1);
     o.stop(t + 1);
   },
+  /** La firma: un respiro d'aria che sale e si apre in un accordo luminoso, lungo. */
+  shine(vel = 1) {
+    const c = ac();
+    if (!c || !bus || !noise) return;
+    const t = c.currentTime;
+    const s = c.createBufferSource();
+    s.buffer = noise;
+    const f = c.createBiquadFilter();
+    f.type = "bandpass";
+    f.Q.value = 0.8;
+    f.frequency.setValueAtTime(600, t);
+    f.frequency.exponentialRampToValueAtTime(6000, t + 0.6);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.12 * vel, t + 0.5);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.3);
+    s.connect(f).connect(g).connect(bus);
+    s.start(t);
+    s.stop(t + 1.4);
+    [72, 76, 79, 83, 88].forEach((m, i) => {
+      const o = c.createOscillator();
+      const og = c.createGain();
+      o.type = "sine";
+      o.frequency.value = 440 * 2 ** ((m - 69) / 12);
+      og.gain.setValueAtTime(0.0001, t + 0.45 + i * 0.04);
+      og.gain.linearRampToValueAtTime(0.035 * vel, t + 0.6 + i * 0.04);
+      og.gain.exponentialRampToValueAtTime(0.0001, t + 3.2);
+      o.connect(og).connect(bus!);
+      o.start(t + 0.45);
+      o.stop(t + 3.3);
+    });
+  },
   /** Salita di tensione prima di un colpo. */
   riser(dur = 1.6) {
     const c = ac();

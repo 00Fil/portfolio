@@ -6,13 +6,13 @@ import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 import type { LucideIcon } from "lucide-react";
-import { ArrowUp, Frame, MessageCircle, MousePointer2, PenTool, Square, Type, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
+import { ArrowUp, Sparkles, Frame, MessageCircle, MousePointer2, PenTool, Square, Type, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { prefersReducedMotion } from "@/lib/env";
 import { onIntroLift } from "@/lib/intro";
 import { soundOn, onSound, setSound } from "@/lib/sound";
 import { fx, filmMute, cue, type Mood } from "@/lib/filmsound";
-import { scrollToY } from "@/lib/scroll";
+import { getLenis, scrollToY } from "@/lib/scroll";
 import { Bead } from "@/components/glass/Bead";
 import { Wordmark } from "@/components/nav/Wordmark";
 import { GradientText } from "@/components/ui/GradientText";
@@ -36,7 +36,16 @@ export function Kw({ text }: { text: string }) {
         if (i % 2) {
           const m = /^[.,!?;:]+/.exec(parts[i + 1] ?? "");
           const red = p.startsWith("!");
-          const w = red ? p.slice(1) : p;
+          const plain = p.startsWith("^");
+          const w = red || plain ? p.slice(1) : p;
+          if (plain)
+            return (
+              <span key={i} data-kw className="inline-block font-semibold" style={{ padding: "0.1em 0.12em", margin: "-0.1em -0.12em" }}>
+                <GradientText colors={GT} animationSpeed={8} variant="flow" glow={0.6}>
+                  {w + (m ? m[0] : "")}
+                </GradientText>
+              </span>
+            );
           return (
             <span key={i} data-kw className="inline-block" style={{ ...(red ? { "--gt-glow-color": "#ff5a52" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.2em 0.34em 0.5em", margin: "-0.2em -0.34em -0.5em" }}>
               <GradientText colors={red ? GT_RED : GT} animationSpeed={8} variant="flow" glow={1}>
@@ -228,6 +237,71 @@ function OldSite({ c }: { c: Cinema }) {
   );
 }
 
+/* ───────────── La hero di questo portfolio, ricostruita pezzo per pezzo: è il sito d'esempio del video ───────────── */
+const HM_ACC = "#2b9fe6";
+function HeroMock({ edit = "hardware" }: { edit?: string }) {
+  return (
+    <div className="relative h-full w-full overflow-hidden text-[#121316]" style={{ background: "radial-gradient(60% 50% at 15% 0%, rgba(94,196,255,.16), transparent 70%), radial-gradient(50% 50% at 100% 100%, rgba(94,196,255,.12), transparent 70%), #f6f6f3" }}>
+      <div data-hx className="absolute left-1/2 top-[18px] w-[980px] -translate-x-1/2 overflow-hidden rounded-[22px] bg-white/85 shadow-[0_10px_30px_-16px_rgba(20,30,50,.35)] ring-1 ring-black/5">
+        <div className="flex h-[54px] items-center justify-between px-5">
+          <span className="text-[24px] leading-none" style={{ fontFamily: "var(--font-logo), var(--font-sans)", color: HM_ACC }}>
+            Filippo Corsini
+          </span>
+          <span className="flex items-center gap-7 text-[14px] text-[#55565c]">
+            <span>Servizi</span>
+            <span>Lavori</span>
+            <span>Percorso</span>
+          </span>
+          <span className="flex items-center gap-2 text-[13px]">
+            <span className="rounded-full bg-[#ececE8] px-3 py-1 font-medium">IT</span>
+            <span className="rounded-full bg-[#9edcff] px-4 py-1.5 font-medium">Contattami</span>
+          </span>
+        </div>
+        <div className="flex h-[30px] items-center bg-[#dff1fc] px-5 text-[12px] text-[#55565c]">
+          <b className="mr-1 font-semibold text-[#121316]">Area clienti inclusa in ogni progetto.</b> Parli con il team e segui l’avanzamento.
+        </div>
+      </div>
+      <div className="absolute inset-x-0 top-[150px] flex flex-col items-center text-center">
+        <span data-hx className="flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[#55565c]">
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: HM_ACC }} />
+          Disponibile per nuovi progetti
+        </span>
+        <div className="mt-6 text-[66px] font-medium leading-[1.02] tracking-[-0.05em]">
+          <span data-hx className="flex items-center justify-center gap-4">
+            Progetto
+            <span className="flex h-[52px] w-[84px] items-center justify-center rounded-[14px] bg-gradient-to-b from-[#1b2b46] to-[#0c1424] shadow-[0_10px_24px_-10px_rgba(0,0,0,.6)]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[#3b8cff] text-white">
+                <Sparkles size={15} strokeWidth={2.2} />
+              </span>
+            </span>
+            e sviluppo
+          </span>
+          <span data-hx className="flex items-center justify-center gap-4">
+            <span className="relative">
+              <span data-hsel className="pointer-events-none absolute -inset-x-2 -inset-y-1 origin-left rounded-[10px] bg-[#5ec4ff]/30" style={HID} />
+              <span data-hw className="relative" style={{ color: HM_ACC }}>
+                {edit}
+              </span>
+            </span>
+            <span className="h-[50px] w-[50px] rounded-full" style={{ background: "radial-gradient(circle at 35% 30%, #c8ecff, #5ec4ff 55%, #2b9fe6)" }} />
+            su misura
+          </span>
+          <span data-hx className="block">
+            per <span style={{ color: HM_ACC }}>l’industria</span>
+          </span>
+        </div>
+        <p data-hx className="mt-7 max-w-[560px] text-[16px] leading-[1.6] text-[#55565c]">
+          Sono Filippo Corsini. Realizzo software su misura per aziende e professionisti: piattaforme web, app e sistemi con AI che automatizzano i processi.
+        </p>
+        <span data-hx className="mt-7 flex items-center gap-3 text-[15px] font-medium">
+          <span className="rounded-full bg-[#9edcff] px-6 py-3">Prenota una chiamata →</span>
+          <span className="rounded-full bg-white px-6 py-3 ring-1 ring-black/5">Vedi i lavori ↓</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
 /* ───────────── Le interfacce vere: la ricerca di Google e l'app di Claude, ridisegnate per il video ───────────── */
 const G_COL = ["#4285F4", "#EA4335", "#FBBC05", "#4285F4", "#34A853", "#EA4335"];
 const ARIAL = { fontFamily: "Arial, Helvetica, sans-serif" } as const;
@@ -247,10 +321,10 @@ function GBox({ q, w, h = 46, typed = false }: { q: string; w: number; h?: numbe
     <span className="flex items-center gap-3 rounded-full bg-white px-5 text-[#202124] shadow-[0_1px_6px_rgba(32,33,36,.28)]" style={{ width: w, height: h, fontSize: h * 0.36, ...ARIAL }}>
       <Search size={h * 0.4} strokeWidth={2} className="shrink-0 text-[#9aa0a6]" />
       {typed ? (
-        <>
-          <span data-typed />
-          <span className="h-[1.1em] w-[1.5px] animate-pulse bg-[#202124]" />
-        </>
+        <span className="inline-flex items-center leading-none">
+          <span data-typed className="whitespace-pre" />
+          <span className="ml-[1px] inline-block h-[1.15em] w-[2px] animate-pulse bg-[#202124]" />
+        </span>
       ) : (
         <span className="truncate">{q}</span>
       )}
@@ -278,16 +352,12 @@ function GResult({ name, url, title, snip, me = false, ...rest }: { name: string
 function Veil({ ...rest }: Record<string, unknown>) {
   return <span {...rest} aria-hidden className="pointer-events-none absolute inset-0 z-10" style={{ ...HID, background: "linear-gradient(135deg, rgba(31,143,208,.34), rgba(94,196,255,.24) 45%, rgba(47,111,224,.34))" }} />;
 }
-/** La stella di Claude. */
-function Spark({ size = 22 }: { size?: number }) {
+/** Il marchio di Claude (tracciato ufficiale, da Simple Icons). */
+const CLAUDE_PATH = "m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z";
+function Spark({ size = 22, color = "#D97757" }: { size?: number; color?: string }) {
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden className="shrink-0">
-      {Array.from({ length: 12 }, (_, i) => {
-        const a = (i / 12) * Math.PI * 2;
-        const r = i % 2 ? 7.4 : 10.4;
-        const f = (v: number) => Math.round(v * 100) / 100;
-        return <line key={i} x1={f(12 + Math.cos(a) * 2.2)} y1={f(12 + Math.sin(a) * 2.2)} x2={f(12 + Math.cos(a) * r)} y2={f(12 + Math.sin(a) * r)} stroke="#d97757" strokeWidth={2.4} strokeLinecap="round" />;
-      })}
+      <path d={CLAUDE_PATH} fill={color} />
     </svg>
   );
 }
@@ -406,7 +476,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       gsap.set(dev, { width: wide, scale: fit(wide), "--r": "26px", transformPerspective: 1600 });
 
       // a ogni riproduzione i testi scritti dal video tornano come all'inizio
-      const reset: [string, string][] = [["[data-typed]", ""], ["[data-url]", ""], ["[data-url1]", c.find.me[1]], ["[data-tt1]", c.find.me[1]], ["[data-count]", "0,0 s"], ["[data-gat1]", ""], ["[data-gat2]", ""], ["[data-gat3]", ""], ["[data-fsz]", ""]];
+      const reset: [string, string][] = [["[data-typed]", ""], ["[data-url]", ""], ["[data-url1]", c.find.me[1]], ["[data-tt1]", c.find.me[1]], ["[data-count]", "0,0 s"], ["[data-gat1]", ""], ["[data-gat2]", ""], ["[data-gat3]", ""], ["[data-cin]", ""], ["[data-fsz]", ""]];
       reset.forEach(([q, v]) => $(q).forEach((e) => (e.textContent = v)));
       F.reset();
       // le scene, senza testo: le guida il montaggio qui sotto, un capitolo alla volta
@@ -510,7 +580,6 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       /* 1b · Il cliente non aspetta: torna alla ricerca e apre il secondo risultato. Montato a parte, tra una scena e l'altra. */
       const back = gsap.timeline({ paused: true });
       {
-        back.call(() => F.sigh(1), undefined, 0.05);
         const cur = one("[data-cur]");
         const gres = one("[data-gres]");
         const rival = one("[data-rival]");
@@ -547,11 +616,9 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .call(() => void (tt1.textContent = c.find.others[0][0]), undefined, 3.95)
           .call(() => void (tt1.textContent = c.find.me[1]), undefined, 3.94)
           .call(() => void (url1.textContent = c.find.typed), undefined, 3.94)
-          .fromTo(rival.children, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.08, immediateRender: false }, 3.95)
-          .to(cur, { autoAlpha: 0, duration: 0.3 }, 4.2)
-          .to(one("[data-meter]"), { autoAlpha: 0, duration: 0.25 }, 3.95)
-          .call(() => F.chord([0, 1, 3], 0.6), undefined, 4.1)
-          .set({}, {}, 6.2);
+          .to(cur, { autoAlpha: 0, duration: 0.2 }, 4.1)
+          .call(() => F.chord([0, 1, 3], 0.6), undefined, 3.95)
+          .set({}, {}, 5.0);
       }
 
       /* 2 · Il tuo si apre in 0,8 secondi: stessa pagina, un nuovo caricamento, tutto insieme; poi si naviga */
@@ -793,12 +860,162 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       tl        .to(endCard, { autoAlpha: 0, y: -30, filter: "blur(10px)", duration: 0.5, ease: "power2.in" }, T(55.0) + 1.7)
         .set(one("[data-end2]"), { autoAlpha: 1 }, T(55.0) + 2.1)
         .fromTo(one("[data-logo]"), { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 1.1, ease: "expo.out" }, T(55.0) + 2.1)
+        .call(() => F.shine(1), undefined, T(55.0) + 1.75)
 
       punch(51.8, 1.03);
       tl.set({}, {}, T(55.0) + 3.4);
 
       /* Il tempo del video lo muoviamo noi, un fotogramma alla volta e con un passo massimo:
          se il dispositivo rallenta (pagina che carica, telefono sotto sforzo) il video rallenta con lui invece di saltare le scene. */
+      const rigEl = one("[data-rig]");
+      const inl = $("[data-inline]");
+      const say = (L: gsap.core.Timeline, e: HTMLElement, t0: number, t1: number) =>
+        L.fromTo(e, { autoAlpha: 0, yPercent: 40, filter: "blur(10px)" }, { autoAlpha: 1, yPercent: 0, filter: "blur(0px)", duration: 0.55, ease: "expo.out" }, t0)
+          .to(e, { autoAlpha: 0, yPercent: -40, filter: "blur(8px)", duration: 0.3, ease: "power3.in" }, t1);
+
+      /* Il sito di oggi: fermo a metà, e la camera che si avvicina sempre di più. Poi un colpo indietro: il cliente si è stufato. */
+      const slowTl = gsap.timeline({ paused: true });
+      slowTl
+        .set([chrome, oldEl], { autoAlpha: 1 }, 0)
+        .set(chrome, { y: 0 }, 0)
+        .set([sw, one("[data-gres]"), one("[data-gres2]"), one("[data-rival]"), one("[data-hero]")], { autoAlpha: 0 }, 0)
+        .set(os, { autoAlpha: 1 }, 0)
+        .set(otext, { autoAlpha: 1, top: "74%" }, 0)
+        .set(oimg, { clipPath: "inset(0% 0% 34% 0%)" }, 0)
+        .set([spin, stop], { autoAlpha: 1 }, 0)
+        .set([fav, rl, tt2], { autoAlpha: 0 }, 0)
+        .set(tt1, { autoAlpha: 1 }, 0)
+        .fromTo(rigEl, { scale: 1 }, { scale: 1.55, duration: 3.2, ease: "power2.in" }, 0)
+        .call(() => F.riser(1.6), undefined, 1.6)
+        .to(rigEl, { scale: 0.66, duration: 0.5, ease: "expo.out" }, 3.2)
+        .call(() => F.sigh(1), undefined, 3.2);
+      say(slowTl, inl[0], 3.35, 4.75);
+      slowTl.to(rigEl, { scale: 1, duration: 0.6, ease: "expo.inOut" }, 4.75).set({}, {}, 5.35);
+
+      /* Il sito nuovo: dalla ricerca, clic sul primo risultato, una barra veloce e la pagina è lì. Poi lo stesso colpo indietro: il cliente resta. */
+      const newTl = gsap.timeline({ paused: true });
+      {
+        const cur = one("[data-cur]");
+        const g2 = one("[data-gres2]");
+        const hero = one("[data-hero]");
+        const prog = one("[data-prog]");
+        const url1 = one("[data-url1]");
+        const first = one('[data-g2t="0"]');
+        const pt = () => {
+          const a = content.getBoundingClientRect();
+          const r = first.getBoundingClientRect();
+          const sc = a.width / content.offsetWidth || 1;
+          return { x: (r.left + r.width * 0.3 - a.left) / sc, y: (r.top + r.height * 0.7 - a.top) / sc };
+        };
+        newTl
+          .set(chrome, { autoAlpha: 1, y: 0 }, 0)
+          .set([oldEl, sw, one("[data-gres]"), one("[data-rival]"), hero], { autoAlpha: 0 }, 0)
+          .set(g2, { autoAlpha: 1 }, 0)
+          .set([spin, stop], { autoAlpha: 0 }, 0)
+          .set([fav, rl, tt1], { autoAlpha: 1 }, 0)
+          .set(tt2, { autoAlpha: 0 }, 0)
+          .call(() => void ((url1.textContent = c.find.typed), (tt1.textContent = c.find.typed)), undefined, 0)
+          .fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.75, y: () => content.offsetHeight * 0.8, scale: 1 }, { autoAlpha: 1, x: () => pt().x, y: () => pt().y, duration: 0.75, ease: "power3.inOut" }, 0.1)
+          .set(first, { textDecoration: "underline" }, 0.8)
+          .to(cur, { scale: 0.8, duration: 0.08, ease: "power2.out" }, 0.9)
+          .to(cur, { scale: 1, duration: 0.25, ease: "back.out(3)" }, 0.98)
+          .call(() => F.tick(1.3), undefined, 0.9)
+          // carica: rotella nella scheda, indirizzo nuovo, barra in alto che corre
+          .set([fav, rl], { autoAlpha: 0 }, 0.95)
+          .set([spin, stop], { autoAlpha: 1 }, 0.95)
+          .call(() => void (url1.textContent = c.find.me[1]), undefined, 0.95)
+          .fromTo(prog, { autoAlpha: 1, scaleX: 0 }, { scaleX: 0.75, duration: 0.25, ease: "power2.out", immediateRender: false }, 0.95)
+          .to(prog, { scaleX: 1, duration: 0.15, ease: "power1.in" }, 1.2)
+          .to(prog, { autoAlpha: 0, duration: 0.15 }, 1.35)
+          .fromTo(rigEl, { scale: 1 }, { scale: 1.22, duration: 0.6, ease: "power2.in" }, 0.95)
+          .set(g2, { autoAlpha: 0 }, 1.32)
+          .fromTo(hero, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.12, ease: "none", immediateRender: false }, 1.32)
+          .set(cur, { autoAlpha: 0 }, 1.32)
+          .set([spin, stop], { autoAlpha: 0 }, 1.4)
+          .set([fav, rl], { autoAlpha: 1 }, 1.4)
+          .call(() => void (tt1.textContent = c.find.me[0]), undefined, 1.4)
+          .call(() => void (tt1.textContent = c.find.typed), undefined, 1.39)
+          .to(rigEl, { scale: 0.66, duration: 0.5, ease: "expo.out" }, 1.6)
+          .call(() => F.chord([0, 2, 4], 0.8), undefined, 1.6);
+        say(newTl, inl[1], 1.75, 3.0);
+        newTl.to(rigEl, { scale: 1, duration: 0.55, ease: "expo.inOut" }, 3.0).set({}, {}, 3.55);
+      }
+
+      /* Figma: la pagina vera ma vuota; il team, ognuno con il suo cursore, mette un pezzo alla volta. Ogni pezzo arriva selezionato. */
+      const hm = one("[data-hm]");
+      const hmIn = hm.firstElementChild as HTMLElement;
+      const hx = $("[data-hx]");
+      const hsl = one("[data-hsl]");
+      const hsz = one("[data-hsz]");
+      const hcs = $("[data-hc]");
+      const offIn = (e: HTMLElement) => {
+        const a = hmIn.getBoundingClientRect();
+        const r = e.getBoundingClientRect();
+        const sc = a.width / hmIn.offsetWidth || 1;
+        return { x: (r.left - a.left) / sc, y: (r.top - a.top) / sc, w: r.width / sc, h: r.height / sc };
+      };
+      const figmaTl = gsap.timeline({ paused: true });
+      {
+        const start = [[0.2, 0.3], [0.78, 0.22], [0.55, 0.85]];
+        figmaTl
+          .set([chrome, one("[data-devs]")], { autoAlpha: 0 }, 0)
+          .set(hm, { autoAlpha: 1 }, 0)
+          .set(hx, { autoAlpha: 0 }, 0)
+          .set([one("[data-hcur]"), one("[data-hsaved]")], { autoAlpha: 0 }, 0)
+          .fromTo(one("[data-hbar]"), { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, 0.05);
+        hcs.forEach((f, j) => figmaTl.fromTo(f, { autoAlpha: 0, x: () => hmIn.offsetWidth * start[j][0], y: () => hmIn.offsetHeight * start[j][1] }, { autoAlpha: 1, duration: 0.3, ease: "power2.out" }, 0.1 + j * 0.08));
+        hx.forEach((e, i) => {
+          const j = i % hcs.length;
+          const t = 0.55 + i * 0.42;
+          // il cursore va dove il pezzo deve stare (angolo in basso a destra), lo «posa», e la selezione lo abbraccia
+          figmaTl
+            .to(hcs[j], { x: () => offIn(e).x + offIn(e).w - 4, y: () => offIn(e).y + offIn(e).h - 4, duration: 0.38, ease: "power3.inOut" }, t - 0.38)
+            .fromTo(e, { autoAlpha: 0, scale: 0.97 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: "expo.out", immediateRender: false }, t)
+            .set(hsl, { autoAlpha: 1, x: () => offIn(e).x, y: () => offIn(e).y, width: () => offIn(e).w, height: () => offIn(e).h }, t)
+            .call(() => void (hsz.textContent = `${Math.round(offIn(e).w)} × ${Math.round(offIn(e).h)}`), undefined, t)
+            .call(() => F.tick(0.8), undefined, t);
+        });
+        const end = 0.55 + hx.length * 0.42;
+        figmaTl
+          .set(hsl, { autoAlpha: 0 }, end + 0.15)
+          .to(hcs, { autoAlpha: 0, duration: 0.3 }, end + 0.2)
+          .to(one("[data-hbar]"), { autoAlpha: 0, y: 20, duration: 0.3, ease: "power2.in" }, end + 0.2)
+          .set({}, {}, end + 0.7);
+      }
+
+      /* Lo cambi tu: la stessa pagina, un doppio clic su una parola, si cancella e si riscrive. Poi «Salvato» sale e se ne va. */
+      const editTl = gsap.timeline({ paused: true });
+      {
+        const cur = one("[data-hcur]");
+        const hw = one("[data-hw]");
+        const hsel = one("[data-hsel]");
+        const saved = one("[data-hsaved]");
+        const p = () => {
+          const o = offIn(hw);
+          return { x: o.x + o.w * 0.55, y: o.y + o.h * 0.6 };
+        };
+        editTl
+          .set([chrome, one("[data-devs]"), one("[data-hbar]"), hsl], { autoAlpha: 0 }, 0)
+          .set(hcs, { autoAlpha: 0 }, 0)
+          .set([hm], { autoAlpha: 1 }, 0)
+          .set(hx, { autoAlpha: 1, scale: 1 }, 0)
+          .call(() => void (hw.textContent = "hardware"), undefined, 0)
+          .fromTo(cur, { autoAlpha: 0, x: () => hmIn.offsetWidth * 0.75, y: () => hmIn.offsetHeight * 0.85 }, { autoAlpha: 1, x: () => p().x, y: () => p().y, duration: 0.6, ease: "power3.inOut" }, 0.1)
+          .to(cur, { scale: 0.82, duration: 0.06, yoyo: true, repeat: 3, ease: "power1.inOut" }, 0.75)
+          .call(() => F.tick(1.2), undefined, 0.75)
+          .fromTo(hsel, { autoAlpha: 1, scaleX: 0 }, { scaleX: 1, duration: 0.22, ease: "power3.out", immediateRender: false }, 0.85)
+          .set(hsel, { autoAlpha: 0 }, 1.2)
+          .to(cur, { autoAlpha: 0, duration: 0.2 }, 1.2);
+        eraseTo(editTl, hw, "hardware", 1.2, 0.3);
+        typeTo(editTl, hw, "software", 1.55, 0.55, 3);
+        hw.textContent = "hardware";
+        editTl
+          .fromTo(saved, { autoAlpha: 0, y: 40, scale: 0.9, filter: "blur(8px)" }, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 0.5, ease: "expo.out" }, 2.25)
+          .call(() => F.chord([0, 2, 4], 0.7), undefined, 2.25)
+          .to(saved, { autoAlpha: 0, y: -24, scale: 0.96, filter: "blur(6px)", duration: 0.35, ease: "power3.in" }, 3.0)
+          .set({}, {}, 3.45);
+      }
+
       /* Prima: mille risultati, e la tua attività è in fondo; la lista scorre per trovarla */
       const farTl = gsap.timeline({ paused: true });
       {
@@ -869,7 +1086,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       {
         const box = one("[data-devs]");
         devsTl
-          .set([dev, box], { autoAlpha: 0 }, 0)
+          .set([dev, box, one("[data-hm]")], { autoAlpha: 0 }, 0)
           .set(box, { autoAlpha: 1 }, 0)
           .fromTo(one("[data-dpc]"), { autoAlpha: 0, y: 80, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.9, ease: "expo.out" }, 0.05)
           .fromTo(one("[data-dtab]"), { autoAlpha: 0, x: -160, scale: 0.92 }, { autoAlpha: 1, x: 0, scale: 1, duration: 0.9, ease: "expo.out" }, 0.55)
@@ -882,23 +1099,63 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const geoTl = gsap.timeline({ paused: true });
       {
         const box = one("[data-geo]");
+        const stage = box.firstElementChild as HTMLElement;
+        const icon = one("[data-cicon]");
+        const win = one("[data-cwin]");
+        const cur = one("[data-ccur]");
         const src = one("[data-gsrc]");
+        const W = () => stage.offsetWidth;
+        const H = () => stage.offsetHeight;
+        // il percorso di una mano: parte in basso a destra, curva, rallenta e si posa sull'icona (un filo oltre, poi torna)
+        const path = { t: 0 };
+        const P = () => {
+          const p0 = { x: W() * 0.92, y: H() * 0.95 };
+          const p1 = { x: W() * 0.78, y: H() * 0.38 };
+          const p2 = { x: W() * 0.5 + 6, y: H() * 0.5 + 8 };
+          const t = path.t;
+          const u = 1 - t;
+          return { x: u * u * p0.x + 2 * u * t * p1.x + t * t * p2.x, y: u * u * p0.y + 2 * u * t * p1.y + t * t * p2.y };
+        };
+        const move = () => gsap.set(cur, P());
         geoTl
-          .set([one("[data-seo]"), dev], { autoAlpha: 0 }, 0)
+          .set([one("[data-seo]"), dev, one("[data-hm]"), one("[data-devs]")], { autoAlpha: 0 }, 0)
           .set(box, { autoAlpha: 1 }, 0)
-          .fromTo(one("[data-gq]"), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.1)
-          .fromTo(one("[data-ga]"), { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out", clearProps: "transform" }, 0.9)
-          .set(src, { autoAlpha: 0 }, 0);
-        const [pre, post] = c.geo.a.split(c.find.me[0]);
-        typeTo(geoTl, one("[data-gat1]"), pre, 1.4, 0.7, 2);
-        typeTo(geoTl, one("[data-gat2]"), c.find.me[0], 2.1, 0.5, 4);
-        typeTo(geoTl, one("[data-gat3]"), post ?? "", 2.6, 1.0, 6);
+          .set([one("[data-gq]"), one("[data-ga]"), one("[data-cbar]"), src, one("[data-cspark]")], { autoAlpha: 0 }, 0)
+          .set(one("[data-cnew]"), { autoAlpha: 1 }, 0)
+          .fromTo(icon, { autoAlpha: 0, scale: 0.6, filter: "blur(10px)" }, { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.7, ease: "expo.out" }, 0.05)
+          .set(cur, { autoAlpha: 1 }, 0.35)
+          .fromTo(path, { t: 0 }, { t: 1, duration: 0.95, ease: "power3.inOut", onUpdate: move, immediateRender: false }, 0.35)
+          // clic: l'icona si schiaccia e rimbalza, come nel Dock
+          .to(cur, { scale: 0.85, duration: 0.07, ease: "power2.out" }, 1.35)
+          .to(cur, { scale: 1, duration: 0.2, ease: "back.out(3)" }, 1.42)
+          .to(icon, { scale: 0.9, duration: 0.08, ease: "power2.out" }, 1.35)
+          .to(icon, { scale: 1, y: -14, duration: 0.25, ease: "power2.out" }, 1.43)
+          .to(icon, { y: 0, duration: 0.3, ease: "bounce.out" }, 1.68)
+          .call(() => F.tick(1.3), undefined, 1.35)
+          // la finestra si apre dall'icona
+          .fromTo(win, { autoAlpha: 0, scale: 0.16 }, { autoAlpha: 1, scale: 1, duration: 0.65, ease: "expo.out" }, 1.75)
+          .to(icon, { autoAlpha: 0, scale: 0.6, duration: 0.25 }, 1.8)
+          .set(cur, { autoAlpha: 0 }, 1.8)
+          .call(() => F.whoosh(0.5, true, 0.7), undefined, 1.75);
+        typeTo(geoTl, one("[data-cin]"), c.geo.q, 2.45, 0.85, 1);
         geoTl
-          .fromTo(src, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(2.4)" }, 3.75)
-          .fromTo(one("[data-cveil]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 3.95)
-          .fromTo(one("[data-bub2]"), { autoAlpha: 0, scale: 0.9 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 4.0)
-          .call(() => F.chord([0, 2, 4, 7], 0.8), undefined, 3.75)
-          .set({}, {}, 5.4);
+          .to(one("[data-csend]"), { scale: 0.85, duration: 0.08, yoyo: true, repeat: 1 }, 3.4)
+          .to(one("[data-cnew]"), { autoAlpha: 0, y: -20, duration: 0.3, ease: "power2.in" }, 3.45)
+          .fromTo(one("[data-gq]"), { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" }, 3.6)
+          .fromTo(one("[data-cbar]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, 3.6)
+          .set(one("[data-ga]"), { autoAlpha: 1 }, 3.9);
+        const [pre, post] = c.geo.a.split(c.find.me[0]);
+        typeTo(geoTl, one("[data-gat1]"), pre, 3.95, 0.5, 2);
+        typeTo(geoTl, one("[data-gat2]"), c.find.me[0], 4.45, 0.35, 4);
+        typeTo(geoTl, one("[data-gat3]"), post ?? "", 4.8, 0.7, 6);
+        geoTl
+          .fromTo(src, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: "expo.out" }, 5.5)
+          .fromTo(one("[data-cspark]"), { autoAlpha: 0, rotation: -90 }, { autoAlpha: 1, rotation: 0, duration: 0.6, ease: "expo.out" }, 5.55)
+          .fromTo(one("[data-cveil]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 5.75)
+          .fromTo(one("[data-bub2]"), { autoAlpha: 0, scale: 0.9 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 5.8)
+          .to(src, { scale: 1.12, duration: 0.6, ease: "expo.out" }, 5.8)
+          .call(() => F.chord([0, 2, 4, 7], 0.8), undefined, 5.75)
+          .set({}, {}, 6.9);
       }
       // il secondo tempo del cliente che se ne va: i secondi continuano a salire finché non torna indietro
       {
@@ -910,22 +1167,22 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const xcaps = [0, 1, 2, 3].map((i) => one(`[data-capx="${i}"]`));
       const xunits = xcaps.map(split);
       const scene = tl;
-      type Ch = { mood?: Mood; textOnly?: boolean; u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
+      type Ch = { still?: boolean; cs?: number; mood?: Mood; textOnly?: boolean; u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
       // solo i passaggi che dicono qualcosa: il problema, poi cosa cambia (in cima, veloce, fatto su misura, ogni schermo, lo modifichi tu, l'AI ti cita, tutto compreso)
       const ch: Ch[] = [
         // prima del nostro intervento
-        { u: units[0], el: caps[0], seg: [0, T(3)], speed: 1.3, mood: "calm" },
+        { u: units[0], el: caps[0], seg: [0, T(3.5)], speed: 1.3, mood: "calm" },
         { u: xunits[2], el: xcaps[2], sub: farTl, speed: 1.2, mood: "doubt", after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
-        { u: units[1], el: caps[1], seg: [U(5.7) + 0.02, 5.75], hold: 0, mood: "tense" },
-        { sub: back, speed: 1.6, hold: 0.25, after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
-        { u: xunits[3], el: xcaps[3], textOnly: true, mood: "stop" },
+        { u: units[1], el: caps[1], sub: slowTl, hold: 0, mood: "tense", still: true },
+        { sub: back, speed: 1.5, hold: 0.2, after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
+        { u: xunits[3], el: xcaps[3], textOnly: true, mood: "stop", cs: 1 },
         // con il nuovo sito
         { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.55, mood: "rise", after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set(chrome, { autoAlpha: 1 }, t).set(meter, { autoAlpha: 0 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
-        { u: units[2], el: caps[2], seg: [6.5, T(11.4)], speed: 1.15, mood: "drive" },
-        { u: units[3], el: caps[3], seg: [T(11.9), T(18)], speed: 1 },
-        { u: units[5], el: caps[5], sub: devsTl, after: (t) => void mt.set(one("[data-devs]"), { autoAlpha: 0 }, t).set(dev, { autoAlpha: 1 }, t) },
-        { u: units[8], el: caps[8], seg: [T(31.6), T(40.6)], speed: 1.45, mood: "light" },
-        { u: xunits[1], el: xcaps[1], sub: geoTl, speed: 1.5, after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
+        { u: units[2], el: caps[2], sub: newTl, mood: "drive", still: true, after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t) },
+        { u: units[3], el: caps[3], sub: figmaTl },
+        { u: units[5], el: caps[5], sub: devsTl, speed: 1.35, after: (t) => void mt.set(one("[data-devs]"), { autoAlpha: 0 }, t) },
+        { u: units[8], el: caps[8], sub: editTl, mood: "light", after: (t) => void mt.set(hm, { autoAlpha: 0 }, t) },
+        { u: xunits[1], el: xcaps[1], sub: geoTl, speed: 1.25, after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
         { seg: [T(54.8), scene.duration()], hold: 0, mood: "end" },
       ];
       const mt = gsap.timeline({
@@ -971,19 +1228,19 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           const el = k.el;
           mt.set(el, { autoAlpha: 1 }, c0);
           // ogni frase entra in un modo diverso: salita, zoom indietro, zoom attraverso, spaziatura che si chiude, tendina
-          const style = cstyle++ % 5;
+          const style = k.cs ?? [0, 1, 2, 4][cstyle++ % 4];
           const glow = "inset(-40% -12% -40% -12%)";
           if (style === 0) slam(k.u, c0, i % 5, mt);
           else {
             mt.set(words, { autoAlpha: 1, yPercent: 0, scale: 1, filter: "blur(0px)" }, c0);
-            if (style === 1) mt.fromTo(el, { scale: 2.6, filter: "blur(18px)", autoAlpha: 0 }, { scale: 1, filter: "blur(0px)", autoAlpha: 1, duration: 0.75, ease: "expo.out" }, c0);
+            if (style === 1) mt.fromTo(el, { scale: 1.8, filter: "blur(10px)", autoAlpha: 0 }, { scale: 1, filter: "blur(0px)", autoAlpha: 1, duration: 0.75, ease: "expo.out" }, c0);
             if (style === 2) mt.fromTo(el, { scale: 0.55, filter: "blur(8px)", autoAlpha: 0 }, { scale: 1, filter: "blur(0px)", autoAlpha: 1, duration: 0.7, ease: "expo.out" }, c0);
             if (style === 3) mt.fromTo(el, { letterSpacing: "0.35em", filter: "blur(10px)", autoAlpha: 0 }, { letterSpacing: "-0.05em", filter: "blur(0px)", autoAlpha: 1, duration: 0.85, ease: "expo.out" }, c0);
             if (style === 4) mt.fromTo(el, { clipPath: "inset(-40% 112% -40% -12%)", x: -30 }, { clipPath: glow, x: 0, duration: 0.7, ease: "expo.inOut" }, c0);
             mt.call(() => F.tick(0.8), undefined, c0);
           }
           const c1 = q8(c0 + 0.5 + 0.035 * (words.length - 1) + (el.textContent?.length ?? 20) * 0.009);
-          if (style === 2) mt.to(el, { scale: 6, autoAlpha: 0, filter: "blur(6px)", duration: 0.32, ease: "power3.in" }, c1);
+          if (style === 2) mt.to(el, { scale: 2.6, autoAlpha: 0, duration: 0.24, ease: "power2.in" }, c1);
           else if (style === 1) mt.to(el, { scale: 0.7, autoAlpha: 0, filter: "blur(8px)", duration: 0.28, ease: "power3.in" }, c1);
           else if (style === 4) mt.to(el, { clipPath: "inset(-40% -12% -40% 112%)", x: 30, duration: 0.3, ease: "expo.in" }, c1);
           else {
@@ -1008,7 +1265,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         let d = 0;
         if (k.seg) d = r8((k.seg[1] - k.seg[0]) / (k.speed ?? 1));
         if (k.sub) d = r8(k.sub.duration() / (k.speed ?? 1));
-        if (shot >= 0) shoot(shot, at, d);
+        if (shot >= 0 && !k.still) shoot(shot, at, d);
         if (k.seg) mt.add(scene.tweenFromTo(k.seg[0], k.seg[1], { duration: d, ease: "none", immediateRender: false }), at);
         if (k.sub) mt.add(k.sub.tweenFromTo(0, k.sub.duration(), { duration: d, ease: "none", immediateRender: false }), at);
         at += d + (k.hold ?? 0.35);
@@ -1029,7 +1286,14 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           // sulla pagina, finita la firma si passa da soli alla prima sezione scritta
           if (!embed) {
             const nx = el.nextElementSibling as HTMLElement | null;
-            if (nx && el.getBoundingClientRect().top > -40 && el.getBoundingClientRect().top < innerHeight * 0.4) window.setTimeout(() => scrollToY(nx.getBoundingClientRect().top + scrollY), 500);
+            if (nx && el.getBoundingClientRect().top > -40 && el.getBoundingClientRect().top < innerHeight * 0.4)
+              window.setTimeout(() => {
+                const y = nx.getBoundingClientRect().top + scrollY + 18;
+                const l = getLenis();
+                // discesa lunga e morbida, che parte e arriva piano
+                if (l) l.scrollTo(y, { duration: 1.9, easing: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2) });
+                else scrollToY(y);
+              }, 400);
           }
         }
       };
@@ -1106,6 +1370,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       <div key={run} data-frame className={embed ? "cine-film cine-acr absolute inset-0 overflow-hidden" : "cine-film cine-acr absolute overflow-hidden rounded-[34px] shadow-[inset_0_0_0_1px_var(--hair-strong)] max-md:left-2 max-md:right-2 md:left-4 md:right-4"} style={embed ? undefined : { top: "var(--ft)", bottom: "var(--fb)" }}>
         {c.cap.map((t, i) => (
           <p key={t} data-cap={i} className={CAPF} style={HID}>
+            <Kw text={t} />
+          </p>
+        ))}
+        {[c.far.tired, c.far.stays].map((t, i) => (
+          <p key={t} data-inline={i} className="pointer-events-none absolute inset-x-0 top-[8%] z-20 mx-auto max-w-[22ch] px-6 text-center text-[clamp(30px,4.6cqw,72px)] font-semibold leading-[1.05] tracking-[-0.045em] cine-fg" style={HID}>
             <Kw text={t} />
           </p>
         ))}
@@ -1225,13 +1494,50 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                   </div>
                 </div>
                 {/* il concorrente: si apre subito */}
-                <div data-rival className="absolute inset-0 z-[6] flex flex-col items-center justify-center gap-[3cqh] bg-[var(--bg-canvas)] [container-type:size]" style={HID}>
-                  <span className="text-[clamp(22px,10cqh,56px)] font-semibold tracking-[-0.045em] text-[var(--label-primary)]">{c.find.others[0][0]}</span>
-                  <span className="flex items-center gap-2 text-[clamp(11px,3.6cqh,16px)] text-[var(--label-secondary)]">
-                    <span className="h-2 w-2 rounded-full bg-[var(--positive)]" />
-                    {c.rival.open}
-                  </span>
+                {/* il concorrente: brutto come il tuo di oggi, ma si apre tutto e subito */}
+                <div data-rival className="absolute inset-0 z-[6] overflow-hidden bg-[#f4efe1] [container-type:size]" style={{ ...HID, fontFamily: '"Times New Roman", Times, serif', color: "#222" }}>
+                  <div className="flex h-[14%] items-center justify-center bg-[#2f5d2a] text-[7cqh] font-bold text-[#fff6b0]">{c.find.others[0][0]}</div>
+                  <div className="absolute bottom-0 left-0 top-[14%] w-[24%] bg-[#d9d2bb]">
+                    {c.old.menu.map((m, i) => (
+                      <span key={m} className="absolute left-[12%] whitespace-nowrap text-[4.5cqh] text-[#0000ee] underline" style={{ top: `${6 + i * 9}%` }}>
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="absolute left-[28%] top-[18%] whitespace-nowrap text-[5cqh] font-bold italic text-[#a40000]">{c.old.hello}</div>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={cin("negozio")} alt="" draggable={false} className="absolute left-[28%] top-[28%] h-[40%] w-[40%] object-cover outline outline-[3px] outline-[#888]" style={{ filter: "sepia(.4) saturate(.8) contrast(.9)" }} />
+                  <div className="absolute left-[28%] top-[73%] text-[4cqh] leading-[1.6]">
+                    {c.old.text.map((t) => (
+                      <span key={t} className="block whitespace-nowrap">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
                 </div>
+                {/* la ricerca, con la tua attività ormai in cima: il cliente la apre */}
+                <div data-gres2 className="absolute inset-0 z-[5] bg-white px-[6%] pt-[5%] text-[#202124] [container-type:size]" style={{ ...HID, ...ARIAL }}>
+                  <div className="mb-[4cqh]">
+                    <GLogo size={24} />
+                  </div>
+                  <div className="flex h-[11cqh] min-h-[30px] w-[min(520px,80%)] items-center gap-2.5 rounded-full px-4 text-[clamp(11px,3.6cqh,16px)] shadow-[0_1px_6px_rgba(32,33,36,.28)]">
+                    <Search size={15} strokeWidth={1.8} className="shrink-0 text-[#9aa0a6]" />
+                    {c.find.typed}
+                  </div>
+                  <div className="mt-[6cqh] flex flex-col gap-[5cqh]">
+                    {[c.find.me, ...c.find.others].map(([t, u], i) => (
+                      <div key={u}>
+                        <span className="block text-[clamp(10px,3cqh,13px)] text-[#4d5156]">https://{u}</span>
+                        <span data-g2t={i} className="block text-[clamp(14px,5cqh,22px)] text-[#1a0dab] underline-offset-4">
+                          {t}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* il sito nuovo: la hero vera, che si dipinge appena arriva */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img data-hero src={cin("hero-desktop")} alt="" draggable={false} className="absolute inset-0 z-[7] h-full w-full object-cover object-top" style={HID} />
                 <div data-sw className="absolute inset-0">
                   <MiniSite c={c} />
                 </div>
@@ -1243,7 +1549,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
               </div>
             </div>
             {/* sotto la finestra: prima o dopo, e quanto ci mette. Testo, non una scheda */}
-              <div data-meter className={`cine-fg flex items-center gap-[0.4em] whitespace-nowrap text-[clamp(34px,5.4cqw,80px)] font-semibold leading-none tracking-[-0.045em]`} style={HID}>
+              <div data-meter className={`hidden cine-fg flex items-center gap-[0.4em] whitespace-nowrap text-[clamp(34px,5.4cqw,80px)] font-semibold leading-none tracking-[-0.045em]`} style={HID}>
                 <span data-tagdot className="h-[0.3em] w-[0.3em] rounded-full" style={{ background: "var(--negative)" }} />
                 <span className="relative font-semibold tracking-[-0.02em]">
                   <span data-tag1>{c.ba[0]}</span>
@@ -1287,6 +1593,44 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                 </div>
               </div>
             </div>
+            {/* la hero del portfolio: si compone in Figma e poi si modifica */}
+            <div data-it data-hm className={center} style={HID}>
+              <div data-gfit className="relative h-[640px] w-[1100px] overflow-hidden rounded-[26px] shadow-[0_50px_140px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5">
+                <HeroMock />
+                {/* selezione di Figma: rettangolo blu con i quadratini bianchi agli angoli */}
+                <div data-hsl className="pointer-events-none absolute left-0 top-0 z-20 border-[1.5px] border-[#0d99ff]" style={HID}>
+                  {["-left-[4px] -top-[4px]", "-right-[4px] -top-[4px]", "-left-[4px] -bottom-[4px]", "-right-[4px] -bottom-[4px]"].map((q) => (
+                    <span key={q} className={`absolute h-[7px] w-[7px] border-[1.5px] border-[#0d99ff] bg-white ${q}`} />
+                  ))}
+                  <span data-hsz className="absolute left-1/2 top-[calc(100%+7px)] -translate-x-1/2 whitespace-nowrap rounded-[4px] bg-[#0d99ff] px-1.5 py-[1px] text-[11px] font-medium tabular-nums text-white" />
+                </div>
+                <div data-hbar className="absolute bottom-[14px] left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-[14px] bg-white p-1.5 shadow-[0_12px_30px_-12px_rgba(0,0,0,.35)] ring-1 ring-black/10" style={HID}>
+                  {[MousePointer2, Frame, Square, Type, PenTool, MessageCircle].map((I, i) => (
+                    <span key={i} className={`flex h-9 w-9 items-center justify-center rounded-[10px] ${i ? "text-[#55565c]" : "bg-[#0d99ff] text-white"}`}>
+                      <I size={17} strokeWidth={1.8} />
+                    </span>
+                  ))}
+                </div>
+                {c.team.map((n, i) => (
+                  <span key={n} data-hc className="pointer-events-none absolute left-0 top-0 z-30 block" style={HID}>
+                    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,.3))" }}>
+                      <path d="M5 3l14 8-6 1.6L10.4 19z" fill={TEAM_C[i % 3]} stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
+                    </svg>
+                    <span className="absolute left-[16px] top-[18px] whitespace-nowrap rounded-[7px] px-2 py-[3px] text-[12px] font-medium text-white" style={{ background: TEAM_C[i % 3] }}>
+                      {n}
+                    </span>
+                  </span>
+                ))}
+                {/* il cursore di chi modifica */}
+                <svg data-hcur viewBox="0 0 24 24" width="26" height="26" aria-hidden className="pointer-events-none absolute left-0 top-0 z-30" style={{ ...HID, filter: "drop-shadow(0 2px 3px rgba(0,0,0,.45))" }}>
+                  <path d="M5 3l14 8-6 1.6L10.4 19z" fill="#14171c" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
+                </svg>
+                <Bead as="span" data-hsaved radius={999} className="absolute bottom-[26px] left-1/2 z-30 flex h-12 -translate-x-1/2 items-center gap-2.5 px-5 text-[16px] font-medium text-[#121316]" style={HID}>
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#30d158]" />
+                  {c.edit.saved}
+                </Bead>
+              </div>
+            </div>
             {/* ogni schermo: il sito vero (la hero di questo portfolio) su computer, tablet e telefono */}
             <div data-it data-devs className={center} style={HID}>
               <div data-gfit className="relative flex h-[560px] w-[1040px] items-end justify-center">
@@ -1322,26 +1666,52 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                 </div>
               </div>
             </div>
-            {/* GEO: l'app di Claude risponde e cita il tuo sito */}
+            {/* GEO: sul desktop, solo l'icona di Claude; un cursore la apre, scrive la domanda, e Claude cita il tuo sito */}
             <div data-it data-geo className={center} style={HID}>
-              <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-[#faf9f5] text-[#141413] shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5">
-                <Veil data-cveil />
-                <div className="flex h-[58px] items-center gap-2.5 px-6">
-                  <Spark size={20} />
-                  <span className="text-[17px] font-medium" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
-                    Claude
-                  </span>
-                </div>
-                <div className="mx-auto flex w-[600px] flex-col pt-6">
-                  <div data-gq className="max-w-[80%] self-end rounded-[18px] bg-[#f0eee6] px-4 py-3 text-[16px]">
-                    {c.geo.q}
+              <div data-gfit className="relative h-[560px] w-[820px]">
+                <span data-cicon className="absolute left-1/2 top-1/2 flex h-[128px] w-[128px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[30px] bg-gradient-to-b from-[#fbfaf6] to-[#efece3] shadow-[0_24px_50px_-18px_rgba(0,0,0,.45),inset_0_1px_0_rgba(255,255,255,.9),inset_0_0_0_1px_rgba(0,0,0,.06)]">
+                  <Spark size={76} />
+                </span>
+                <div data-cwin className="absolute inset-0 overflow-hidden rounded-[18px] bg-[#faf9f5] text-[#141413] shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/10" style={HID}>
+                  <Veil data-cveil />
+                  {/* barra della finestra */}
+                  <div className="flex h-[44px] items-center gap-2 border-b border-black/[.06] px-4">
+                    {["#ff5f57", "#febc2e", "#28c840"].map((k) => (
+                      <span key={k} className="h-[11px] w-[11px] rounded-full" style={{ background: k }} />
+                    ))}
+                    <span className="ml-4 text-[13px] text-[#73726c]">{c.geo.title}</span>
                   </div>
-                  <div data-ga className="mt-7 flex gap-3.5">
-                    <span className="mt-1">
-                      <Spark size={24} />
+                  {/* nuova chat: saluto e campo al centro */}
+                  <div data-cnew className="absolute inset-x-0 top-[150px] flex flex-col items-center">
+                    <span className="flex items-center gap-3 text-[34px] tracking-[-0.01em]" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+                      <Spark size={30} />
+                      {c.geo.hello}
                     </span>
-                    <div className="flex flex-col items-start gap-3">
-                      <p className="relative text-[18px] leading-[1.6]" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+                    <div className="mt-8 flex h-[104px] w-[620px] flex-col justify-between rounded-[20px] bg-white px-4 pb-3 pt-4 text-[16px] shadow-[0_4px_20px_-6px_rgba(0,0,0,.12)] ring-1 ring-black/10">
+                      <span className="flex items-center">
+                        <span data-cin className="whitespace-pre" />
+                        <span className="ml-[1px] inline-block h-[1.15em] w-[2px] animate-pulse bg-[#141413]" />
+                      </span>
+                      <span className="flex items-center justify-between">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-[9px] text-[#73726c] ring-1 ring-black/10">
+                          <Plus size={16} strokeWidth={2} />
+                        </span>
+                        <span className="flex items-center gap-3 text-[13px] text-[#73726c]">
+                          Claude
+                          <span data-csend className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-[#d97757] text-white">
+                            <ArrowUp size={16} strokeWidth={2.4} />
+                          </span>
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                  {/* la conversazione */}
+                  <div className="mx-auto flex w-[620px] flex-col pt-8">
+                    <div data-gq className="max-w-[80%] self-end rounded-[16px] bg-[#f0eee6] px-4 py-2.5 text-[16px]" style={HID}>
+                      {c.geo.q}
+                    </div>
+                    <div data-ga className="mt-6 flex flex-col items-start gap-3" style={HID}>
+                      <p className="relative text-[18px] leading-[1.65]" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
                         <span className="invisible">
                           {c.geo.a.split(c.find.me[0])[0]}
                           <strong className="font-semibold">{c.find.me[0]}</strong>
@@ -1353,20 +1723,26 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                           <span data-gat3 />
                         </span>
                       </p>
-                      <span data-gsrc className="relative z-20 inline-flex items-center gap-2 rounded-[10px] border border-[#e5e2d9] bg-white px-3 py-1.5 text-[14px]">
+                      <span data-gsrc className="relative z-20 inline-flex items-center gap-2 rounded-[8px] bg-[#f0eee6] px-2.5 py-1 text-[13px] text-[#3d3d3a]">
                         <Bead as="span" data-bub2 radius={18} className="absolute -inset-x-4 -inset-y-3 -z-10" style={HID} />
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--accent)] text-[11px] font-bold text-white">{c.find.me[0][0]}</span>
+                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[var(--accent)] text-[9px] font-bold text-white">{c.find.me[0][0]}</span>
                         {c.find.me[1]}
+                      </span>
+                      <span data-cspark>
+                        <Spark size={22} />
                       </span>
                     </div>
                   </div>
+                  <div data-cbar className="absolute bottom-5 left-1/2 flex h-[54px] w-[620px] -translate-x-1/2 items-center justify-between rounded-[18px] bg-white pl-4 pr-2.5 text-[15px] text-[#8a8780] shadow-[0_4px_20px_-6px_rgba(0,0,0,.12)] ring-1 ring-black/10" style={HID}>
+                    {c.geo.reply}
+                    <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-[#d97757]/50 text-white">
+                      <ArrowUp size={16} strokeWidth={2.4} />
+                    </span>
+                  </div>
                 </div>
-                <div className="absolute bottom-6 left-1/2 flex h-[58px] w-[600px] -translate-x-1/2 items-center justify-between rounded-[18px] bg-white pl-5 pr-2.5 text-[15px] text-[#8a8780] ring-1 ring-[#e5e2d9]">
-                  {c.geo.reply}
-                  <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#d97757] text-white">
-                    <ArrowUp size={18} strokeWidth={2.4} />
-                  </span>
-                </div>
+                <svg data-ccur viewBox="0 0 24 24" width="30" height="30" aria-hidden className="pointer-events-none absolute left-0 top-0 z-40" style={{ ...HID, filter: "drop-shadow(0 2px 4px rgba(0,0,0,.4))" }}>
+                  <path d="M5 3l14 8-6 1.6L10.4 19z" fill="#14171c" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
+                </svg>
               </div>
             </div>
             {/* cosa ricevi */}

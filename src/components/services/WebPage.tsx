@@ -698,7 +698,7 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
     () => {
       if (prefersReducedMotion()) return;
       gsap.set("[data-rv]", { autoAlpha: 0, y: 36 });
-      ScrollTrigger.batch("[data-rv]", { start: "top 90%", once: true, onEnter: (els) => void gsap.to(els, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08, ease: "expo.out", overwrite: true }) });
+      ScrollTrigger.batch("[data-rv]", { start: "top 102%", once: true, onEnter: (els) => void gsap.to(els, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08, ease: "expo.out", overwrite: true }) });
       // le tessere 3D stanno ferme, leggermente ruotate
       gsap.set("[data-tile]", { rotationY: -16, rotationX: 7 });
       // la linea dei passi si riempie
@@ -745,14 +745,11 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
       </section>
 
       {/* bento */}
-      <section id="include" className={`${container} scroll-mt-10 pt-28 sm:pt-44`}>
-        <header className="mb-10 grid gap-5 sm:mb-14 lg:grid-cols-[1fr_auto] lg:items-end">
+      <section id="include" className={`${container} scroll-mt-10 pt-8 sm:pt-6`}>
+        <header className="mb-6 sm:mb-7">
           <h2 data-rv className={h2}>
             <Script text={c.bento.title} />
           </h2>
-          <p data-rv className="max-w-[40ch] text-[17px] leading-[1.55] text-ink-2">
-            {c.bento.lead}
-          </p>
         </header>
         <div className="grid gap-4 sm:gap-5 lg:grid-cols-12">
           <Cell span="lg:col-span-7" title={c.bento.cells.speed[0]} body={c.bento.cells.speed[1]} mock={<SpeedMock m={m} f={fs} />} h="h-[300px]" />
