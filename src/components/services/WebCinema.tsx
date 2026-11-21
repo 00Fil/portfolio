@@ -18,7 +18,7 @@ import { Wordmark } from "@/components/nav/Wordmark";
 import { GradientText } from "@/components/ui/GradientText";
 import { getCinema, type Cinema } from "@/content/cinema";
 import { VW } from "./film-words";
-import { WRITE_STYLE, writeOn } from "@/lib/handwrite";
+import { writeOn } from "@/lib/handwrite";
 import { AppIcon } from "@/components/chat/ChatDock";
 
 gsap.registerPlugin(SplitText, useGSAP);
@@ -42,14 +42,14 @@ export function Kw({ text }: { text: string }) {
     const w = red || plain ? p.slice(1) : p;
     if (plain)
       return (
-        <span key={i} data-kw className="inline-block font-semibold" style={{ ...WRITE_STYLE, padding: "0.1em 0.12em", margin: "-0.1em -0.12em" }}>
+        <span key={i} data-kw className="inline-block font-semibold" style={{ padding: "0.1em 0.12em", margin: "-0.1em -0.12em" }}>
           <GradientText colors={GT} animationSpeed={8} variant="flow" glow={0.6}>
             {w + (m ? m[0] : "")}
           </GradientText>
         </span>
       );
     return (
-      <span key={i} data-kw className="inline-block" style={{ ...WRITE_STYLE, ...(red ? { "--gt-glow-color": "#ff5a52" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.2em 0.34em 0.5em", margin: "-0.2em -0.34em -0.5em" }}>
+      <span key={i} data-kw className="inline-block" style={{ ...(red ? { "--gt-glow-color": "#ff5a52" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.45em 0.34em 0.5em", margin: "-0.45em -0.34em -0.5em" }}>
         <GradientText colors={red ? GT_RED : GT} animationSpeed={8} variant="flow" glow={1}>
           {w + (m ? m[0] : "")}
         </GradientText>

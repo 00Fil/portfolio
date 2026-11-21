@@ -10,7 +10,7 @@ import { Link } from "@/i18n/navigation";
 import { Bead } from "@/components/glass/Bead";
 import { Drop } from "@/components/glass/Drop";
 import { FlowDiagram, DesignDiagram, PipelineDiagram, SnippetDiagram, VitalsDiagram, VersionsDiagram, AssistantDiagram, ReportDiagram, OwnershipDiagram } from "./WebDiagrams";
-import { writeOnScroll } from "@/lib/handwrite";
+import { prepareWrite, writeOnScroll } from "@/lib/handwrite";
 import { Tile3D } from "@/components/ui/Tile3D";
 import { Script } from "@/components/ui/Script";
 import { prefersReducedMotion } from "@/lib/env";
@@ -657,7 +657,7 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
     () => {
       if (prefersReducedMotion()) return;
       // il corsivo si scrive a mano quando entra nello schermo
-      gsap.set("[data-script]", { "--w": 0 });
+      document.querySelectorAll("[data-script]").forEach(prepareWrite);
       ScrollTrigger.batch("[data-script]", { start: "top 95%", once: true, onEnter: (els) => writeOnScroll(els) });
       gsap.set("[data-rv]", { autoAlpha: 0, y: 26, filter: "blur(8px)" });
       ScrollTrigger.batch("[data-rv]", { start: "top 102%", once: true, onEnter: (els) => void gsap.to(els, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 1.1, stagger: 0.09, ease: "power3.out", overwrite: true, clearProps: "filter" }) });
