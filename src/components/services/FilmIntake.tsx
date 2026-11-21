@@ -71,7 +71,7 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
     voice.current = v;
     let dead = false;
     (async () => {
-      await new Promise((r) => setTimeout(r, 700));
+      await new Promise((r) => setTimeout(r, 350));
       for (const l of C.intro) {
         if (dead) return;
         // una frase alla volta: ogni pezzo compare quando la voce ci arriva, in proporzione alla lunghezza
@@ -88,11 +88,11 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
         });
         if (dead) return;
         setSub(null);
-        await new Promise((r) => setTimeout(r, 380));
+        await new Promise((r) => setTimeout(r, 150));
       }
       if (dead) return;
       setPhase("form");
-      await new Promise((r) => setTimeout(r, 900));
+      await new Promise((r) => setTimeout(r, 450));
       if (!dead) void v.say(src(C.steps[0].audio), 1500);
     })();
     return () => {
@@ -104,23 +104,23 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
 
   useEffect(() => {
     if (!subRef.current || !sub) return;
-    gsap.fromTo(subRef.current, { autoAlpha: 0, y: 16, filter: "blur(8px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.55, ease: "power3.out" });
+    gsap.fromTo(subRef.current, { autoAlpha: 0, y: 16, filter: "blur(8px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.4, ease: "power3.out" });
   }, [sub]);
 
   // la bolla si espande nella card
   useEffect(() => {
     if (phase !== "form" || !card.current) return;
     const tl = gsap.timeline();
-    if (orb.current) tl.to(orb.current, { scale: 2.6, autoAlpha: 0, duration: 0.8, ease: "power3.in" }, 0);
-    tl.fromTo(card.current, { scale: 0.9, autoAlpha: 0, filter: "blur(10px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 1.0, ease: "expo.out" }, 0.4);
-    if (rim.current) tl.fromTo(rim.current, { scale: 0.45, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 1.3, ease: "expo.out" }, 0.2);
+    if (orb.current) tl.to(orb.current, { scale: 2.6, autoAlpha: 0, duration: 0.55, ease: "power3.in" }, 0);
+    tl.fromTo(card.current, { scale: 0.9, autoAlpha: 0, filter: "blur(10px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 0.7, ease: "expo.out" }, 0.25);
+    if (rim.current) tl.fromTo(rim.current, { scale: 0.45, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.9, ease: "expo.out" }, 0.12);
     return () => void tl.kill();
   }, [phase]);
 
   // ogni domanda entra con un respiro
   useEffect(() => {
     if (phase === "intro" || !body.current) return;
-    gsap.fromTo(body.current.querySelectorAll("[data-in]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out", stagger: 0.06, overwrite: true, delay: step === 0 && phase === "form" ? 0.7 : 0 });
+    gsap.fromTo(body.current.querySelectorAll("[data-in]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.04, overwrite: true, delay: step === 0 && phase === "form" ? 0.4 : 0 });
   }, [step, phase]);
 
   // il bagliore del bordo segue la voce
