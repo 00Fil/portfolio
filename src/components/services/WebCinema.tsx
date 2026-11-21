@@ -380,16 +380,16 @@ function GBox({ q, w, h = 46, typed = false }: { q: string; w: number; h?: numbe
   );
 }
 /** Le schede sotto la barra, come nella pagina dei risultati di oggi. */
-function GTabs({ ...rest }: Record<string, unknown>) {
+function GTabs({ active = 1, ...rest }: { active?: number } & Record<string, unknown>) {
   const en = useLocale() === "en";
   const tabs = en ? ["AI Mode", "All", "Images", "Videos", "News", "Shopping", "More"] : ["Modalità IA", "Tutti", "Immagini", "Video", "Notizie", "Shopping", "Altro"];
   return (
     <div {...rest} className="relative z-30 flex h-[40px] items-end gap-6 border-b border-[#ebebeb] bg-white pl-[118px] text-[14px] text-[#4d5156]" style={ARIAL}>
       {tabs.map((t, i) => (
-        <span key={t} className={`relative flex items-center gap-1.5 pb-2.5 ${i === 1 ? "font-medium text-[#1f1f1f]" : ""}`}>
+        <span key={t} className={`relative flex items-center gap-1.5 pb-2.5 ${i === active ? "font-medium text-[#1f1f1f]" : ""}`}>
           {i === 0 && <Sparkles size={13} strokeWidth={2} className="text-[#4285f4]" />}
           {t}
-          {i === 1 && <span className="absolute inset-x-0 bottom-0 h-[3px] rounded-t-full bg-[#1f1f1f]" />}
+          {i === active && <span className="absolute inset-x-0 bottom-0 h-[3px] rounded-t-full bg-[#1f1f1f]" />}
         </span>
       ))}
     </div>
@@ -1194,6 +1194,19 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       }
 
       /* Prima: mille risultati, e la tua attività è in fondo; la lista scorre per trovarla */
+      /* La Modalità IA: la domanda, la risposta che arriva parola per parola, tre consigli. Tu non ci sei. */
+      const aiTl = gsap.timeline({ paused: true });
+      {
+        const box = one("[data-aim]");
+        aiTl
+          .set([pill, ...res], { autoAlpha: 0 }, 0)
+          .fromTo(box, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" }, 0)
+          .fromTo(one("[data-aq]"), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power3.out" }, 0.35)
+          .call(() => F.tick(0.8), undefined, 0.35)
+          .fromTo($("[data-aw]"), { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.2, ease: "power2.out", stagger: 0.025 }, 1.0)
+          .fromTo($("[data-ai]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.22 }, 1.35)
+          .set({}, {}, 2.4);
+      }
       const farTl = gsap.timeline({ paused: true });
       {
         const box = one("[data-far]");
@@ -1382,7 +1395,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
          il computer, il tablet, il telefono, ogni messaggio) cadono sulla parola che li nomina: tra due parole la scena corre in modo uniforme.
          Dove una scena ha bisogno di respiro, la ripresa si apre in un silenzio (GAP): la voce resta quella vera, mai accelerata. */
       // secondi di respiro aggiunti prima di una parola (sempre in una pausa della ripresa)
-      const GAP: Record<number, number> = { 33: 0.5, 35: 0.4, 52: 0.5, 61: 0.6, 65: 0.6, 75: 0.8, 94: 0.6, 114: 0.6, 117: 0.3, 125: 0.35, 129: 0.5, 152: 0.9, 163: 0.5, 174: 0.5, 194: 0.4 };
+      const GAP: Record<number, number> = { 33: 0.5, 35: 0.4, 52: 0.5, 61: 0.6, 65: 0.6, 75: 0.8, 94: 0.6, 114: 0.6, 117: 0.3, 125: 0.35, 152: 0.9, 163: 0.5, 174: 0.5, 194: 0.4 };
       const noSite = ans?.site === "none";
       const VW = noSite ? VW_NONE : VW_SITE;
       const offs: number[] = [];
@@ -1435,13 +1448,13 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const story: (Say | Scn | Say[])[] = noSite
           ? [
               // senza sito: la lista scorre e tu non ci sei; poi sceglie il primo e apre il concorrente
-              { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(25)], [0.8 + 3.4, w(32, 0.15)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4, "si ferma: tu non ci sei"]], after: (t: number) => void (mt.set(one("[data-far]"), { autoAlpha: 0 }, t), noSiteBack(t)) },
+              { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(26)], [0.8 + 3.4, w(32, 0.15)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4, "si ferma: tu non ci sei"]], after: (t: number) => void (mt.set(one("[data-far]"), { autoAlpha: 0 }, t), noSiteBack(t)) },
               S(1, [33, 34, 34], w(35, -0.5)),
               { sub: back, map: [[0.7, AUTO], [1.2, w(41)], [1.38, w(51)], [END, w(51, 0.6)]], marks: [[1.28, "clic sul concorrente"], [1.38, "si apre il concorrente"]], after: (t: number) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
               S(2, [52, 53, 54, 55, 56, 57, 58], we(58, 0.25), "stop"),
             ]
           : [
-            { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(25)], [0.8 + 3.4, w(32, 0.15)], [END, w(33, -0.4)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
+            { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(26)], [0.8 + 3.4, w(32, 0.15)], [END, w(33, -0.4)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
             S(1, [33, 34, 34], w(35, -0.5)),
             { sub: slowTl, map: [[0, AUTO], [2.8, w(43, -0.58)], [END, w(45, -0.26)]], mood: "tense", still: true, marks: [[0, "il tuo sito carica a pacchetti, zoom in continuo"], [2.8, "sospiro: zoom indietro brusco"]] },
             I(0, [43, 44], w(45, -0.4)),
@@ -1454,7 +1467,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         S(10, [4, 5, 6, 7], w(8, -0.02), "calm", true),
         S(11, [8, 9, 10, 11, 12], w(13, -0.02), "calm", true),
         S(12, [13, 14, 15, 16], we(16, -0.2), "calm", true),
-        { seg: [0, T(3.5)], map: [[0, AUTO], [T(0.9), w(17)], [T(3.3), w(21, -0.1)], [T(3.5), w(21, 0.05)]], marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
+        { seg: [0, T(3.5)], map: [[0, AUTO], [T(0.9), w(17)], [T(3.3), w(18, -0.1)], [T(3.5), w(18, 0.05)]], marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
+        { sub: aiTl, map: [[0, w(18, 0.06)], [0.35, w(18, 0.7)], [1.0, w(19)], [1.35, w(20)], [END, w(21, -0.1)]], marks: [[0.35, "Modalità IA: la domanda"], [1.0, "la risposta"], [1.35, "consiglia gli altri"]], after: (t) => void mt.set(one("[data-aim]"), { autoAlpha: 0 }, t) },
         ...story,
         // con il nuovo sito
         S(3, [61, 62, 63, 64], we(64, 0.1), "rise"),
@@ -1890,6 +1904,40 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                   0,0 s
                 </span>
                 <Check data-ok size={"0.8em" as unknown as number} strokeWidth={2.6} style={{ color: "var(--accent)" }} />
+              </div>
+            </div>
+            {/* la Modalità IA di Google: risponde, e consiglia qualcun altro */}
+            <div data-it data-aim className={center} style={HID}>
+              <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5" style={ARIAL}>
+                <div className="relative z-30 flex h-[84px] items-center gap-7 bg-white px-8">
+                  <GLogo size={32} />
+                  <GBox q={c.find.typed} w={560} />
+                </div>
+                <GTabs active={0} />
+                <div className="absolute inset-x-0 bottom-0 top-[124px] px-[118px] pt-6 text-[#1f1f1f]">
+                  <div data-aq className="ml-auto w-fit max-w-[70%] rounded-[20px] rounded-tr-[6px] bg-[#f1f3f4] px-4 py-2.5 text-[15px]" style={HID}>
+                    {c.find.typed}
+                  </div>
+                  <p data-aa className="mt-6 text-[16px] leading-[1.6]">
+                    {(locale === "en" ? "Here are three nearby businesses that reply quickly and have great reviews:" : "Ecco tre attività in zona che rispondono subito e hanno ottime recensioni:").split(" ").map((x, i) => (
+                      <span key={i} data-aw className="inline-block" style={HID}>
+                        {x}&nbsp;
+                      </span>
+                    ))}
+                  </p>
+                  <div className="mt-4 flex flex-col gap-3">
+                    {c.far.list.slice(0, 3).map(([t, u]) => (
+                      <div key={u} data-ai className="flex items-center gap-3 rounded-[16px] border border-[#e3e3e3] px-4 py-3" style={HID}>
+                        <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-[#dadce0] text-[13px] font-bold text-[#5f6368]">{t[0]}</span>
+                        <span className="min-w-0 flex-1 leading-[1.35]">
+                          <span className="block text-[15px] font-medium">{t}</span>
+                          <span className="block text-[13px] text-[#4d5156]">{locale === "en" ? "Open today · replies in minutes" : "Aperto oggi · risponde in pochi minuti"}</span>
+                        </span>
+                        <span className="shrink-0 text-[12px] text-[#4d5156]">{u}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
             {/* prima: la pagina dei risultati di Google, e tu in fondo */}
