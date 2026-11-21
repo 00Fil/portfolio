@@ -392,8 +392,8 @@ const T = (n: number) => (n >= 9.2 ? n + 5 : n) * B;
 const U = (n: number) => n * B;
 const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
 const ICONS_PROMISE = [FileText, UserRound, Tag, LockOpen];
-export const CAPL = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[44ch] -translate-y-1/2 px-6 text-center text-[clamp(26px,4.6cqw,84px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg";
-export const CAPF = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[14ch] -translate-y-1/2 px-6 text-center text-[clamp(38px,7cqw,120px)] font-semibold leading-[1.04] tracking-[-0.05em] cine-fg";
+export const CAPL = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[24ch] -translate-y-1/2 px-6 text-center text-[clamp(30px,6.2cqw,104px)] font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
+export const CAPF = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[14ch] -translate-y-1/2 px-6 text-center text-[clamp(38px,7cqw,120px)] font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
 export const CAP = "pointer-events-none absolute inset-x-0 top-[5%] mx-auto max-w-[19ch] px-6 text-center text-[clamp(30px,4.6cqw,76px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg md:top-[7%] md:max-w-[24ch]";
 
 /** `embed`: dentro una scheda, a misura del contenitore, muto, senza comandi; `play` lo avvia e lo ferma, e in fondo riparte da solo. */
@@ -705,6 +705,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .to(cur, { scale: 0.9, duration: 0.12, ease: "sine.inOut" }, 0.58)
           .to(cur, { scale: 1, duration: 0.3, ease: "power2.out" }, 0.65)
           .call(() => F.tick(1.4), undefined, 0.58)
+          .set([spin, stop], { autoAlpha: 0 }, 0.58)
+          .set([fav, rl], { autoAlpha: 1 }, 0.58)
           .fromTo(one("[data-back]"), { backgroundColor: "rgba(94,196,255,0)" }, { backgroundColor: "rgba(94,196,255,.25)", duration: 0.2, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.58)
           .to(oldEl, { autoAlpha: 0, duration: 0.24, ease: "sine.inOut" }, 0.62)
           .fromTo(gres, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.24, ease: "sine.inOut", immediateRender: false }, 0.62)
@@ -1354,18 +1356,20 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       one("[data-eh]").dataset.t = c.end.t.replace(/[*!^]/g, "");
       const ch: (Say | Scn)[] = [
         // prima del nostro intervento
-        S(0, [0, 2, 3, 4, 5, 6, 7], w(8, -0.06), "calm"),
-        S(10, [8, 9, 13, 14, 15, 16], we(16, 0.1), "calm"),
+        S(0, [0, 2, 3], w(4, -0.06), "calm"),
+        S(10, [4, 5, 6, 7], w(8, -0.06), "calm"),
+        S(11, [8, 9], w(13, -0.06), "calm"),
+        S(12, [13, 14, 15, 16], we(16, 0.1), "calm"),
         { seg: [0, T(3.5)], map: [[0, AUTO], [T(0.9), w(17)], [T(3.3), w(21, -0.1)], [T(3.5), w(21, 0.05)]], marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
         { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(25)], [0.8 + 3.4, w(32, 0.15)], [END, w(33, -0.4)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
-        S(1, [33], w(35, -0.5)),
+        S(1, [33, 34, 34], w(35, -0.5)),
         { sub: slowTl, map: [[0, AUTO], [2.8, w(43, -0.58)], [3.65, w(45, -0.38)], [END, w(45, -0.26)]], mood: "tense", still: true, marks: [[0, "il tuo sito carica a pacchetti, zoom in continuo"], [2.8, "sospiro: zoom indietro brusco"]] },
         I(0, [43, 44], w(45, -0.4)),
         { sub: back, map: [[0, w(45, -0.25)], [0.58, w(46)], [1.2, w(49)], [1.38, w(51)], [END, w(51, 0.6)]], marks: [[0.58, "clic su indietro"], [1.28, "clic sul concorrente"], [1.38, "si apre il concorrente"]], after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
         S(2, [52, 53, 54, 55, 56, 57, 58, 59, 60], we(60, 0.25), "stop"),
         // con il nuovo sito
         S(3, [61, 62, 63], we(64, 0.1), "rise"),
-        { sub: seoTl, map: [[0, AUTO], [1.2, w(68)], [2.4, w(73)], [3.6, w(74, 0.75)], [3.6, w(75, -0.95)], [3.6 + 0.9, w(75, 0.12)], [3.6 + 1.32, w(81)], [END, we(93, 0.25)]], still: true, marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"], [3.6 + 0.9, "clic sul tuo risultato"], [3.6 + 1.32, "il sito nuovo appare"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t).set(meter, { autoAlpha: 0 }, t) },
+        { sub: seoTl, map: [[0, AUTO], [1.2, w(67)], [2.4, w(71)], [3.6, w(74)], [3.6 + 0.75, w(75, -0.06)], [3.6 + 0.9, w(75, 0.05)], [3.6 + 0.95, w(75, 0.1)], [3.6 + 1.32, w(75, 0.42)], [END, we(93, 0.25)]], still: true, marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"], [3.6 + 0.9, "clic sul tuo risultato"], [3.6 + 1.32, "il sito nuovo appare"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t).set(meter, { autoAlpha: 0 }, t) },
         I(1, [80, 81, 82, 83], w(84, -0.2)),
         I(2, [87, 88, 89, 90, 91, 92], we(93, 0.1)),
         S(4, [94, 95, 96], w(99, -0.05)),
@@ -1519,6 +1523,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           flags.current.playing = false;
           setEnded(true);
           setPlaying(false);
+          F.chill(true);
           // sulla pagina, finita la firma si passa da soli alla prima sezione scritta
           if (!embed) {
             const nx = el.nextElementSibling as HTMLElement | null;
@@ -1566,6 +1571,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         io.disconnect();
         gsap.ticker.remove(drive);
         window.removeEventListener("load", onReady);
+        F.chill(false);
       };
     },
     { scope: root, dependencies: [locale, run], revertOnUpdate: true },
@@ -1610,7 +1616,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           </p>
         ))}
         {c.say.map((t, i) => (
-          <p key={t} data-say={i} data-t={t.replace(/[*!^]/g, "")} className={i === 0 || i === 10 ? CAPL : CAPF} style={HID}>
+          <p key={t} data-say={i} data-t={t.replace(/[*!^]/g, "")} className={i === 0 || i >= 10 ? CAPL : CAPF} style={HID}>
             <Kw text={t} />
           </p>
         ))}

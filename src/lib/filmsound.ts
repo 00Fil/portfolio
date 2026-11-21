@@ -145,8 +145,42 @@ export const fx = {
       step(c, m, n, at);
     }
   },
+  /** Finito il film: una musica chill, in loop, resta sotto la pagina. */
+  chill(on: boolean) {
+    const c = ac();
+    if (!c || !bus) return;
+    if (!on) {
+      stopChill();
+      return;
+    }
+    if (chillSrc) return;
+    const go = (b: AudioBuffer) => {
+      if (chillSrc || !bus) return;
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.0001, c.currentTime);
+      g.gain.linearRampToValueAtTime(0.42, c.currentTime + 2.4);
+      const src = c.createBufferSource();
+      src.buffer = b;
+      src.loop = true;
+      src.connect(g).connect(bus);
+      src.start();
+      chillSrc = src;
+      chillGain = g;
+    };
+    if (chillBuf) return go(chillBuf);
+    fetch("/sfx/chill.mp3")
+      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject()))
+      .then((a) => c.decodeAudioData(a))
+      .then((b) => {
+        chillBuf = b;
+        if (chillWant) go(b);
+      })
+      .catch(() => {});
+    chillWant = true;
+  },
   /** Riporta la base all'inizio (nuova riproduzione). */
   reset() {
+    stopChill();
     stopTrack();
     resetCues();
     last = -1;
@@ -206,6 +240,31 @@ function stopTrack() {
     /* già fermo */
   }
   trackSrc = null;
+}
+
+let chillBuf: AudioBuffer | null = null;
+let chillSrc: AudioBufferSourceNode | null = null;
+let chillGain: GainNode | null = null;
+let chillWant = false;
+function stopChill() {
+  chillWant = false;
+  const c = ctx;
+  if (!chillSrc || !c || !chillGain) {
+    chillSrc = null;
+    return;
+  }
+  const s = chillSrc;
+  chillGain.gain.cancelScheduledValues(c.currentTime);
+  chillGain.gain.setValueAtTime(chillGain.gain.value, c.currentTime);
+  chillGain.gain.linearRampToValueAtTime(0.0001, c.currentTime + 0.6);
+  window.setTimeout(() => {
+    try {
+      s.stop();
+    } catch {
+      /* già fermo */
+    }
+  }, 700);
+  chillSrc = null;
 }
 
 let last = -1;
