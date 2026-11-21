@@ -75,7 +75,15 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
       for (const l of C.intro) {
         if (dead) return;
         // una frase alla volta: ogni pezzo compare quando la voce ci arriva, in proporzione alla lunghezza
-        const chunks = l.t.split(/(?<=[.,!?])\s+/);
+        let chunks = l.t.split(/(?<=[.,!?])\s+/);
+        // una sola riga visibile per volta: le frasi lunghe si dividono a metà, sulla parola più vicina
+        chunks = chunks.flatMap((c) => {
+          if (c.length <= 30) return [c];
+          const m = c.length / 2;
+          let at = -1;
+          for (let i = 0; i < c.length; i++) if (c[i] === " " && (at < 0 || Math.abs(i - m) < Math.abs(at - m))) at = i;
+          return at < 0 ? [c] : [c.slice(0, at), c.slice(at + 1)];
+        });
         const total = chunks.reduce((n, c) => n + c.length, 0);
         setSub(chunks[0]);
         await v.say(src(l.audio), reading(l.t), (ms) => {
@@ -111,16 +119,16 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
   useEffect(() => {
     if (phase !== "form" || !card.current) return;
     const tl = gsap.timeline();
-    if (orb.current) tl.to(orb.current, { scale: 2.6, autoAlpha: 0, duration: 0.55, ease: "power3.in" }, 0);
-    tl.fromTo(card.current, { scale: 0.9, autoAlpha: 0, filter: "blur(10px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 0.7, ease: "expo.out" }, 0.25);
-    if (rim.current) tl.fromTo(rim.current, { scale: 0.45, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.9, ease: "expo.out" }, 0.12);
+    if (orb.current) tl.to(orb.current, { scale: 2.2, autoAlpha: 0, duration: 0.9, ease: "sine.inOut", force3D: true }, 0);
+    tl.fromTo(card.current, { scale: 0.92, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.9, ease: "sine.inOut", force3D: true }, 0.15);
+    if (rim.current) tl.fromTo(rim.current, { scale: 0.8, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 1.0, ease: "sine.inOut", force3D: true }, 0.05);
     return () => void tl.kill();
   }, [phase]);
 
   // ogni domanda entra con un respiro
   useEffect(() => {
     if (phase === "intro" || !body.current) return;
-    gsap.fromTo(body.current.querySelectorAll("[data-in]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.04, overwrite: true, delay: step === 0 && phase === "form" ? 0.4 : 0 });
+    gsap.fromTo(body.current.querySelectorAll("[data-in]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.04, overwrite: true, delay: step === 0 && phase === "form" ? 0.6 : 0 });
   }, [step, phase]);
 
   // il bagliore del bordo segue la voce
@@ -171,9 +179,9 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
           <div ref={orb} className="relative aspect-square w-[min(40vh,360px,74vw)]">
             <Strands colors={PINK} lightMode={light} levelRef={level.current} energy={0.45} />
           </div>
-          <div className="relative mt-2 flex min-h-[3.4em] w-full max-w-[48ch] items-start justify-center text-center">
+          <div className="relative mt-2 flex min-h-[1.4em] w-full items-start justify-center whitespace-nowrap text-center">
             {sub && (
-              <p ref={subRef} className="cine-fg text-[clamp(18px,2.1cqw,32px)] font-semibold leading-[1.1] tracking-[-0.05em]">
+              <p ref={subRef} className="cine-fg text-[clamp(16px,2cqw,30px)] font-semibold leading-[1.1] tracking-[-0.05em]">
                 <Sub text={sub} />
               </p>
             )}
