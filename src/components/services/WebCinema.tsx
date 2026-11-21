@@ -534,14 +534,14 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       gsap.set(pill, { y: py });
       tl.call(() => F.whoosh(0.6, true, 0.7), undefined, 0)
         .fromTo(cam, { scale: () => (small() ? 1.08 : 1.18), transformOrigin: aim(() => pill) }, { scale: () => (small() ? 1.08 : 1.18), duration: 0.01 }, 0)
-        .fromTo(pill, { autoAlpha: 0, scale: 0.86 }, { autoAlpha: 1, scale: 1, duration: 0.8, ease: "back.out(1.4)" }, 0.05);
+        .fromTo(pill, { autoAlpha: 0, scale: 0.86 }, { autoAlpha: 1, scale: 1, duration: 0.8, ease: "expo.out" }, 0.05);
       typeTo(tl, one("[data-typed]"), c.find.typed, T(0.9), T(2.4), 0);
       tl.to(cam, { scale: 1, duration: 1.2, ease: "expo.inOut" }, T(3));
       res.forEach((r, i) => {
         tl.fromTo(r, { autoAlpha: 0, y: () => ry(i)() + 50, scale: 0.94 }, { autoAlpha: 1, y: ry(i), scale: 1, duration: 0.8, ease: "expo.out" }, T(3.3) + i * 0.13).call(() => F.pluck(10 + i, 0.6), undefined, T(3.3) + i * 0.13);
       });
       tl.to(res[0], { scale: 0.96, duration: 0.14, ease: "power2.out" }, T(4.6))
-        .to(res[0], { scale: 1, boxShadow: "0 0 0 3px var(--accent)", duration: 0.45, ease: "back.out(2.5)" }, T(4.6) + 0.14)
+        .to(res[0], { scale: 1, boxShadow: "0 0 0 3px var(--accent)", duration: 0.45, ease: "expo.out" }, T(4.6) + 0.14)
         .call(() => F.tick(1.2), undefined, T(4.6));
       cap(0, 0.4, 5.5);
 
@@ -615,18 +615,18 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const sc2 = at(() => second, 0.3, 0.7);
         back
           .fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.7, y: () => content.offsetHeight * 0.75, scale: 1 }, { autoAlpha: 1, x: () => bk().x, y: () => bk().y, immediateRender: false, duration: 0.5, ease: "power3.inOut" }, 0.05)
-          .to(cur, { scale: 0.8, duration: 0.07, ease: "power2.out" }, 0.58)
-          .to(cur, { scale: 1, duration: 0.2, ease: "back.out(3)" }, 0.65)
+          .to(cur, { scale: 0.9, duration: 0.12, ease: "sine.inOut" }, 0.58)
+          .to(cur, { scale: 1, duration: 0.3, ease: "power2.out" }, 0.65)
           .call(() => F.tick(1.4), undefined, 0.58)
-          .fromTo(one("[data-back]"), { backgroundColor: "rgba(94,196,255,0)" }, { backgroundColor: "rgba(94,196,255,.25)", duration: 0.1, yoyo: true, repeat: 1 }, 0.58)
+          .fromTo(one("[data-back]"), { backgroundColor: "rgba(94,196,255,0)" }, { backgroundColor: "rgba(94,196,255,.25)", duration: 0.2, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.58)
           .set(oldEl, { autoAlpha: 0 }, 0.68)
           .set(gres, { autoAlpha: 1 }, 0.68)
           .call(() => void (url1.textContent = c.find.typed), undefined, 0.68)
           .call(() => void (url1.textContent = c.find.me[1]), undefined, 0.67)
           .to(cur, { x: () => sc2().x, y: () => sc2().y, duration: 0.5, ease: "power3.inOut" }, 0.75)
           .set(second, { textDecoration: "underline" }, 1.2)
-          .to(cur, { scale: 0.8, duration: 0.07, ease: "power2.out" }, 1.28)
-          .to(cur, { scale: 1, duration: 0.2, ease: "back.out(3)" }, 1.35)
+          .to(cur, { scale: 0.9, duration: 0.12, ease: "sine.inOut" }, 1.28)
+          .to(cur, { scale: 1, duration: 0.3, ease: "power2.out" }, 1.35)
           .call(() => F.tick(1.4), undefined, 1.28)
           .set(gres, { autoAlpha: 0 }, 1.38)
           .set(rival, { autoAlpha: 1 }, 1.38)
@@ -660,13 +660,13 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .fromTo(one("[data-wipe]"), { autoAlpha: 1, left: "0%" }, { left: "100%", duration: 0.34, ease: "power3.inOut", immediateRender: false }, at2 + 0.02)
           .set(one("[data-wipe]"), { autoAlpha: 0 }, at2 + 0.38)
           .to(one("[data-tag1]"), { autoAlpha: 0, y: -8, duration: 0.18, ease: "power2.in" }, at2)
-          .fromTo(one("[data-tag2]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: "back.out(2)", immediateRender: false }, at2 + 0.16)
+          .fromTo(one("[data-tag2]"), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: "expo.out", immediateRender: false }, at2 + 0.16)
           .to(one("[data-tagdot]"), { backgroundColor: "var(--accent)", duration: 0.2 }, at2)
           .fromTo(meter, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: "expo.out", immediateRender: false }, at2 + 0.3)
           .call(() => (F.chord([0, 2, 4, 5], 1), F.whoosh(0.35, true, 0.6)), undefined, at2 + 0.4)
           .to([spin, stop, tt1], { autoAlpha: 0, duration: 0.12 }, at2 + 0.36)
-          .fromTo([fav, rl, tt2], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(2.2)" }, at2 + 0.38)
-          .fromTo(ok, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(2.4)" }, at2 + 0.4)
+          .fromTo([fav, rl, tt2], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "expo.out" }, at2 + 0.38)
+          .fromTo(ok, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.45, ease: "expo.out" }, at2 + 0.4)
           .to(cnt, { color: "var(--accent)", duration: 0.3 }, at2 + 0.38);
       }
       // inizia la navigazione: il cursore va sul menù, clicca, la pagina cambia
@@ -687,8 +687,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const A = 7.05;
         const nxt = c.site.nav[1].toLowerCase().replace(/\s+/g, "-");
         tl.fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.85, y: () => content.offsetHeight * 0.95 }, { autoAlpha: 1, x: () => loc().x, y: () => loc().y, immediateRender: false, duration: 0.5, ease: "power3.inOut" }, A)
-          .to(cur, { scale: 0.82, duration: 0.08, ease: "power2.out" }, A + 0.55)
-          .to(cur, { scale: 1, duration: 0.25, ease: "back.out(3)" }, A + 0.63)
+          .to(cur, { scale: 0.9, duration: 0.12, ease: "sine.inOut" }, A + 0.55)
+          .to(cur, { scale: 1, duration: 0.3, ease: "power2.out" }, A + 0.63)
           .call(() => F.tick(1.4), undefined, A + 0.55)
           .call(() => void gsap.fromTo(navT(), { boxShadow: "0 0 0 0 rgba(94,196,255,0)", backgroundColor: "rgba(94,196,255,0)" }, { boxShadow: "0 0 0 5px rgba(94,196,255,.2)", backgroundColor: "rgba(94,196,255,.2)", duration: 0.18, overwrite: true }), undefined, A + 0.55)
           .fromTo(prog, { scaleX: 0, autoAlpha: 1 }, { scaleX: 1, duration: 0.32, ease: "power2.out" }, A + 0.6)
@@ -706,7 +706,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       tl.call(() => F.whoosh(0.8, true, 1), undefined, T(11.5))
         .set([chrome, meter], { autoAlpha: 0 }, T(11.9))
         .fromTo(dev, { autoAlpha: 0, y: 160, scale: () => fit(wide)() * 0.7 }, { autoAlpha: 1, y: 0, scale: fit(wide), duration: 1.5, ease: "expo.out" }, T(11.9))
-        .fromTo(wireBits, { autoAlpha: 0, scale: 0.86, y: 16 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.7)", stagger: T(0.4) }, T(12.6));
+        .fromTo(wireBits, { autoAlpha: 0, scale: 0.86, y: 16 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: "expo.out", stagger: T(0.4) }, T(12.6));
       wireBits.forEach((_, i) => tl.call(() => F.pluck(i * 2, 0.7, 0.3), undefined, T(12.6) + i * T(0.4)));
       // il team nel file di progetto: ogni cursore va sul pezzo che sta disegnando, la selezione lo segue
       {
@@ -771,7 +771,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       
       ns.forEach((n, i) => {
         const at = T(22.2 + i * 1);
-        tl.fromTo(n, { autoAlpha: 0, y: -50, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "back.out(1.4)" }, at).call(() => F.bell(7 + i * 2, 1), undefined, at);
+        tl.fromTo(n, { autoAlpha: 0, y: -50, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "expo.out" }, at).call(() => F.bell(7 + i * 2, 1), undefined, at);
       });
       cap(6, 21.8, 25.8);
 
@@ -781,13 +781,13 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       tl.to(ns, { x: 140, autoAlpha: 0, duration: 0.45, stagger: 0.05, ease: "power2.in" }, T(25.4))
         
         .to(nav, { autoAlpha: 0, scale: 0.96, duration: 0.3, ease: "power2.in" }, T(25.9))
-        .fromTo(ub, { autoAlpha: 0, scaleX: 0.7 }, { autoAlpha: 1, scaleX: 1, duration: 0.6, ease: "back.out(1.6)" }, T(26.2))
+        .fromTo(ub, { autoAlpha: 0, scaleX: 0.7 }, { autoAlpha: 1, scaleX: 1, duration: 0.6, ease: "expo.out" }, T(26.2))
         .call(() => F.whoosh(0.5, true, 0.7), undefined, T(26.2))
         .fromTo(cam, { scale: 1, transformOrigin: aim(() => ub) }, { scale: () => (tight() ? 1.12 : 1.6), duration: 1.1, ease: "expo.inOut" }, T(26.4));
       typeTo(tl, one("[data-url]"), c.find.me[1], T(27), T(1.8), 3);
       tl.fromTo(one("[data-load2]"), { scaleX: 0 }, { scaleX: 1, duration: T(1), ease: "power2.inOut" }, T(28.9))
         .to(one("[data-lock1]"), { autoAlpha: 0, scale: 0.6, duration: 0.15, ease: "power2.in" }, T(29.9))
-        .fromTo(one("[data-lock2]"), { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(2.4)" }, T(29.9))
+        .fromTo(one("[data-lock2]"), { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "expo.out" }, T(29.9))
         .call(() => F.chord([0, 2, 4, 5], 1), undefined, T(29.9))
         .fromTo(one("[data-live]"), { autoAlpha: 0, x: 8 }, { autoAlpha: 1, x: 0, duration: 0.45, ease: "expo.out" }, T(30))
         .to(cam, { scale: 1, duration: 1, ease: "expo.inOut" }, T(30.6));
@@ -803,7 +803,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .call(() => F.whoosh(0.6, true, 0.8), undefined, T(31.2))
         .to(dev, { width: mid, scale: fit(mid), "--r": "34px", duration: 0.9, ease: "expo.inOut" }, T(31.2))
         .fromTo(cam, { scale: 1, transformOrigin: aim(() => (tight() ? dev : ttl)) }, { scale: () => (tight() ? 1.08 : 1.5), duration: 1, ease: "expo.inOut" }, T(33))
-        .fromTo($("[data-focus]"), { autoAlpha: 0, scale: 0.94 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, T(34.2))
+        .fromTo($("[data-focus]"), { autoAlpha: 0, scale: 0.94 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "expo.out" }, T(34.2))
         .call(() => F.tick(1.3), undefined, T(34.2))
         .fromTo($("[data-sel]"), { autoAlpha: 1, scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.inOut" }, T(34.8))
         .to($("[data-sel]"), { autoAlpha: 0, duration: 0.2, ease: "power1.out" }, T(35.8));
@@ -841,7 +841,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       // ogni voce esce dal centro con una molla e si ferma sul suo posto dell'ellisse: niente deformazioni, solo posizione e messa a fuoco
       gs.forEach((g, i) => {
         const at = T(41.2 + i * 0.55);
-        tl.fromTo(g, { autoAlpha: 0, scale: () => gS() * 0.5, filter: "blur(10px)" }, { autoAlpha: 1, scale: gS, filter: "blur(0px)", duration: 0.7, ease: "back.out(1.5)" }, at)
+        tl.fromTo(g, { autoAlpha: 0, scale: () => gS() * 0.5, filter: "blur(10px)" }, { autoAlpha: 1, scale: gS, filter: "blur(0px)", duration: 0.7, ease: "expo.out" }, at)
           .to(rr[i], { r: 1, duration: 1, ease: "expo.out", onUpdate: place }, at)
           .call(() => F.pluck(i + 2, 0.9, 0.5), undefined, at + 0.05);
       });
@@ -917,7 +917,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .set(oimg, { clipPath: "inset(0% 0% 34% 0%)" }, 2.2)
         .call(() => F.tick(0.9), undefined, 2.2);
       pk([os[4]], 2.5);
-      slowTl.to(rigEl, { scale: 0.66, duration: 0.45, ease: "expo.out" }, 2.8).call(() => F.sigh(1), undefined, 2.8);
+      slowTl.to(rigEl, { scale: 0.66, duration: 0.85, ease: "power3.inOut" }, 2.8).call(() => F.sigh(1), undefined, 2.8);
       slowTl.to(rigEl, { scale: 1, duration: 0.4, ease: "expo.inOut" }, 3.65).set({}, {}, 4.05);
 
       /* Il sito nuovo: dalla ricerca, clic sul primo risultato, una barra veloce e la pagina è lì. Poi lo stesso colpo indietro: il cliente resta. */
@@ -945,8 +945,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .call(() => void ((url1.textContent = c.find.typed), (tt1.textContent = c.find.typed)), undefined, 0)
           .fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.75, y: () => content.offsetHeight * 0.8, scale: 1 }, { autoAlpha: 1, x: () => pt().x, y: () => pt().y, immediateRender: false, duration: 0.75, ease: "power3.inOut" }, 0.1)
           .set(first, { textDecoration: "underline" }, 0.8)
-          .to(cur, { scale: 0.8, duration: 0.08, ease: "power2.out" }, 0.9)
-          .to(cur, { scale: 1, duration: 0.25, ease: "back.out(3)" }, 0.98)
+          .to(cur, { scale: 0.9, duration: 0.12, ease: "sine.inOut" }, 0.9)
+          .to(cur, { scale: 1, duration: 0.3, ease: "power2.out" }, 0.98)
           .call(() => F.tick(1.3), undefined, 0.9)
           // carica: rotella nella scheda, indirizzo nuovo, barra in alto che corre
           .set([fav, rl], { autoAlpha: 0 }, 0.95)
@@ -1029,7 +1029,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .set(hx, { autoAlpha: 1, scale: 1 }, 0)
           .call(() => void (hw.textContent = "hardware"), undefined, 0)
           .fromTo(cur, { autoAlpha: 0, x: () => hmIn.offsetWidth * 0.75, y: () => hmIn.offsetHeight * 0.85 }, { autoAlpha: 1, x: () => p().x, y: () => p().y, immediateRender: false, duration: 0.6, ease: "power3.inOut" }, 0.1)
-          .to(cur, { scale: 0.82, duration: 0.06, yoyo: true, repeat: 3, ease: "power1.inOut" }, 0.75)
+          .to(cur, { scale: 0.92, duration: 0.14, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.75)
           .call(() => F.tick(1), undefined, 0.75)
           .call(() => F.tick(0.9), undefined, 0.87)
           .fromTo(hsel, { autoAlpha: 1, scaleX: 0 }, { scaleX: 1, duration: 0.22, ease: "power3.out", immediateRender: false }, 0.85)
@@ -1189,11 +1189,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .set(cur, { autoAlpha: 1 }, 0.35)
           .fromTo(path, { t: 0 }, { t: 1, duration: 0.95, ease: "power3.inOut", onUpdate: move, immediateRender: false }, 0.35)
           // clic: l'icona si schiaccia e rimbalza, come nel Dock
-          .to(cur, { scale: 0.85, duration: 0.07, ease: "power2.out" }, 1.35)
-          .to(cur, { scale: 1, duration: 0.2, ease: "back.out(3)" }, 1.42)
+          .to(cur, { scale: 0.9, duration: 0.12, ease: "sine.inOut" }, 1.35)
+          .to(cur, { scale: 1, duration: 0.3, ease: "power2.out" }, 1.42)
           .to(icon, { scale: 0.9, duration: 0.08, ease: "power2.out" }, 1.35)
           .to(icon, { scale: 1, y: -14, duration: 0.25, ease: "power2.out" }, 1.43)
-          .to(icon, { y: 0, duration: 0.3, ease: "bounce.out" }, 1.68)
+          .to(icon, { y: 0, duration: 0.5, ease: "power2.inOut" }, 1.68)
           .call(() => F.tick(1.3), undefined, 1.35)
           // la finestra si apre dall'icona
           .fromTo(win, { autoAlpha: 0, scale: 0.16 }, { autoAlpha: 1, scale: 1, duration: 0.65, ease: "expo.out" }, 1.75)
@@ -1202,7 +1202,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .call(() => (F.whoosh(0.5, true, 0.7), F.glass(0.7)), undefined, 1.75);
         typeTo(geoTl, one("[data-cin]"), c.geo.q, 2.45, 0.85, 1);
         geoTl
-          .to(one("[data-csend]"), { scale: 0.85, duration: 0.08, yoyo: true, repeat: 1 }, 3.4)
+          .to(one("[data-csend]"), { scale: 0.92, duration: 0.14, yoyo: true, repeat: 1, ease: "sine.inOut" }, 3.4)
           .call(() => (F.tick(1), F.whoosh(0.4, true, 0.5)), undefined, 3.4)
           .to(one("[data-cnew]"), { autoAlpha: 0, y: -20, duration: 0.3, ease: "power2.in" }, 3.45)
           .fromTo(one("[data-gq]"), { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" }, 3.6)

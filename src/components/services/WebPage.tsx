@@ -148,7 +148,7 @@ function SpeedMock({ m, f }: { m: M; f: (n: number) => string }) {
       tl.call(() => void (cnt.textContent = f(times[i])), undefined, at);
       tl.to(ft[i], { color: "#8fd8ff", duration: 0.3 }, at);
     });
-    tl.fromTo(q("[data-ok]"), { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.5, ease: "back.out(3)" }, 0.9 + 4 * 0.8 + 0.2);
+    tl.fromTo(q("[data-ok]"), { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.5, ease: "expo.out" }, 0.9 + 4 * 0.8 + 0.2);
     return () => {
       gsap.set(fr, { opacity: 0.55, z: 0, y: 0 });
       gsap.set(ft, { color: "rgba(255,255,255,.7)" });
@@ -271,7 +271,7 @@ function EditMock({ m }: { m: M }) {
     CMS.forEach(({ c }, j) => {
       const b = j * 4.4;
       tl.to(chips, { opacity: 0.45, y: 0, duration: 0.3 }, b)
-        .to(chips[j], { opacity: 1, y: -3, duration: 0.5, ease: "back.out(2.4)" }, b)
+        .to(chips[j], { opacity: 1, y: -3, duration: 0.5, ease: "expo.out" }, b)
         .to(hl, { autoAlpha: 0, duration: 0.25 }, b)
         .to(hl[j], { autoAlpha: 1, duration: 0.35 }, b + 0.1)
         .to(acs, { backgroundColor: c, duration: 0.45 }, b)
@@ -281,9 +281,9 @@ function EditMock({ m }: { m: M }) {
         .to(sel, { autoAlpha: 0, duration: 0.15 }, b + 1.1);
       retype(tl, txt, m.before, m.typed, b + 1.1, 0.3, 1.1);
       tl.to(btn, { scale: 0.93, duration: 0.12 }, b + 2.75)
-        .to(btn, { scale: 1, duration: 0.45, ease: "back.out(3)" }, b + 2.87)
+        .to(btn, { scale: 1, duration: 0.45, ease: "expo.out" }, b + 2.87)
         .to(field, { boxShadow: "inset 0 0 0 1px var(--hair-strong), 0 0 0 0 rgba(0,0,0,0)", duration: 0.3 }, b + 2.9)
-        .fromTo(toast, { autoAlpha: 0, y: -10, scale: 0.94 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(2)" }, b + 3)
+        .fromTo(toast, { autoAlpha: 0, y: -10, scale: 0.94 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: "expo.out" }, b + 3)
         .to(toast, { autoAlpha: 0, y: -6, duration: 0.3 }, b + 4.1);
     });
     return () => {
@@ -359,8 +359,7 @@ function LeadsMock({ m }: { m: M }) {
     it.forEach((el, k) => {
       const at = 0.6 + k * 1.1;
       for (let j = 0; j < k; j++) tl.to(it[j], { y: (k - j) * H, duration: 0.6, ease: "expo.out" }, at);
-      tl.fromTo(el, { y: -H, autoAlpha: 0, scale: 0.92 }, { y: 0, autoAlpha: 1, scale: 1, duration: 0.7, ease: "back.out(1.5)" }, at)
-        .fromTo(ph, { x: 0 }, { x: 2.5, duration: 0.05, yoyo: true, repeat: 5, ease: "none" }, at)
+      tl.fromTo(el, { y: -H, autoAlpha: 0, scale: 0.92 }, { y: 0, autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, at)
         .to(ph, { x: 0, duration: 0.05 }, at + 0.35);
     });
     return () => void gsap.set(it, { autoAlpha: 0, y: -H });
@@ -421,7 +420,7 @@ function FoundMock({ m }: { m: M }) {
     });
     tl.fromTo(ln, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, ease: "power1.out" }, 0.45);
     tl.fromTo(rp, { scale: 0.4, autoAlpha: 0.55 }, { scale: 4, autoAlpha: 0, duration: 0.9, ease: "power2.out" }, 0.5);
-    tl.fromTo(ck, { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.3, stagger: 0.06, ease: "back.out(3)" }, 0.85);
+    tl.fromTo(ck, { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.3, stagger: 0.06, ease: "expo.out" }, 0.85);
     return () => void gsap.set([tiles, hub, ck, ln, rp], { autoAlpha: 0 });
   });
   return (
@@ -461,10 +460,10 @@ function SafeMock({ m }: { m: M }) {
     const lk = q("[data-lk]")[0];
     tl.fromTo(nodes, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.07, ease: "expo.out" }, 0);
     tl.fromTo(pk, { left: "16%", autoAlpha: 0 }, { left: "50%", autoAlpha: 1, duration: 0.5, ease: "power2.in" }, 0.45)
-      .fromTo(cf, { scale: 1 }, { scale: 1.07, duration: 0.14, yoyo: true, repeat: 1, ease: "power2.out" }, 0.95)
+      .fromTo(cf, { scale: 1 }, { scale: 1.05, duration: 0.3, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.95)
       .to(pk, { left: "84%", duration: 0.5, ease: "power2.out" }, 1.0)
       .to(pk, { autoAlpha: 0, duration: 0.12 }, 1.5)
-      .fromTo(lk, { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.35, ease: "back.out(3)" }, 1.45);
+      .fromTo(lk, { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.35, ease: "expo.out" }, 1.45);
     return () => void gsap.set([pk, lk], { autoAlpha: 0 });
   });
   return (
@@ -525,7 +524,7 @@ function DashMock({ m, locale }: { m: M; locale: string }) {
     nt.forEach((el, k) => {
       const at = 1.4 + k * 1.2;
       for (let j = 0; j < k; j++) tl.to(nt[j], { y: (k - j) * H, duration: 0.6, ease: "expo.out" }, at);
-      tl.fromTo(el, { y: -H, autoAlpha: 0, scale: 0.94 }, { y: 0, autoAlpha: 1, scale: 1, duration: 0.7, ease: "back.out(1.5)" }, at).call(() => void (bd.textContent = String(k + 1)), undefined, at + 0.1).fromTo(bd, { scale: 1.5 }, { scale: 1, duration: 0.4, ease: "back.out(3)" }, at + 0.1);
+      tl.fromTo(el, { y: -H, autoAlpha: 0, scale: 0.94 }, { y: 0, autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, at).call(() => void (bd.textContent = String(k + 1)), undefined, at + 0.1).fromTo(bd, { scale: 1.5 }, { scale: 1, duration: 0.4, ease: "expo.out" }, at + 0.1);
     });
     return () => {
       gsap.set([wl, nt], { autoAlpha: 0 });
@@ -697,8 +696,8 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
   useGSAP(
     () => {
       if (prefersReducedMotion()) return;
-      gsap.set("[data-rv]", { autoAlpha: 0, y: 36 });
-      ScrollTrigger.batch("[data-rv]", { start: "top 102%", once: true, onEnter: (els) => void gsap.to(els, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08, ease: "expo.out", overwrite: true }) });
+      gsap.set("[data-rv]", { autoAlpha: 0, y: 26, filter: "blur(8px)" });
+      ScrollTrigger.batch("[data-rv]", { start: "top 102%", once: true, onEnter: (els) => void gsap.to(els, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 1.1, stagger: 0.09, ease: "power3.out", overwrite: true, clearProps: "filter" }) });
       // le tessere 3D stanno ferme, leggermente ruotate
       gsap.set("[data-tile]", { rotationY: -16, rotationX: 7 });
       // la linea dei passi si riempie
