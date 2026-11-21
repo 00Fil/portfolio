@@ -409,6 +409,14 @@ const T = (n: number) => (n >= 9.2 ? n + 5 : n) * B;
 const U = (n: number) => n * B;
 const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
 const ICONS_PROMISE = [FileText, UserRound, Tag, LockOpen];
+/** Ogni scritta sta su una riga sola: il corpo scende quanto serve perché la frase entri nella larghezza del film (il corsivo è più largo). */
+export function fitLine(t: string, max: string) {
+  const kw = (t.match(/\*[^*]*\*/g) ?? []).join("").replace(/[*!^~]/g, "").length;
+  const plain = t.replace(/\*[^*]*\*/g, "").length;
+  const em = plain * 0.54 + kw * 0.66 + 0.4;
+  return `min(${max}, calc((100cqw - 64px) / ${em.toFixed(2)}))`;
+}
+export const CAPS = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto -translate-y-1/2 whitespace-nowrap px-6 text-center font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
 export const CAPL = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-none whitespace-nowrap -translate-y-1/2 px-6 text-center text-[clamp(30px,6.2cqw,104px)] font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
 export const CAPF = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[14ch] -translate-y-1/2 px-6 text-center text-[clamp(38px,7cqw,120px)] font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
 export const CAP = "pointer-events-none absolute inset-x-0 top-[5%] mx-auto max-w-[19ch] px-6 text-center text-[clamp(30px,4.6cqw,76px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg md:top-[7%] md:max-w-[24ch]";
@@ -1356,23 +1364,36 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const w = (i: number, d = 0) => VW.s[i] + offs[i] + d;
       const we = (i: number, d = 0) => VW.e[i] + offs[i] + d;
       const vo: [number, number][] = [0, ...Object.keys(GAP).map(Number)].sort((a, b) => a - b).map((i) => [i, offs[i]]);
-      const says = $("[data-say]");
-      const sayU = says.map((e) => {
-        const g = split(e);
-        return [...g.a, ...g.b];
-      });
-      const inlU = inl.map((e) => {
-        const g = split(e);
-        return [...g.a, ...g.b];
-      });
+      const cut = new Map<HTMLElement, HTMLElement[]>();
+      const unitsOf = (e: HTMLElement) => {
+        let u = cut.get(e);
+        if (!u) {
+          const g = split(e);
+          u = [...g.a, ...g.b];
+          cut.set(e, u);
+        }
+        return u;
+      };
       const scene = tl;
       const AUTO = NaN;
       const END = -1;
-      type Say = { el: HTMLElement; u: HTMLElement[]; at: number[]; end?: number; inScene?: boolean; mood?: Mood; q?: boolean };
+      type Say = { el: HTMLElement; u: HTMLElement[]; at: number[]; end?: number; inScene?: boolean; mood?: Mood; q?: boolean; chain?: boolean };
       type Scn = { sub?: gsap.core.Timeline; seg?: [number, number]; map: [number, number][]; mood?: Mood; still?: boolean; blank?: boolean; marks?: [number, string][]; after?: (t: number) => void };
-      const S = (i: number, at: number[], end: number, mood?: Mood, q?: boolean): Say => ({ el: says[i], u: sayU[i], at, end, mood, q });
-      const I = (i: number, at: number[], end: number): Say => ({ el: inl[i], u: inlU[i], at, end, inScene: true });
-      inl.forEach((e, i) => (e.dataset.t = [c.far.tired, c.far.open, c.far.stays][i].replace(/[*!^~]/g, "")));
+      // una frase in più battute: le parole della voce si dividono tra le righe, ogni riga esce prima che entri la successiva
+      const multi = (els: HTMLElement[], at: number[], end: number, base: Partial<Say>): Say[] => {
+        const us = els.map(unitsOf);
+        const N = us.reduce((n, u) => n + u.length, 0);
+        const pick = (k: number) => (N === at.length ? at[k] : at[Math.min(at.length - 1, Math.floor((k * at.length) / N))]);
+        let k = 0;
+        return us.map((u, j) => {
+          const sub = N === at.length ? at.slice(k, k + u.length) : [pick(k), pick(k + u.length - 1)];
+          k += u.length;
+          const last = j === us.length - 1;
+          return { ...base, el: els[j], u, at: sub, end: last ? end : w(pick(k), -0.12), q: base.q || els.length > 1, chain: j > 0, mood: j ? undefined : base.mood } as Say;
+        });
+      };
+      const S = (i: number, at: number[], end: number, mood?: Mood, q?: boolean) => multi($(`[data-say="${i}"]`), at, end, { mood, q });
+      const I = (i: number, at: number[], end: number) => multi($(`[data-inline="${i}"]`), at, end, { inScene: true });
       one("[data-eh]").dataset.t = c.end.t.replace(/[*!^~]/g, "");
       // senza sito il cliente non apre niente di tuo: la finestra parte già sui risultati di Google
       const noSiteBack = (t: number) =>
@@ -1382,7 +1403,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .set([one("[data-gres]"), fav, rl, tt1], { autoAlpha: 1 }, t)
           .call(() => void ((one("[data-url1]").textContent = c.find.typed), (tt1.textContent = c.find.typed)), undefined, t);
       // la parte della storia prima del nostro intervento cambia con le risposte: con il sito lento, oppure senza sito
-      const story: (Say | Scn)[] = noSite
+      const story: (Say | Scn | Say[])[] = noSite
           ? [
               // senza sito: la lista scorre e tu non ci sei; poi sceglie il primo e apre il concorrente
               { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(25)], [0.8 + 3.4, w(32, 0.15)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4, "si ferma: tu non ci sei"]], after: (t: number) => void (mt.set(one("[data-far]"), { autoAlpha: 0 }, t), noSiteBack(t)) },
@@ -1398,7 +1419,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             { sub: back, still: true, map: [[0, w(45, -0.25)], [0.58, w(46)], [1.2, w(49)], [1.38, w(51)], [END, w(51, 0.6)]], marks: [[0.58, "clic su indietro"], [1.28, "clic sul concorrente"], [1.38, "si apre il concorrente"]], after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
               S(2, [52, 53, 54, 55, 56, 57, 58, 59, 60], we(60, 0.25), "stop"),
             ];
-      const ch: (Say | Scn)[] = [
+      const ch: (Say | Scn | Say[])[] = [
         // prima del nostro intervento
         S(0, [0, 2, 3], w(4, -0.02), "calm", true),
         S(10, [4, 5, 6, 7], w(8, -0.02), "calm", true),
@@ -1476,9 +1497,10 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       let prevEnd = 0;
       const slow: string[] = [];
       mt.set(cam, { autoAlpha: 0 }, 0);
-      ch.forEach((k) => {
+      let inlEnd = 0;
+      ch.flat().forEach((k) => {
         if ("el" in k) {
-          if (k.inScene) return void reveal(k);
+          if (k.inScene) return void (inlEnd = reveal(k, k.chain ? inlEnd : 0) + 0.16);
           const t0 = w(k.at[0], -0.06);
           if (k.mood) {
             const m = k.mood;
@@ -1660,16 +1682,21 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
     <section ref={root} className={embed ? "relative h-full w-full [container-type:size]" : "relative h-svh min-h-[560px] [container-type:size]"} aria-label={title} style={{ "--ft": "84px", "--fb": "16px" } as CSSProperties}>
       {!embed && <h1 className="sr-only">{title}</h1>}
       <div key={run} data-frame className={embed ? "cine-film cine-acr absolute inset-0 overflow-hidden" : "cine-film cine-acr absolute overflow-hidden rounded-[34px] transition-[top] duration-[800ms] ease-[cubic-bezier(.22,1,.36,1)] shadow-[inset_0_0_0_1px_var(--hair-strong)] max-md:left-2 max-md:right-2 md:left-4 md:right-4"} style={embed ? undefined : { top: "var(--ft)", bottom: "var(--fb)" }}>
-        {[c.far.tired, c.far.open, c.far.stays].map((t, i) => (
-          <p key={t} data-inline={i} className="pointer-events-none absolute inset-x-0 top-[8%] z-20 mx-auto max-w-[22ch] px-6 text-center text-[clamp(30px,4.6cqw,72px)] font-semibold leading-[1.05] tracking-[-0.045em] cine-fg" style={HID}>
-            <Kw text={t} />
-          </p>
-        ))}
-        {c.say.map((t, i) => (
-          <p key={t} data-say={i} data-t={t.replace(/[*!^~]/g, "")} className={i === 0 || i >= 10 ? CAPL : CAPF} style={HID}>
-            <Kw text={t} />
-          </p>
-        ))}
+        {/* una frase troppo lunga per una riga si divide in più battute (|), ognuna su una riga sola */}
+        {[c.far.tired, c.far.open, c.far.stays].map((t, i) =>
+          t.split("|").map((x, j) => (
+            <p key={`${i}-${j}`} data-inline={i} data-t={x.replace(/[*!^~]/g, "")} className="pointer-events-none absolute inset-x-0 top-[8%] z-20 mx-auto whitespace-nowrap px-6 text-center font-semibold leading-[1.16] tracking-[-0.045em] cine-fg" style={{ ...HID, fontSize: fitLine(x, "clamp(30px,4.6cqw,72px)") }}>
+              <Kw text={x} />
+            </p>
+          )),
+        )}
+        {c.say.map((t, i) =>
+          t.split("|").map((x, j) => (
+            <p key={`${i}-${j}`} data-say={i} data-t={x.replace(/[*!^~]/g, "")} className={CAPS} style={{ ...HID, fontSize: fitLine(x, "clamp(34px,6.4cqw,108px)") }}>
+              <Kw text={x} />
+            </p>
+          )),
+        )}
         <div data-rig className="absolute inset-0 will-change-transform">
         <div data-cam className="absolute inset-0 will-change-transform">
           <div className="absolute inset-x-0 top-[50%] h-0">
@@ -2121,7 +2148,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         </div>
       </div>
       <div data-end className="absolute inset-0 flex flex-col items-center justify-center" style={HID}>
-        <p data-eh className="mx-auto max-w-[14ch] px-6 text-center text-[clamp(38px,6.6cqw,108px)] font-medium leading-[1.04] tracking-[-0.05em] cine-fg">
+        <p data-eh className="mx-auto whitespace-nowrap px-6 text-center font-medium leading-[1.16] tracking-[-0.05em] cine-fg" style={{ fontSize: fitLine(c.end.t, "clamp(38px,6.6cqw,108px)") }}>
           <Kw text={c.end.t} />
         </p>
       </div>
