@@ -40,7 +40,7 @@ export type Cinema = {
 const IT: Cinema = {
   cue: "Scorri",
   end: { t: "Merita un sito *come si deve*.", more: "Scopri i dettagli", cta: "Parliamone" },
-  say: ["C’è una persona", "Una fra *tante*.", "Hai perso un *!cliente*. E non lo saprai mai.", "Ora immagina *il contrario*.", "Lo disegniamo *intorno a te*.", "*Ovunque* ti cerchino.", "Lo *fai tu*.", "Oppure, chiedilo a *Sofia*, su WhatsApp.", "Per tutto il resto, *ci siamo noi*.", "Quando qualcuno chiederà all'*intelligenza* *artificiale*", "che in questo momento", "ha *bisogno proprio di te*", "e dei tuoi servizi."],
+  say: ["C’è una persona", "Una fra *tante*.", "Hai perso un *!cliente*. E non lo saprai mai.", "Ora immagina *il contrario*.", "Lo disegniamo *intorno a te*.", "*Ovunque* ti cerchino.", "Lo *fai tu*.", "Oppure, chiedilo a *Sofia*, su WhatsApp.", "Per tutto il resto, *ci siamo noi*.", "Quando qualcuno chiederà all'*intelligenza* *artificiale*", "che in questo momento", "ha *bisogno proprio di te*", "e dei tuoi servizi.", "Puoi chiederle *tutto sul tuo sito*."],
   cap: ["Qualcuno ha *bisogno di te*.", "Ti trova, ma è *lento*.", "Si apre *all'istante*.", "Disegnato *intorno a te*.", "Poi lo *costruiremo*.", "Perfetto, *ovunque*.", "Arriveranno i *clienti*.", "Online, *al sicuro*.", "Lo *cambi tu*.", "Tutto *compreso*.", "Senza *sorprese*."],
   title: ["Il tuo lavoro,", "sempre aggiornato"],
   ctl: { play: "Riproduci", pause: "Pausa", replay: "Rivedi", on: "Audio attivo", off: "Audio spento", gateT: "Attiva l’*audio*", gateS: "per un’esperienza migliore", gateOn: "Attiva audio", gateOff: "Senza audio" },
@@ -93,7 +93,7 @@ const IT: Cinema = {
 const EN: Cinema = {
   cue: "Scroll",
   end: { t: "A site *done right*.", more: "See the details", cta: "Let’s talk" },
-  say: ["Someone", "One of *many*.", "You lost a *!customer*. And you’ll never know.", "Now imagine *the opposite*.", "Designed *around you*.", "*Everywhere* they look.", "You *do it*.", "Or just ask *on WhatsApp*.", "For everything else, *we’re here*.", "When someone asks *^AI* for advice", "out there right now", "*needs you*", "and your services."],
+  say: ["Someone", "One of *many*.", "You lost a *!customer*. And you’ll never know.", "Now imagine *the opposite*.", "Designed *around you*.", "*Everywhere* they look.", "You *do it*.", "Or just ask *on WhatsApp*.", "For everything else, *we’re here*.", "When someone asks *^AI* for advice", "out there right now", "*needs you*", "and your services.", "Ask her *anything about your site*."],
   cap: ["A customer is *looking* for you.", "They find you, but it’s *slow*.", "And it will open in *0.8 seconds*.", "We’ll build it *just for you*.", "Then, we’ll *build* it.", "Perfect, *everywhere*.", "*Customers* will arrive.", "Online, and *safe*.", "*You’ll* change it.", "Everything *included*.", "No *surprises*."],
   title: ["Your work,", "always current"],
   ctl: { play: "Play", pause: "Pause", replay: "Replay", on: "Sound on", off: "Sound off", gateT: "Turn on the *sound*", gateS: "for a better experience", gateOn: "Turn on sound", gateOff: "Without sound" },
