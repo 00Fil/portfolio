@@ -6,7 +6,7 @@ import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 import type { LucideIcon } from "lucide-react";
-import { ArrowUp, Sparkles, Frame, MessageCircle, MousePointer2, PenTool, Square, Type, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
+import { ArrowUp, Sparkles, Frame, MessageCircle, MousePointer2, PenTool, Square, Type, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical, ChevronLeft, CheckCheck } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { prefersReducedMotion } from "@/lib/env";
 import { onIntroLift } from "@/lib/intro";
@@ -1116,6 +1116,36 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .call(() => F.whoosh(0.45, true, 0.6), undefined, 0.85)
           .set({}, {}, 2.9);
       }
+      /* WhatsApp: tre domande all'assistente, tre risposte; la chat sale come su un telefono vero */
+      const waTl = gsap.timeline({ paused: true });
+      {
+        const box = one("[data-wa]");
+        const ph = one("[data-wph]");
+        const list = one("[data-wlist]");
+        const qs = [0, 1, 2].map((i) => one(`[data-wq="${i}"]`));
+        const rs = [0, 1, 2].map((i) => one(`[data-wr="${i}"]`));
+        const bars = $("[data-wbar]");
+        const show = (m: HTMLElement, t: number) => waTl.to(list, { y: () => list.offsetHeight - (m.offsetTop + m.offsetHeight), duration: 0.45, ease: "power3.out" }, t);
+        waTl
+          .set([one("[data-seo]"), dev, one("[data-hm]"), one("[data-devs]")], { autoAlpha: 0 }, 0)
+          .set(box, { autoAlpha: 1 }, 0)
+          .set([...qs, ...rs], { autoAlpha: 0 }, 0)
+          .set(list, { y: () => list.offsetHeight }, 0)
+          .fromTo(ph, { autoAlpha: 0, y: 140, scale: 0.94 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.9, ease: "expo.out" }, 0.02)
+          .call(() => F.whoosh(0.5, true, 0.5), undefined, 0.02);
+        const tq = [0.55, 1.9, 3.25];
+        tq.forEach((t, i) => {
+          const ta = t + 0.45;
+          waTl
+            .fromTo(qs[i], { autoAlpha: 0, y: 18, scale: 0.94 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.4, ease: "expo.out" }, t)
+            .call(() => (F.tick(1), F.whoosh(0.3, true, 0.3)), undefined, t)
+            .fromTo(rs[i], { autoAlpha: 0, y: 18, scale: 0.94 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: "expo.out" }, ta)
+            .call(() => F.bell(7, 0.55), undefined, ta);
+          show(qs[i], t);
+          show(rs[i], ta);
+        });
+        waTl.fromTo(bars, { scaleY: 0 }, { scaleY: 1, duration: 0.55, ease: "expo.out", stagger: 0.045 }, tq[1] + 0.55).set({}, {}, 5.2);
+      }
       /* GEO: chiedi a un assistente AI, e ti consiglia */
       const geoTl = gsap.timeline({ paused: true });
       {
@@ -1188,26 +1218,30 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       }
 
       /* montaggio: la frase a schermo intero, poi la sua scena a schermo intero, poi un attimo fermi sul finale */
-      const xcaps = [0, 1, 2, 3].map((i) => one(`[data-capx="${i}"]`));
+      const xcaps = [0, 1, 2, 3, 4, 5].map((i) => one(`[data-capx="${i}"]`));
       const xunits = xcaps.map(split);
       const scene = tl;
-      type Ch = { marks?: [number, string][]; still?: boolean; cs?: number; mood?: Mood; textOnly?: boolean; u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
+      type Ch = { vo?: number; voAt?: [number, number]; marks?: [number, string][]; still?: boolean; cs?: number; mood?: Mood; textOnly?: boolean; u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
       // solo i passaggi che dicono qualcosa: il problema, poi cosa cambia (in cima, veloce, fatto su misura, ogni schermo, lo modifichi tu, l'AI ti cita, tutto compreso)
+      // durata di ogni frase della voce narrante (scripts/film-voice.py cut): il film le lascia finire tutte
+      const VO = [4.58, 5.91, 2.96, 4.03, 3.0, 4.76, 2.59, 2.97, 5.15, 4.11, 3.61, 7.16, 3.46, 7.44, 2.9, 1.07];
       const ch: Ch[] = [
         // prima del nostro intervento
-        { u: units[0], el: caps[0], seg: [0, T(3.5)], speed: 1.3, mood: "calm", marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
-        { u: xunits[2], el: xcaps[2], sub: farTl, speed: 1.2, mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
-        { u: units[1], el: caps[1], sub: slowTl, hold: 0, mood: "tense", still: true, marks: [[0, "il tuo sito carica a pacchetti, zoom in continuo"], [2.8, "zoom indietro brusco + sbuffo"], [2.9, "frase in scena: il cliente si è stufato"]] },
+        { u: units[0], el: caps[0], seg: [0, T(3.5)], speed: 1.3, vo: 0, mood: "calm", marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
+        { u: xunits[2], el: xcaps[2], sub: farTl, speed: 1.2, vo: 1, mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
+        { u: units[1], el: caps[1], sub: slowTl, hold: 0, vo: 2, voAt: [3, 2.9], mood: "tense", still: true, marks: [[0, "il tuo sito carica a pacchetti, zoom in continuo"], [2.8, "zoom indietro brusco + sbuffo"], [2.9, "frase in scena: il cliente si è stufato"]] },
         { sub: back, speed: 0.85, hold: 0.15, marks: [[0.58, "clic su indietro"], [1.28, "clic sul concorrente"], [1.38, "si apre il concorrente"]], after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
-        { u: xunits[3], el: xcaps[3], textOnly: true, mood: "stop", cs: 1 },
+        { u: xunits[3], el: xcaps[3], textOnly: true, vo: 4, mood: "stop", cs: 1 },
         // con il nuovo sito
-        { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.55, mood: "rise", marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"]], after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set(chrome, { autoAlpha: 1 }, t).set(meter, { autoAlpha: 0 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
-        { u: units[2], el: caps[2], sub: newTl, mood: "drive", still: true, marks: [[0.9, "clic sul tuo risultato"], [1.32, "il sito nuovo appare"], [1.6, "zoom indietro"], [1.75, "frase in scena: il cliente resta"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t) },
-        { u: units[3], el: caps[3], sub: figmaTl, marks: [[0.55, "Figma: primo pezzo"], [0.55 + 6 * 0.42, "Figma: ultimo pezzo"]] },
-        { u: units[5], el: caps[5], sub: devsTl, speed: 1.35, marks: [[0.05, "computer"], [0.55, "tablet"], [0.85, "telefono"]], after: (t) => void mt.set(one("[data-devs]"), { autoAlpha: 0 }, t) },
-        { u: units[8], el: caps[8], sub: editTl, mood: "light", marks: [[0.75, "doppio clic sulla parola"], [1.2, "si cancella"], [1.55, "si riscrive"], [2.25, "Salvato! a tutto schermo"]], after: (t) => void mt.set(hm, { autoAlpha: 0 }, t) },
-        { u: xunits[1], el: xcaps[1], sub: geoTl, speed: 1.25, marks: [[0.05, "icona di Claude"], [1.35, "clic sull'icona"], [1.75, "si apre la finestra"], [2.45, "scrive la domanda"], [3.4, "invio"], [3.95, "la risposta si scrive"], [5.5, "fonte citata"], [5.75, "evidenziata"]], after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
-        { seg: [T(54.8), scene.duration()], hold: 0, mood: "end", marks: [[T(55.0) - T(54.8), "frase finale: il tuo sito, fatto bene"], [T(55.0) + 2.1 - T(54.8), "firma: il tuo nome"]] },
+        { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.55, vo: 5, mood: "rise", marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"]], after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set(chrome, { autoAlpha: 1 }, t).set(meter, { autoAlpha: 0 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
+        { u: units[2], el: caps[2], sub: newTl, vo: 6, voAt: [7, 1.75], mood: "drive", still: true, marks: [[0.9, "clic sul tuo risultato"], [1.32, "il sito nuovo appare"], [1.6, "zoom indietro"], [1.75, "frase in scena: il cliente resta"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t) },
+        { u: units[3], el: caps[3], sub: figmaTl, vo: 8, marks: [[0.55, "Figma: primo pezzo"], [0.55 + 6 * 0.42, "Figma: ultimo pezzo"]] },
+        { u: units[5], el: caps[5], sub: devsTl, speed: 1.35, vo: 9, marks: [[0.05, "computer"], [0.55, "tablet"], [0.85, "telefono"]], after: (t) => void mt.set(one("[data-devs]"), { autoAlpha: 0 }, t) },
+        { u: units[8], el: caps[8], sub: editTl, vo: 10, mood: "light", marks: [[0.75, "doppio clic sulla parola"], [1.2, "si cancella"], [1.55, "si riscrive"], [2.25, "Salvato! a tutto schermo"]], after: (t) => void mt.set(hm, { autoAlpha: 0 }, t) },
+        { u: xunits[4], el: xcaps[4], sub: waTl, vo: 11, marks: [[0.55, "WhatsApp: modifica"], [1.9, "WhatsApp: visite"], [3.25, "WhatsApp: da richiamare"]], after: (t) => void mt.set(one("[data-wa]"), { autoAlpha: 0 }, t) },
+        { u: xunits[5], el: xcaps[5], textOnly: true, vo: 12, cs: 2 },
+        { u: xunits[1], el: xcaps[1], sub: geoTl, speed: 1.25, vo: 13, marks: [[0.05, "icona di Claude"], [1.35, "clic sull'icona"], [1.75, "si apre la finestra"], [2.45, "scrive la domanda"], [3.4, "invio"], [3.95, "la risposta si scrive"], [5.5, "fonte citata"], [5.75, "evidenziata"]], after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
+        { seg: [T(54.8), scene.duration()], hold: 0, speed: 0.62, voAt: [14, T(55.0) - T(54.8)], mood: "end", marks: [[T(55.0) - T(54.8), "frase finale: il tuo sito, fatto bene"], [T(55.0) + 2.1 - T(54.8), "firma: il tuo nome"]] },
       ];
       const mt = gsap.timeline({
         paused: true,
@@ -1240,7 +1274,24 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         // un solo movimento per scena, continuo: entra, rallenta e continua a scivolare fino al taglio
         mt.fromTo(rig, { xPercent: 0, yPercent: 0, ...m }, { scale: i % 2 ? 0.98 : 1.03, xPercent: 0, yPercent: 0, duration: Math.max(1.2, d), ease: "power2.out", immediateRender: false }, t);
       };
+      // la voce detta il passo: una frase non parte finché la precedente non ha finito.
+      // Se la voce è più lunga della scena, la scena rallenta (fino a 1,6 volte) invece di fermarsi: si monta più volte finché torna
+      let free = 0;
+      const extra = ch.map(() => 0);
+      const build = () => {
+      mt.clear();
+      marks.length = 0;
+      at = 0;
+      pending = undefined;
+      cstyle = 0;
+      free = 0;
+      const waits = ch.map(() => 0);
       ch.forEach((k, i) => {
+        if (k.vo !== undefined && free + 0.12 - 0.2 > at) {
+          waits[i] = free + 0.12 - 0.2 - at;
+          marks.push({ t: at, what: `attesa voce ${waits[i].toFixed(2)}` });
+          at = free + 0.12 - 0.2;
+        }
         at = q8(at);
         if (k.mood) {
           const m = k.mood;
@@ -1269,8 +1320,14 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             if (style === 4) mt.fromTo(el, { clipPath: "inset(-40% 112% -40% -12%)", x: -20 }, { clipPath: glow, x: 0, duration: 0.75, ease: "power2.inOut" }, c0);
             mt.call(() => F.whoosh(0.5, true, 0.35), undefined, c0);
           }
-          const c1 = q8(c0 + 0.4 + 0.03 * (words.length - 1) + (el.textContent?.length ?? 20) * 0.007);
+          let c1 = q8(c0 + 0.4 + 0.03 * (words.length - 1) + (el.textContent?.length ?? 20) * 0.007);
           marks.push({ t: c0, what: `frase: ${el.dataset.t}` });
+          if (k.vo !== undefined) {
+            marks.push({ t: c0, what: `voce ${k.vo}` });
+            free = c0 + VO[k.vo];
+            // una frase da sola resta a schermo finché la voce non l'ha detta tutta
+            if (k.textOnly) c1 = Math.max(c1, q8(free - 0.35));
+          }
           if (style === 2) mt.to(el, { scale: 1.5, autoAlpha: 0, duration: 0.35, ease: "power2.in" }, c1);
           else if (style === 1) mt.to(el, { scale: 0.85, autoAlpha: 0, filter: "blur(6px)", duration: 0.35, ease: "power2.in" }, c1);
           else if (style === 4) mt.to(el, { clipPath: "inset(-40% -12% -40% 112%)", x: 20, duration: 0.4, ease: "power2.inOut" }, c1);
@@ -1294,17 +1351,43 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           at = q8(at + 0.25);
         }
         let d = 0;
-        if (k.seg) d = r8((k.seg[1] - k.seg[0]) / ((k.speed ?? 1) * FAST));
-        if (k.sub) d = r8(k.sub.duration() / ((k.speed ?? 1) * FAST));
+        if (k.seg) d = r8((k.seg[1] - k.seg[0]) / ((k.speed ?? 1) * FAST) + extra[i]);
+        if (k.sub) d = r8(k.sub.duration() / ((k.speed ?? 1) * FAST) + extra[i]);
         if (shot >= 0 && !k.still) shoot(shot, at, d);
         if (k.seg) mt.add(scene.tweenFromTo(k.seg[0], k.seg[1], { duration: d, ease: "none", immediateRender: false }), at);
         if (k.sub) mt.add(k.sub.tweenFromTo(0, k.sub.duration(), { duration: d, ease: "none", immediateRender: false }), at);
         (k.marks ?? []).forEach(([mt0, w]) => marks.push({ t: at + mt0 * (d / Math.max(0.001, k.seg ? k.seg[1] - k.seg[0] : k.sub!.duration())), what: w }));
+        if (k.voAt) {
+          const tv = at + k.voAt[1] * (d / Math.max(0.001, k.seg ? k.seg[1] - k.seg[0] : k.sub!.duration()));
+          marks.push({ t: tv, what: `voce ${k.voAt[0]}` });
+          free = Math.max(free, tv) + VO[k.voAt[0]];
+        }
         at += d + (k.hold ?? 0.25);
         if (k.after) pending = k.after;
       });
+      return waits;
+      };
+      for (let pass = 0; pass < 5; pass++) {
+        const waits = build();
+        let moved = false;
+        waits.forEach((w, i) => {
+          if (w < 0.05) return;
+          let j = i - 1;
+          while (j >= 0 && !ch[j].seg && !ch[j].sub) j--;
+          if (j < 0) return;
+          const k = ch[j];
+          const base = (k.seg ? k.seg[1] - k.seg[0] : k.sub!.duration()) / ((k.speed ?? 1) * FAST);
+          const add = Math.min(base * 0.6 - extra[j], w);
+          if (add > 0.02) {
+            extra[j] += add;
+            moved = true;
+          }
+        });
+        if (!moved) break;
+        if (pass === 4) build();
+      }
       tlRef.current = mt;
-      if (!embed) (window as unknown as { __film?: unknown }).__film = { bpm: BPM, total: mt.duration(), marks: marks.sort((a, b) => a.t - b.t) };
+      if (!embed) (window as unknown as { __film?: unknown }).__film = { bpm: BPM, total: mt.duration(), marks: marks.sort((a, b) => a.t - b.t), seek: (t: number) => ((flags.current.paused = true), (flags.current.playing = false), mt.time(t)) };
 
       const drive = (_t: number, dt: number) => {
         if (!flags.current.playing) return;
@@ -1411,7 +1494,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             <Kw text={t} />
           </p>
         ))}
-        {[c.seo.cap, c.geo.cap, c.far.cap, c.far.lost].map((t, i) => (
+        {[c.seo.cap, c.geo.cap, c.far.cap, c.far.lost, c.wa.cap, c.wa.us].map((t, i) => (
           <p key={t} data-capx={i} data-t={t.replace(/[*!^]/g, "")} className={CAPF} style={HID}>
             <Kw text={t} />
           </p>
@@ -1779,6 +1862,86 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                 <svg data-ccur viewBox="0 0 24 24" width="30" height="30" aria-hidden className="pointer-events-none absolute left-0 top-0 z-40" style={{ ...HID, filter: "drop-shadow(0 2px 4px rgba(0,0,0,.4))" }}>
                   <path d="M5 3l14 8-6 1.6L10.4 19z" fill="#14171c" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
                 </svg>
+              </div>
+            </div>
+            {/* l'assistente su WhatsApp: chiedi una modifica, come va il sito, chi vuole essere richiamato */}
+            <div data-it data-wa className={center} style={HID}>
+              <div data-wph>
+                <div data-gfit className="relative h-[700px] w-[360px] rounded-[56px] bg-[#0c0c0d] p-[11px] shadow-[0_50px_120px_-40px_rgba(0,0,0,.55),inset_0_0_0_1.5px_rgba(255,255,255,.12)]">
+                  <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[45px] bg-[#efeae2] text-[#111b21]" style={{ fontFamily: "-apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif" }}>
+                    <span className="absolute left-1/2 top-[11px] z-20 h-[30px] w-[104px] -translate-x-1/2 rounded-full bg-black" />
+                    <div className="relative z-10 flex h-[106px] shrink-0 items-end gap-2.5 border-b border-black/[.07] bg-[#f6f5f3] px-3 pb-3">
+                      <ChevronLeft size={26} strokeWidth={2.2} className="mb-1.5 text-[#007aff]" />
+                      <span className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-gradient-to-b from-[#86d6ff] to-[#2a9be0] text-white">
+                        <Sparkles size={18} strokeWidth={2} />
+                      </span>
+                      <span className="flex flex-col leading-tight">
+                        <span className="text-[16px] font-semibold">{c.wa.name}</span>
+                        <span className="text-[12px] text-[#667781]">{c.wa.on}</span>
+                      </span>
+                    </div>
+                    <div className="relative flex-1 overflow-hidden">
+                      <div data-wlist className="absolute inset-x-0 bottom-0 flex flex-col gap-2 px-3 pb-3">
+                        {c.wa.chat.map(([q, a], i) => (
+                          <Fragment key={q}>
+                            <div data-wq={i} className="max-w-[80%] origin-bottom-right self-end rounded-[16px] rounded-br-[5px] bg-[#d9fdd3] px-3 py-[7px] text-[15px] leading-[1.35] shadow-[0_1px_.5px_rgba(0,0,0,.13)]" style={HID}>
+                              {q}
+                              <span className="ml-2 inline-flex translate-y-[3px] items-center gap-0.5 text-[11px] text-[#667781]">
+                                9:4{i + 1}
+                                <CheckCheck size={15} strokeWidth={2} className="text-[#53bdeb]" />
+                              </span>
+                            </div>
+                            <div data-wr={i} className="max-w-[84%] origin-bottom-left self-start rounded-[16px] rounded-bl-[5px] bg-white px-3 py-[7px] text-[15px] leading-[1.35] shadow-[0_1px_.5px_rgba(0,0,0,.13)]" style={HID}>
+                              {i === 1 ? (
+                                <span className="flex flex-col py-1">
+                                  <span className="text-[12px] text-[#667781]">{c.wa.week}</span>
+                                  <span className="mt-0.5 flex items-baseline gap-2">
+                                    <span className="text-[28px] font-semibold tracking-[-0.02em]">{c.wa.n}</span>
+                                    <span className="text-[13px] font-semibold text-[#1fa855]">{c.wa.up}</span>
+                                  </span>
+                                  <span className="mt-2 flex h-[70px] w-[214px] items-end gap-[7px]">
+                                    {[38, 52, 45, 61, 70, 84, 97].map((h, j) => (
+                                      <span key={j} data-wbar className="flex-1 origin-bottom rounded-t-[4px] bg-gradient-to-t from-[#2a9be0] to-[#86d6ff]" style={{ height: `${h}%` }} />
+                                    ))}
+                                  </span>
+                                  <span className="mt-1 flex w-[214px] justify-between px-[6px] text-[10px] text-[#8696a0]">
+                                    {c.wa.days.map((d, j) => (
+                                      <span key={j}>{d}</span>
+                                    ))}
+                                  </span>
+                                </span>
+                              ) : (
+                                <>
+                                  {a}
+                                  {i === 2 &&
+                                    c.clients.items.slice(0, 2).map(([, d]) => {
+                                      const [who, why] = d.split(" · ");
+                                      return (
+                                        <span key={d} className="mt-2.5 flex items-center gap-2.5">
+                                          <span className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-[#e9edef] text-[14px] font-semibold text-[#54656f]">{who[0]}</span>
+                                          <span className="flex flex-col leading-tight">
+                                            <span className="text-[15px] font-medium">{who}</span>
+                                            <span className="text-[12px] text-[#667781]">{why}</span>
+                                          </span>
+                                        </span>
+                                      );
+                                    })}
+                                </>
+                              )}
+                            </div>
+                          </Fragment>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex h-[80px] shrink-0 items-start gap-2 bg-[#f6f5f3] px-3 pt-2.5">
+                      <Plus size={24} strokeWidth={2} className="mt-1.5 text-[#007aff]" />
+                      <span className="flex h-[36px] flex-1 items-center rounded-full bg-white px-4 text-[15px] text-[#8696a0] ring-1 ring-black/[.06]">{c.wa.type}</span>
+                      <span className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-[#25d366] text-white">
+                        <ArrowUp size={18} strokeWidth={2.4} />
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             {/* cosa ricevi */}

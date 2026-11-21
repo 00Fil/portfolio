@@ -1,10 +1,11 @@
 """
-Voce narrante italiana del film (Antonio Farina, ElevenLabs): una sola ripresa con pause (scripts/voice/vo-it.mp3),
-tagliata in frasi sui silenzi e messa al tempo esatto di ogni frase del video (/tmp/film-marks.json, da window.__film).
-La musica (public/sfx/film-web.mp3) si abbassa sotto la voce. Uscita: public/sfx/film-web-it.mp3
-Uso: python3 scripts/film-score.py && python3 scripts/film-voice.py
+Voce narrante italiana del film (scripts/voice/vo-it.mp3, una sola ripresa continua).
+1) python3 scripts/film-voice.py cut   -> taglia le 16 frasi sui silenzi (parole: /tmp/vo-words.json, da faster-whisper)
+                                         e stampa le durate da copiare in VO dentro WebCinema.tsx
+2) python3 scripts/film-voice.py       -> mette ogni frase al suo segnaposto "voce N" del video (/tmp/film-marks.json),
+                                         mai sovrapposte e mai accelerate, abbassa la musica sotto e scrive public/sfx/film-web-it.mp3
 """
-import numpy as np, json, subprocess, os
+import numpy as np, json, subprocess, os, sys
 from scipy.signal import butter, sosfilt, fftconvolve
 
 SR = 44100
@@ -14,64 +15,72 @@ def load(path, ch):
     return np.frombuffer(raw, dtype=np.float32).reshape(-1, ch).copy()
 
 vo = load(os.path.join(HERE, "voice", "vo-it.mp3"), 1)[:, 0]
+CUTS = os.path.join(HERE, "voice", "vo-it-cuts.json")
+
+if len(sys.argv) > 1 and sys.argv[1] == "cut":
+    W = json.load(open("/tmp/vo-words.json"))
+    # prima parola di ogni frase del copione
+    B = [0, 17, 35, 43, 52, 61, 75, 84, 94, 108, 117, 128, 152, 163, 185, 194]
+    w = int(0.01 * SR)
+    e = np.array([np.sqrt(np.mean(vo[i:i + w] ** 2)) for i in range(0, len(vo) - w, w)])
+    quiet = e < e.max() * 0.03
+    def gap(t0, t1):
+        # il silenzio più lungo tra t0 e t1: (inizio, fine) in secondi
+        a, b = int(max(0, t0) * 100), int(min(len(e) - 1, t1 * 100))
+        best, run = (a, a), None
+        for i in range(a, b + 1):
+            if quiet[i]:
+                run = i if run is None else run
+                if i - run > best[1] - best[0]: best = (run, i + 1)
+            else: run = None
+        return best[0] / 100, best[1] / 100
+    on = np.where(~quiet)[0]
+    first, last = on[0] / 100, (on[-1] + 1) / 100
+    ph = []
+    for k, b in enumerate(B):
+        s0 = first if k == 0 else gap(W[b - 1][1] - 0.15, W[b][0] + 0.6)[1]
+        s1 = last if k == len(B) - 1 else gap(W[B[k + 1] - 1][1] - 0.15, W[B[k + 1]][0] + 0.6)[0]
+        ph.append([round(s0, 2), round(s1, 2)])
+    json.dump(ph, open(CUTS, "w"))
+    print("VO =", [round(b - a, 2) for a, b in ph])
+    sys.exit()
+
+ph = json.load(open(CUTS))
 music = load(os.path.join(HERE, "..", "public", "sfx", "film-web.mp3"), 2)
-
-# frasi: segmenti di voce separati da silenzi lunghi
-w = int(0.02 * SR)
-e = np.array([np.sqrt(np.mean(vo[i:i + w] ** 2)) for i in range(0, len(vo) - w, w)])
-on = e > e.max() * 0.04
-segs, start, gap, end = [], None, 0, 0
-for i, v in enumerate(on):
-    if v:
-        start = i if start is None else start; gap = 0; end = i
-    elif start is not None:
-        gap += 1
-        if gap * 0.02 > 0.6: segs.append([start * 0.02, (end + 1) * 0.02]); start = None; gap = 0
-if start is not None: segs.append([start * 0.02, (end + 1) * 0.02])
-if len(segs) == 16:  # due frasi lunghe escono spezzate sulla virgola: le riunisco
-    segs[12] = [segs[12][0], segs[13][1]]; del segs[13]
-    segs[8] = [segs[8][0], segs[9][1]]; del segs[9]
-print("segmenti", len(segs), [round(b - a, 2) for a, b in segs])
-assert len(segs) == 14, len(segs)
-
 marks = json.load(open("/tmp/film-marks.json"))["marks"]
-def at(prefix):
+def at(name):
+    if name == "voce 15": name = "firma: il tuo nome"
     for m in marks:
-        if m["what"].lower().startswith(prefix.lower()): return m["t"]
-    raise KeyError(prefix)
-WHEN = [
-    at("frase: Un cliente"), at("frase: Ma sei"), at("frase: Ti trova"), at("frase in scena: il cliente si"),
-    at("frase: Cliente perso"), at("frase: Con il nuovo"), at("frase: E si aprirà"), at("frase in scena: il cliente resta"),
-    at("frase: Lo costruiremo"), at("frase: Perfetto"), at("frase: Lo cambierai"), at("frase: Anche"),
-    at("frase finale") - 0.35, at("firma"),
-]
+        if m["what"] == name: return m["t"]
+    raise KeyError(name)
 
-def bp_sos(a, b): return butter(2, [a, b], "band", fs=SR, output="sos")
 voice = np.zeros(len(music))
-def stretch(x, r):
-    raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", "-", "-af", f"atempo={r}", "-f", "f32le", "-"], input=x.astype(np.float32).tobytes(), capture_output=True, check=True).stdout
-    return np.frombuffer(raw, dtype=np.float32).copy()
-NEXT = WHEN[1:] + [WHEN[-1] + 3.0]
-for (a, b), t, nx in zip(segs, WHEN, NEXT):
-    x = vo[int(max(0, a - 0.03) * SR): int((b + 0.12) * SR)].copy()
-    room = nx - t - 0.15
-    if len(x) / SR > room:
-        r = min(1.25, len(x) / SR / room); x = stretch(x, r); print("accelero", round(r, 2), round(t, 2))
-    f = int(0.01 * SR); x[:f] *= np.linspace(0, 1, f); x[-f:] *= np.linspace(1, 0, f)
-    i = int((t + 0.06) * SR)
-    voice[i:i + len(x)] += x[: max(0, len(voice) - i)]
-# voce: un filo di presenza e di stanza
-voice = voice + 0.25 * sosfilt(bp_sos(2500, 6000), voice)
-rt = np.arange(int(0.8 * SR)) / SR
-ir = np.random.default_rng(3).normal(size=len(rt)) * np.exp(-rt * 7); ir /= np.sqrt(np.sum(ir ** 2))
-voice = voice + 0.08 * fftconvolve(voice, ir)[: len(voice)]
-# la musica si abbassa sotto la voce (inviluppo lento, ~ -9 dB)
-ev = np.abs(voice); k = int(0.15 * SR)
-ev = np.convolve(ev, np.ones(k) / k, mode="same")
-duck = 1 - 0.8 * np.clip(ev / (ev.max() * 0.15 + 1e-9), 0, 1)
-mix = music * duck[:, None] * 0.5 + voice[:, None] * 2.6
-mix = np.tanh(mix / np.max(np.abs(mix)) * 1.3) / np.tanh(1.3) * 0.92
+free, late = 0.0, []
+for k, (a, b) in enumerate(ph):
+    t = max(at(f"voce {k}"), free + 0.12)
+    if t - at(f"voce {k}") > 0.05: late.append((k, round(t - at(f"voce {k}"), 2)))
+    x = vo[int(max(0, a - 0.04) * SR): int((b + 0.08) * SR)].copy()
+    f = int(0.012 * SR); x[:f] *= np.linspace(0, 1, f); x[-f:] *= np.linspace(1, 0, f)
+    i = int(t * SR)
+    if i + len(x) > len(voice): voice = np.concatenate([voice, np.zeros(i + len(x) - len(voice))])
+    voice[i:i + len(x)] += x
+    free = t + (b - a)
+if len(voice) > len(music): music = np.concatenate([music, np.zeros((len(voice) - len(music), 2))])
+# voce: un filo di presenza e di stanza, poi compressa perché resti sempre davanti
+voice = voice + 0.2 * sosfilt(butter(2, [2500, 6000], "band", fs=SR, output="sos"), voice)
+rt = np.arange(int(0.6 * SR)) / SR
+ir = np.random.default_rng(3).normal(size=len(rt)) * np.exp(-rt * 9); ir /= np.sqrt(np.sum(ir ** 2))
+voice = voice + 0.05 * fftconvolve(voice, ir)[: len(voice)]
+voice = np.tanh(voice / (np.max(np.abs(voice)) + 1e-9) * 1.6) / np.tanh(1.6)
+# la musica si abbassa sotto la voce
+k = int(0.2 * SR)
+ev = np.convolve(np.abs(voice), np.ones(k) / k, mode="same")
+duck = 1 - 0.7 * np.clip(ev / (ev.max() * 0.12 + 1e-9), 0, 1)
+k = int(0.12 * SR)
+duck = np.convolve(duck, np.ones(k) / k, mode="same")
+mix = music / (np.max(np.abs(music)) + 1e-9) * 0.42 * duck[:, None] + voice[:, None] * 0.92
+mix = np.tanh(mix * 1.15) / np.tanh(1.15) * 0.95
 raw = "/tmp/film-it.f32"; mix.astype(np.float32).tofile(raw)
 out = os.path.join(HERE, "..", "public", "sfx", "film-web-it.mp3")
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "f32le", "-ar", str(SR), "-ac", "2", "-i", raw, "-b:a", "192k", out], check=True)
-print("ok", [round(t, 2) for t in WHEN])
+print("ok, in ritardo sul segnaposto:", late)
