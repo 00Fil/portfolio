@@ -22,7 +22,8 @@ type Proof = { slug: string; name: string; headline: string; context: string; ta
 type M = Record<string, string>;
 
 const container = "mx-auto w-full max-w-[1280px] px-5 sm:px-8";
-const h2 = "max-w-[20ch] text-[clamp(34px,4.6vw,68px)] font-medium leading-[1.04] tracking-[-0.045em] text-ink";
+const h2 = "mx-auto max-w-[18ch] text-balance text-center text-[clamp(36px,5.4vw,80px)] font-medium leading-[1.02] tracking-[-0.05em] text-ink";
+const lede = "mx-auto mt-6 max-w-[56ch] text-balance text-center text-[clamp(17px,1.5vw,20px)] leading-[1.6] text-ink-2";
 
 const surface = "bg-[var(--bg-surface)] shadow-[inset_0_0_0_1px_var(--hair-strong),0_14px_32px_-18px_rgba(0,0,0,.28)]";
 const dot = (c = "#2fb36a") => <span className="inline-block h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: c, boxShadow: `0 0 0 3px color-mix(in srgb, ${c} 25%, transparent)` }} />;
@@ -494,183 +495,74 @@ function SafeMock({ m }: { m: M }) {
 
 /* ───────────── 7 · Area clienti: la dashboard di Mario Rossi ───────────── */
 
-function DashMock({ m, locale }: { m: M; locale: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const days = m.days.split("");
-  const bars = [0.42, 0.66, 0.5, 0.86, 0.72, 0.4, 0.58];
-  const seg: [number, string][] = [[52, "#3b8cff"], [30, "#7ab8ff"], [18, "#bcd9ff"]];
-  const feed: [LucideIcon, string, string, string][] = [
-    [ShoppingBag, "#2f7bff", m.n1, m.n1s],
-    [MessageCircle, "#2fc15a", m.n2, m.n2s],
-    [Truck, "#ff9f0a", m.n3, m.n3s],
-  ];
-  const nf = (n: number) => Math.round(n).toLocaleString(locale === "en" ? "en-US" : "it-IT");
-  const H = 54;
-  useLoop(ref, (tl, q) => {
-    const wl = q("[data-wl]");
-    const nums = q("[data-num]");
-    const to = [128, 24, 3482];
-    const arcs = q("[data-arc]");
-    const line = q("[data-line]")[0];
-    const area = q("[data-area]")[0];
-    const brs = q("[data-bar]");
-    const nt = q("[data-nt]");
-    const bd = q("[data-bd]")[0];
-    tl.fromTo(wl, { y: 12, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, stagger: 0.1, ease: "expo.out" }, 0);
-    nums.forEach((el, i) => count(tl, el, 0, to[i], 1.3, 0.3 + i * 0.12, nf, "expo.out"));
-    arcs.forEach((a, i) => tl.fromTo(a, { attr: { "stroke-dasharray": "0 100" } }, { attr: { "stroke-dasharray": `${seg[i][0] - 2} ${102 - seg[i][0]}` }, duration: 0.9, ease: "power2.out" }, 0.5 + i * 0.3));
-    tl.fromTo(line, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.3, ease: "power2.inOut" }, 0.6).fromTo(area, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.8 }, 1.3);
-    tl.fromTo(brs, { scaleY: 0.04 }, { scaleY: 1, duration: 0.8, stagger: 0.07, ease: "expo.out" }, 0.7);
-    nt.forEach((el, k) => {
-      const at = 1.4 + k * 1.2;
-      for (let j = 0; j < k; j++) tl.to(nt[j], { y: (k - j) * H, duration: 0.6, ease: "expo.out" }, at);
-      tl.fromTo(el, { y: -H, autoAlpha: 0, scale: 0.94 }, { y: 0, autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, at).call(() => void (bd.textContent = String(k + 1)), undefined, at + 0.1).fromTo(bd, { scale: 1.5 }, { scale: 1, duration: 0.4, ease: "expo.out" }, at + 0.1);
-    });
-    return () => {
-      gsap.set([wl, nt], { autoAlpha: 0 });
-      gsap.set(nt, { y: -H });
-      gsap.set(arcs, { attr: { "stroke-dasharray": "0 100" } });
-      gsap.set(brs, { scaleY: 0.04, autoAlpha: 1 });
-      gsap.set(q("[data-fade]"), { autoAlpha: 1 });
-      nums.forEach((n) => (n.textContent = "0"));
-      bd.textContent = "0";
-    };
-  }, 0.5);
-  const nav: LucideIcon[] = [LayoutDashboard, ShoppingBag, MessageCircle, Users, Settings];
-  const kp: [string, string][] = [[m.kOrders, "+12%"], [m.kMessages, "+3"], [m.kVisits, "+8%"]];
-  const title = "mb-3 text-[13px] font-semibold text-ink";
-  let acc = 0;
+/* ───────────── Sezioni ───────────── */
+
+/** Un mini-disegno per il capitolo «su misura»: pagina in bozza e il suo stile (colori, carattere, pulsante). */
+function DesignMock() {
   return (
-    <div ref={ref} className="flex w-full overflow-hidden" style={{ boxShadow: "inset 0 -1px 0 var(--hair-strong)" }}>
-      <aside className="hidden w-[60px] shrink-0 flex-col items-center gap-3 py-4 md:flex" style={{ boxShadow: "inset -1px 0 0 var(--hair-strong)" }}>
-        <Traffic />
-        <span className="mt-2 flex flex-col gap-2">
-          {nav.map((Icon, i) => (
-            <Bead key={i} radius={13} tint={i === 0 ? "sky" : "transparent"} className={`flex h-9 w-9 items-center justify-center ${i === 0 ? "text-ink" : "text-ink-3"}`}>
-              <Icon size={17} strokeWidth={1.9} aria-hidden />
-            </Bead>
+    <div className="grid h-full grid-cols-[1.3fr_1fr] gap-3">
+      <div className={`flex flex-col gap-2 rounded-[20px] p-3 ${surface}`}>
+        <span className="flex gap-1.5">
+          {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
+            <span key={c} className="h-2 w-2 rounded-full" style={{ background: c }} />
           ))}
         </span>
-      </aside>
-      <div className="min-w-0 flex-1 p-4 sm:p-5">
-        <header className="flex items-center justify-between gap-4">
-          <div>
-            <p data-wl className="text-[clamp(19px,2vw,26px)] font-semibold leading-tight tracking-[-0.03em] text-ink">
-              {m.welcome}
-            </p>
-            <p data-wl className="mt-0.5 text-[13.5px] text-ink-3">
-              {m.welcomeSub}
-            </p>
-          </div>
-          <div data-fade className="flex items-center gap-2.5">
-            <span className="relative">
-              <Bead radius={15} className="flex h-9 w-9 items-center justify-center text-ink">
-                <Bell size={17} strokeWidth={1.9} aria-hidden />
-              </Bead>
-              <span className="absolute -right-1 -top-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#ff453a] px-1 text-[10.5px] font-semibold text-white" style={{ boxShadow: "0 0 0 2px var(--bg-surface)" }}>
-                <span data-bd>0</span>
-              </span>
-            </span>
-            <Bead radius={18} tint="sky" className="flex h-9 w-9 items-center justify-center text-[12.5px] font-semibold text-ink">
-              MR
-            </Bead>
-          </div>
-        </header>
-        {/* griglia a quattro colonne: ogni riga ha la stessa altezza */}
-        <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-5 lg:grid-cols-4">
-          {kp.map(([l, d], i) => (
-            <div key={l} data-fade className="min-h-[84px]">
-              <p className="text-[12.5px] text-ink-3">{l}</p>
-              <p data-num className="mt-1 text-[clamp(24px,2.6vw,32px)] font-semibold tabular-nums leading-none tracking-[-0.04em] text-ink">
-                0
-              </p>
-              <p className="mt-2 inline-flex items-center gap-1.5 text-[12px] text-ink-2">
-                {dot()}
-                {d}
-              </p>
-            </div>
-          ))}
-          <div data-fade className="col-span-2 min-h-[84px] lg:col-span-1">
-            <div className="flex h-[56px] items-end gap-1.5">
-              {bars.map((h, i) => (
-                <span key={i} data-bar className="block flex-1 origin-bottom rounded-[4px]" style={{ height: `${h * 100}%`, background: i === 3 ? blue : "color-mix(in srgb,#3b8cff 26%, transparent)" }} />
-              ))}
-            </div>
-            <div className="mt-1 flex gap-1.5 text-[10.5px] text-ink-3">
-              {days.map((d, i) => (
-                <span key={i} className="flex-1 text-center">
-                  {d}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div data-fade className="col-span-2 lg:col-span-1">
-            <p className={title}>{m.chDonut}</p>
-            <div className="flex items-center gap-4">
-              <svg viewBox="0 0 100 100" className="h-[96px] w-[96px] shrink-0 -rotate-90" aria-hidden>
-                <circle cx="50" cy="50" r="36" fill="none" stroke="var(--hover)" strokeWidth="14" />
-                {seg.map(([v, c], i) => {
-                  const start = acc;
-                  acc += v;
-                  return <circle key={i} data-arc cx="50" cy="50" r="36" fill="none" stroke={c} strokeWidth="14" pathLength={100} strokeDasharray="0 100" strokeDashoffset={-start - 1} />;
-                })}
-              </svg>
-              <ul className="grid gap-1.5 text-[12.5px] text-ink-2">
-                {[m.d1, m.d2, m.d3].map((l, i) => (
-                  <li key={l} className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-[3px]" style={{ background: seg[i][1] }} />
-                    {l}
-                    <span className="ml-auto font-mono text-[11.5px] tabular-nums text-ink-3">{seg[i][0]}%</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          <div data-fade className="col-span-2">
-            <p className={title}>{m.chLine}</p>
-            <svg viewBox="0 0 200 84" className="h-[96px] w-full" preserveAspectRatio="none" aria-hidden>
-              <defs>
-                <linearGradient id="dsh-a" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#3b8cff" stopOpacity=".35" />
-                  <stop offset="1" stopColor="#3b8cff" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <path data-area d="M0 66 C20 58 30 40 50 44 S80 66 100 46 S140 14 160 28 S190 20 200 10 V84 H0 Z" fill="url(#dsh-a)" />
-              <path data-line d="M0 66 C20 58 30 40 50 44 S80 66 100 46 S140 14 160 28 S190 20 200 10" fill="none" stroke="#2f6fe0" strokeWidth="2.5" strokeLinecap="round" pathLength={1} strokeDasharray="1" strokeDashoffset="1" vectorEffect="non-scaling-stroke" />
-            </svg>
-          </div>
-          <div className="col-span-2 lg:col-span-1">
-            <p data-fade className={title}>
-              {m.activity}
-            </p>
-            <div className="relative h-[162px]">
-              {feed.map(([Icon, c, t, s]) => (
-                <Bead key={t} data-nt radius={16} className="absolute inset-x-0 top-0 flex items-center gap-2.5 px-2.5 text-ink" style={{ height: H - 6, opacity: 0 }}>
-                  <GlassIcon Icon={Icon} c={c} size={30} />
-                  <span className="min-w-0 flex-1 leading-tight">
-                    <span className="block truncate text-[12.5px] font-semibold">{t}</span>
-                    <span className="block truncate text-[11.5px] text-ink-2">{s}</span>
-                  </span>
-                </Bead>
-              ))}
-            </div>
-          </div>
+        <span className="h-3 w-1/2 rounded-full bg-[var(--hair-strong)]" />
+        <div className="min-h-0 flex-1">
+          <Wire cols={3} tall />
         </div>
+        <span className="flex gap-1.5">
+          <span className="h-5 w-16 rounded-full" style={{ background: blue }} />
+          <span className="h-5 w-12 rounded-full bg-[var(--hair-strong)]" />
+        </span>
+      </div>
+      <div className={`flex flex-col justify-between rounded-[20px] p-3 ${surface}`}>
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Stile</span>
+        <span className="flex gap-1.5">
+          {["#5ec4ff", "#2f6fe0", "#14171c", "#f3f4f6"].map((c) => (
+            <span key={c} className="h-7 flex-1 rounded-[8px]" style={{ background: c, boxShadow: "inset 0 0 0 1px var(--hair-strong)" }} />
+          ))}
+        </span>
+        <span className="text-[30px] font-medium leading-none tracking-[-0.05em] text-ink">Aa</span>
+        <span className="h-6 rounded-full" style={{ background: blue }} />
       </div>
     </div>
   );
 }
 
-/* ───────────── Sezioni ───────────── */
-
-function Cell({ span, title, body, mock, h = "h-[230px]", bleed = false }: { span: string; title: string; body: string; mock: ReactNode; h?: string; bleed?: boolean }) {
+/** Un capitolo del dettaglio: titolo centrato, a sinistra o a destra il disegno, accanto le cose precise che faccio. */
+function Chapter({ n, title, lead, mock, specs, flip }: { n: number; title: string; lead: string; mock: ReactNode; specs: [string, string][]; flip: boolean }) {
   return (
-    <Bead as="article" data-rv radius={36} className={`group relative flex flex-col overflow-hidden p-5 sm:p-7 ${span}`}>
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[70%] bg-[radial-gradient(60%_70%_at_50%_30%,color-mix(in_srgb,#5ec4ff_20%,transparent),transparent)]" />
-      <div className={bleed ? "relative -mx-5 -mt-5 mb-6 sm:-mx-7 sm:-mt-7" : `relative mb-6 transition-transform duration-[600ms] ease-[var(--ease-out)] group-hover:-translate-y-1.5 ${h}`}>{mock}</div>
-      <h3 className="text-[clamp(21px,2vw,28px)] font-medium leading-[1.1] tracking-[-0.035em] text-ink">{title}</h3>
-      <p className="mt-2.5 max-w-[46ch] text-[15.5px] leading-[1.55] text-ink-2">{body}</p>
-    </Bead>
+    <section className={`${container} pt-24 sm:pt-36`}>
+      <p data-rv className="text-center font-mono text-[12px] uppercase tracking-[0.18em] text-ink-3">
+        {String(n).padStart(2, "0")}
+      </p>
+      <h2 data-rv className={`${h2} mt-4`}>
+        <Script text={title} />
+      </h2>
+      <p data-rv className={lede}>
+        {lead}
+      </p>
+      <div className="mt-12 grid items-center gap-6 sm:mt-16 lg:grid-cols-2 lg:gap-8">
+        <Bead as="article" data-rv radius={40} className={`relative overflow-hidden p-5 sm:p-7 ${flip ? "lg:order-2" : ""}`}>
+          <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[70%] bg-[radial-gradient(60%_70%_at_50%_30%,color-mix(in_srgb,#5ec4ff_20%,transparent),transparent)]" />
+          <div className="relative h-[300px] sm:h-[340px]">{mock}</div>
+        </Bead>
+        <ul className="grid gap-3.5 sm:gap-4">
+          {specs.map(([t, b]) => (
+            <li key={t} data-rv className="flex items-start gap-4 px-1 sm:px-3">
+              <span className="mt-[3px] flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent)_22%,transparent)] text-ink">
+                <Check size={15} strokeWidth={2.2} aria-hidden />
+              </span>
+              <span>
+                <span className="block text-[clamp(18px,1.6vw,21px)] font-medium leading-[1.25] tracking-[-0.025em] text-ink">{t}</span>
+                <span className="mt-1.5 block max-w-[52ch] text-[15.5px] leading-[1.6] text-ink-2">{b}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
 
@@ -709,65 +601,66 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
   return (
     <div ref={root} className="pb-8">
       {/* offerta */}
-      <section className={`${container} pt-24 sm:pt-36`}>
-        <div className="grid items-center gap-12 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
-          <div>
-            <h2 data-rv className="max-w-[16ch] text-[clamp(40px,6vw,92px)] font-medium leading-[1.02] tracking-[-0.05em] text-ink">
-              <Script text={c.offer.title} />
-            </h2>
-            <p data-rv className="mt-7 max-w-[52ch] text-[clamp(17px,1.5vw,20px)] leading-[1.6] text-ink-2">
-              {c.offer.lead}
-            </p>
-            <div data-rv className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
-              <Drop href="#brief-web" accent className="h-[54px] px-7 text-[16px] font-medium text-ink">
-                {c.offer.cta}
-                <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
-              </Drop>
-              <a href="#proof" className="group inline-flex h-[54px] items-center gap-2 text-[16px] font-medium text-ink-2 transition-colors hover:text-ink">
-                {c.offer.more}
-                <ArrowRight size={17} strokeWidth={1.8} className="rotate-90 transition-transform duration-300 group-hover:translate-y-0.5" aria-hidden />
-              </a>
-            </div>
-          </div>
-          <ul className="grid gap-4">
-            {c.offer.facts.map(([v, l], i) => (
-              <Bead as="li" key={v} data-rv radius={32} className="flex items-center gap-5 p-4 pr-6 sm:p-5 sm:pr-8">
-                <Tile3D Icon={FACT_ICONS[i]} size={28} className="block h-[64px] w-[64px] shrink-0" />
-                <span className="leading-tight">
-                  <span className="block text-[clamp(24px,2.4vw,32px)] font-medium tracking-[-0.04em] text-ink">{v}</span>
-                  <span className="mt-1 block text-[14.5px] leading-[1.45] text-ink-2">{l}</span>
-                </span>
-              </Bead>
-            ))}
-          </ul>
+      <section className={`${container} pt-24 text-center sm:pt-36`}>
+        <h2 data-rv className="mx-auto max-w-[13ch] text-balance text-[clamp(46px,8.4vw,132px)] font-medium leading-[0.98] tracking-[-0.06em] text-ink">
+          <Script text={c.offer.title} />
+        </h2>
+        <p data-rv className="mx-auto mt-8 max-w-[58ch] text-balance text-[clamp(17px,1.6vw,21px)] leading-[1.6] text-ink-2">
+          {c.offer.lead}
+        </p>
+        <div data-rv className="mt-10 flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
+          <Drop href="#brief-web" accent className="h-[56px] px-8 text-[17px] font-medium text-ink">
+            {c.offer.cta}
+            <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
+          </Drop>
+          <a href="#proof" className="group inline-flex h-[56px] items-center gap-2 text-[16px] font-medium text-ink-2 transition-colors hover:text-ink">
+            {c.offer.more}
+            <ArrowRight size={17} strokeWidth={1.8} className="rotate-90 transition-transform duration-300 group-hover:translate-y-0.5" aria-hidden />
+          </a>
         </div>
+        <ul className="mt-16 grid gap-4 text-left sm:mt-20 md:grid-cols-3">
+          {c.offer.facts.map(([v, l], i) => (
+            <Bead as="li" key={v} data-rv radius={36} className="flex flex-col gap-5 p-6 sm:p-7">
+              <Tile3D Icon={FACT_ICONS[i]} size={28} className="block h-[62px] w-[62px] shrink-0" />
+              <span className="leading-tight">
+                <span className="block text-[clamp(26px,2.6vw,36px)] font-medium tracking-[-0.045em] text-ink">{v}</span>
+                <span className="mt-2 block text-[15.5px] leading-[1.5] text-ink-2">{l}</span>
+              </span>
+            </Bead>
+          ))}
+        </ul>
       </section>
 
-      {/* bento */}
-      <section id="include" className={`${container} scroll-mt-10 pt-8 sm:pt-6`}>
-        <header className="mb-6 sm:mb-7">
-          <h2 data-rv className={h2}>
-            <Script text={c.bento.title} />
-          </h2>
-        </header>
-        <div className="grid gap-4 sm:gap-5 lg:grid-cols-12">
-          <Cell span="lg:col-span-7" title={c.bento.cells.found[0]} body={c.bento.cells.found[1]} mock={<FoundMock m={m} />} h="h-[290px]" />
-          <Cell span="lg:col-span-5" title={c.bento.cells.speed[0]} body={c.bento.cells.speed[1]} mock={<SpeedMock m={m} f={fs} />} h="h-[290px]" />
-          <Cell span="lg:col-span-5" title={c.bento.cells.screens[0]} body={c.bento.cells.screens[1]} mock={<ScreensMock />} h="h-[300px]" />
-          <Cell span="lg:col-span-7" title={c.bento.cells.edit[0]} body={c.bento.cells.edit[1]} mock={<EditMock m={m} />} h="h-[300px]" />
-          <Cell span="lg:col-span-7" title={c.bento.cells.leads[0]} body={c.bento.cells.leads[1]} mock={<LeadsMock m={m} />} h="h-[270px]" />
-          <Cell span="lg:col-span-5" title={c.bento.cells.safe[0]} body={c.bento.cells.safe[1]} mock={<SafeMock m={m} />} h="h-[270px]" />
-          <Cell span="lg:col-span-12" title={c.bento.cells.dash[0]} body={c.bento.cells.dash[1]} mock={<DashMock m={m} locale={locale} />} h="h-auto" bleed />
-        </div>
+      {/* il video, spiegato: un capitolo per ogni cosa detta */}
+      <section id="include" className={`${container} scroll-mt-10 pt-28 sm:pt-44`}>
+        <h2 data-rv className={h2}>
+          <Script text={c.deep.title} />
+        </h2>
+        <p data-rv className={lede}>
+          {c.deep.lead}
+        </p>
       </section>
+      {c.deep.items.map((it, i) => (
+        <Chapter
+          key={it.k}
+          n={i + 1}
+          title={it.title}
+          lead={it.lead}
+          specs={it.specs}
+          flip={i % 2 === 1}
+          mock={
+            it.k === "found" ? <FoundMock m={m} /> : it.k === "speed" ? <SpeedMock m={m} f={fs} /> : it.k === "design" ? <DesignMock /> : it.k === "screens" ? <ScreensMock /> : it.k === "edit" ? <EditMock m={m} /> : it.k === "assistant" ? <LeadsMock m={m} /> : <SafeMock m={m} />
+          }
+        />
+      ))}
 
       {/* passi */}
       <section className={`${container} pt-28 sm:pt-44`}>
-        <header className="mb-12 grid gap-5 sm:mb-16 lg:grid-cols-[1fr_auto] lg:items-end">
+        <header className="mb-12 sm:mb-16">
           <h2 data-rv className={h2}>
             <Script text={c.steps.title} />
           </h2>
-          <p data-rv className="max-w-[40ch] text-[17px] leading-[1.55] text-ink-2">
+          <p data-rv className={lede}>
             {c.steps.lead}
           </p>
         </header>
@@ -793,7 +686,7 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
       {/* prove */}
       {proof.length > 0 && (
         <section id="proof" className={`${container} scroll-mt-10 pt-28 sm:pt-44`}>
-          <h2 data-rv className={`${h2} mb-10 sm:mb-14`}>
+          <h2 data-rv className={`${h2} mb-12 sm:mb-16`}>
             <Script text={c.proof.title} />
           </h2>
           <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
@@ -828,21 +721,19 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
 
       {/* invito a metà pagina: dopo aver visto cosa ottiene e le prove */}
       <section className={`${container} pt-28 sm:pt-44`}>
-        <Bead as="div" radius={44} className="flex flex-col items-start gap-8 p-7 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 data-rv className="max-w-[20ch] text-[clamp(30px,4vw,60px)] font-medium leading-[1.04] tracking-[-0.05em] text-ink">
-              <Script text={c.cta.title} />
-            </h2>
-            <p data-rv className="mt-4 max-w-[46ch] text-[17px] leading-[1.55] text-ink-2">
-              {c.cta.lead}
-            </p>
-          </div>
-          <div data-rv className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <Drop href="#brief-web" accent className="h-[54px] px-7 text-[16px] font-medium text-ink">
+        <Bead as="div" radius={48} className="flex flex-col items-center gap-8 p-8 text-center sm:p-14">
+          <h2 data-rv className="max-w-[18ch] text-balance text-[clamp(32px,4.6vw,72px)] font-medium leading-[1.02] tracking-[-0.055em] text-ink">
+            <Script text={c.cta.title} />
+          </h2>
+          <p data-rv className="max-w-[46ch] text-balance text-[18px] leading-[1.55] text-ink-2">
+            {c.cta.lead}
+          </p>
+          <div data-rv className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
+            <Drop href="#brief-web" accent className="h-[56px] px-8 text-[17px] font-medium text-ink">
               {ctaLabel}
               <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
             </Drop>
-            <a href="#promise" className="group inline-flex h-[54px] items-center gap-2 text-[16px] font-medium text-ink-2 transition-colors hover:text-ink">
+            <a href="#promise" className="group inline-flex h-[56px] items-center gap-2 text-[16px] font-medium text-ink-2 transition-colors hover:text-ink">
               {c.cta.more}
               <ArrowRight size={17} strokeWidth={1.8} className="rotate-90 transition-transform duration-300 group-hover:translate-y-0.5" aria-hidden />
             </a>
@@ -852,7 +743,7 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
 
       {/* garanzie */}
       <section id="promise" className={`${container} scroll-mt-10 pt-28 sm:pt-44`}>
-        <h2 data-rv className={`${h2} mb-10 sm:mb-14`}>
+        <h2 data-rv className={`${h2} mb-12 sm:mb-16`}>
           <Script text={c.promise.title} />
         </h2>
         <ul className="grid gap-4 sm:grid-cols-2 sm:gap-5">
@@ -895,8 +786,8 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
 
       {/* domande */}
       <section className={`${container} pt-28 sm:pt-44`}>
-        <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-20">
-          <h2 data-rv className={h2}>
+        <div className="mx-auto max-w-[860px]">
+          <h2 data-rv className={`${h2} mb-12 sm:mb-16`}>
             <Script text={c.faq.title} />
           </h2>
           <ul className="grid gap-3">

@@ -4,6 +4,7 @@ import type { Locale } from "@/i18n/routing";
 export type WebCopy = {
   offer: { title: string; lead: string; cta: string; more: string; facts: [string, string][] };
   bento: { title: string; lead: string; cells: Record<"speed" | "screens" | "edit" | "leads" | "found" | "safe" | "dash", [string, string]>; mock: Record<string, string> };
+  deep: { title: string; lead: string; items: { k: "found" | "speed" | "design" | "screens" | "edit" | "assistant" | "support"; title: string; lead: string; specs: [string, string][] }[] };
   steps: { title: string; lead: string; items: [string, string][] };
   proof: { title: string };
   cta: { title: string; lead: string; more: string };
@@ -83,6 +84,54 @@ const IT: WebCopy = {
       days: "LMMGVSD",
     },
   },
+  deep: {
+    title: "Il video, in fretta. Qui, *nel dettaglio*.",
+    lead: "Ogni cosa che hai visto, spiegata: cosa faccio, con quali strumenti e come lo controlli tu.",
+    items: [
+      { k: "found", title: "Ti trova chi *ti cerca*.", lead: "Un sito che Google e gli assistenti di intelligenza artificiale leggono e capiscono senza fatica.", specs: [
+        ["Una pagina per ogni servizio", "Titolo, descrizione e testo scritti per una ricerca precisa, invece di una sola pagina che dice tutto."],
+        ["Dati strutturati", "Nome, indirizzo, orari, servizi e domande frequenti in un formato (schema.org) che motori di ricerca e assistenti leggono senza interpretare."],
+        ["Scheda Google e mappa coerenti", "Stesso nome, indirizzo e telefono sul sito e ovunque compari, così le informazioni non si contraddicono."],
+        ["Struttura pulita", "Mappa del sito, indirizzi leggibili e un solo indirizzo ufficiale per pagina. Il primo posto non si garantisce: questa è la base per meritarlo."],
+      ] },
+      { k: "speed", title: "Si apre *all’istante*.", lead: "Ogni secondo di attesa è un cliente in meno. La velocità si misura, non si promette.", specs: [
+        ["Immagini leggere", "Formati moderni (WebP e AVIF), ridimensionate per lo schermo e caricate solo quando servono."],
+        ["Pagine già pronte", "Costruite in anticipo e servite da server vicini a chi visita, invece di essere ricalcolate a ogni visita."],
+        ["Solo il codice che serve", "Niente plugin in più; i caratteri sono caricati in modo che il testo sia leggibile subito."],
+        ["Misurato, prima e dopo", "Provo da telefono con connessione lenta con gli indicatori di Google (Core Web Vitals) e ti mostro i numeri."],
+      ] },
+      { k: "design", title: "Disegnato *intorno a te*.", lead: "Niente modelli copiati: parto dal tuo lavoro, non da un tema già pronto.", specs: [
+        ["Una chiamata per capire", "Cosa fai, a chi ti rivolgi e cosa deve fare chi arriva: chiamare, prenotare, scriverti."],
+        ["Le schermate prima del codice", "Disegno ogni pagina in Figma e la rivediamo insieme: correggere un disegno costa minuti, non settimane."],
+        ["Uno stile tutto tuo", "Colori, caratteri, spazi e pulsanti definiti una volta e uguali in ogni pagina."],
+        ["Testi e foto", "Parto dai tuoi. Se mancano, ti aiuto a scriverli e a scegliere le immagini giuste."],
+      ] },
+      { k: "screens", title: "Perfetto su *ogni schermo*.", lead: "Computer, tablet e telefono: lo stesso sito, disegnato per ciascuno e non semplicemente rimpicciolito.", specs: [
+        ["Prima il telefono", "Parto dallo schermo piccolo, dove ti cerca la maggior parte delle persone, poi allargo a tablet e computer."],
+        ["Comodo da toccare", "Pulsanti abbastanza grandi, testo leggibile senza ingrandire, numeri di telefono che chiamano con un tocco."],
+        ["Provato su dispositivi diversi", "Telefoni, tablet e browser diversi, prima della messa online."],
+        ["Accessibile", "Contrasti leggibili, uso con la tastiera e descrizioni per le immagini."],
+      ] },
+      { k: "edit", title: "Lo *cambi tu*.", lead: "Una parola, una foto, un orario: senza chiamare nessuno.", specs: [
+        ["Un pannello semplice", "Solo i campi che servono: testi, foto, orari, servizi. Il layout non si può rompere."],
+        ["Anteprima e pubblicazione", "Vedi la modifica prima di pubblicarla e la pubblichi con un clic."],
+        ["Ogni versione resta salvata", "Se sbagli, torni indietro in un attimo."],
+        ["Ti insegno a usarlo", "Una sessione insieme, poi le istruzioni restano scritte."],
+      ] },
+      { k: "assistant", title: "Oppure lo chiedi *su WhatsApp*.", lead: "Un assistente a cui scrivi come a una persona.", specs: [
+        ["Modifiche a voce", "Gli chiedi di cambiare una parola, una foto o un orario e lo prepara sul sito."],
+        ["Come sta andando", "Le visite della settimana e come cambiano, in un messaggio."],
+        ["Chi vuole essere richiamato", "Nome e motivo di chi ha lasciato una richiesta dal sito."],
+        ["Richieste in ordine", "Prenotazioni e messaggi arrivano con una notifica, già con i dati al loro posto."],
+      ] },
+      { k: "support", title: "Per tutto il resto, *ci siamo noi*.", lead: "Una volta online il lavoro non finisce: resta un solo referente, sempre lo stesso.", specs: [
+        ["Sul tuo dominio, in sicurezza", "Connessione protetta (HTTPS) con certificato rinnovato in automatico."],
+        ["Copie di sicurezza", "Regolari, con la possibilità di tornare a una versione precedente."],
+        ["Aggiornamenti e controlli", "Sicurezza e funzionamento tenuti in ordine; il canone mensile c’è solo se lo vuoi."],
+        ["Tutto intestato a te", "Dominio, codice e contenuti sono tuoi, senza vincoli: se un giorno cambi, ti passo tutto documentato."],
+      ] },
+    ],
+  },
   steps: {
     title: "Dal primo incontro al sito *online*.",
     lead: "Sempre nello stesso ordine. A ogni passo vedi qualcosa di concreto e decidi tu se va bene.",
@@ -93,10 +142,10 @@ const IT: WebCopy = {
       ["Va online, e resta tuo", "Controllo finale insieme, pubblico sul tuo dominio e ti spiego come usarlo."],
     ],
   },
-  proof: { title: "Già fatto, *davvero*." },
+  proof: { title: "Non solo parole: *già fatto*." },
   cta: { title: "Quante persone ti cercano oggi e trovano *un’altra attività*?", lead: "In 30 minuti vediamo dove ti trovi e cosa cambierebbe con un sito fatto come si deve.", more: "Cosa non ti prometto" },
-  promise: { title: "Cosa ti *garantisco*." },
-  faq: { title: "Le *domande* di chi sceglie." },
+  promise: { title: "Nero su bianco, *cosa ti garantisco*." },
+  faq: { title: "Hai ancora *un dubbio*?" },
 };
 
 const EN: WebCopy = {
@@ -171,6 +220,54 @@ const EN: WebCopy = {
       days: "MTWTFSS",
     },
   },
+  deep: {
+    title: "The film, in a hurry. Here, *in detail*.",
+    lead: "Everything you saw, explained: what I do, with which tools and how you can check it.",
+    items: [
+      { k: "found", title: "People who search *find you*.", lead: "A site that Google and AI assistants read and understand without effort.", specs: [
+        ["One page per service", "Title, description and text written for a specific search, instead of one page that says everything."],
+        ["Structured data", "Name, address, hours, services and FAQs in a format (schema.org) that search engines and assistants read without guessing."],
+        ["Google profile and map in sync", "Same name, address and phone on the site and everywhere you appear, so details never contradict."],
+        ["Clean structure", "Sitemap, readable addresses and one official address per page. First place can’t be guaranteed: this is the base to earn it."],
+      ] },
+      { k: "speed", title: "It opens *instantly*.", lead: "Every second of waiting is one customer fewer. Speed is measured, not promised.", specs: [
+        ["Light images", "Modern formats (WebP and AVIF), sized for the screen and loaded only when needed."],
+        ["Pages ready in advance", "Built ahead of time and served from servers close to the visitor, not recalculated on every visit."],
+        ["Only the code that’s needed", "No extra plugins; fonts load so the text is readable right away."],
+        ["Measured, before and after", "Tested on a phone with a slow connection using Google’s indicators (Core Web Vitals), and I show you the numbers."],
+      ] },
+      { k: "design", title: "Designed *around you*.", lead: "No copied templates: I start from your work, not from a ready-made theme.", specs: [
+        ["A call to understand", "What you do, who you serve and what visitors should do: call, book, write to you."],
+        ["Screens before code", "I design every page in Figma and we review it together: fixing a drawing takes minutes, not weeks."],
+        ["A style of your own", "Colours, fonts, spacing and buttons defined once and identical on every page."],
+        ["Text and photos", "I start from yours. If they’re missing, I help you write them and pick the right images."],
+      ] },
+      { k: "screens", title: "Perfect on *every screen*.", lead: "Computer, tablet and phone: the same site, designed for each and not simply shrunk.", specs: [
+        ["Phone first", "I start from the small screen, where most people look for you, then widen to tablet and computer."],
+        ["Easy to tap", "Buttons big enough, text readable without zooming, phone numbers that call with a tap."],
+        ["Tested on different devices", "Different phones, tablets and browsers, before going live."],
+        ["Accessible", "Readable contrast, keyboard use and descriptions for images."],
+      ] },
+      { k: "edit", title: "You *change it*.", lead: "A word, a photo, opening hours: without calling anyone.", specs: [
+        ["A simple panel", "Only the fields you need: text, photos, hours, services. The layout can’t be broken."],
+        ["Preview and publish", "See the change before publishing and publish with one click."],
+        ["Every version is saved", "If you slip, you go back in a moment."],
+        ["I teach you to use it", "One session together, then the instructions stay in writing."],
+      ] },
+      { k: "assistant", title: "Or ask *on WhatsApp*.", lead: "An assistant you message like a person.", specs: [
+        ["Changes by message", "Ask it to change a word, a photo or opening hours and it prepares it on the site."],
+        ["How it’s going", "This week’s visits and how they change, in one message."],
+        ["Who wants a call back", "Name and reason of whoever left a request on the site."],
+        ["Requests in order", "Bookings and messages arrive with a notification, details already in place."],
+      ] },
+      { k: "support", title: "For everything else, *we’re here*.", lead: "Once online the work doesn’t stop: one contact, always the same.", specs: [
+        ["On your domain, securely", "Protected connection (HTTPS) with a certificate that renews automatically."],
+        ["Backups", "Regular, with the option to go back to a previous version."],
+        ["Updates and checks", "Security and operation kept in order; the monthly fee is only there if you want it."],
+        ["All in your name", "Domain, code and content are yours, no lock-in: if you ever switch, I hand over everything documented."],
+      ] },
+    ],
+  },
   steps: {
     title: "From first call to a site *online*.",
     lead: "Always in the same order. At every step you see something concrete and decide if it’s right.",
@@ -181,10 +278,10 @@ const EN: WebCopy = {
       ["It goes live, and stays yours", "Final check together, I publish on your domain and show you how to use it."],
     ],
   },
-  proof: { title: "Already done, *for real*." },
+  proof: { title: "Not just words: *already done*." },
   cta: { title: "How many people look for you today and find *someone else*?", lead: "In 30 minutes we see where you stand and what a site done right would change.", more: "What I won’t promise" },
-  promise: { title: "What I *guarantee*." },
-  faq: { title: "The *questions* people ask." },
+  promise: { title: "In writing, *what I guarantee*." },
+  faq: { title: "Still *a doubt*?" },
 };
 
 export const getWebCopy = (l: Locale): WebCopy => (l === "en" ? EN : IT);
