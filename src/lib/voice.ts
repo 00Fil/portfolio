@@ -4,7 +4,7 @@
  */
 export type Voice = {
   level: { current: number };
-  say: (src: string | null, fallbackMs: number) => Promise<void>;
+  say: (src: string | null, fallbackMs: number, onStart?: (ms: number) => void) => Promise<void>;
   mute: (m: boolean) => void;
   cut: () => void;
   stop: () => void;
@@ -74,9 +74,12 @@ export function createVoice(level: { current: number } = { current: 0 }): Voice 
       };
     });
 
-  const say = async (src: string | null, fallbackMs: number) => {
+  const say = async (src: string | null, fallbackMs: number, onStart?: (ms: number) => void) => {
     if (!alive) return;
-    if (!src) return wait(fallbackMs);
+    if (!src) {
+      onStart?.(fallbackMs);
+      return wait(fallbackMs);
+    }
     try {
       ensure();
       const a = new Audio(src);
@@ -94,7 +97,11 @@ export function createVoice(level: { current: number } = { current: 0 }): Voice 
         if (!alive) return;
         await start().catch(() => undefined);
       }
-      if (a.paused && a.currentTime === 0) return wait(fallbackMs);
+      if (a.paused && a.currentTime === 0) {
+        onStart?.(fallbackMs);
+        return wait(fallbackMs);
+      }
+      onStart?.(Number.isFinite(a.duration) ? a.duration * 1000 : fallbackMs);
       await new Promise<void>((res) => {
         a.onended = () => res();
         a.onerror = () => res();

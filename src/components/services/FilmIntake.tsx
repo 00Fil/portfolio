@@ -73,8 +73,18 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
       await new Promise((r) => setTimeout(r, 700));
       for (const l of C.intro) {
         if (dead) return;
-        setSub(l.t);
-        await v.say(src(l.audio), reading(l.t));
+        // una frase alla volta: ogni pezzo compare quando la voce ci arriva, in proporzione alla lunghezza
+        const chunks = l.t.split(/(?<=[.,!?])\s+/);
+        const total = chunks.reduce((n, c) => n + c.length, 0);
+        setSub(chunks[0]);
+        await v.say(src(l.audio), reading(l.t), (ms) => {
+          let acc = chunks[0].length;
+          chunks.slice(1).forEach((c) => {
+            const at = (acc / total) * ms;
+            acc += c.length;
+            window.setTimeout(() => !dead && setSub(c), at);
+          });
+        });
         if (dead) return;
         setSub(null);
         await new Promise((r) => setTimeout(r, 380));
@@ -159,9 +169,9 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
           <div ref={orb} className="relative aspect-square w-[min(40vh,360px,74vw)]">
             <Strands colors={PINK} lightMode={light} levelRef={level.current} energy={0.45} />
           </div>
-          <div className="relative mt-2 flex min-h-[6.2em] w-full max-w-[34ch] items-start justify-center text-center md:max-w-[40ch]">
+          <div className="relative mt-2 flex min-h-[3.4em] w-full max-w-[48ch] items-start justify-center text-center">
             {sub && (
-              <p ref={subRef} className="cine-fg text-[clamp(22px,2.9cqw,42px)] font-semibold leading-[1.1] tracking-[-0.05em]">
+              <p ref={subRef} className="cine-fg text-[clamp(18px,2.1cqw,32px)] font-semibold leading-[1.1] tracking-[-0.05em]">
                 <Sub text={sub} />
               </p>
             )}
@@ -170,9 +180,9 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
       )}
 
       {phase !== "intro" && (
-        <div className="relative w-full max-w-[980px]">
+        <div className="relative w-full max-w-[1180px]">
           <div ref={card} className="relative opacity-0">
-            <Bead as="div" radius={44} className="relative px-12 pb-12 pt-14 text-center max-sm:px-5 max-sm:pb-7 max-sm:pt-9">
+            <Bead as="div" radius={44} className="relative px-20 pb-20 pt-24 text-center max-sm:px-6 max-sm:pb-10 max-sm:pt-12">
               <div ref={body} className="flex flex-col items-center gap-9 max-sm:gap-6">
                 {phase === "form" && (
                   <>
