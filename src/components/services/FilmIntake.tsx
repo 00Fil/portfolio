@@ -72,18 +72,18 @@ export function FilmIntake({ en, K, onDone, onSkip }: { en: boolean; K: KwC; onD
   };
 
   const cur = step >= 0 ? C.steps[step] : null;
-  const btn = "cine-fg flex min-h-[50px] w-full items-center justify-center rounded-[24px] px-4 text-center text-[16px] font-medium leading-[1.2] tracking-[-0.01em] transition-transform active:scale-[.98]";
+  const btn = "cine-fg flex min-h-[64px] w-full items-center justify-center rounded-[24px] px-4 text-center text-[18px] font-medium leading-[1.2] max-sm:min-h-[52px] max-sm:text-[16px] tracking-[-0.01em] transition-transform active:scale-[.98]";
 
   return (
     <div className="absolute inset-0 z-30 flex items-center justify-center bg-[color-mix(in_srgb,var(--bg-canvas)_45%,transparent)] px-5 backdrop-blur-2xl">
-      <Bead as="div" radius={44} className="relative w-full max-w-[440px] px-7 pb-7 pt-9 text-center max-sm:px-5">
-        <div ref={card} className="flex flex-col items-center gap-6">
+      <Bead as="div" radius={44} className="relative w-full max-w-[860px] px-12 pb-12 pt-14 text-center max-sm:px-5 max-sm:pb-7 max-sm:pt-9">
+        <div ref={card} className="flex flex-col items-center gap-9 max-sm:gap-6">
           {step < 0 && !busy && (
             <>
               <Bead as="span" data-in tint="sky" radius={999} className="cine-fg flex h-[76px] w-[76px] items-center justify-center">
                 <Volume2 size={30} strokeWidth={1.7} aria-hidden />
               </Bead>
-              <p data-in className="cine-fg text-[clamp(30px,4.4cqw,44px)] font-medium leading-[1.08] tracking-[-0.05em]">
+              <p data-in className="cine-fg text-[clamp(34px,5.6cqw,60px)] font-medium leading-[1.08] tracking-[-0.05em]">
                 <K text={C.head} />
                 <span className="cine-fg2 mt-2 block text-[clamp(15px,1.8cqw,17.5px)] font-normal leading-[1.4] tracking-[-0.01em]">{C.sub}</span>
               </p>
@@ -105,14 +105,14 @@ export function FilmIntake({ en, K, onDone, onSkip }: { en: boolean; K: KwC; onD
             <>
               <span data-in aria-hidden className="flex gap-1.5">
                 {C.steps.map((_, i) => (
-                  <span key={i} className="h-[3px] w-7 rounded-full" style={{ background: i <= step ? "var(--accent)" : "var(--hair-strong)" }} />
+                  <span key={i} className="h-[3px] w-12 rounded-full" style={{ background: i <= step ? "var(--accent)" : "var(--hair-strong)" }} />
                 ))}
               </span>
-              <p data-in className="cine-fg text-[clamp(28px,4cqw,40px)] font-medium leading-[1.1] tracking-[-0.05em]">
+              <p data-in className="cine-fg text-[clamp(30px,5.2cqw,56px)] font-medium leading-[1.1] tracking-[-0.05em]">
                 <K text={cur.q} />
               </p>
               {cur.opts ? (
-                <div data-in className={`grid w-full gap-2.5 ${cur.opts.length > 4 ? "grid-cols-2" : ""}`}>
+                <div data-in className={`grid w-full gap-3 ${cur.opts.length === 4 ? "grid-cols-2 max-sm:grid-cols-1" : "grid-cols-3 max-sm:grid-cols-1"}`}>
                   {cur.opts.map((o) => (
                     <Bead key={o.id} as="button" type="button" radius={24} onClick={() => answer(cur.id, o.id)} className={btn}>
                       {o.t}
@@ -128,10 +128,10 @@ export function FilmIntake({ en, K, onDone, onSkip }: { en: boolean; K: KwC; onD
                     if (text.trim()) answer(cur.id, text.trim());
                   }}
                 >
-                  <Bead as="div" radius={24} className="flex h-[54px] min-w-0 flex-1 items-center px-5">
-                    <input autoFocus value={text} onChange={(e) => setText(e.target.value)} maxLength={28} placeholder={cur.ph} aria-label={cur.ph} className="cine-fg w-full bg-transparent text-[17px] font-medium tracking-[-0.01em] outline-none placeholder:opacity-45" />
+                  <Bead as="div" radius={24} className="flex h-[68px] min-w-0 flex-1 items-center px-7">
+                    <input autoFocus value={text} onChange={(e) => setText(e.target.value)} maxLength={28} placeholder={cur.ph} aria-label={cur.ph} className="cine-fg w-full bg-transparent text-[22px] font-medium tracking-[-0.01em] outline-none placeholder:opacity-45" />
                   </Bead>
-                  <Bead as="button" type="submit" tint="sky" radius={999} aria-label={C.next} className="cine-fg flex h-[54px] w-[54px] shrink-0 items-center justify-center">
+                  <Bead as="button" type="submit" tint="sky" radius={999} aria-label={C.next} className="cine-fg flex h-[68px] w-[68px] shrink-0 items-center justify-center">
                     <ArrowRight size={21} strokeWidth={1.9} aria-hidden />
                   </Bead>
                 </form>
