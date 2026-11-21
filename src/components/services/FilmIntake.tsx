@@ -53,6 +53,7 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
   const card = useRef<HTMLDivElement>(null);
   const body = useRef<HTMLDivElement>(null);
   const glow = useRef<HTMLDivElement>(null);
+  const rim = useRef<HTMLDivElement>(null);
   const subRef = useRef<HTMLParagraphElement>(null);
   const src = (n: string) => (en || !n ? null : `/intake/${n}.mp3`);
 
@@ -111,7 +112,8 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
     if (phase !== "form" || !card.current) return;
     const tl = gsap.timeline();
     if (orb.current) tl.to(orb.current, { scale: 2.6, autoAlpha: 0, duration: 0.8, ease: "power3.in" }, 0);
-    tl.fromTo(card.current, { scale: 0.22, autoAlpha: 0, filter: "blur(14px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 1.0, ease: "expo.out" }, 0.25);
+    tl.fromTo(card.current, { scale: 0.9, autoAlpha: 0, filter: "blur(10px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 1.0, ease: "expo.out" }, 0.4);
+    if (rim.current) tl.fromTo(rim.current, { scale: 0.45, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 1.3, ease: "expo.out" }, 0.2);
     return () => void tl.kill();
   }, [phase]);
 
@@ -180,9 +182,9 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
       )}
 
       {phase !== "intro" && (
-        <div className="relative w-full max-w-[1180px]">
+        <div className="relative w-full max-w-[920px]">
           <div ref={card} className="relative opacity-0">
-            <Bead as="div" radius={44} className="relative px-20 pb-20 pt-24 text-center max-sm:px-6 max-sm:pb-10 max-sm:pt-12">
+            <div className="relative px-6 text-center max-sm:px-2">
               <div ref={body} className="flex flex-col items-center gap-9 max-sm:gap-6">
                 {phase === "form" && (
                   <>
@@ -227,12 +229,18 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
                   </p>
                 )}
               </div>
-            </Bead>
-            <div ref={glow} aria-hidden className="pointer-events-none absolute inset-0 z-20 overflow-hidden rounded-[44px]">
-              <div className="rim-l3" />
-              <div className="rim-l2" />
-              <div className="rim-l1" />
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* il bordo luminoso coincide con il bordo del riquadro del video */}
+      {phase !== "intro" && (
+        <div ref={rim} aria-hidden className="pointer-events-none absolute inset-0 -z-0 opacity-0">
+          <div ref={glow} className="absolute inset-0 overflow-hidden rounded-[34px]">
+            <div className="rim-l3" />
+            <div className="rim-l2" />
+            <div className="rim-l1" />
           </div>
         </div>
       )}

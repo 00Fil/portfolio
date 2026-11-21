@@ -38,7 +38,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 44px;
+  border-radius: 34px;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
@@ -53,20 +53,20 @@
   animation: rim-spin 11s linear infinite;
 }
 .rim-l2 {
-  filter: blur(6px);
+  filter: blur(8px);
   opacity: calc(0.42 + var(--lv, 0) * 0.45);
 }
 .rim-l2::before {
-  padding: 9px;
+  padding: 12px;
   background: conic-gradient(from calc(var(--rim-a) * -1 + 70deg), #ff00c9, #ff9bff 12%, #5b00ff 30%, #c06bff 46%, #ffffff 58%, #ff00ff 74%, #7a2cff 90%, #ff00c9);
   animation: rim-spin 14s linear infinite;
 }
 .rim-l3 {
-  filter: blur(20px);
+  filter: blur(34px);
   opacity: calc(0.28 + var(--lv, 0) * 0.45);
 }
 .rim-l3::before {
-  padding: 26px;
+  padding: 56px;
   background: conic-gradient(from calc(var(--rim-a) + 160deg), #ff00ff, #5b00ff 22%, #ffd0ff 40%, #ff00c9 60%, #8a3dff 80%, #ff00ff);
   animation: rim-spin 18s linear infinite;
 }
