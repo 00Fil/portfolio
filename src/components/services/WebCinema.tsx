@@ -392,7 +392,7 @@ const T = (n: number) => (n >= 9.2 ? n + 5 : n) * B;
 const U = (n: number) => n * B;
 const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
 const ICONS_PROMISE = [FileText, UserRound, Tag, LockOpen];
-export const CAPL = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[20ch] -translate-y-1/2 px-6 text-center text-[clamp(30px,6.2cqw,104px)] font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
+export const CAPL = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-none whitespace-nowrap -translate-y-1/2 px-6 text-center text-[clamp(30px,6.2cqw,104px)] font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
 export const CAPF = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[14ch] -translate-y-1/2 px-6 text-center text-[clamp(38px,7cqw,120px)] font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
 export const CAP = "pointer-events-none absolute inset-x-0 top-[5%] mx-auto max-w-[19ch] px-6 text-center text-[clamp(30px,4.6cqw,76px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg md:top-[7%] md:max-w-[24ch]";
 
@@ -1330,7 +1330,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const GAP: Record<number, number> = { 33: 0.5, 35: 0.4, 52: 0.5, 61: 0.6, 65: 0.6, 75: 0.8, 94: 0.6, 114: 0.6, 117: 0.3, 125: 0.35, 128: 0.6, 152: 0.9, 163: 0.5, 174: 0.5, 194: 0.4 };
       const offs: number[] = [];
       {
-        let acc = 0.1;
+        let acc = 0.35;
         VW.s.forEach((_, i) => offs.push((acc += GAP[i] ?? 0)));
       }
       const w = (i: number, d = 0) => VW.s[i] + offs[i] + d;
@@ -1348,16 +1348,18 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const scene = tl;
       const AUTO = NaN;
       const END = -1;
-      type Say = { el: HTMLElement; u: HTMLElement[]; at: number[]; end?: number; inScene?: boolean; mood?: Mood };
+      type Say = { el: HTMLElement; u: HTMLElement[]; at: number[]; end?: number; inScene?: boolean; mood?: Mood; q?: boolean };
       type Scn = { sub?: gsap.core.Timeline; seg?: [number, number]; map: [number, number][]; mood?: Mood; still?: boolean; blank?: boolean; marks?: [number, string][]; after?: (t: number) => void };
-      const S = (i: number, at: number[], end: number, mood?: Mood): Say => ({ el: says[i], u: sayU[i], at, end, mood });
+      const S = (i: number, at: number[], end: number, mood?: Mood, q?: boolean): Say => ({ el: says[i], u: sayU[i], at, end, mood, q });
       const I = (i: number, at: number[], end: number): Say => ({ el: inl[i], u: inlU[i], at, end, inScene: true });
       inl.forEach((e, i) => (e.dataset.t = [c.far.tired, c.far.open, c.far.stays][i].replace(/[*!^]/g, "")));
       one("[data-eh]").dataset.t = c.end.t.replace(/[*!^]/g, "");
       const ch: (Say | Scn)[] = [
         // prima del nostro intervento
-        S(0, [0, 2, 3, 4, 5, 6, 7], w(8, -0.25), "calm"),
-        S(10, [8, 9, 13, 14, 15, 16], we(16, -0.25), "calm"),
+        S(0, [0, 2, 3], w(4, -0.02), "calm", true),
+        S(10, [4, 5, 6, 7], w(8, -0.02), "calm", true),
+        S(11, [8, 9], w(13, -0.02), "calm", true),
+        S(12, [13, 14, 15, 16], we(16, -0.2), "calm", true),
         { seg: [0, T(3.5)], map: [[0, AUTO], [T(0.9), w(17)], [T(3.3), w(21, -0.1)], [T(3.5), w(21, 0.05)]], marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
         { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(25)], [0.8 + 3.4, w(32, 0.15)], [END, w(33, -0.4)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
         S(1, [33, 34, 34], w(35, -0.5)),
@@ -1415,14 +1417,14 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const ts = k.u.map((_, j) => (n === k.at.length ? w(k.at[j], -0.06) : n < 2 ? t0 : t0 + ((t1 - t0) * j) / (n - 1)));
         mt.set(k.el, { autoAlpha: 1 }, t0);
         k.u.forEach((x, j) => {
-          mt.fromTo(x, { autoAlpha: 0, yPercent: 45, filter: "blur(8px)" }, { autoAlpha: 1, yPercent: 0, filter: "blur(0px)", duration: 0.42, ease: "power3.out" }, ts[j]);
+          mt.fromTo(x, { autoAlpha: 0, yPercent: 45, filter: "blur(8px)" }, { autoAlpha: 1, yPercent: 0, filter: "blur(0px)", duration: k.q ? 0.2 : 0.42, ease: "power3.out" }, ts[j]);
         });
         mt.call(() => F.whoosh(0.45, true, 0.3), undefined, t0);
         marks.push({ t: t0, what: `frase: ${k.el.dataset.t ?? k.el.textContent}` });
         if (k.end !== undefined) {
-          const e = Math.max(k.end, ts[n - 1] + 0.55);
-          mt.to(k.u, { autoAlpha: 0, yPercent: -30, filter: "blur(6px)", duration: 0.32, ease: "power2.in", stagger: 0.012 }, e);
-          mt.set(k.el, { autoAlpha: 0 }, e + 0.42);
+          const e = Math.max(k.end, ts[n - 1] + (k.q ? 0.2 : 0.55));
+          mt.to(k.u, { autoAlpha: 0, yPercent: -30, filter: "blur(6px)", duration: k.q ? 0.14 : 0.32, ease: "power2.in", stagger: k.q ? 0 : 0.012 }, e);
+          mt.set(k.el, { autoAlpha: 0 }, e + (k.q ? 0.16 : 0.42));
           return e;
         }
         return ts[n - 1];
@@ -1441,12 +1443,12 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             mt.call(() => cue(m, t0 - 0.3), undefined, t0 - 0.3);
             marks.push({ t: t0 - 0.3, what: `umore: ${m}` });
           }
-          if (t0 - 0.32 < prevEnd - 0.01) slow.push(`scritta «${k.el.dataset.t}» parte ${(prevEnd - t0 + 0.32).toFixed(2)} s prima che finisca la scena`);
+          if (t0 - (k.q ? 0.04 : 0.32) < prevEnd - 0.01) slow.push(`scritta «${k.el.dataset.t}» parte ${(prevEnd - t0 + 0.32).toFixed(2)} s prima che finisca la scena`);
           if (camOn) mt.to(cam, { autoAlpha: 0, duration: 0.3, ease: "sine.inOut" }, Math.max(prevEnd - 0.05, t0 - 0.32));
           camOn = false;
           pending?.(t0);
           pending = undefined;
-          prevEnd = reveal(k) + 0.36;
+          prevEnd = reveal(k) + (k.q ? 0.14 : 0.36);
           return;
         }
         const len = k.seg ? k.seg[1] - k.seg[0] : k.sub!.duration();

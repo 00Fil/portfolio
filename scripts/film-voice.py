@@ -77,7 +77,7 @@ voice = np.zeros(len(music))
 for i, (a, off) in enumerate(cuts):
     b = (cuts[i + 1][0] + 0.04 if i + 1 < len(cuts) else LAST + 0.1)
     x = vo[int(max(0, a) * SR): int(b * SR)].copy()
-    f = int(0.012 * SR); x[:f] *= np.linspace(0, 1, f); x[-f:] *= np.linspace(1, 0, f)
+    f = int(0.04 * SR); x[:f] *= np.linspace(0, 1, f); x[-f:] *= np.linspace(1, 0, f)
     j = int((a + off) * SR)
     if j + len(x) > len(voice): voice = np.concatenate([voice, np.zeros(j + len(x) - len(voice))])
     voice[j:j + len(x)] += x
