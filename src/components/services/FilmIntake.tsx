@@ -4,24 +4,26 @@ import { Fragment, useEffect, useRef, useState, type ComponentType, type ReactNo
 import { ArrowRight, Volume2, VolumeX } from "lucide-react";
 import { gsap } from "gsap";
 import { Bead } from "@/components/glass/Bead";
+import { GradientText } from "@/components/ui/GradientText";
 import Strands from "@/components/ui/Strands";
 import { createVoice, type Voice } from "@/lib/voice";
 import { getIntake, type Answers } from "@/content/intake";
 
 type KwC = ComponentType<{ text: string }>;
 const PINK = ["#ff00ff", "#ffffff", "#5b00ff", "#ff00c9"];
-const GRAD = "linear-gradient(100deg,#ff00ff 0%,#b64dff 38%,#5b00ff 68%,#ff00c9 100%)";
 
-/** `*parola*` in corsivo con la sfumatura rosa degli strands. */
+/** `*parola*` nel carattere della firma, con la sfumatura rosa degli strands. */
 function Sub({ text }: { text: string }) {
-  const parts = text.split(/(\*[^*]+\*)/g);
+  const parts = text.split("*");
   return (
     <>
       {parts.map((p, i) =>
-        p.startsWith("*") ? (
-          <em key={i} className="pr-[0.12em] font-semibold italic" style={{ background: GRAD, WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", color: "transparent" }}>
-            {p.slice(1, -1)}
-          </em>
+        i % 2 ? (
+          <span key={i} className="inline-block" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.45em 0.34em 0.5em", margin: "-0.45em -0.34em -0.5em" }}>
+            <GradientText colors={PINK} animationSpeed={8} variant="flow" glow={0.8}>
+              {p}
+            </GradientText>
+          </span>
         ) : (
           <Fragment key={i}>{p}</Fragment>
         ),
@@ -114,7 +116,7 @@ export function FilmIntake({ en, K, onDone, onSkip }: { en: boolean; K: KwC; onD
   useEffect(() => {
     let raf = 0;
     const loop = () => {
-      if (glow.current) glow.current.style.opacity = String(0.2 + Math.min(1, level.current.current) * 0.55);
+      if (glow.current) glow.current.style.setProperty("--lv", String(Math.min(1, level.current.current)));
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -217,9 +219,10 @@ export function FilmIntake({ en, K, onDone, onSkip }: { en: boolean; K: KwC; onD
                 )}
               </div>
             </Bead>
-            <div aria-hidden className="pointer-events-none absolute inset-0 z-20 overflow-hidden rounded-[44px]">
-              <div ref={glow} className="rim-glow" />
-              <div className="rim-ring" />
+            <div ref={glow} aria-hidden className="pointer-events-none absolute inset-0 z-20 overflow-hidden rounded-[44px]">
+              <div className="rim-l3" />
+              <div className="rim-l2" />
+              <div className="rim-l1" />
             </div>
           </div>
         </div>

@@ -23,21 +23,50 @@
     --rim-a: 360deg;
   }
 }
-.rim-ring,
-.rim-glow {
+/* tre strati sfumati lungo il bordo, dentro la card: filo sottile, velo medio, nebbia larga che si dissolve verso il centro.
+   Il filtro sta sul contenitore e la maschera sul figlio, così lo sfumato mangia anche il bordo interno della maschera. */
+.rim-l1,
+.rim-l2,
+.rim-l3 {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.rim-l1::before,
+.rim-l2::before,
+.rim-l3::before {
+  content: '';
   position: absolute;
   inset: 0;
   border-radius: 44px;
-  padding: 3px;
-  pointer-events: none;
-  background: conic-gradient(from var(--rim-a), #ff00ff, #ffffff, #5b00ff, #ff00c9, #ff00ff);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  animation: rim-spin 9s linear infinite;
 }
-.rim-glow {
-  padding: 20px;
-  filter: blur(14px);
-  opacity: 0.45;
+.rim-l1 {
+  filter: blur(0.4px);
+  opacity: calc(0.45 + var(--lv, 0) * 0.5);
+}
+.rim-l1::before {
+  padding: 2px;
+  background: conic-gradient(from var(--rim-a), #ff00ff, #ffd6ff, #ffffff 9%, #8a3dff 24%, #5b00ff 38%, #ff7bff 55%, #ff00c9 70%, #ffffff 82%, #ff00ff);
+  animation: rim-spin 11s linear infinite;
+}
+.rim-l2 {
+  filter: blur(9px);
+  opacity: calc(0.5 + var(--lv, 0) * 0.5);
+}
+.rim-l2::before {
+  padding: 14px;
+  background: conic-gradient(from calc(var(--rim-a) * -1 + 70deg), #ff00c9, #ff9bff 12%, #5b00ff 30%, #c06bff 46%, #ffffff 58%, #ff00ff 74%, #7a2cff 90%, #ff00c9);
+  animation: rim-spin 14s linear infinite;
+}
+.rim-l3 {
+  filter: blur(30px);
+  opacity: calc(0.35 + var(--lv, 0) * 0.55);
+}
+.rim-l3::before {
+  padding: 40px;
+  background: conic-gradient(from calc(var(--rim-a) + 160deg), #ff00ff, #5b00ff 22%, #ffd0ff 40%, #ff00c9 60%, #8a3dff 80%, #ff00ff);
+  animation: rim-spin 18s linear infinite;
 }
