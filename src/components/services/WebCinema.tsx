@@ -1413,7 +1413,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
          il computer, il tablet, il telefono, ogni messaggio) cadono sulla parola che li nomina: tra due parole la scena corre in modo uniforme.
          Dove una scena ha bisogno di respiro, la ripresa si apre in un silenzio (GAP): la voce resta quella vera, mai accelerata. */
       // secondi di respiro aggiunti prima di una parola (sempre in una pausa della ripresa)
-      const GAP: Record<number, number> = { 33: 0.5, 35: 0.4, 52: 0.5, 61: 0.6, 65: 0.6, 75: 0.8, 94: 0.6, 114: 0.6, 117: 0.3, 125: 0.35, 152: 0.9, 163: 0.5, 174: 0.5, 194: 0.4 };
+      const GAP: Record<number, number> = { 33: 0.5, 35: 0.4, 52: 0.5, 61: 0.6, 65: 0.6, 75: 0.8, 94: 0.6, 108: 0.4, 112: 0.3, 117: 0.3, 125: 0.35, 152: 0.9, 163: 0.5, 174: 0.5, 194: 0.4 };
       const noSite = ans?.site === "none";
       const VW = noSite ? VW_NONE : VW_SITE;
       const offs: number[] = [];
@@ -1495,8 +1495,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         I(2, [87, 88, 89, 90, 90, 91, 92, 93, 93], we(93, 0.1)),
         S(4, [94, 95, 96, 97], w(99, -0.05)),
         { sub: figmaTl, map: [[0, AUTO], [0.55 + 6 * 0.42, w(107)], [END, w(108, -0.05)]], marks: [[0.55, "Figma: primo pezzo"], [0.55 + 6 * 0.42, "Figma: ultimo pezzo"]] },
-        { sub: devsTl, map: [[0, we(107)], [0.05, w(110, -0.12)], [0.55, w(111, -0.12)], [0.85, w(113, -0.12)], [1.75, w(114, -0.75)], [END, w(114, -0.1)]], marks: [[0.05, "computer"], [0.55, "tablet"], [0.85, "telefono"]], after: (t) => void mt.set(one("[data-devs]"), { autoAlpha: 0 }, t) },
-        S(5, [114, 115, 116, 116], we(116, 0.1)),
+        S(5, [108, 109, 110, 111], we(111, 0.05)),
+        { sub: devsTl, map: [[0, w(112, -0.3)], [0.05, w(113, -0.12)], [0.55, w(114, -0.12)], [0.85, w(116, -0.12)], [1.75, we(116, 0.3)], [END, we(116, 0.75)]], marks: [[0.05, "computer"], [0.55, "tablet"], [0.85, "telefono"]], after: (t) => void mt.set(one("[data-devs]"), { autoAlpha: 0 }, t) },
         { sub: editTl, map: [[0, AUTO], [0.75, w(120)], [1.2, w(121, 0.1)], [2.15, we(124)]], mood: "light", marks: [[0.75, "doppio clic sulla parola"], [1.2, "si cancella"], [1.55, "si riscrive"]], after: (t) => void mt.set(hm, { autoAlpha: 0 }, t) },
         S(6, [125, 126, 127, 128], we(128, 0.05), undefined, true),
         S(7, [129, 130, 131, 132, 133, 134, 135, 136, 137], w(138, -0.45)),
