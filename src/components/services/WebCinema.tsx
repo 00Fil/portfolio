@@ -42,22 +42,36 @@ export function Kw({ text }: { text: string }) {
     const red = p.startsWith("!");
     const plain = p.startsWith("^");
     const violet = p.startsWith("~");
-    const w = red || plain || violet ? p.slice(1) : p;
+    const full = red || plain || violet ? p.slice(1) : p;
+    // ogni parola evidenziata è un pezzo a sé: le scritte arrivano sempre parola per parola, anche nel corsivo
+    const ws = full.split(" ");
+    return (
+      <Fragment key={i}>
+        {ws.map((x, j) => (
+          <Fragment key={j}>
+            {j ? " " : ""}
+            {one(x + (j === ws.length - 1 && m ? m[0] : ""), j)}
+          </Fragment>
+        ))}
+      </Fragment>
+    );
+    function one(w: string, j: number) {
     if (plain)
       return (
-        <span key={i} data-kw className="inline-block font-semibold" style={{ padding: "0.1em 0.12em", margin: "-0.1em -0.12em" }}>
+        <span key={j} data-kw className="inline-block font-semibold" style={{ padding: "0.1em 0.12em", margin: "-0.1em -0.12em" }}>
           <GradientText colors={GT} animationSpeed={8} variant="flow" glow={0.6}>
-            {w + (m ? m[0] : "")}
+            {w}
           </GradientText>
         </span>
       );
     return (
-      <span key={i} data-kw className="inline-block" style={{ ...(red ? { "--gt-glow-color": "#ff5a52" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.45em 0.34em 0.5em", margin: "-0.45em -0.34em -0.5em" }}>
+      <span key={j} data-kw className="inline-block" style={{ ...(red ? { "--gt-glow-color": "#ff5a52" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.45em 0.34em 0.5em", margin: "-0.45em -0.34em -0.5em" }}>
         <GradientText colors={red ? GT_RED : violet ? GT_VIOLET : GT} animationSpeed={8} variant="flow" glow={violet ? 0.8 : 1}>
-          {w + (m ? m[0] : "")}
+          {w}
         </GradientText>
       </span>
     );
+    }
   };
   return (
     <>
@@ -412,7 +426,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
   const root = useRef<HTMLElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const bar = useRef<HTMLSpanElement>(null);
-  const flags = useRef({ visible: false, paused: embed, ended: false, lifted: embed, playing: false });
+  const flags = useRef({ visible: false, paused: embed, ended: false, lifted: embed, playing: false, outro: false });
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
   const [snd, setSnd] = useState(false);
@@ -456,7 +470,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
     const done = () => {
       setGate(false);
       setAns(a);
-      flags.current = { ...flags.current, ended: false, paused: false, playing: false };
+      flags.current = { ...flags.current, ended: false, paused: false, playing: false, outro: false };
       F.reset();
       F.duck(false);
       setRun((r) => r + 1);
@@ -1359,30 +1373,30 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         // prima del nostro intervento
         S(0, [0, 2, 3], w(4, -0.02), "calm", true),
         S(10, [4, 5, 6, 7], w(8, -0.02), "calm", true),
-        S(11, [8, 9], w(13, -0.02), "calm", true),
+        S(11, [8, 9, 10, 11, 12], w(13, -0.02), "calm", true),
         S(12, [13, 14, 15, 16], we(16, -0.2), "calm", true),
         { seg: [0, T(3.5)], map: [[0, AUTO], [T(0.9), w(17)], [T(3.3), w(21, -0.1)], [T(3.5), w(21, 0.05)]], marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
         { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(25)], [0.8 + 3.4, w(32, 0.15)], [END, w(33, -0.4)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
         S(1, [33, 34, 34], w(35, -0.5)),
-        { sub: slowTl, map: [[0, AUTO], [2.8, w(43, -0.58)], [3.65, w(45, -0.38)], [END, w(45, -0.26)]], mood: "tense", still: true, marks: [[0, "il tuo sito carica a pacchetti, zoom in continuo"], [2.8, "sospiro: zoom indietro brusco"]] },
+        { sub: slowTl, map: [[0, AUTO], [2.8, w(43, -0.58)], [END, w(45, -0.26)]], mood: "tense", still: true, marks: [[0, "il tuo sito carica a pacchetti, zoom in continuo"], [2.8, "sospiro: zoom indietro brusco"]] },
         I(0, [43, 44], w(45, -0.4)),
         { sub: back, map: [[0, w(45, -0.25)], [0.58, w(46)], [1.2, w(49)], [1.38, w(51)], [END, w(51, 0.6)]], marks: [[0.58, "clic su indietro"], [1.28, "clic sul concorrente"], [1.38, "si apre il concorrente"]], after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
         S(2, [52, 53, 54, 55, 56, 57, 58, 59, 60], we(60, 0.25), "stop"),
         // con il nuovo sito
-        S(3, [61, 62, 63], we(64, 0.1), "rise"),
+        S(3, [61, 62, 63, 64], we(64, 0.1), "rise"),
         { sub: seoTl, map: [[0, AUTO], [1.2, w(67)], [2.4, w(71)], [3.6, w(74)], [3.6 + 0.75, w(75, -0.06)], [3.6 + 0.9, w(75, 0.05)], [3.6 + 0.95, w(75, 0.1)], [3.6 + 1.32, w(75, 0.42)], [END, we(93, 0.25)]], still: true, marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"], [3.6 + 0.9, "clic sul tuo risultato"], [3.6 + 1.32, "il sito nuovo appare"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t).set(meter, { autoAlpha: 0 }, t) },
         I(1, [80, 81, 82, 83], w(84, -0.2)),
-        I(2, [87, 88, 89, 90, 91, 92], we(93, 0.1)),
-        S(4, [94, 95, 96], w(99, -0.05)),
+        I(2, [87, 88, 89, 90, 91, 92, 93], we(93, 0.1)),
+        S(4, [94, 95, 96, 97], w(99, -0.05)),
         { sub: figmaTl, map: [[0, AUTO], [0.55 + 6 * 0.42, w(107)], [END, w(108, -0.05)]], marks: [[0.55, "Figma: primo pezzo"], [0.55 + 6 * 0.42, "Figma: ultimo pezzo"]] },
         { sub: devsTl, map: [[0, w(108, 0.05)], [0.05, w(110, -0.12)], [0.55, w(111, -0.12)], [0.85, w(113, -0.12)], [1.75, w(114, -0.75)], [END, w(114, -0.4)]], marks: [[0.05, "computer"], [0.55, "tablet"], [0.85, "telefono"]], after: (t) => void mt.set(one("[data-devs]"), { autoAlpha: 0 }, t) },
         S(5, [114, 115, 116], we(116, 0.1)),
         { sub: editTl, map: [[0, AUTO], [0.75, w(120)], [1.2, w(121, 0.1)], [2.15, we(124)]], mood: "light", marks: [[0.75, "doppio clic sulla parola"], [1.2, "si cancella"], [1.55, "si riscrive"]], after: (t) => void mt.set(hm, { autoAlpha: 0 }, t) },
-        S(6, [125, 126], we(127, 0.12)),
+        S(6, [125, 126, 127], we(127, 0.12)),
         S(7, [128, 129, 130, 131, 132, 133], w(134, -0.45)),
-        S(13, [134, 135], we(135, 0.0)),
-        { sub: waTl, map: [[0, w(136, -0.2)], [0.3, w(136)], [1.0, w(139)], [1.9, w(142)], [2.35, w(144)], [3.25, w(146)], [3.7, we(151)], [END, we(151, 0.7)]], marks: [[0.55, "WhatsApp: modifica"], [1.9, "WhatsApp: visite"], [3.25, "WhatsApp: da richiamare"]], after: (t) => void mt.set(one("[data-wa]"), { autoAlpha: 0 }, t) },
-        S(8, [153, 154, 155, 156, 157], we(162, 0.1)),
+        S(13, [134, 135, 136, 137, 138, 139], we(139, 0.0)),
+        { sub: waTl, map: [[0, w(140, -0.2)], [0.3, w(140)], [1.0, w(141, 0.3)], [1.9, w(144)], [2.35, we(144)], [3.25, w(147)], [3.7, we(149)], [END, we(149, 0.7)]], marks: [[0.55, "WhatsApp: modifica"], [1.9, "WhatsApp: visite"], [3.25, "WhatsApp: da richiamare"]], after: (t) => void mt.set(one("[data-wa]"), { autoAlpha: 0 }, t) },
+        S(8, [153, 154, 155, 156, 157, 158, 159], we(162, 0.1)),
         S(9, [164, 165, 166, 168, 169, 170], w(171, -0.02)),
         { sub: geoTl, map: [[0, AUTO], [5.5, w(182)], [5.75, w(184)], [END, w(188, -0.45)]], marks: [[0.05, "icona dell'assistente"], [1.35, "clic sull'icona"], [3.4, "invio"], [5.5, "fonte citata"], [5.75, "evidenziata"]], after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
         { seg: [T(54.8), scene.duration()], map: [[T(54.8), w(188, -0.3)], [T(55.0) + 1.7, we(193, 0.3)], [T(55.0) + 2.1, w(194, -0.05)], [END, we(195, 1.4)]], blank: true, mood: "end", marks: [[T(55.0) + 2.1 - T(54.8), "firma: il tuo nome"]] },
@@ -1530,20 +1544,26 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           setEnded(true);
           setPlaying(false);
           F.chill(true);
-          // sulla pagina, finita la firma si passa da soli alla prima sezione scritta
-          if (!embed) {
-            const nx = el.nextElementSibling as HTMLElement | null;
-            if (nx && el.getBoundingClientRect().top > -40 && el.getBoundingClientRect().top < innerHeight * 0.4)
-              window.setTimeout(() => {
-                const y = nx.getBoundingClientRect().top + scrollY + 18;
-                const l = getLenis();
-                // discesa lunga e morbida, che parte e arriva piano
-                if (l) l.scrollTo(y, { duration: 1.9, easing: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2) });
-                else scrollToY(y);
-              }, 400);
-          }
         }
       };
+      // sulla pagina, quando appare e viene detto il nome si scende già alla prima sezione scritta; il film finisce sotto, da solo
+      if (!embed)
+        mt.call(
+          () => {
+            const f = flags.current;
+            if (!f.playing || f.outro) return;
+            const nx = el.nextElementSibling as HTMLElement | null;
+            if (!nx || el.getBoundingClientRect().top < -40 || el.getBoundingClientRect().top > innerHeight * 0.4) return;
+            f.outro = true;
+            const y = nx.getBoundingClientRect().top + scrollY + 18;
+            const l = getLenis();
+            // discesa lunga e morbida, che parte e arriva piano
+            if (l) l.scrollTo(y, { duration: 2.2, easing: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2) });
+            else scrollToY(y);
+          },
+          undefined,
+          w(194, 0.1),
+        );
       gsap.ticker.add(drive);
       let ready = document.readyState === "complete";
       const onReady = () => {
@@ -1553,7 +1573,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       if (!ready) window.addEventListener("load", onReady, { once: true });
       const go = () => {
         const f = flags.current;
-        const run = ready && f.visible && f.lifted && !f.paused && !f.ended;
+        const run = ready && (f.visible || f.outro) && f.lifted && !f.paused && !f.ended;
         if (run !== f.playing) F.duck(!run);
         f.playing = run;
         setPlaying(run);
@@ -1604,7 +1624,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
     (root.current as unknown as { __go: () => void }).__go();
   };
   const replay = () => {
-    flags.current = { ...flags.current, ended: false, paused: false, playing: false };
+    flags.current = { ...flags.current, ended: false, paused: false, playing: false, outro: false };
     setEnded(false);
     F.reset();
     F.duck(false);
