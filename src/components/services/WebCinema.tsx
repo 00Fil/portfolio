@@ -497,8 +497,9 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         if (g.a.length) L.fromTo(g.a, { autoAlpha: 0, yPercent: 50, filter: "blur(6px)" }, { autoAlpha: 1, yPercent: 0, filter: "blur(0px)", duration: 0.7, ease: "power3.out", stagger: 0.04 }, at);
         const kt = at + 0.035 * g.a.length;
         if (g.b.length) L.fromTo(g.b, { autoAlpha: 0, scale: 0.92, filter: "blur(10px)" }, { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.8, ease: "power3.out" }, kt);
-        L.call(() => F.tick(0.8), undefined, at);
-        if (g.b.length) L.call(() => F.pluck(deg + 7, 0.9, 0.5), undefined, kt);
+        L.call(() => F.whoosh(0.5, true, 0.35), undefined, at);
+        void deg;
+        void kt;
       };
       // il testo non sta più sopra la grafica: ogni frase ha il suo schermo, prima della sua scena (vedi il montaggio in fondo)
       const capAt = (..._: number[]) => void _;
@@ -891,7 +892,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         slowTl
           .set(els, { autoAlpha: 1 }, t)
           .fromTo(els, { y: -8 }, { y: 0, duration: 0.12, ease: "power3.out", immediateRender: false }, t)
-          .call(() => F.tick(0.7), undefined, t);
+          .call(() => F.tick(0.45), undefined, t);
       pk([os[0], os[1]], 0.25);
       pk([os[2]], 0.7);
       pk([os[3], otext], 1.15);
@@ -945,6 +946,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .set(g2, { autoAlpha: 0 }, 1.32)
           .fromTo(hero, { autoAlpha: 0, filter: "blur(6px)" }, { autoAlpha: 1, filter: "blur(0px)", duration: 0.3, ease: "power2.out", immediateRender: false }, 1.32)
           .set(cur, { autoAlpha: 0 }, 1.32)
+          .call(() => F.glass(1), undefined, 1.32)
           .set([spin, stop], { autoAlpha: 0 }, 1.4)
           .set([fav, rl], { autoAlpha: 1 }, 1.4)
           .call(() => void (tt1.textContent = c.find.me[0]), undefined, 1.4)
@@ -988,7 +990,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             .fromTo(e, { autoAlpha: 0, scale: 0.97 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: "expo.out", immediateRender: false }, t)
             .set(hsl, { autoAlpha: 1, x: () => offIn(e).x, y: () => offIn(e).y, width: () => offIn(e).w, height: () => offIn(e).h }, t)
             .call(() => void (hsz.textContent = `${Math.round(offIn(e).w)} × ${Math.round(offIn(e).h)}`), undefined, t)
-            .call(() => F.tick(0.8), undefined, t);
+            .call(() => F.bell(7, 0.8), undefined, t);
         });
         const end = 0.55 + hx.length * 0.42;
         figmaTl
@@ -1017,7 +1019,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .call(() => void (hw.textContent = "hardware"), undefined, 0)
           .fromTo(cur, { autoAlpha: 0, x: () => hmIn.offsetWidth * 0.75, y: () => hmIn.offsetHeight * 0.85 }, { autoAlpha: 1, x: () => p().x, y: () => p().y, duration: 0.6, ease: "power3.inOut" }, 0.1)
           .to(cur, { scale: 0.82, duration: 0.06, yoyo: true, repeat: 3, ease: "power1.inOut" }, 0.75)
-          .call(() => F.tick(1.2), undefined, 0.75)
+          .call(() => F.tick(1), undefined, 0.75)
+          .call(() => F.tick(0.9), undefined, 0.87)
           .fromTo(hsel, { autoAlpha: 1, scaleX: 0 }, { scaleX: 1, duration: 0.22, ease: "power3.out", immediateRender: false }, 0.85)
           .set(hsel, { autoAlpha: 0 }, 1.2)
           .to(cur, { autoAlpha: 0, duration: 0.2 }, 1.2);
@@ -1071,7 +1074,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .call(() => F.whoosh(1, false, 1), undefined, 0.8 + D * 0.4)
           .fromTo(one("[data-veil]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 0.8 + D)
           .fromTo(me.querySelector("[data-bub]"), { autoAlpha: 0, scale: 0.9 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 0.85 + D)
-          .call(() => F.tick(1.2), undefined, 0.8 + D)
+          .call(() => F.bell(7, 1), undefined, 0.8 + D)
           .set({}, {}, 0.8 + D + 0.7);
 
       }
@@ -1141,6 +1144,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .set([one("[data-gq]"), one("[data-ga]"), one("[data-cbar]"), src, one("[data-cspark]")], { autoAlpha: 0 }, 0)
           .set(one("[data-cnew]"), { autoAlpha: 1 }, 0)
           .fromTo(icon, { autoAlpha: 0, scale: 0.6, filter: "blur(10px)" }, { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.7, ease: "expo.out" }, 0.05)
+          .call(() => F.bell(7, 0.9), undefined, 0.1)
           .set(cur, { autoAlpha: 1 }, 0.35)
           .fromTo(path, { t: 0 }, { t: 1, duration: 0.95, ease: "power3.inOut", onUpdate: move, immediateRender: false }, 0.35)
           // clic: l'icona si schiaccia e rimbalza, come nel Dock
@@ -1154,10 +1158,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .fromTo(win, { autoAlpha: 0, scale: 0.16 }, { autoAlpha: 1, scale: 1, duration: 0.65, ease: "expo.out" }, 1.75)
           .to(icon, { autoAlpha: 0, scale: 0.6, duration: 0.25 }, 1.8)
           .set(cur, { autoAlpha: 0 }, 1.8)
-          .call(() => F.whoosh(0.5, true, 0.7), undefined, 1.75);
+          .call(() => (F.whoosh(0.5, true, 0.7), F.glass(0.7)), undefined, 1.75);
         typeTo(geoTl, one("[data-cin]"), c.geo.q, 2.45, 0.85, 1);
         geoTl
           .to(one("[data-csend]"), { scale: 0.85, duration: 0.08, yoyo: true, repeat: 1 }, 3.4)
+          .call(() => (F.tick(1), F.whoosh(0.4, true, 0.5)), undefined, 3.4)
           .to(one("[data-cnew]"), { autoAlpha: 0, y: -20, duration: 0.3, ease: "power2.in" }, 3.45)
           .fromTo(one("[data-gq]"), { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" }, 3.6)
           .fromTo(one("[data-cbar]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, 3.6)
@@ -1168,6 +1173,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         typeTo(geoTl, one("[data-gat3]"), post ?? "", 4.8, 0.7, 6);
         geoTl
           .fromTo(src, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: "expo.out" }, 5.5)
+          .call(() => F.bell(7, 0.8), undefined, 5.5)
           .fromTo(one("[data-cspark]"), { autoAlpha: 0, rotation: -90 }, { autoAlpha: 1, rotation: 0, duration: 0.6, ease: "expo.out" }, 5.55)
           .fromTo(one("[data-cveil]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 5.75)
           .fromTo(one("[data-bub2]"), { autoAlpha: 0, scale: 0.9 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 5.8)
@@ -1192,7 +1198,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         { u: units[0], el: caps[0], seg: [0, T(3.5)], speed: 1.3, mood: "calm", marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
         { u: xunits[2], el: xcaps[2], sub: farTl, speed: 1.2, mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
         { u: units[1], el: caps[1], sub: slowTl, hold: 0, mood: "tense", still: true, marks: [[0, "il tuo sito carica a pacchetti, zoom in continuo"], [2.8, "zoom indietro brusco + sbuffo"], [2.9, "frase in scena: il cliente si è stufato"]] },
-        { sub: back, speed: 1.1, hold: 0.1, marks: [[0.58, "clic su indietro"], [1.28, "clic sul concorrente"], [1.38, "si apre il concorrente"]], after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
+        { sub: back, speed: 0.85, hold: 0.15, marks: [[0.58, "clic su indietro"], [1.28, "clic sul concorrente"], [1.38, "si apre il concorrente"]], after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
         { u: xunits[3], el: xcaps[3], textOnly: true, mood: "stop", cs: 1 },
         // con il nuovo sito
         { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.55, mood: "rise", marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"]], after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set(chrome, { autoAlpha: 1 }, t).set(meter, { autoAlpha: 0 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
@@ -1261,7 +1267,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             if (style === 2) mt.fromTo(el, { scale: 0.75, filter: "blur(6px)", autoAlpha: 0 }, { scale: 1, filter: "blur(0px)", autoAlpha: 1, duration: 0.75, ease: "power3.out" }, c0);
             if (style === 3) mt.fromTo(el, { letterSpacing: "0.35em", filter: "blur(10px)", autoAlpha: 0 }, { letterSpacing: "-0.05em", filter: "blur(0px)", autoAlpha: 1, duration: 0.85, ease: "expo.out" }, c0);
             if (style === 4) mt.fromTo(el, { clipPath: "inset(-40% 112% -40% -12%)", x: -20 }, { clipPath: glow, x: 0, duration: 0.75, ease: "power2.inOut" }, c0);
-            mt.call(() => F.tick(0.8), undefined, c0);
+            mt.call(() => F.whoosh(0.5, true, 0.35), undefined, c0);
           }
           const c1 = q8(c0 + 0.4 + 0.03 * (words.length - 1) + (el.textContent?.length ?? 20) * 0.007);
           marks.push({ t: c0, what: `frase: ${el.dataset.t}` });

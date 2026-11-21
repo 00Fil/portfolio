@@ -44,220 +44,86 @@ const env = (g: GainNode, t: number, peak: number, atk: number, dec: number) => 
   g.gain.exponentialRampToValueAtTime(0.0001, t + atk + dec);
 };
 
+/* Effetti del film: suoni disegnati a parte (scripts/film-sfx.py) e caricati una volta. Se non sono ancora pronti, si tace. */
+const SFX = ["click", "key1", "key2", "key3", "pop", "swoosh-up", "swoosh-down", "chime", "glass", "thump", "thump-big", "riser", "shine", "sigh"] as const;
+type SfxName = (typeof SFX)[number];
+const sfxBuf: Partial<Record<SfxName, AudioBuffer>> = {};
+let sfxLoading = false;
+function loadSfx(c: AudioContext) {
+  if (sfxLoading) return;
+  sfxLoading = true;
+  SFX.forEach((n) =>
+    fetch(`/sfx/film/${n}.mp3`)
+      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject()))
+      .then((a) => c.decodeAudioData(a))
+      .then((b) => void (sfxBuf[n] = b))
+      .catch(() => {}),
+  );
+}
+let lastKey = 0;
+function play(n: SfxName, vel = 1, rate = 1, pan = 0) {
+  const c = ac();
+  if (!c || !bus) return;
+  loadSfx(c);
+  const b = sfxBuf[n];
+  if (!b) return;
+  const s = c.createBufferSource();
+  s.buffer = b;
+  s.playbackRate.value = rate;
+  const g = c.createGain();
+  g.gain.value = Math.min(1.4, vel);
+  const p = c.createStereoPanner();
+  p.pan.value = pan;
+  s.connect(g).connect(p).connect(bus);
+  s.start();
+}
+
 export const fx = {
-  /** Tocco: un piccolo colpo morbido (aria e un tonfo leggero), per i tasti e le comparse. Niente note: la melodia è della musica. */
+  /** Tasto: per la scrittura (tre tasti diversi, mai due uguali di fila). */
   pluck(_deg = 0, vel = 1, _dec = 0) {
-    const c = ac();
-    if (!c || !bus || !noise) return;
-    const t = c.currentTime;
-    const s = c.createBufferSource();
-    s.buffer = noise;
-    const f = c.createBiquadFilter();
-    f.type = "bandpass";
-    f.frequency.value = 2400;
-    f.Q.value = 0.9;
-    const g = c.createGain();
-    env(g, t, 0.05 * vel, 0.002, 0.05);
-    s.connect(f).connect(g).connect(bus);
-    s.start(t, Math.random());
-    s.stop(t + 0.08);
-    const o = c.createOscillator();
-    const og = c.createGain();
-    o.type = "sine";
-    o.frequency.setValueAtTime(190, t);
-    o.frequency.exponentialRampToValueAtTime(90, t + 0.06);
-    env(og, t, 0.08 * vel, 0.002, 0.07);
-    o.connect(og).connect(bus);
-    o.start(t);
-    o.stop(t + 0.1);
+    lastKey = (lastKey + 1 + Math.floor(Math.random() * 2)) % 3;
+    play((["key1", "key2", "key3"] as const)[lastKey], 0.55 * vel, 0.96 + Math.random() * 0.08, (Math.random() - 0.5) * 0.3);
   },
-  /** Colpo basso sul ritmo. */
+  /** Colpo profondo e morbido. */
   kick(vel = 1) {
-    const c = ac();
-    if (!c || !bus) return;
-    const t = c.currentTime;
-    const o = c.createOscillator();
-    const g = c.createGain();
-    o.type = "sine";
-    o.frequency.setValueAtTime(130, t);
-    o.frequency.exponentialRampToValueAtTime(46, t + 0.14);
-    env(g, t, 0.55 * vel, 0.003, 0.42);
-    o.connect(g).connect(bus);
-    o.start(t);
-    o.stop(t + 0.5);
+    play("thump", 0.8 * vel);
   },
-  /** Spostamento d'aria che accompagna un movimento di camera. */
+  /** Aria che passa, accompagna un movimento. */
   whoosh(dur = 0.55, up = true, vel = 1) {
-    const c = ac();
-    if (!c || !bus || !noise) return;
-    const t = c.currentTime;
-    const s = c.createBufferSource();
-    s.buffer = noise;
-    const f = c.createBiquadFilter();
-    f.type = "bandpass";
-    f.Q.value = 1.1;
-    f.frequency.setValueAtTime(up ? 400 : 3200, t);
-    f.frequency.exponentialRampToValueAtTime(up ? 3200 : 400, t + dur);
-    const g = c.createGain();
-    env(g, t, 0.16 * vel, dur * 0.4, dur * 0.7);
-    s.connect(f).connect(g).connect(bus);
-    s.start(t);
-    s.stop(t + dur * 1.2);
+    play(up ? "swoosh-up" : "swoosh-down", 0.7 * vel, Math.max(0.7, Math.min(1.4, 0.55 / dur)));
   },
-  /** Lo sbuffo di chi si è stufato di aspettare: «pff…», aria tra le labbra che scende e si spegne, con un filo di voce. */
+  /** Lo sbuffo di chi si è stufato. */
   sigh(vel = 1) {
-    const c = ac();
-    if (!c || !bus || !noise) return;
-    const t = c.currentTime;
-    // la «p»: un piccolo colpo d'aria chiuso
-    const p0 = c.createBufferSource();
-    p0.buffer = noise;
-    const pl = c.createBiquadFilter();
-    pl.type = "lowpass";
-    pl.frequency.value = 420;
-    const pg = c.createGain();
-    pg.gain.setValueAtTime(0.0001, t);
-    pg.gain.linearRampToValueAtTime(0.5 * vel, t + 0.006);
-    pg.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
-    p0.connect(pl).connect(pg).connect(bus);
-    p0.start(t, 0.3);
-    p0.stop(t + 0.1);
-    // il soffio: rumore attraverso due formanti che scendono
-    const s = c.createBufferSource();
-    s.buffer = noise;
-    const g = c.createGain();
-    g.gain.setValueAtTime(0.0001, t + 0.02);
-    g.gain.linearRampToValueAtTime(0.42 * vel, t + 0.12);
-    g.gain.setValueAtTime(0.42 * vel, t + 0.3);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.15);
-    [
-      [1500, 520, 1.4],
-      [2600, 1300, 2.2],
-    ].forEach(([a, b, q]) => {
-      const f = c.createBiquadFilter();
-      f.type = "bandpass";
-      f.Q.value = q;
-      f.frequency.setValueAtTime(a, t);
-      f.frequency.exponentialRampToValueAtTime(b, t + 1.1);
-      s.connect(f).connect(g);
-    });
-    g.connect(bus);
-    s.start(t + 0.02, 0.5);
-    s.stop(t + 1.2);
-    // un filo di voce sotto, che cala: «uff»
-    const o = c.createOscillator();
-    o.type = "sawtooth";
-    o.frequency.setValueAtTime(165, t + 0.1);
-    o.frequency.exponentialRampToValueAtTime(105, t + 0.95);
-    const vf = c.createBiquadFilter();
-    vf.type = "bandpass";
-    vf.frequency.value = 650;
-    vf.Q.value = 3;
-    const vg = c.createGain();
-    vg.gain.setValueAtTime(0.0001, t + 0.1);
-    vg.gain.linearRampToValueAtTime(0.05 * vel, t + 0.25);
-    vg.gain.exponentialRampToValueAtTime(0.0001, t + 0.95);
-    o.connect(vf).connect(vg).connect(bus);
-    o.start(t + 0.1);
-    o.stop(t + 1);
+    play("sigh", vel);
   },
-  /** La firma: un accordo d'aria che si apre piano e svanisce, morbido (niente attacchi, niente note acute secche). */
+  /** La firma: un respiro luminoso. */
   shine(vel = 1) {
-    const c = ac();
-    if (!c || !bus) return;
-    const t = c.currentTime;
-    const m = music(c);
-    const lp = c.createBiquadFilter();
-    lp.type = "lowpass";
-    lp.frequency.setValueAtTime(700, t);
-    lp.frequency.linearRampToValueAtTime(2200, t + 1.2);
-    lp.frequency.linearRampToValueAtTime(900, t + 3.8);
-    const g = c.createGain();
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.linearRampToValueAtTime(0.11 * vel, t + 0.9);
-    g.gain.setValueAtTime(0.11 * vel, t + 1.6);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 4.2);
-    lp.connect(g);
-    g.connect(bus!);
-    const w = c.createGain();
-    w.gain.value = 0.9;
-    g.connect(w).connect(m.verb);
-    // Do maggiore con la nona, voci centrali, ogni nota due volte leggermente scordata (coro)
-    [48, 55, 60, 64, 67, 74].forEach((k) =>
-      [-7, 7].forEach((d) => {
-        const o = c.createOscillator();
-        o.type = k < 50 ? "sine" : "triangle";
-        o.frequency.value = 440 * 2 ** ((k - 69) / 12);
-        o.detune.value = d;
-        const og = c.createGain();
-        og.gain.value = k < 50 ? 0.6 : 0.28;
-        o.connect(og).connect(lp);
-        o.start(t);
-        o.stop(t + 4.3);
-      }),
-    );
+    play("shine", 0.9 * vel);
   },
-  /** Salita di tensione prima di un colpo. */
+  /** Salita prima di un colpo. */
   riser(dur = 1.6) {
-    const c = ac();
-    if (!c || !bus || !noise) return;
-    const t = c.currentTime;
-    const s = c.createBufferSource();
-    s.buffer = noise;
-    const f = c.createBiquadFilter();
-    f.type = "highpass";
-    f.frequency.setValueAtTime(300, t);
-    f.frequency.exponentialRampToValueAtTime(5200, t + dur);
-    const g = c.createGain();
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(0.13, t + dur);
-    g.gain.linearRampToValueAtTime(0.0001, t + dur + 0.04);
-    s.connect(f).connect(g).connect(bus);
-    s.start(t);
-    s.stop(t + dur + 0.1);
-    const o = c.createOscillator();
-    const og = c.createGain();
-    o.type = "sine";
-    o.frequency.setValueAtTime(fq(0, 110), t);
-    o.frequency.exponentialRampToValueAtTime(fq(5, 110), t + dur);
-    og.gain.setValueAtTime(0.0001, t);
-    og.gain.exponentialRampToValueAtTime(0.07, t + dur);
-    og.gain.linearRampToValueAtTime(0.0001, t + dur + 0.04);
-    o.connect(og).connect(bus);
-    o.start(t);
-    o.stop(t + dur + 0.1);
+    play("riser", 0.8, Math.max(0.7, Math.min(1.4, 1.6 / dur)));
   },
-  /** Accordo di conferma: tre note insieme, lunghe. */
+  /** Conferma. */
   chord(_degs: number[] = [], vel = 1) {
-    // gli accordi li suona la musica: qui solo l'impatto
-    this.kick(0.6 * vel);
+    play("chime", 0.7 * vel);
   },
-  /** Campanello di una notifica. */
+  /** Comparsa. */
   bell(_deg = 7, vel = 1) {
-    this.pluck(0, vel);
+    play("pop", 0.6 * vel);
   },
-  /** Tocco secco: un clic. */
+  /** Clic. */
   tick(vel = 1) {
-    const c = ac();
-    if (!c || !bus || !noise) return;
-    const t = c.currentTime;
-    const s = c.createBufferSource();
-    s.buffer = noise;
-    const f = c.createBiquadFilter();
-    f.type = "bandpass";
-    f.frequency.value = 3400;
-    f.Q.value = 2;
-    const g = c.createGain();
-    env(g, t, 0.18 * vel, 0.001, 0.04);
-    s.connect(f).connect(g).connect(bus);
-    s.start(t);
-    s.stop(t + 0.08);
+    play("click", 0.65 * vel);
   },
-  /**
-   * Base musicale: 120 battiti al minuto, giri di 4 battute (Canone di Pachelbel in La).
-   * Non ha un orologio suo: segue il tempo del video, così si ferma in pausa e riparte allineata.
-   * Si costruisce per gradi: prima solo accordi e un battito leggero, poi cassa, tocco, basso e arpeggio.
-   */
+  /** Una pagina che appare. */
+  glass(vel = 1) {
+    play("glass", 0.6 * vel);
+  },
+  /** Stacco forte. */
+  boom(vel = 1) {
+    play("thump-big", vel);
+  },
   sync(t: number, run: boolean) {
     if (!run) return;
     const c = ac();
