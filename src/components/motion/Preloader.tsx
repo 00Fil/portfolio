@@ -53,12 +53,12 @@ export function Preloader({ label }: { label: string }) {
     // il nome si scrive a mano, una parola dopo l'altra; poi si aspetta che la pagina sia pronta
     const spans = Array.from(el.querySelectorAll<HTMLElement>(".pre-ch"));
     const tl = gsap.timeline();
-    let at = 0.2;
+    let at = 0.1;
     spans.forEach((sp) => {
       prepareWrite(sp);
       const d = writeTime(sp);
       writeOn(tl, sp, at, d);
-      at += d + 0.1;
+      at += d + 0.04;
     });
     const entered = new Promise<void>((r) => tl.call(r, undefined, at + 0.3));
     const ready = entered.then(() => Promise.race([Promise.all([document.fonts?.ready, loaded()]).then(settled), wait(MAX_WAIT_MS)]));

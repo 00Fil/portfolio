@@ -10,7 +10,7 @@ const S = 100; // px per em nel canvas
 const PAD = 40;
 const BASE = 150;
 
-type Pt = [number, number];
+type Pt = [number, number, number?];
 type Skel = { pts: Pt[]; r: number; len: number };
 const cache = new Map<string, Skel>();
 let fontsReady = false;
@@ -102,80 +102,57 @@ function build(text: string, family: string): Skel {
   const order = comps
     .map((c) => ({ c, x: Math.min(...c.map(X)), small: c.length < S * 0.28 }))
     .sort((p, q) => (p.small === q.small ? p.x - q.x : p.small ? 1 : -1));
-  const seq: number[] = [];
-  for (const { c } of order) {
-    let start = c[0];
-    for (const n of c) {
-      const e = nb[n].length === 1, es = nb[start].length === 1;
-      if (e && (!es || X(n) < X(start))) start = n;
-      else if (!es && !e && X(n) < X(start)) start = n;
-    }
-    // albero di visita che preferisce proseguire dritto
-    const par = new Map<number, number>();
-    const seen = new Set<number>();
-    const kids = new Map<number, number[]>();
-    const stack: [number, number][] = [[start, -1]];
-    while (stack.length) {
-      const [n, p] = stack.pop()!;
-      if (seen.has(n)) continue;
-      seen.add(n);
-      par.set(n, p);
-      if (p >= 0) (kids.get(p) ?? kids.set(p, []).get(p)!).push(n);
-      let dx = 0, dy = 0, q = n, k = 0;
-      while (par.get(q)! >= 0 && k++ < 5) { const pp = par.get(q)!; dx += X(n) - X(pp); dy += Y(n) - Y(pp); q = pp; }
-      const cand = nb[n].filter((m) => !seen.has(m));
-      cand.sort((m1, m2) => {
-        const s1 = (X(m1) - X(n)) * dx + (Y(m1) - Y(n)) * dy;
-        const s2 = (X(m2) - X(n)) * dx + (Y(m2) - Y(n)) * dy;
-        return s1 - s2 || X(m2) - X(m1);
-      });
-      for (const m of cand) stack.push([m, n]); // l'ultimo inserito (il più dritto) esce per primo
-    }
-    const size = new Map<number, number>();
-    const post: number[] = [];
-    const st2: [number, boolean][] = [[start, false]];
-    while (st2.length) {
-      const [n, done] = st2.pop()!;
-      if (done) { post.push(n); continue; }
-      st2.push([n, true]);
-      for (const m of kids.get(n) ?? []) st2.push([m, false]);
-    }
-    for (const n of post) size.set(n, 1 + (kids.get(n) ?? []).reduce((s, m) => s + size.get(m)!, 0));
-    // preordine: i rami piccoli prima, il filo principale per ultimo
-    const out: [number, boolean][] = [[start, false]];
-    while (out.length) {
-      const [n] = out.pop()!;
-      seq.push(n);
-      const ks = (kids.get(n) ?? []).slice().sort((m1, m2) => size.get(m2)! - size.get(m1)!);
-      for (const m of ks) out.push([m, false]); // il più grande entra per primo => esce per ultimo
-    }
-  }
+  // ordine di scrittura: da un capo (in alto a sinistra) il tratto avanza con continuità lungo la linea, senza salti;
+  // un puntino o un accento (pezzo staccato) si fa dopo
   const r = half * 1.18 + 1.2;
-  const step = Math.max(2, r * 0.55);
-  const pts: Pt[] = [];
-  let len = 0, lx = -999, ly = -999;
-  for (const n of seq) {
-    const x = X(n), y = Y(n);
-    const dd = Math.hypot(x - lx, y - ly);
-    if (dd >= step || dd > 3) {
-      pts.push([(x - PAD) / S, (y - BASE) / S]);
-      lx = x; ly = y;
+  const step = Math.max(2, Math.round(r * 0.55));
+  const seq: number[] = [];
+  const lay: number[] = [];
+  let base = 0;
+  for (const { c } of order) {
+    if (c.length < 6) continue;
+    // capi veri del tratto: i due estremi più lontani; si parte da quello più in alto a sinistra
+    const far = (from: number) => {
+      const d = new Map<number, number>([[from, 0]]);
+      const qq = [from];
+      for (let h = 0; h < qq.length; h++) for (const m of nb[qq[h]]) if (!d.has(m)) { d.set(m, d.get(qq[h])! + 1); qq.push(m); }
+      return qq[qq.length - 1];
+    };
+    const A = far(c[0]), B = far(A);
+    const sc = (n: number) => X(n) + Y(n) * 0.6;
+    const start = sc(A) <= sc(B) ? A : B;
+    const dist = new Map<number, number>([[start, 0]]);
+    const q = [start];
+    for (let h = 0; h < q.length; h++) {
+      const n = q[h];
+      for (const m of nb[n]) if (!dist.has(m)) { dist.set(m, dist.get(n)! + 1); q.push(m); }
     }
+    let reach = 0;
+    for (const n of q) {
+      const d = dist.get(n)!;
+      if (d > reach) reach = d;
+      if (d % step === 0 || nb[n].length === 1) { seq.push(n); lay.push(base + d); }
+    }
+    base += reach + 1;
+  }
+  const ord = seq.map((n, i) => i).sort((i, j) => lay[i] - lay[j]);
+  const pts: Pt[] = [];
+  let len = 0;
+  const taken: number[] = [];
+  for (const i of ord) {
+    const n = seq[i], x = X(n), y = Y(n);
+    if (taken.some((t) => Math.hypot(X(t) - x, Y(t) - y) < step * 0.8)) continue;
+    taken.push(n);
+    pts.push([(x - PAD) / S, (y - BASE) / S]);
   }
   // i puntini: dopo l'assottigliamento spariscono, ma il punto è più largo del tratto; si fanno subito dopo il gambo della loro lettera
   for (const dt of dots) {
     const dx = (dt[0] - PAD) / S, dy = (dt[1] - BASE) / S;
-    const add: Pt[] = [[dx, dy]];
-    const ring = Math.max(0, dt[2] - r) / S;
-    if (ring > 0.01) for (let k = 0; k < 6; k++) add.push([dx + Math.cos((k * Math.PI) / 3) * ring, dy + Math.sin((k * Math.PI) / 3) * ring]);
     let at = -1;
     pts.forEach((q, k) => { if (Math.abs(q[0] - dx) < 0.14 && q[1] > dy) at = k; });
-    pts.splice(at < 0 ? pts.length : at + 1, 0, ...add);
+    pts.splice(at < 0 ? pts.length : at + 1, 0, [dx, dy, (dt[2] + 1.5) / S]); // un solo timbro grande: il punto compare intero
   }
-  for (let k = 1; k < pts.length; k++) {
-    const g = Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]);
-    if (g < 0.12) len += g;
-  }
+  len = N / S;
   const out = { pts, r: r / S, len };
   cache.set(key, out);
   return out;
@@ -218,11 +195,11 @@ export function prepareWrite(el: Element) {
     const sk = build(m.text, m.family);
     const n = sk.pts.length;
     if (!n) return;
-    const R = sk.r;
-    const rr = (k: number) => `clamp(0em,calc((var(--p,1) * ${n} - ${k}) * ${R.toFixed(4)}em),${R.toFixed(4)}em)`;
+    const rr = (k: number, R: number) => `clamp(0em,calc((var(--p,1) * ${n} - ${k}) * ${(R * 3).toFixed(4)}em),${R.toFixed(4)}em)`;
     const img: string[] = [], pos: string[] = [], size: string[] = [];
-    sk.pts.forEach(([x, y], k) => {
-      const r = rr(k);
+    sk.pts.forEach(([x, y, rad], k) => {
+      const R = rad ?? sk.r;
+      const r = rr(k, R);
       img.push(`radial-gradient(circle ${R.toFixed(4)}em at center,#000 calc(${r} - 0.02em),transparent ${r})`);
       pos.push(`${(m.ox + x - R).toFixed(4)}em ${(m.by + y - R).toFixed(4)}em`);
       size.push(`${(2 * R).toFixed(4)}em ${(2 * R).toFixed(4)}em`);
@@ -253,7 +230,7 @@ const wipeStyle = (el: HTMLElement) => {
 export const writeTime = (el: Element) => {
   prepareWrite(el);
   const len = parseFloat((el as HTMLElement).dataset.wlen ?? "");
-  return len ? Math.min(2.6, Math.max(0.55, 0.3 + len / 4.4)) : Math.min(1.6, Math.max(0.5, 0.28 + (el.textContent?.length ?? 6) * 0.075));
+  return len ? Math.min(1.5, Math.max(0.4, 0.15 + len / 13)) : Math.min(1.6, Math.max(0.5, 0.28 + (el.textContent?.length ?? 6) * 0.075));
 };
 
 /** Aggiunge alla timeline la scrittura di una parola. */
