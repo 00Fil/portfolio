@@ -722,7 +722,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const py = () => 0;
       // le interfacce disegnate a misura fissa si adattano al riquadro (anche nell'anteprima)
       // sul telefono in verticale le interfacce si allungano fino a riempire l'altezza, invece di restare piccole al centro
-      const gfac = port ? 0.72 : 0.84;
+      const gfac = port ? 0.68 : 0.84;
       const fitAll = () =>
         $("[data-gfit]").forEach((e) => {
           if (e.hasAttribute("data-pfill")) e.style.height = "";
@@ -1828,7 +1828,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         )}
         <div data-rig className="absolute inset-0 will-change-transform">
         <div data-cam className="absolute inset-0 will-change-transform">
-          <div className={`absolute inset-x-0 h-0 ${port ? "top-[51%]" : "top-[50%]"}`}>
+          <div className={`absolute inset-x-0 h-0 ${port ? "top-[49.5%]" : "top-[50%]"}`}>
             {/* la home di Google: il cliente scrive */}
             <div data-it data-pill className={`${center} flex flex-col items-center gap-8`} style={HID}>
               <span data-gfit className="flex flex-col items-center gap-8">
