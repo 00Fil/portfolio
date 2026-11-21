@@ -140,6 +140,9 @@ const IT: Record<ServiceKey, Body> = {
       ["Quanto tempo ci vuole?", "Un sito di presentazione richiede in genere poche settimane, uno strumento su misura qualche mese. I tempi precisi sono nel preventivo, divisi in tappe."],
       ["Devo preparare io testi e foto?", "Se li hai, parto da quelli. Altrimenti ti aiuto a scriverli e a scegliere le immagini giuste."],
       ["E dopo la messa online?", "Il sito è tuo. Se vuoi me ne occupo io con un canone mensile: aggiornamenti, sicurezza e piccole modifiche."],
+      ["Userete un modello già pronto?", "No. Ogni sito è disegnato intorno alla tua attività, alla tua storia e al tuo lavoro. Niente modelli copiati."],
+      ["Come funziona l’assistente su WhatsApp?", "È una chat con il tuo assistente: gli chiedi di cambiare una parola, una foto o un orario, come sta andando il sito e chi ha chiesto di essere ricontattato."],
+      ["Mi troverò primo su Google?", "Nessuno può garantirlo. Il sito nasce veloce, chiaro e in ordine, con le informazioni che Google e gli assistenti di intelligenza artificiale leggono: è la base per farsi trovare."],
     ],
   },
   seo: {
@@ -504,6 +507,9 @@ const ENG: Record<ServiceKey, Body> = {
       ["How long does it take?", "A presentation site usually takes a few weeks, a custom tool a few months. Exact timing is in the quote, split into stages."],
       ["Do I need to prepare text and photos?", "If you have them, I start from those. Otherwise I help you write them and pick the right images."],
       ["And after launch?", "The site is yours. If you like, I look after it for a monthly fee: updates, security and small changes."],
+      ["Will you use a ready-made template?", "No. Every site is designed around your business, your story and your work. No copied templates."],
+      ["How does the WhatsApp assistant work?", "It’s a chat with your assistant: ask it to change a word, a photo or opening hours, how the site is doing and who asked to be called back."],
+      ["Will I be first on Google?", "Nobody can guarantee that. The site is built fast, clear and tidy, with the information Google and AI assistants read: that’s the base for being found."],
     ],
   },
   seo: {

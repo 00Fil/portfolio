@@ -4,7 +4,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { ArrowRight, ArrowUpRight, Bell, CalendarDays, Check, FileText, Globe, HardDrive, Inbox, KeyRound, LayoutDashboard, LayoutTemplate, Lock, LockOpen, MessageCircle, PhoneCall, Plus, RefreshCw, Rocket, Settings, ShoppingBag, Truck, UserRound, Users, Zap, type LucideIcon } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Bell, CalendarDays, Check, FileText, Globe, HardDrive, Inbox, KeyRound, LayoutDashboard, LayoutTemplate, Lock, LockOpen, MessageCircle, PhoneCall, Plus, RefreshCw, Rocket, Search, PencilLine, Settings, ShoppingBag, Truck, UserRound, Users, X, Zap, type LucideIcon } from "lucide-react";
 import { BRANDS, type BrandKey } from "@/lib/brands";
 import { Link } from "@/i18n/navigation";
 import { Bead } from "@/components/glass/Bead";
@@ -682,7 +682,7 @@ const emph = (t: string) => {
   return w.length > 2 ? `${w.slice(0, -2).join(" ")} *${w.slice(-2).join(" ")}*${tail}` : `*${t}*`;
 };
 
-const FACT_ICONS = [Zap, UserRound, KeyRound];
+const FACT_ICONS = [Search, Zap, PencilLine];
 const STEP_ICONS = [PhoneCall, LayoutTemplate, RefreshCw, Rocket];
 const PROMISE_ICONS = [FileText, UserRound, KeyRound, LockOpen];
 
@@ -752,11 +752,11 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
           </h2>
         </header>
         <div className="grid gap-4 sm:gap-5 lg:grid-cols-12">
-          <Cell span="lg:col-span-7" title={c.bento.cells.speed[0]} body={c.bento.cells.speed[1]} mock={<SpeedMock m={m} f={fs} />} h="h-[300px]" />
+          <Cell span="lg:col-span-7" title={c.bento.cells.found[0]} body={c.bento.cells.found[1]} mock={<FoundMock m={m} />} h="h-[290px]" />
+          <Cell span="lg:col-span-5" title={c.bento.cells.speed[0]} body={c.bento.cells.speed[1]} mock={<SpeedMock m={m} f={fs} />} h="h-[290px]" />
           <Cell span="lg:col-span-5" title={c.bento.cells.screens[0]} body={c.bento.cells.screens[1]} mock={<ScreensMock />} h="h-[300px]" />
-          <Cell span="lg:col-span-7" title={c.bento.cells.edit[0]} body={c.bento.cells.edit[1]} mock={<EditMock m={m} />} h="h-[290px]" />
-          <Cell span="lg:col-span-5" title={c.bento.cells.leads[0]} body={c.bento.cells.leads[1]} mock={<LeadsMock m={m} />} h="h-[290px]" />
-          <Cell span="lg:col-span-7" title={c.bento.cells.found[0]} body={c.bento.cells.found[1]} mock={<FoundMock m={m} />} h="h-[270px]" />
+          <Cell span="lg:col-span-7" title={c.bento.cells.edit[0]} body={c.bento.cells.edit[1]} mock={<EditMock m={m} />} h="h-[300px]" />
+          <Cell span="lg:col-span-7" title={c.bento.cells.leads[0]} body={c.bento.cells.leads[1]} mock={<LeadsMock m={m} />} h="h-[270px]" />
           <Cell span="lg:col-span-5" title={c.bento.cells.safe[0]} body={c.bento.cells.safe[1]} mock={<SafeMock m={m} />} h="h-[270px]" />
           <Cell span="lg:col-span-12" title={c.bento.cells.dash[0]} body={c.bento.cells.dash[1]} mock={<DashMock m={m} locale={locale} />} h="h-auto" bleed />
         </div>
@@ -827,8 +827,32 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
         </section>
       )}
 
-      {/* garanzie */}
+      {/* invito a metà pagina: dopo aver visto cosa ottiene e le prove */}
       <section className={`${container} pt-28 sm:pt-44`}>
+        <Bead as="div" radius={44} className="flex flex-col items-start gap-8 p-7 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 data-rv className="max-w-[20ch] text-[clamp(30px,4vw,60px)] font-medium leading-[1.04] tracking-[-0.05em] text-ink">
+              <Script text={c.cta.title} />
+            </h2>
+            <p data-rv className="mt-4 max-w-[46ch] text-[17px] leading-[1.55] text-ink-2">
+              {c.cta.lead}
+            </p>
+          </div>
+          <div data-rv className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Drop href="#brief-web" accent className="h-[54px] px-7 text-[16px] font-medium text-ink">
+              {ctaLabel}
+              <ArrowRight size={18} strokeWidth={1.8} aria-hidden />
+            </Drop>
+            <a href="#promise" className="group inline-flex h-[54px] items-center gap-2 text-[16px] font-medium text-ink-2 transition-colors hover:text-ink">
+              {c.cta.more}
+              <ArrowRight size={17} strokeWidth={1.8} className="rotate-90 transition-transform duration-300 group-hover:translate-y-0.5" aria-hidden />
+            </a>
+          </div>
+        </Bead>
+      </section>
+
+      {/* garanzie */}
+      <section id="promise" className={`${container} scroll-mt-10 pt-28 sm:pt-44`}>
         <h2 data-rv className={`${h2} mb-10 sm:mb-14`}>
           <Script text={c.promise.title} />
         </h2>
@@ -840,6 +864,19 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
             </Bead>
           ))}
         </ul>
+        {tale.promise.no.length > 0 && (
+          <div data-rv className="mt-10">
+            <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-ink-3">{tale.promise.noTitle}</p>
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+              {tale.promise.no.map((n) => (
+                <li key={n} className="flex items-start gap-3 text-[16px] leading-[1.5] text-ink-2">
+                  <X size={17} strokeWidth={1.8} className="mt-[3px] shrink-0 text-ink-3" aria-hidden />
+                  {n}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         <div data-rv className="mt-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
           <Bead tint="dark" radius={36} className="flex h-[72px] w-[72px] shrink-0 items-center justify-center text-[22px] font-medium tracking-[-0.02em] text-white">
             FC

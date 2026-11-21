@@ -6,31 +6,32 @@ export type WebCopy = {
   bento: { title: string; lead: string; cells: Record<"speed" | "screens" | "edit" | "leads" | "found" | "safe" | "dash", [string, string]>; mock: Record<string, string> };
   steps: { title: string; lead: string; items: [string, string][] };
   proof: { title: string };
+  cta: { title: string; lead: string; more: string };
   promise: { title: string };
   faq: { title: string };
 };
 
 const IT: WebCopy = {
   offer: {
-    title: "Un sito che *lavora* per te, ogni giorno.",
-    lead: "Ti costruisco un sito veloce, chiaro e fatto sul tuo modo di lavorare. Chi ti cerca ti trova, capisce subito cosa offri e ti contatta. Tu lo aggiorni da solo; a tutto il resto penso io.",
+    title: "Un sito che fa *scegliere te*.",
+    lead: "Chi ti cerca su Google vede decine di attività. Se il sito è lento o confuso, chiama un’altra. Ti costruisco un sito veloce, disegnato intorno a te: chi arriva capisce subito cosa offri e ti contatta. Lo aggiorni tu, anche da WhatsApp; a tutto il resto ci pensiamo noi.",
     cta: "Richiedi il preventivo",
     more: "Guarda i progetti",
     facts: [
-      ["2 settimane", "Ogni due settimane provi una versione vera, non un documento."],
-      ["1 referente", "Parli sempre con chi lo progetta e lo costruisce."],
-      ["100% tuo", "Dominio, codice e contenuti restano intestati a te."],
+      ["Una fra tante", "Su Google chi ti cerca vede mille risultati: il tuo sito deve farsi notare e farsi scegliere."],
+      ["Si apre subito", "Chi aspetta si stanca e chiama il concorrente, senza che tu lo sappia mai."],
+      ["Lo cambi tu", "Una parola, una foto, un orario: lo modifichi da solo o lo chiedi su WhatsApp al tuo assistente."],
     ],
   },
   bento: {
-    title: "Tutto quello che ti serve, *già dentro*.",
-    lead: "Niente pezzi da mettere insieme: ricevi un sito completo, pronto a portarti clienti.",
+    title: "Tutto quello che serve a chi ti cerca, *già dentro*.",
+    lead: "Niente pezzi da mettere insieme: un sito completo, disegnato intorno alla tua attività. Niente modelli copiati.",
     cells: {
-      speed: ["Si apre in meno di un secondo", "Chi aspetta se ne va. Il tuo sito carica subito, anche con il telefono in campagna."],
+      speed: ["Si apre all’istante", "Chi aspetta si stanca e chiama il concorrente. Il tuo sito carica subito, anche da telefono con poco segnale."],
       screens: ["Perfetto su ogni schermo", "Telefono, tablet e computer: sempre leggibile e comodo da usare."],
-      edit: ["Lo modifichi tu", "Cambi testi, foto e prezzi da un pannello semplice, senza chiamare nessuno."],
-      leads: ["Le richieste arrivano ordinate", "Prenotazioni e messaggi ti arrivano con una notifica, già con i dati al loro posto."],
-      found: ["Ti trovano su Google", "Pagine pensate per essere trovate: titoli chiari, mappa e recensioni in vista."],
+      edit: ["Lo cambi tu, o lo chiedi su WhatsApp", "Una parola, una foto, un orario da un pannello semplice. Oppure scrivi al tuo assistente e lo aggiorna lui."],
+      leads: ["Sai chi vuole essere richiamato", "Prenotazioni e messaggi ti arrivano con una notifica, già in ordine. Lo chiedi anche all’assistente su WhatsApp."],
+      found: ["Pronto per farsi trovare", "Titoli chiari, mappa, recensioni e informazioni in ordine: le stesse che leggono Google e gli assistenti di intelligenza artificiale."],
       safe: ["Online e al sicuro", "Connessione protetta, copie di sicurezza e aggiornamenti. Se qualcosa non va, si torna indietro subito."],
       dash: ["Un’area per i tuoi clienti", "Ognuno entra con il suo accesso e vede solo quello che gli serve."],
     },
@@ -83,7 +84,7 @@ const IT: WebCopy = {
     },
   },
   steps: {
-    title: "Come si lavora, *passo passo*.",
+    title: "Dal primo incontro al sito *online*.",
     lead: "Sempre nello stesso ordine. A ogni passo vedi qualcosa di concreto e decidi tu se va bene.",
     items: [
       ["Mi racconti il tuo lavoro", "Una chiamata di 30 minuti. Pochi giorni dopo ricevi un preventivo scritto, con tempi e costi di ogni parte."],
@@ -93,31 +94,32 @@ const IT: WebCopy = {
     ],
   },
   proof: { title: "Già fatto, *davvero*." },
+  cta: { title: "Quante persone ti cercano oggi e trovano *un’altra attività*?", lead: "In 30 minuti vediamo dove ti trovi e cosa cambierebbe con un sito fatto come si deve.", more: "Cosa non ti prometto" },
   promise: { title: "Cosa ti *garantisco*." },
   faq: { title: "Le *domande* di chi sceglie." },
 };
 
 const EN: WebCopy = {
   offer: {
-    title: "A website that *works* for you, every day.",
-    lead: "I build you a fast, clear website shaped around how you work. People find you, understand what you offer at once and get in touch. You update it yourself; I take care of the rest.",
+    title: "A website that gets you *chosen*.",
+    lead: "People who search for you on Google see dozens of businesses. If your site is slow or confusing, they call another one. I build you a fast site designed around you: visitors understand what you offer at once and get in touch. You update it yourself, even from WhatsApp; we take care of the rest.",
     cta: "Get a quote",
     more: "See the projects",
     facts: [
-      ["2 weeks", "Every two weeks you try a real version, not a document."],
-      ["1 contact", "You always talk to the person who designs and builds it."],
-      ["100% yours", "Domain, code and content stay in your name."],
+      ["One of many", "On Google people see a thousand results: your site has to stand out and get chosen."],
+      ["Opens at once", "People who wait give up and call your competitor, and you never find out."],
+      ["You change it", "A word, a photo, opening hours: change it yourself or ask your assistant on WhatsApp."],
     ],
   },
   bento: {
-    title: "Everything you need, *built in*.",
-    lead: "No parts to put together: you get a complete website, ready to bring in customers.",
+    title: "Everything people need to choose you, *built in*.",
+    lead: "No parts to put together: a complete site designed around your business. No copied templates.",
     cells: {
-      speed: ["Opens in under a second", "People who wait, leave. Your site loads at once, even on a phone out in the countryside."],
+      speed: ["Opens instantly", "People who wait give up and call your competitor. Your site loads at once, even on a phone with a weak signal."],
       screens: ["Perfect on every screen", "Phone, tablet and computer: always readable and easy to use."],
-      edit: ["You edit it yourself", "Change text, photos and prices from a simple panel, without calling anyone."],
-      leads: ["Requests arrive in order", "Bookings and messages reach you with a notification, details already in place."],
-      found: ["Found on Google", "Pages built to be found: clear titles, a map and reviews in sight."],
+      edit: ["You change it, or ask on WhatsApp", "A word, a photo, opening hours from a simple panel. Or message your assistant and it updates it."],
+      leads: ["You know who wants a call back", "Bookings and messages reach you with a notification, already in order. Ask the WhatsApp assistant too."],
+      found: ["Ready to be found", "Clear titles, a map, reviews and tidy information: the same things Google and AI assistants read."],
       safe: ["Online and safe", "Protected connection, backups and updates. If something goes wrong, we roll back at once."],
       dash: ["An area for your customers", "Everyone signs in with their own access and sees only what they need."],
     },
@@ -170,7 +172,7 @@ const EN: WebCopy = {
     },
   },
   steps: {
-    title: "How we work, *step by step*.",
+    title: "From first call to a site *online*.",
     lead: "Always in the same order. At every step you see something concrete and decide if it’s right.",
     items: [
       ["You tell me about your work", "A 30-minute call. A few days later you get a written quote, with time and cost for every part."],
@@ -180,6 +182,7 @@ const EN: WebCopy = {
     ],
   },
   proof: { title: "Already done, *for real*." },
+  cta: { title: "How many people look for you today and find *someone else*?", lead: "In 30 minutes we see where you stand and what a site done right would change.", more: "What I won’t promise" },
   promise: { title: "What I *guarantee*." },
   faq: { title: "The *questions* people ask." },
 };
