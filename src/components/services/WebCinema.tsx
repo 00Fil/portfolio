@@ -1266,6 +1266,21 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
 
       }
 
+      /* Il contrario, subito: la Modalità IA ora cita te, per primo */
+      const aiMeTl = gsap.timeline({ paused: true });
+      {
+        const box = one("[data-aim2]");
+        aiMeTl
+          .set([pill, ...res, dev, chrome, meter], { autoAlpha: 0 }, 0)
+          .fromTo(box, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "expo.out" }, 0)
+          .fromTo(one("[data-bq]"), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: "power3.out" }, 0.2)
+          .fromTo($("[data-bw]"), { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: 0.2, ease: "power2.out", stagger: 0.022 }, 0.5)
+          .fromTo($("[data-bi]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.12 }, 0.8)
+          .fromTo(one("[data-bveil]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 1.2)
+          .fromTo(one("[data-bub3]"), { autoAlpha: 0, scale: 0.9 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 1.25)
+          .call(() => F.bell(7, 0.9), undefined, 1.2)
+          .set({}, {}, 2.0);
+      }
       /* SEO: i risultati della ricerca, e la tua attività che sale in cima */
       const seoTl = gsap.timeline({ paused: true });
       {
@@ -1489,8 +1504,9 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         { sub: aiTl, map: [[0, w(18, 0.06)], [0.35, w(18, 0.7)], [1.0, w(19)], [1.35, w(20)], [END, w(21, -0.1)]], marks: [[0.35, "Modalità IA: la domanda"], [1.0, "la risposta"], [1.35, "consiglia gli altri"]], after: (t) => void mt.set(one("[data-aim]"), { autoAlpha: 0 }, t) },
         ...story,
         // con il nuovo sito
-        S(3, [61, 62, 63, 64], we(64, 0.1), "rise"),
-        { sub: seoTl, map: [[0, AUTO], [1.2, w(67)], [2.4, w(71)], [3.6, w(74)], [3.6 + 0.75, w(75, -0.06)], [3.6 + 0.9, w(75, 0.05)], [3.6 + 0.95, w(75, 0.1)], [3.6 + 1.32, w(75, 0.42)], [END, we(93, 0.25)]], still: true, marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"], [3.6 + 0.9, "clic sul tuo risultato"], [3.6 + 1.32, "il sito nuovo appare"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t).set(meter, { autoAlpha: 0 }, t) },
+        S(3, [61, 62, 63, 64], w(65, -0.2), "rise"),
+        { sub: aiMeTl, map: [[0, w(65, -0.15)], [0.5, w(65, 0.1)], [1.2, w(67)], [END, we(67, 0.05)]], marks: [[0.2, "Modalità IA: ora cita te"], [1.2, "sei il primo consiglio"]], after: (t) => void mt.set(one("[data-aim2]"), { autoAlpha: 0 }, t) },
+        { sub: seoTl, map: [[0, w(68, -0.1)], [1.2, w(69, 0.05)], [2.4, w(72)], [3.6, w(74)], [3.6 + 0.75, w(75, -0.06)], [3.6 + 0.9, w(75, 0.05)], [3.6 + 0.95, w(75, 0.1)], [3.6 + 1.32, w(75, 0.42)], [END, we(93, 0.25)]], still: true, marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"], [3.6 + 0.9, "clic sul tuo risultato"], [3.6 + 1.32, "il sito nuovo appare"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t).set(meter, { autoAlpha: 0 }, t) },
         I(1, [80, 81, 82, 83], w(84, -0.2)),
         I(2, [87, 88, 89, 90, 90, 91, 92, 93, 93], we(93, 0.1)),
         S(4, [94, 95, 96, 97], w(99, -0.05)),
@@ -1949,6 +1965,42 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                   <div className="mt-4 flex flex-col gap-3">
                     {c.far.list.slice(0, 3).map(([t, u]) => (
                       <div key={u} data-ai className="flex items-center gap-3 rounded-[16px] border border-[#e3e3e3] px-4 py-3" style={HID}>
+                        <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-[#dadce0] text-[13px] font-bold text-[#5f6368]">{t[0]}</span>
+                        <span className="min-w-0 flex-1 leading-[1.35]">
+                          <span className="block text-[15px] font-medium">{t}</span>
+                          <span className="block text-[13px] text-[#4d5156]">{locale === "en" ? "Open today · replies in minutes" : "Aperto oggi · risponde in pochi minuti"}</span>
+                        </span>
+                        <span className="shrink-0 text-[12px] text-[#4d5156]">{u}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* il contrario: la Modalità IA ora cita te, per primo */}
+            <div data-it data-aim2 className={center} style={HID}>
+              <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5" style={ARIAL}>
+                <div className="relative z-30 flex h-[84px] items-center gap-7 bg-white px-8">
+                  <GLogo size={32} />
+                  <GBox q={c.find.typed} w={560} />
+                </div>
+                <GTabs active={0} />
+                <div className="absolute inset-x-0 bottom-0 top-[124px] px-[118px] pt-6 text-[#1f1f1f]">
+                  <div data-bq className="ml-auto w-fit max-w-[70%] rounded-[20px] rounded-tr-[6px] bg-[#f1f3f4] px-4 py-2.5 text-[15px]" style={HID}>
+                    {c.find.typed}
+                  </div>
+                  <p className="mt-6 text-[16px] leading-[1.6]">
+                    {(locale === "en" ? `The best choice nearby is ${c.find.me[0]}: quick to reply, with great reviews.` : `La scelta migliore in zona è ${c.find.me[0]}: risponde subito e ha ottime recensioni.`).split(" ").map((x, i) => (
+                      <span key={i} data-bw className="inline-block" style={HID}>
+                        {x}&nbsp;
+                      </span>
+                    ))}
+                  </p>
+                  <div className="relative mt-4 flex flex-col gap-3">
+                    <Veil data-bveil />
+                    {[c.find.me, ...c.far.list.slice(0, 2)].map(([t, u], i) => (
+                      <div key={u} data-bi className={`relative flex items-center gap-3 rounded-[16px] border border-[#e3e3e3] bg-white px-4 py-3 ${i === 0 ? "z-20" : ""}`} style={HID}>
+                        {i === 0 && <Bead as="span" data-bub3 radius={20} className="absolute -inset-x-3 -inset-y-2 -z-10" style={HID} />}
                         <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full border border-[#dadce0] text-[13px] font-bold text-[#5f6368]">{t[0]}</span>
                         <span className="min-w-0 flex-1 leading-[1.35]">
                           <span className="block text-[15px] font-medium">{t}</span>
