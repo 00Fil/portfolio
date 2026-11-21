@@ -434,13 +434,25 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       el.style.setProperty("--ft", `${Math.round(top + gap)}px`);
       el.style.setProperty("--fb", `${Math.round(H - bot + gap)}px`);
     };
-    const t1 = window.setTimeout(measure, 400);
-    const t2 = window.setTimeout(measure, 1600);
-    window.addEventListener("resize", measure);
+    // la barra in alto cambia altezza (intro, banner che si chiude): si rimisura ogni volta, così sopra il video non resta spazio vuoto
+    const ts = [400, 1600, 3500, 7000].map((t) => window.setTimeout(measure, t));
+    let raf = 0;
+    const soon = () => {
+      // a pagina scorsa la barra può nascondersi: lì non si tocca la cornice
+      if (scrollY > 40) return;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(measure);
+    };
+    const off = onIntroLift(() => window.setTimeout(measure, 700));
+    const ro = new ResizeObserver(soon);
+    document.querySelectorAll("header, nav").forEach((n) => ro.observe(n));
+    window.addEventListener("resize", soon);
     return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-      window.removeEventListener("resize", measure);
+      ts.forEach((t) => window.clearTimeout(t));
+      cancelAnimationFrame(raf);
+      off();
+      ro.disconnect();
+      window.removeEventListener("resize", soon);
     };
   }, []);
 
@@ -1287,6 +1299,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       free = 0;
       const waits = ch.map(() => 0);
       ch.forEach((k, i) => {
+        let ext = 0;
         if (k.vo !== undefined && free + 0.12 - 0.2 > at) {
           waits[i] = free + 0.12 - 0.2 - at;
           marks.push({ t: at, what: `attesa voce ${waits[i].toFixed(2)}` });
@@ -1325,8 +1338,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           if (k.vo !== undefined) {
             marks.push({ t: c0, what: `voce ${k.vo}` });
             free = c0 + VO[k.vo];
-            // una frase da sola resta a schermo finché la voce non l'ha detta tutta
-            if (k.textOnly) c1 = Math.max(c1, q8(free - 0.35));
+            // la frase resta a schermo mentre la voce la dice: da sola fino alla fine, prima di una scena per gran parte della voce
+            const c1n = c1;
+            c1 = Math.max(c1, q8(k.textOnly ? free - 0.35 : c0 + Math.min(VO[k.vo] - 0.4, Math.max(2.2, VO[k.vo] * 0.62))));
+            // il tempo dato alla frase si riprende dalla scena, che va un po' più svelta (al massimo un terzo)
+            ext = c1 - c1n;
           }
           if (style === 2) mt.to(el, { scale: 1.5, autoAlpha: 0, duration: 0.35, ease: "power2.in" }, c1);
           else if (style === 1) mt.to(el, { scale: 0.85, autoAlpha: 0, filter: "blur(6px)", duration: 0.35, ease: "power2.in" }, c1);
@@ -1351,8 +1367,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           at = q8(at + 0.25);
         }
         let d = 0;
-        if (k.seg) d = r8((k.seg[1] - k.seg[0]) / ((k.speed ?? 1) * FAST) + extra[i]);
-        if (k.sub) d = r8(k.sub.duration() / ((k.speed ?? 1) * FAST) + extra[i]);
+        const base = (k.seg ? k.seg[1] - k.seg[0] : k.sub ? k.sub.duration() : 0) / ((k.speed ?? 1) * FAST);
+        if (k.seg || k.sub) d = r8(Math.max(base * 0.75, base - ext) + extra[i]);
         if (shot >= 0 && !k.still) shoot(shot, at, d);
         if (k.seg) mt.add(scene.tweenFromTo(k.seg[0], k.seg[1], { duration: d, ease: "none", immediateRender: false }), at);
         if (k.sub) mt.add(k.sub.tweenFromTo(0, k.sub.duration(), { duration: d, ease: "none", immediateRender: false }), at);
