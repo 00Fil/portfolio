@@ -352,12 +352,33 @@ function GLogo({ size }: { size: number }) {
     </span>
   );
 }
+/** La lente con la stella della Modalità IA (disegnata, non il marchio). */
+function AiLens({ size = 16 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden className="shrink-0" fill="none" stroke="currentColor" strokeWidth={2.1} strokeLinecap="round">
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="M15.4 15.4 20.5 20.5" />
+      <path d="M10.5 7.2c.3 1.7 1.1 2.5 2.8 2.8-1.7.3-2.5 1.1-2.8 2.8-.3-1.7-1.1-2.5-2.8-2.8 1.7-.3 2.5-1.1 2.8-2.8Z" fill="currentColor" strokeWidth={1} strokeLinejoin="round" />
+    </svg>
+  );
+}
+/** Il pulsante della Modalità IA: bordo con la luce arcobaleno che gli gira intorno. */
+function AiPill({ h, label }: { h: number; label: string }) {
+  return (
+    <span className="relative flex shrink-0 items-center rounded-full p-[1.5px]" style={{ height: h, background: "conic-gradient(from 200deg, #4285f4, #9b72f2, #ea4335, #fbbc04, #34a853, #4285f4)", boxShadow: "0 0 10px -1px rgba(155,114,242,.55), 0 0 18px -4px rgba(66,133,244,.5), 0 0 16px -6px rgba(251,188,4,.5)" }}>
+      <span className="flex h-full items-center gap-[0.35em] rounded-full bg-white px-[0.75em] text-[0.82em] font-medium text-[#1f1f1f]">
+        <AiLens size={h * 0.46} />
+        {label}
+      </span>
+    </span>
+  );
+}
 /** La barra di ricerca di Google di oggi: lente, testo, microfono, Lens e il pulsante della Modalità IA. */
 function GBox({ q, w, h = 46, typed = false }: { q: string; w: number; h?: number; typed?: boolean }) {
   const en = useLocale() === "en";
   return (
     <span className="flex items-center gap-3 rounded-full border border-[#dadce0] bg-white pl-5 pr-[0.3em] text-[#1f1f1f] shadow-[0_2px_8px_-2px_rgba(32,33,36,.18)]" style={{ width: w, height: h, fontSize: h * 0.34, ...ARIAL }}>
-      <Search size={h * 0.38} strokeWidth={2} className="shrink-0 text-[#5f6368]" />
+      <Search size={h * 0.38} strokeWidth={2} className="shrink-0 text-[#1f1f1f]" />
       <span className="flex min-w-0 flex-1 items-center">
         {typed ? (
           <span className="inline-flex items-center leading-none">
@@ -368,14 +389,11 @@ function GBox({ q, w, h = 46, typed = false }: { q: string; w: number; h?: numbe
           <span className="truncate">{q}</span>
         )}
       </span>
-      {!typed && <X size={h * 0.4} strokeWidth={1.7} className="shrink-0 text-[#5f6368]" />}
+      {!typed && <X size={h * 0.4} strokeWidth={1.7} className="shrink-0 text-[#1f1f1f]" />}
       {!typed && <span className="h-[55%] w-px shrink-0 bg-[#dadce0]" />}
-      <Mic size={h * 0.4} strokeWidth={1.9} className="shrink-0 text-[#4285f4]" />
-      <Camera size={h * 0.4} strokeWidth={1.9} className="shrink-0 text-[#34a853]" />
-      <span className="flex shrink-0 items-center gap-[0.35em] rounded-full bg-[#f1f3f4] px-[0.8em] text-[0.82em] font-medium text-[#1f1f1f]" style={{ height: h * 0.72 }}>
-        <Sparkles size={h * 0.3} strokeWidth={2} className="text-[#4285f4]" />
-        {en ? "AI Mode" : "Modalità IA"}
-      </span>
+      <Mic size={h * 0.4} strokeWidth={1.9} className="shrink-0 text-[#1f1f1f]" />
+      <Camera size={h * 0.4} strokeWidth={1.9} className="shrink-0 text-[#1f1f1f]" />
+      <AiPill h={h * 0.72} label={en ? "AI Mode" : "Modalità IA"} />
     </span>
   );
 }
@@ -387,7 +405,7 @@ function GTabs({ active = 1, ...rest }: { active?: number } & Record<string, unk
     <div {...rest} className="relative z-30 flex h-[40px] items-end gap-6 border-b border-[#ebebeb] bg-white pl-[118px] text-[14px] text-[#4d5156]" style={ARIAL}>
       {tabs.map((t, i) => (
         <span key={t} className={`relative flex items-center gap-1.5 pb-2.5 ${i === active ? "font-medium text-[#1f1f1f]" : ""}`}>
-          {i === 0 && <Sparkles size={13} strokeWidth={2} className="text-[#4285f4]" />}
+          {i === 0 && <AiLens size={15} />}
           {t}
           {i === active && <span className="absolute inset-x-0 bottom-0 h-[3px] rounded-t-full bg-[#1f1f1f]" />}
         </span>
