@@ -66,6 +66,8 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
   const glow = useRef<HTMLDivElement>(null);
   const rim = useRef<HTMLDivElement>(null);
   const subRef = useRef<HTMLParagraphElement>(null);
+  const flash = useRef<HTMLDivElement>(null);
+  const zoom = useRef<Promise<void> | null>(null);
   const src = (n: string) => (en || !n ? null : `/intake/${n}.mp3`);
 
   useEffect(() => {
@@ -137,6 +139,19 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
     return () => void tl.kill();
   }, [phase]);
 
+  // personalizzo la tua esperienza: uno zoom che parte lentissimo e accelera fino allo sfondo pieno, poi parte il film
+  useEffect(() => {
+    if (phase !== "busy" || !card.current) return;
+    let tl: gsap.core.Timeline | null = null;
+    zoom.current = new Promise<void>((res) => {
+      tl = gsap.timeline({ onComplete: res });
+      tl.to(card.current, { scale: 34, duration: 3.4, ease: "expo.in", force3D: true }, 0.35);
+      if (rim.current) tl.to(rim.current, { scale: 1.6, autoAlpha: 0, duration: 2.6, ease: "expo.in", force3D: true }, 1.0);
+      tl.fromTo(flash.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5, ease: "power2.in" }, 3.25);
+    });
+    return () => void tl?.kill();
+  }, [phase]);
+
   // ogni domanda entra con un respiro
   useEffect(() => {
     if (phase === "intro" || !body.current) return;
@@ -165,8 +180,8 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
     setPhase("busy");
     const v = voice.current;
     v?.cut();
-    await v?.say(src(C.done), 1100);
-    window.setTimeout(() => onDone(a, !mutedRef.current), 250);
+    await Promise.all([v?.say(src(C.done), 1100), new Promise((r) => window.setTimeout(r, 60)).then(() => zoom.current)]);
+    onDone(a, !mutedRef.current);
   };
   const answer = (id: keyof Answers, val: string) => {
     ans.current = { ...ans.current, [id]: val };
@@ -181,7 +196,7 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
   const cur = C.steps[step];
   const btn = "cine-fg flex min-h-[64px] w-full items-center justify-center rounded-[24px] px-4 text-center text-[18px] font-medium leading-[1.2] tracking-[-0.01em] transition-transform active:scale-[.98] max-sm:min-h-[52px] max-sm:text-[16px]";
   return (
-    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[color-mix(in_srgb,var(--bg-canvas)_45%,transparent)] px-5 backdrop-blur-2xl">
+    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center overflow-hidden bg-[color-mix(in_srgb,var(--bg-canvas)_45%,transparent)] px-5 backdrop-blur-2xl">
       <div className="absolute right-4 top-4 flex gap-2.5 max-sm:right-3 max-sm:top-3">
         <Bead as="button" type="button" radius={999} onClick={toggleMute} aria-label={muted ? "Audio" : "Mute"} className="cine-fg flex h-11 w-11 items-center justify-center">
           {muted ? <VolumeX size={19} strokeWidth={1.8} aria-hidden /> : <Volume2 size={19} strokeWidth={1.8} aria-hidden />}
@@ -266,6 +281,8 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
           </div>
         </div>
       )}
+
+      <div ref={flash} aria-hidden className="pointer-events-none absolute inset-0 z-40 opacity-0" style={{ background: light ? "#ffffff" : "#000000" }} />
 
       <button type="button" onClick={() => onSkip(!mutedRef.current)} className="cine-fg2 absolute left-5 top-6 text-[14px] underline-offset-4 hover:underline max-sm:left-4 max-sm:top-5">
         {C.skip}
