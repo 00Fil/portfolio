@@ -291,7 +291,7 @@ function HeroMock({ edit = "hardware" }: { edit?: string }) {
           </span>
         </div>
         <p data-hx className="mt-7 max-w-[560px] text-[16px] leading-[1.6] text-[#55565c]">
-          Sono Filippo Corsini. Realizzo software su misura per aziende e professionisti: piattaforme web, app e sistemi con AI che automatizzano i processi.
+          Sono Filippo Corsini. Realizzo software su misura per aziende e professionisti: piattaforme web, app e sistemi con intelligenza artificiale che automatizzano i processi.
         </p>
         <span data-hx className="mt-7 flex items-center gap-3 text-[15px] font-medium">
           <span className="rounded-full bg-[#9edcff] px-6 py-3">Prenota una chiamata →</span>

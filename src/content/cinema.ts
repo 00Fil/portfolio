@@ -81,7 +81,7 @@ const IT: Cinema = {
   team: ["Filippo", "Design", "Sviluppo"],
   far: { cap: "Ma sei *in fondo*.", count: "Circa 1.240.000 risultati (0,42 secondi)", list: [["Rossi Impianti", "rossimpianti.it"], ["Ferri & Co.", "ferrieco.it"], ["Casa Nova", "casanova.it"], ["Punto Servizi", "puntoservizi.it"], ["Gallo Group", "gallogroup.it"], ["Moretti Lab", "morettilab.it"], ["Studio Conti", "studioconti.it"], ["Officina Riva", "officinariva.it"]], lost: "Cliente *!perso*.", tired: "Il cliente si è *!stufato*.", stays: "Il cliente *resta*.", mine: "La tua attività · Sito ufficiale", title: "Servizi e preventivi", snip: "Professionisti in zona, preventivi gratuiti e assistenza rapida. Scopri i servizi." },
   seo: { cap: "Con il nuovo sito sarai *in cima*.", more: [["Studio Bianchi", "studiobianchi.it"], ["Centro Verdi", "centroverdi.it"]] },
-  geo: { cap: "Anche l'*^AI* parlerà di te.", q: "Chi mi consigli qui vicino?", a: "Ti consiglio La tua attività: risponde subito e ha ottime recensioni.", who: "Assistente AI", reply: "Rispondi a Claude…", hello: "Come posso aiutarti oggi?", title: "Consiglio in zona" },
+  geo: { cap: "Anche l'*^intelligenza artificiale* parlerà di te.", q: "Chi mi consigli qui vicino?", a: "Ti consiglio La tua attività: risponde subito e ha ottime recensioni.", who: "Assistente", reply: "Rispondi a Claude…", hello: "Come posso aiutarti oggi?", title: "Consiglio in zona" },
 };
 
 const EN: Cinema = {
