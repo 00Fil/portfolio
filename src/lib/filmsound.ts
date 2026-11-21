@@ -145,6 +145,16 @@ export const fx = {
       step(c, m, n, at);
     }
   },
+  /** Scarica il brano prima che parta il film: la prima parola non deve perdersi. */
+  preload() {
+    const c = ac();
+    if (c) useTrack(c);
+  },
+  /** Il brano è pronto (o non serve): il film può partire. */
+  ready() {
+    if (!soundOn() || muted) return true;
+    return !!trackBuf || trackMissing;
+  },
   /** Finito il film: una musica chill, in loop, resta sotto la pagina. */
   chill(on: boolean) {
     const c = ac();

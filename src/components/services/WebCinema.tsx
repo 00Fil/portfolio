@@ -442,7 +442,10 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
   }, []);
   /** Le risposte (o nessuna, se salta) entrano nelle scritte, il video si ricostruisce e parte. */
   const begin = (a: Answers | null, withSound: boolean) => {
-    if (withSound) setSound(true);
+    if (withSound) {
+      setSound(true);
+      F.preload();
+    }
     if (a) {
       try {
         sessionStorage.setItem("film-intake", JSON.stringify(a));
@@ -1515,6 +1518,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
 
       const drive = (_t: number, dt: number) => {
         if (!flags.current.playing) return;
+        // la voce parte con il film: finché il brano non è scaricato, il film aspetta all'inizio
+        if (mt.time() < 0.3 && !F.ready()) return void F.preload();
         const next = Math.min(mt.duration(), mt.time() + Math.min(dt, 34) / 1000);
         mt.time(next);
         F.sync(next, true);
