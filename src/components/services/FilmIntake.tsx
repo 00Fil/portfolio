@@ -18,13 +18,23 @@ function Sub({ text }: { text: string }) {
     <>
       {parts.map((p, i) =>
         i % 2 ? (
-          <span key={i} className="inline-block" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.45em 0.34em 0.5em", margin: "-0.45em -0.34em -0.5em" }}>
+          <span key={i} data-w className="inline-block" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.45em 0.34em 0.5em", margin: "-0.45em -0.34em -0.5em" }}>
             <GradientText colors={PINK} animationSpeed={8} variant="flow" glow={0.8}>
               {p}
             </GradientText>
           </span>
         ) : (
-          <Fragment key={i}>{p}</Fragment>
+          <Fragment key={i}>
+            {p.split(/(\s+)/).map((x, j) =>
+              /^\s*$/.test(x) ? (
+                x
+              ) : (
+                <span key={j} data-w className="inline-block">
+                  {x}
+                </span>
+              ),
+            )}
+          </Fragment>
         ),
       )}
     </>
@@ -112,7 +122,8 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
 
   useEffect(() => {
     if (!subRef.current || !sub) return;
-    gsap.fromTo(subRef.current, { autoAlpha: 0, y: 16, filter: "blur(8px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.4, ease: "power3.out" });
+    gsap.set(subRef.current, { autoAlpha: 1 });
+    gsap.fromTo(subRef.current.querySelectorAll("[data-w]"), { autoAlpha: 0, y: 14, filter: "blur(6px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.28, ease: "power3.out", stagger: 0.085 });
   }, [sub]);
 
   // la bolla si espande nella card
@@ -129,6 +140,8 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
   useEffect(() => {
     if (phase === "intro" || !body.current) return;
     gsap.fromTo(body.current.querySelectorAll("[data-in]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.04, overwrite: true, delay: step === 0 && phase === "form" ? 0.6 : 0 });
+    // la domanda arriva parola per parola
+    gsap.fromTo(body.current.querySelectorAll("p [data-w]"), { autoAlpha: 0, y: 12, filter: "blur(6px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.28, ease: "power3.out", stagger: 0.07, overwrite: true, delay: (step === 0 && phase === "form" ? 0.6 : 0) + 0.1 });
   }, [step, phase]);
 
   // il bagliore del bordo segue la voce
