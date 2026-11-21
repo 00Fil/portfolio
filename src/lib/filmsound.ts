@@ -262,6 +262,12 @@ export const fx = {
     if (!run) return;
     const c = ac();
     if (!c || !bus) return;
+    // c'è il brano prodotto: suona quello, agganciato al tempo del video (i suoni d'effetto restano sopra)
+    if (useTrack(c)) {
+      if (trackSrc && Math.abs(c.currentTime - trackT0 - t) > 0.12) stopTrack();
+      if (!trackSrc && trackBuf && t < trackBuf.duration) startTrack(c, t);
+      return;
+    }
     const m = music(c);
     const STEP = 60 / BPM / 4;
     let n = Math.max(last + 1, Math.floor((t - 0.04) / STEP) + 1);
@@ -275,6 +281,7 @@ export const fx = {
   },
   /** Riporta la base all'inizio (nuova riproduzione). */
   reset() {
+    stopTrack();
     resetCues();
     last = -1;
     lastT = 0;
@@ -285,12 +292,53 @@ export const fx = {
   },
   /** Silenzia la base mentre il video è fermo. */
   duck(on: boolean) {
+    if (on) stopTrack();
     if (!ctx || !mbus) return;
     const t = ctx.currentTime;
     mbus.gain.cancelScheduledValues(t);
     mbus.gain.linearRampToValueAtTime(on ? 0.0001 : 0.5, t + 0.2);
   },
 };
+
+/* Il brano vero del film (generato e prodotto fuori): se il file c'è, sostituisce la musica sintetizzata. */
+const TRACK_URL = "/sfx/film-web.mp3";
+let trackBuf: AudioBuffer | null = null;
+let trackLoading = false;
+let trackMissing = false;
+let trackSrc: AudioBufferSourceNode | null = null;
+let trackT0 = 0;
+function useTrack(c: AudioContext) {
+  if (trackBuf) return true;
+  if (!trackLoading && !trackMissing) {
+    trackLoading = true;
+    fetch(TRACK_URL)
+      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject()))
+      .then((a) => c.decodeAudioData(a))
+      .then((b) => void (trackBuf = b))
+      .catch(() => void (trackMissing = true))
+      .finally(() => void (trackLoading = false));
+  }
+  return trackLoading && !trackMissing ? true : false;
+}
+function startTrack(c: AudioContext, t: number) {
+  if (!trackBuf || !bus) return;
+  const s = c.createBufferSource();
+  s.buffer = trackBuf;
+  const g = c.createGain();
+  g.gain.value = 0.9;
+  s.connect(g).connect(bus);
+  s.start(c.currentTime + 0.02, Math.max(0, t));
+  trackSrc = s;
+  trackT0 = c.currentTime + 0.02 - t;
+}
+function stopTrack() {
+  try {
+    trackSrc?.stop();
+  } catch {
+    /* già fermo */
+  }
+  trackSrc = null;
+}
 
 let last = -1;
 let lastT = 0;
