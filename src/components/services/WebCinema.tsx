@@ -392,7 +392,7 @@ const T = (n: number) => (n >= 9.2 ? n + 5 : n) * B;
 const U = (n: number) => n * B;
 const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
 const ICONS_PROMISE = [FileText, UserRound, Tag, LockOpen];
-export const CAPL = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[24ch] -translate-y-1/2 px-6 text-center text-[clamp(30px,6.2cqw,104px)] font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
+export const CAPL = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[20ch] -translate-y-1/2 px-6 text-center text-[clamp(30px,6.2cqw,104px)] font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
 export const CAPF = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[14ch] -translate-y-1/2 px-6 text-center text-[clamp(38px,7cqw,120px)] font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
 export const CAP = "pointer-events-none absolute inset-x-0 top-[5%] mx-auto max-w-[19ch] px-6 text-center text-[clamp(30px,4.6cqw,76px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg md:top-[7%] md:max-w-[24ch]";
 
@@ -1327,7 +1327,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
          il computer, il tablet, il telefono, ogni messaggio) cadono sulla parola che li nomina: tra due parole la scena corre in modo uniforme.
          Dove una scena ha bisogno di respiro, la ripresa si apre in un silenzio (GAP): la voce resta quella vera, mai accelerata. */
       // secondi di respiro aggiunti prima di una parola (sempre in una pausa della ripresa)
-      const GAP: Record<number, number> = { 33: 0.3, 35: 0.25, 52: 0.5, 61: 0.6, 65: 0.6, 75: 0.8, 94: 0.6, 114: 0.6, 117: 0.3, 125: 0.35, 128: 0.6, 152: 0.9, 163: 0.5, 174: 0.5, 194: 0.4 };
+      const GAP: Record<number, number> = { 33: 0.5, 35: 0.4, 52: 0.5, 61: 0.6, 65: 0.6, 75: 0.8, 94: 0.6, 114: 0.6, 117: 0.3, 125: 0.35, 128: 0.6, 152: 0.9, 163: 0.5, 174: 0.5, 194: 0.4 };
       const offs: number[] = [];
       {
         let acc = 0.1;
@@ -1356,10 +1356,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       one("[data-eh]").dataset.t = c.end.t.replace(/[*!^]/g, "");
       const ch: (Say | Scn)[] = [
         // prima del nostro intervento
-        S(0, [0, 2, 3], w(4, -0.06), "calm"),
-        S(10, [4, 5, 6, 7], w(8, -0.06), "calm"),
-        S(11, [8, 9], w(13, -0.06), "calm"),
-        S(12, [13, 14, 15, 16], we(16, 0.1), "calm"),
+        S(0, [0, 2, 3, 4, 5, 6, 7], w(8, -0.25), "calm"),
+        S(10, [8, 9, 13, 14, 15, 16], we(16, -0.25), "calm"),
         { seg: [0, T(3.5)], map: [[0, AUTO], [T(0.9), w(17)], [T(3.3), w(21, -0.1)], [T(3.5), w(21, 0.05)]], marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
         { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(25)], [0.8 + 3.4, w(32, 0.15)], [END, w(33, -0.4)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
         S(1, [33, 34, 34], w(35, -0.5)),
