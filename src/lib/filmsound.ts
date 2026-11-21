@@ -326,7 +326,7 @@ function startTrack(c: AudioContext, t: number) {
   s.buffer = trackBuf;
   const g = c.createGain();
   // di sottofondo: dà il ritmo, gli effetti stanno sopra
-  g.gain.value = 0.42;
+  g.gain.value = 0.5;
   s.connect(g).connect(bus);
   s.start(c.currentTime + 0.02, Math.max(0, t));
   trackSrc = s;
