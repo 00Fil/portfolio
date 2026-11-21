@@ -56,6 +56,8 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
   const [text, setText] = useState("");
   const [muted, setMuted] = useState(false);
   const [light, setLight] = useState(true);
+  // durante lo zoom la scritta smette di brillare: un testo fermo si scala senza ridisegnarlo a ogni fotogramma
+  const [frozen, setFrozen] = useState(false);
   const level = useRef({ current: 0 });
   const voice = useRef<Voice | null>(null);
   const mutedRef = useRef(false);
@@ -151,14 +153,15 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
     }
     let tl: gsap.core.Timeline | null = null;
     zoom.current = new Promise<void>((res) => {
-      tl = gsap.timeline({ onComplete: res });
+      tl = gsap.timeline({ onComplete: res, delay: 0.45 });
+      tl.call(() => setFrozen(true), undefined, 0);
       // zoom percepito costante sul logaritmo: p^3 lo rende lentissimo all'inizio e fulmineo alla fine
       tl.to(z, { p: 1, duration: 1.15, ease: "power2.in", onUpdate: () => {
         const k = Math.exp(Math.log(420) * z.p);
         if (txt) gsap.set(txt, { scale: k, transformOrigin: "50% 50%", force3D: true });
         gsap.set(card.current, { opacity: 1 - Math.max(0, z.p - 0.82) * 5.5 });
       } }, 0);
-      if (rim.current) tl.to(rim.current, { scale: 1.8, autoAlpha: 0, duration: 0.8, ease: "power2.in", force3D: true }, 0.3);
+      if (rim.current) tl.to(rim.current, { autoAlpha: 0, duration: 0.3, ease: "power1.out" }, 0);
       tl.fromTo(flash.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.12, ease: "power1.in" }, 1.05);
     });
     return () => void tl?.kill();
@@ -277,7 +280,7 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
                 )}
                 {phase === "busy" && (
                   <p data-in className="py-6 text-[clamp(26px,3.6cqw,40px)] font-medium leading-[1.1] tracking-[-0.05em]">
-                    <ShinyText text={C.busy} color={light ? "#8e8e93" : "#b5b5b5"} shineColor={light ? "#1d1d1f" : "#ffffff"} speed={0.8} shineWidth={55} softness={0.8} trigger="loop" angle={97} direction="right" followPointer />
+                    {frozen ? <span style={{ color: light ? "#6e6e73" : "#d0d0d0" }}>{C.busy}</span> : <ShinyText text={C.busy} color={light ? "#8e8e93" : "#b5b5b5"} shineColor={light ? "#1d1d1f" : "#ffffff"} speed={0.8} shineWidth={55} softness={0.8} trigger="loop" angle={97} direction="right" followPointer />}
                   </p>
                 )}
               </div>

@@ -433,11 +433,11 @@ function GBox({ q, w, h = 46, typed = false }: { q: string; w: number; h?: numbe
   );
 }
 /** La testata di Google: logo e barra affiancati sul computer, uno sopra l'altra sul telefono. */
-function GHead({ q, port }: { q: string; port: boolean }) {
+function GHead({ q, port, compact = false }: { q: string; port: boolean; compact?: boolean }) {
   return port ? (
-    <div className="relative z-30 flex shrink-0 flex-col items-center gap-3 bg-white px-4 pb-3 pt-14">
+    <div className={`relative z-30 flex shrink-0 flex-col items-center gap-3 bg-white px-4 pb-3 ${compact ? "pt-5" : "pt-14"}`}>
       <GLogo size={28} />
-      <GBox q={q} w={368} h={44} />
+      <GBox q={q} w={348} h={44} />
     </div>
   ) : (
     <div className="relative z-30 flex h-[84px] shrink-0 items-center gap-7 bg-white px-8">
@@ -752,7 +752,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       // il testo non sta più sopra la grafica: ogni frase ha il suo schermo, prima della sua scena (vedi il montaggio in fondo)
       const capAt = (..._: number[]) => void _;
       const cap = (i: number, b0: number, b1: number) => capAt(i, T(b0), T(b1));
-      const punch = (b: number, s = 1.02) => tl.fromTo(cam, { scale: s }, { scale: 1, duration: 0.6, ease: "expo.out" }, T(b));
+      const punch = (b: number, s = 1.02) => (port ? tl : tl.fromTo(cam, { scale: s }, { scale: 1, duration: 0.6, ease: "expo.out" }, T(b)));
 
       /* 0 · Un cliente ti cerca: la camera parte vicina alla barra e si allontana mentre arrivano i risultati */
       const pill = one("[data-pill]");
@@ -778,6 +778,15 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           gsap.set(e, { scale: Math.min(port ? 1.25 : 1, (cam.offsetWidth * (port ? 0.92 : 0.9)) / e.offsetWidth, (cam.offsetHeight * gfac) / e.offsetHeight) });
         });
       fitAll();
+      // pagine dentro la finestra del browser: larghe come la finestra, alte fino in fondo
+      const pinAll = () =>
+        $("[data-pin]").forEach((e) => {
+          const p = e.parentElement as HTMLElement;
+          const k = p.offsetWidth / e.offsetWidth || 1;
+          gsap.set(e, { scale: k, transformOrigin: "0 0" });
+          e.style.minHeight = `${Math.ceil(p.offsetHeight / k)}px`;
+        });
+      pinAll();
       // la cornice cambia misura (la barra del sito che sparisce, il telefono che ruota): le interfacce si riadattano
       let fw = cam.offsetWidth;
       let fh = cam.offsetHeight;
@@ -786,12 +795,13 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         fw = cam.offsetWidth;
         fh = cam.offsetHeight;
         fitAll();
+        pinAll();
       });
       fro.observe(cam);
       const ry = (i: number) => () => (-40 + i * 92) * k();
       gsap.set(pill, { y: py });
       tl.call(() => F.whoosh(0.6, true, 0.7), undefined, 0)
-        .fromTo(cam, { scale: () => (small() ? 1.08 : 1.18), transformOrigin: aim(() => pill) }, { scale: () => (small() ? 1.08 : 1.18), duration: 0.01 }, 0)
+        .fromTo(cam, { scale: () => (port ? 1 : small() ? 1.08 : 1.18), transformOrigin: aim(() => pill) }, { scale: () => (port ? 1 : small() ? 1.08 : 1.18), duration: 0.01 }, 0)
         .fromTo(pill, { autoAlpha: 0, scale: 0.86 }, { autoAlpha: 1, scale: 1, duration: 0.8, ease: "expo.out" }, 0.05);
       typeTo(tl, one("[data-typed]"), c.find.typed, T(0.9), T(2.4), 0);
       tl.to(cam, { scale: 1, duration: 1.2, ease: "expo.inOut" }, T(3));
@@ -861,7 +871,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const gres = one("[data-gres]");
         const rival = one("[data-rival]");
         const url1 = one("[data-url1]");
-        const second = one('[data-gr="0"] [data-grt]');
+        const second = one('[data-gr="0"] [data-gt]');
         // un punto di un elemento qualsiasi della finestra, nelle coordinate del contenuto (la finestra può essere scalata)
         const at = (e: () => HTMLElement, fx = 0.5, fy = 0.6) => () => {
           const a = content.getBoundingClientRect();
@@ -1043,7 +1053,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .to(nav, { autoAlpha: 0, scale: 0.96, duration: 0.3, ease: "power2.in" }, T(25.9))
         .fromTo(ub, { autoAlpha: 0, scaleX: 0.7 }, { autoAlpha: 1, scaleX: 1, duration: 0.6, ease: "expo.out" }, T(26.2))
         .call(() => F.whoosh(0.5, true, 0.7), undefined, T(26.2))
-        .fromTo(cam, { scale: 1, transformOrigin: aim(() => ub) }, { scale: () => (tight() ? 1.12 : 1.6), duration: 1.1, ease: "expo.inOut" }, T(26.4));
+        .fromTo(cam, { scale: 1, transformOrigin: aim(() => ub) }, { scale: () => (port ? 1 : tight() ? 1.12 : 1.6), duration: 1.1, ease: "expo.inOut" }, T(26.4));
       typeTo(tl, one("[data-url]"), c.find.me[1], T(27), T(1.8), 3);
       tl.fromTo(one("[data-load2]"), { scaleX: 0 }, { scaleX: 1, duration: T(1), ease: "power2.inOut" }, T(28.9))
         .to(one("[data-lock1]"), { autoAlpha: 0, scale: 0.6, duration: 0.15, ease: "power2.in" }, T(29.9))
@@ -1062,7 +1072,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .to(nav, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "power2.out" }, T(31.2))
         .call(() => F.whoosh(0.6, true, 0.8), undefined, T(31.2))
         .to(dev, { width: mid, scale: fit(mid), "--r": "34px", duration: 0.9, ease: "expo.inOut" }, T(31.2))
-        .fromTo(cam, { scale: 1, transformOrigin: aim(() => (tight() ? dev : ttl)) }, { scale: () => (tight() ? 1.08 : 1.5), duration: 1, ease: "expo.inOut" }, T(33))
+        .fromTo(cam, { scale: 1, transformOrigin: aim(() => (tight() ? dev : ttl)) }, { scale: () => (port ? 1 : tight() ? 1.08 : 1.5), duration: 1, ease: "expo.inOut" }, T(33))
         .fromTo($("[data-focus]"), { autoAlpha: 0, scale: 0.94 }, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "expo.out" }, T(34.2))
         .call(() => F.tick(1.3), undefined, T(34.2))
         .fromTo($("[data-sel]"), { autoAlpha: 1, scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.inOut" }, T(34.8))
@@ -1158,7 +1168,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .set([spin, stop], { autoAlpha: 1 }, 0)
         .set([fav, rl, tt2], { autoAlpha: 0 }, 0)
         .set(tt1, { autoAlpha: 1 }, 0)
-        .fromTo(rigEl, { scale: 1 }, { scale: 1.42, duration: 2.8, ease: "sine.inOut" }, 0);
+        .fromTo(rigEl, { scale: 1 }, { scale: port ? 1 : 1.42, duration: 2.8, ease: "sine.inOut" }, 0);
       // arriva a pacchetti: un pezzo, poi un altro, di scatto; quando arriva la foto il testo salta giù; la foto resta a metà
       const pk = (els: HTMLElement[], t: number) =>
         slowTl
@@ -1518,7 +1528,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .fromTo(one("[data-cspark]"), { autoAlpha: 0, rotation: -90 }, { autoAlpha: 1, rotation: 0, duration: 0.6, ease: "expo.out" }, 5.55)
           .fromTo(one("[data-cveil]"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 5.75)
           .fromTo(one("[data-bub2]"), { autoAlpha: 0, scale: 0.9 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: "expo.out" }, 5.8)
-          .to(src, { scale: 1.12, duration: 0.6, ease: "expo.out" }, 5.8)
+          .to(src, { scale: port ? 1.04 : 1.12, duration: 0.6, ease: "expo.out" }, 5.8)
           .call(() => F.chord([0, 2, 4, 7], 0.8), undefined, 5.75)
           .set({}, {}, 6.9);
       }
@@ -1747,7 +1757,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const T0 = M[0][0];
         const T1 = M[M.length - 1][0];
         // sul telefono le finestre a schermo pieno non si muovono: ogni zoom taglierebbe i bordi
-        if (port && k.full) mt.set(rig, { scale: 1, xPercent: 0, yPercent: 0 }, f0);
+        // sul telefono la camera resta ferma: gli zoom spostano le pagine e destabilizzano soltanto
+        if (port) mt.set(rig, { scale: 1, xPercent: 0, yPercent: 0 }, f0);
         else if (camOn && !k.still) shoot(f0, f1 - f0);
         mt.add((k.seg ? scene : k.sub!).tweenFromTo(T0, T1, { duration: f1 - f0, ease, immediateRender: false }), f0);
         (k.marks ?? []).forEach(([s, what]) => marks.push({ t: film(s0 + s), what }));
@@ -1982,23 +1993,17 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
               <div className="relative min-h-0 flex-1 bg-[var(--bg-surface)]">
                 <OldSite c={c} port={port} />
                 {/* la ricerca, di nuovo: il cliente torna indietro */}
-                <div data-gres className="absolute inset-0 z-[5] bg-white px-[6%] pt-[5%] text-[#202124] [container-type:size]" style={{ ...HID, ...ARIAL }}>
-                  <div className="mb-[4cqh]">
-                    <GLogo size={24} />
-                  </div>
-                  <div className="flex h-[11cqh] min-h-[30px] w-[min(520px,80%)] items-center gap-2.5 rounded-full px-4 text-[clamp(11px,3.6cqh,16px)] shadow-[0_1px_6px_rgba(32,33,36,.28)]">
-                    <Search size={15} strokeWidth={1.8} className="shrink-0 text-[var(--label-secondary)]" />
-                    {c.find.typed}
-                  </div>
-                  <div className="mt-[6cqh] flex flex-col gap-[5cqh]">
-                    {[...c.find.others, ...(ans?.site === "none" ? [] : [c.find.me])].map(([t, u], i) => (
-                      <div key={u} data-gr={i}>
-                        <span className="block text-[clamp(10px,3cqh,13px)] text-[#4d5156]">https://{u}</span>
-                        <span data-grt className="inline-block text-[clamp(14px,5cqh,22px)] text-[#1a0dab] underline-offset-4">
-                          {t}
-                        </span>
-                      </div>
-                    ))}
+                <div data-gres className="absolute inset-0 z-[5] overflow-hidden bg-white text-[#1f1f1f]" style={{ ...HID, ...ARIAL }}>
+                  <div data-pin className={`flex origin-top-left flex-col ${port ? "w-[400px]" : "w-[820px]"}`}>
+                    <GHead q={c.find.typed} port={port} compact />
+                    <GTabs port={port} />
+                    <div className={`flex flex-col gap-[24px] pt-5 ${port ? "px-5" : "pl-[118px]"}`}>
+                      {[...c.find.others, ...(ans?.site === "none" ? [] : [c.find.me])].map(([t, u], i) => (
+                        <div key={u} data-gr={i}>
+                          <GResult port={port} name={t} url={u} title={`${t} · ${c.far.title}`} snip={c.far.snip} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 {/* il concorrente: si apre subito */}
@@ -2280,7 +2285,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                     </div>
                   </div>
                   {/* la conversazione */}
-                  <div className={`mx-auto flex flex-col ${port ? "w-[360px] pt-16" : "w-[620px] pt-8"}`}>
+                  <div className={`mx-auto flex flex-col ${port ? "w-[332px] pt-16" : "w-[620px] pt-8"}`}>
                     <div data-gq className="max-w-[80%] self-end rounded-[16px] bg-[#f4f4f4] px-4 py-2.5 text-[16px]" style={HID}>
                       {c.geo.q}
                     </div>
