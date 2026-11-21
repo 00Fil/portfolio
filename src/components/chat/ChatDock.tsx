@@ -42,7 +42,7 @@ function useBevel(ref: RefObject<HTMLElement | null>, radius: number, on = true)
 }
 
 /** Il logo della chat: la sfera di vetro con i filamenti di luce (React Bits · Strands), chiara o scura col tema. */
-function AppIcon({ size = 38, listening = false }: { size?: number; listening?: boolean }) {
+export function AppIcon({ size = 38, listening = false }: { size?: number; listening?: boolean }) {
   // fondo nero in ogni tema: la sfera di luce si legge sempre allo stesso modo
   return (
     <span aria-hidden className="relative block shrink-0 overflow-hidden rounded-full bg-black" style={{ width: size, height: size }}>

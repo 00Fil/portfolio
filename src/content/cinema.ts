@@ -8,6 +8,8 @@ export type Cinema = {
   cue: string;
   end: { t: string; more: string; cta: string };
   cap: string[];
+  /** le scritte del film, nell'ordine in cui la voce le dice */
+  say: string[];
   title: string[];
   ctl: { play: string; pause: string; replay: string; on: string; off: string };
   find: { q: string; typed: string; loading: string; a: string; me: [string, string]; others: [string, string][] };
@@ -29,7 +31,7 @@ export type Cinema = {
   team: string[];
   seo: { cap: string; more: [string, string][] };
   /** prima: il cliente deve scorrere tra mille risultati per trovarti */
-  far: { cap: string; count: string; list: [string, string][]; lost: string; mine: string; title: string; snip: string; tired: string; stays: string };
+  far: { cap: string; count: string; list: [string, string][]; lost: string; open: string; mine: string; title: string; snip: string; tired: string; stays: string };
   geo: { cap: string; q: string; a: string; who: string; reply: string; hello: string; title: string };
   /** l'assistente su WhatsApp: modifiche, andamento del sito, chi chiede di essere ricontattato */
   wa: { cap: string; us: string; name: string; on: string; type: string; chat: [string, string][]; week: string; n: string; up: string; days: string[] };
@@ -37,7 +39,8 @@ export type Cinema = {
 
 const IT: Cinema = {
   cue: "Scorri",
-  end: { t: "Un sito *come si deve*.", more: "Scopri i dettagli", cta: "Parliamone" },
+  end: { t: "Merita un sito *come si deve*.", more: "Scopri i dettagli", cta: "Parliamone" },
+  say: ["Una persona ha *bisogno di te*.", "*Una fra tante*.", "Hai perso un *!cliente*. E non lo saprai mai.", "Ora immagina *il contrario*.", "Lo disegniamo *intorno a te*.", "*Ovunque* ti cerchino.", "Lo *fai tu*.", "Oppure lo chiedi *su WhatsApp*.", "Per tutto il resto, *ci siamo noi*.", "Quando qualcuno chiederà all'*intelligenza* *artificiale*"],
   cap: ["Qualcuno ha *bisogno di te*.", "Ti trova, ma è *lento*.", "Si apre *all'istante*.", "Disegnato *intorno a te*.", "Poi lo *costruiremo*.", "Perfetto, *ovunque*.", "Arriveranno i *clienti*.", "Online, *al sicuro*.", "Lo *cambi tu*.", "Tutto *compreso*.", "Senza *sorprese*."],
   title: ["Il tuo lavoro,", "sempre aggiornato"],
   ctl: { play: "Riproduci", pause: "Pausa", replay: "Rivedi", on: "Audio attivo", off: "Audio spento" },
@@ -81,15 +84,16 @@ const IT: Cinema = {
   ba: ["Prima", "Dopo"],
   rival: { open: "Aperto ora", lost: "Cliente perso" },
   team: ["Filippo", "Design", "Sviluppo"],
-  far: { cap: "Sei *una fra tante*.", count: "Circa 1.240.000 risultati (0,42 secondi)", list: [["Rossi Impianti", "rossimpianti.it"], ["Ferri & Co.", "ferrieco.it"], ["Casa Nova", "casanova.it"], ["Punto Servizi", "puntoservizi.it"], ["Gallo Group", "gallogroup.it"], ["Moretti Lab", "morettilab.it"], ["Studio Conti", "studioconti.it"], ["Officina Riva", "officinariva.it"]], lost: "Hai perso un *!cliente*.", tired: "Il cliente si è *!stufato*.", stays: "Il cliente *resta*.", mine: "La tua attività · Sito ufficiale", title: "Servizi e preventivi", snip: "Professionisti in zona, preventivi gratuiti e assistenza rapida. Scopri i servizi." },
+  far: { cap: "Sei *una fra tante*.", count: "Circa 1.240.000 risultati (0,42 secondi)", list: [["Rossi Impianti", "rossimpianti.it"], ["Ferri & Co.", "ferrieco.it"], ["Casa Nova", "casanova.it"], ["Punto Servizi", "puntoservizi.it"], ["Gallo Group", "gallogroup.it"], ["Moretti Lab", "morettilab.it"], ["Studio Conti", "studioconti.it"], ["Officina Riva", "officinariva.it"]], lost: "Hai perso un *!cliente*.", open: "Si apre all'*istante*.", tired: "Si *!stanca*.", stays: "Ha tutti i motivi per *scegliere te*.", mine: "La tua attività · Sito ufficiale", title: "Servizi e preventivi", snip: "Professionisti in zona, preventivi gratuiti e assistenza rapida. Scopri i servizi." },
   seo: { cap: "Con il nuovo sito, *tra i primi*.", more: [["Studio Bianchi", "studiobianchi.it"], ["Centro Verdi", "centroverdi.it"]] },
   geo: { cap: "Pronto anche per l'*intelligenza* *artificiale*.", q: "Chi mi consigli qui vicino?", a: "Ti consiglio La tua attività: risponde subito e ha ottime recensioni.", who: "Assistente", reply: "Rispondi a Claude…", hello: "Come posso aiutarti oggi?", title: "Consiglio in zona" },
-  wa: { cap: "Oppure, *su WhatsApp*.", us: "Per tutto il resto, *ci siamo noi*.", name: "Il tuo assistente", on: "online", type: "Messaggio", chat: [["Sabato apriamo alle 9, aggiorna il sito", "Fatto, il sito è aggiornato."], ["Come sta andando il sito?", ""], ["Chi ha chiesto di essere ricontattato?", "Due persone, oggi:"]], week: "Visite questa settimana", n: "1.284", up: "+18%", days: ["L", "M", "M", "G", "V", "S", "D"] },
+  wa: { cap: "Oppure, *su WhatsApp*.", us: "Per tutto il resto, *ci siamo noi*.", name: "Il tuo assistente", on: "online", type: "Messaggio", chat: [["Sabato apriamo alle 9, aggiorna il sito", "Fatto, il sito è aggiornato."], ["Come sta andando il sito?", "Bene, ecco la settimana:"], ["Chi ha chiesto di essere ricontattato?", "Due persone, oggi:"]], week: "Visite questa settimana", n: "1.284", up: "+18%", days: ["L", "M", "M", "G", "V", "S", "D"] },
 };
 
 const EN: Cinema = {
   cue: "Scroll",
   end: { t: "A site *done right*.", more: "See the details", cta: "Let’s talk" },
+  say: ["Someone *needs you*.", "*One of many*.", "You lost a *!customer*. And you’ll never know.", "Now imagine *the opposite*.", "Designed *around you*.", "*Everywhere* they look.", "You *do it*.", "Or just ask *on WhatsApp*.", "For everything else, *we’re here*.", "When someone asks *^AI* for advice"],
   cap: ["A customer is *looking* for you.", "They find you, but it’s *slow*.", "And it will open in *0.8 seconds*.", "We’ll build it *just for you*.", "Then, we’ll *build* it.", "Perfect, *everywhere*.", "*Customers* will arrive.", "Online, and *safe*.", "*You’ll* change it.", "Everything *included*.", "No *surprises*."],
   title: ["Your work,", "always current"],
   ctl: { play: "Play", pause: "Pause", replay: "Replay", on: "Sound on", off: "Sound off" },
@@ -133,10 +137,10 @@ const EN: Cinema = {
   ba: ["Before", "After"],
   rival: { open: "Open now", lost: "Customer lost" },
   team: ["Filippo", "Design", "Development"],
-  far: { cap: "But you’re *buried*.", count: "About 1,240,000 results (0.42 seconds)", list: [["Rossi Impianti", "rossimpianti.com"], ["Ferri & Co.", "ferrieco.com"], ["Casa Nova", "casanova.com"], ["Punto Servizi", "puntoservizi.com"], ["Gallo Group", "gallogroup.com"], ["Moretti Lab", "morettilab.com"], ["Studio Conti", "studioconti.com"], ["Officina Riva", "officinariva.com"]], lost: "Customer *!lost*.", tired: "The customer *!gave up*.", stays: "The customer *stays*.", mine: "Your business · Official site", title: "Services and quotes", snip: "Local professionals, free quotes and quick support. See our services." },
+  far: { cap: "But you’re *buried*.", count: "About 1,240,000 results (0.42 seconds)", list: [["Rossi Impianti", "rossimpianti.com"], ["Ferri & Co.", "ferrieco.com"], ["Casa Nova", "casanova.com"], ["Punto Servizi", "puntoservizi.com"], ["Gallo Group", "gallogroup.com"], ["Moretti Lab", "morettilab.com"], ["Studio Conti", "studioconti.com"], ["Officina Riva", "officinariva.com"]], lost: "Customer *!lost*.", open: "It opens *instantly*.", tired: "They *!give up*.", stays: "Every reason to *choose you*.", mine: "Your business · Official site", title: "Services and quotes", snip: "Local professionals, free quotes and quick support. See our services." },
   seo: { cap: "With the new site, you’ll be *on top*.", more: [["Bianchi Studio", "bianchistudio.com"], ["Verdi Centre", "verdicentre.com"]] },
   geo: { cap: "And *^AI* will talk about you.", q: "Who do you recommend nearby?", a: "I recommend Your business: quick to reply, with great reviews.", who: "AI assistant", reply: "Reply to Claude…", hello: "How can I help you today?", title: "Local recommendation" },
-  wa: { cap: "Or, *on WhatsApp*.", us: "For everything else, *we're here*.", name: "Your assistant", on: "online", type: "Message", chat: [["We open at 9 on Saturday, update the site", "Done, the site is updated."], ["How is the site doing?", ""], ["Who asked to be called back?", "Two people, today:"]], week: "Visits this week", n: "1,284", up: "+18%", days: ["M", "T", "W", "T", "F", "S", "S"] },
+  wa: { cap: "Or, *on WhatsApp*.", us: "For everything else, *we're here*.", name: "Your assistant", on: "online", type: "Message", chat: [["We open at 9 on Saturday, update the site", "Done, the site is updated."], ["How is the site doing?", "Good, here’s your week:"], ["Who asked to be called back?", "Two people, today:"]], week: "Visits this week", n: "1,284", up: "+18%", days: ["M", "T", "W", "T", "F", "S", "S"] },
 };
 
 export const getCinema = (l: Locale): Cinema => (l === "en" ? EN : IT);
