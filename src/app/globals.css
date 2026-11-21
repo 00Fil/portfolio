@@ -246,6 +246,8 @@ body {
   outline-offset: 2px;
   border-radius: 6px;
 }
+/* campi che hanno già il loro vetro: nessun riquadro al focus */
+.no-ring:focus, .no-ring:focus-visible { outline: none; }
 
 /* Scala CanoneType (1,25 su griglia di 4) */
 .t-display { font-weight: 500; font-size: clamp(40px, 6.2vw, 72px); line-height: 1.04; letter-spacing: -0.03em; }

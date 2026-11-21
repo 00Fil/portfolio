@@ -70,3 +70,12 @@
   background: conic-gradient(from calc(var(--rim-a) + 160deg), #ff00ff, #5b00ff 22%, #ffd0ff 40%, #ff00c9 60%, #8a3dff 80%, #ff00ff);
   animation: rim-spin 18s linear infinite;
 }
+
+/* sul telefono la cornice è stretta: il bagliore resta sul bordo e non entra nei campi */
+@media (max-width: 640px) {
+  .rim-l2 { filter: blur(5px); }
+  .rim-l2::before { padding: 6px; }
+  .rim-l3 { filter: blur(14px); opacity: calc(0.2 + var(--lv, 0) * 0.3); }
+  .rim-l3::before { padding: 18px; }
+  .rim-l1::before { }
+}

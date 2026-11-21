@@ -237,8 +237,41 @@ function Wire({ team }: { team: string[] }) {
 }
 
 /** Il sito di oggi: vecchio, pesante, arriva a pezzi. Ogni pezzo compare di scatto (data-o). */
-function OldSite({ c }: { c: Cinema }) {
+function OldSite({ c, port = false }: { c: Cinema; port?: boolean }) {
   const o = c.old;
+  if (port)
+    return (
+      <div data-old className="absolute inset-0 overflow-hidden bg-white [container-type:size]" style={{ fontFamily: '"Times New Roman", Times, serif', color: "#222" }}>
+        <div data-o className="absolute inset-0 bg-[#e8e2d0]" />
+        <div data-o className="absolute inset-x-0 top-0 flex h-[11%] items-center justify-center whitespace-nowrap bg-[#1d2b6b] text-[min(5cqh,9cqw)] font-bold text-[#ffd200]">
+          {o.brand}
+        </div>
+        <div data-o className="absolute inset-x-0 top-[11%] flex h-[5.5%] items-center justify-around bg-[#c8c0aa] px-[3%]">
+          {o.menu.map((m) => (
+            <span key={m} className="whitespace-nowrap text-[min(2.6cqh,5cqw)] text-[#0000ee] underline">
+              {m}
+            </span>
+          ))}
+        </div>
+        <div data-o className="absolute inset-x-[6%] top-[18%] text-center text-[min(3.4cqh,6.4cqw)] font-bold italic leading-[1.15] text-[#c00000]">
+          {o.hello}
+        </div>
+        <div data-oimg className="absolute left-[6%] top-[31%] h-[38%] w-[88%] overflow-hidden outline outline-[3px] outline-[#888]" style={{ clipPath: "inset(0 0 100% 0)" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={cin("lavoro")} alt="" draggable={false} className="h-full w-full object-cover" style={{ filter: "sepia(.5) saturate(.7) contrast(.85)" }} />
+        </div>
+        <div data-otext className="absolute inset-x-[6%] top-[24%] text-center text-[min(2.6cqh,5cqw)] leading-[1.5]">
+          {o.text.map((t) => (
+            <span key={t} className="block">
+              {t}
+            </span>
+          ))}
+        </div>
+        <div data-o className="absolute inset-x-0 top-[92%] text-center text-[min(2.2cqh,4.2cqw)] text-[#555]">
+          {o.visits}
+        </div>
+      </div>
+    );
   return (
     <div data-old className="absolute inset-0 overflow-hidden bg-white [container-type:size]" style={{ fontFamily: '"Times New Roman", Times, serif', color: "#222" }}>
       <div data-o className="absolute inset-0 bg-[#e8e2d0]" />
@@ -400,7 +433,7 @@ function GBox({ q, w, h = 46, typed = false }: { q: string; w: number; h?: numbe
 /** La testata di Google: logo e barra affiancati sul computer, uno sopra l'altra sul telefono. */
 function GHead({ q, port }: { q: string; port: boolean }) {
   return port ? (
-    <div className="relative z-30 flex shrink-0 flex-col items-center gap-3 bg-white px-4 pb-3 pt-5">
+    <div className="relative z-30 flex shrink-0 flex-col items-center gap-3 bg-white px-4 pb-3 pt-14">
       <GLogo size={28} />
       <GBox q={q} w={368} h={44} />
     </div>
@@ -726,6 +759,13 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const fitAll = () =>
         $("[data-gfit]").forEach((e) => {
           if (e.hasAttribute("data-pfill")) e.style.height = "";
+          if (port && e.hasAttribute("data-pfull")) {
+            // sul telefono la finestra non è una scheda dentro lo schermo: è lo schermo
+            const s = cam.offsetWidth / e.offsetWidth;
+            e.style.height = `${Math.ceil(cam.offsetHeight / s) + 2}px`;
+            gsap.set(e, { scale: s });
+            return;
+          }
           if (port && e.hasAttribute("data-pfill")) {
             const s = Math.min(1.25, (cam.offsetWidth * 0.92) / e.offsetWidth);
             e.style.height = `${Math.round(Math.min(1000, Math.max(560, (cam.offsetHeight * gfac) / s)))}px`;
@@ -1828,7 +1868,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         )}
         <div data-rig className="absolute inset-0 will-change-transform">
         <div data-cam className="absolute inset-0 will-change-transform">
-          <div className={`absolute inset-x-0 h-0 ${port ? "top-[49.5%]" : "top-[50%]"}`}>
+          <div className={`absolute inset-x-0 h-0 top-[50%]`}>
             {/* la home di Google: il cliente scrive */}
             <div data-it data-pill className={`${center} flex flex-col items-center gap-8`} style={HID}>
               <span data-gfit className="flex flex-col items-center gap-8">
@@ -1885,7 +1925,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             </div>
             {/* il browser: prima carica lento, poi tutto insieme */}
             <div data-it className={`${center} flex flex-col items-center gap-[clamp(16px,3cqh,32px)]`}>
-              <div data-chrome className={`relative ${port ? "w-[min(90cqw,calc(68cqh*.6))] aspect-[.6]" : "w-[min(88cqw,calc(min(46cqh,440px)*1.58))] aspect-[1.58] max-md:aspect-[.82]"} flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
+              <div data-chrome className={`relative ${port ? "w-[min(88cqw,calc(62cqh*.6))] aspect-[.6]" : "w-[min(88cqw,calc(min(46cqh,440px)*1.58))] aspect-[1.58] max-md:aspect-[.82]"} flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
               <div className="flex h-[38px] shrink-0 items-end gap-3 bg-[color-mix(in_srgb,var(--label-primary)_9%,var(--bg-canvas))] px-3">
                 <span className="mb-[13px] flex gap-[7px]">
                   {["#ff5f57", "#febc2e", "#28c840"].map((k) => (
@@ -1922,7 +1962,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                 <EllipsisVertical size={17} strokeWidth={1.7} className="cine-fg2" />
               </div>
               <div className="relative min-h-0 flex-1 bg-[var(--bg-surface)]">
-                <OldSite c={c} />
+                <OldSite c={c} port={port} />
                 {/* la ricerca, di nuovo: il cliente torna indietro */}
                 <div data-gres className="absolute inset-0 z-[5] bg-white px-[6%] pt-[5%] text-[#202124] [container-type:size]" style={{ ...HID, ...ARIAL }}>
                   <div className="mb-[4cqh]">
@@ -1946,24 +1986,49 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                 {/* il concorrente: si apre subito */}
                 {/* il concorrente: brutto come il tuo di oggi, ma si apre tutto e subito */}
                 <div data-rival className="absolute inset-0 z-[6] overflow-hidden bg-[#f4efe1] [container-type:size]" style={{ ...HID, fontFamily: '"Times New Roman", Times, serif', color: "#222" }}>
-                  <div className="flex h-[14%] items-center justify-center bg-[#2f5d2a] text-[7cqh] font-bold text-[#fff6b0]">{c.find.others[0][0]}</div>
-                  <div className="absolute bottom-0 left-0 top-[14%] w-[24%] bg-[#d9d2bb]">
-                    {c.old.menu.map((m, i) => (
-                      <span key={m} className="absolute left-[12%] whitespace-nowrap text-[4.5cqh] text-[#0000ee] underline" style={{ top: `${6 + i * 9}%` }}>
-                        {m}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="absolute left-[28%] top-[18%] whitespace-nowrap text-[5cqh] font-bold italic text-[#a40000]">{c.old.hello}</div>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={cin("negozio")} alt="" draggable={false} className="absolute left-[28%] top-[28%] h-[40%] w-[40%] object-cover outline outline-[3px] outline-[#888]" style={{ filter: "sepia(.4) saturate(.8) contrast(.9)" }} />
-                  <div className="absolute left-[28%] top-[73%] text-[4cqh] leading-[1.6]">
-                    {c.old.text.map((t) => (
-                      <span key={t} className="block whitespace-nowrap">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
+                  {port ? (
+                    <>
+                      <div className="flex h-[11%] items-center justify-center whitespace-nowrap bg-[#2f5d2a] text-[min(5cqh,9cqw)] font-bold text-[#fff6b0]">{c.find.others[0][0]}</div>
+                      <div className="flex h-[5.5%] items-center justify-around bg-[#d9d2bb] px-[3%]">
+                        {c.old.menu.map((m) => (
+                          <span key={m} className="whitespace-nowrap text-[min(2.6cqh,5cqw)] text-[#0000ee] underline">
+                            {m}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="absolute inset-x-[6%] top-[19%] text-center text-[min(3.4cqh,6.4cqw)] font-bold italic leading-[1.15] text-[#a40000]">{c.old.hello}</div>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={cin("negozio")} alt="" draggable={false} className="absolute left-[6%] top-[30%] h-[38%] w-[88%] object-cover outline outline-[3px] outline-[#888]" style={{ filter: "sepia(.4) saturate(.8) contrast(.9)" }} />
+                      <div className="absolute inset-x-[6%] top-[73%] text-center text-[min(2.6cqh,5cqw)] leading-[1.5]">
+                        {c.old.text.map((t) => (
+                          <span key={t} className="block">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                    <div className="flex h-[14%] items-center justify-center bg-[#2f5d2a] text-[7cqh] font-bold text-[#fff6b0]">{c.find.others[0][0]}</div>
+                    <div className="absolute bottom-0 left-0 top-[14%] w-[24%] bg-[#d9d2bb]">
+                      {c.old.menu.map((m, i) => (
+                        <span key={m} className="absolute left-[12%] whitespace-nowrap text-[4.5cqh] text-[#0000ee] underline" style={{ top: `${6 + i * 9}%` }}>
+                          {m}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="absolute left-[28%] top-[18%] whitespace-nowrap text-[5cqh] font-bold italic text-[#a40000]">{c.old.hello}</div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={cin("negozio")} alt="" draggable={false} className="absolute left-[28%] top-[28%] h-[40%] w-[40%] object-cover outline outline-[3px] outline-[#888]" style={{ filter: "sepia(.4) saturate(.8) contrast(.9)" }} />
+                    <div className="absolute left-[28%] top-[73%] text-[4cqh] leading-[1.6]">
+                      {c.old.text.map((t) => (
+                        <span key={t} className="block whitespace-nowrap">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    </>
+                  )}
                 </div>
                 {/* il sito nuovo: la hero vera, che si dipinge appena arriva */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1995,7 +2060,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             </div>
             {/* la Modalità IA di Google: risponde, e consiglia qualcun altro */}
             <div data-it data-aim className={center} style={HID}>
-              <div data-gfit data-pfill className={`relative flex flex-col overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5 ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px]"}`} style={ARIAL}>
+              <div data-gfit data-pfill data-pfull className={`relative flex flex-col overflow-hidden bg-white ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px] rounded-[22px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5"}`} style={ARIAL}>
                 <GHead q={c.find.typed} port={port} />
                 <GTabs active={0} port={port} />
                 <div className={`relative min-h-0 flex-1 pt-6 text-[#1f1f1f] ${port ? "px-5" : "px-[118px]"}`}>
@@ -2026,7 +2091,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             </div>
             {/* il contrario: la Modalità IA ora cita te, per primo */}
             <div data-it data-aim2 className={center} style={HID}>
-              <div data-gfit data-pfill className={`relative flex flex-col overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5 ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px]"}`} style={ARIAL}>
+              <div data-gfit data-pfill data-pfull className={`relative flex flex-col overflow-hidden bg-white ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px] rounded-[22px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5"}`} style={ARIAL}>
                 <GHead q={c.find.typed} port={port} />
                 <GTabs active={0} port={port} />
                 <div className={`relative min-h-0 flex-1 pt-6 text-[#1f1f1f] ${port ? "px-5" : "px-[118px]"}`}>
@@ -2064,7 +2129,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                   <feGaussianBlur data-vb stdDeviation="0 0" />
                 </filter>
               </svg>
-              <div data-gfit data-pfill className={`relative flex flex-col overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5 ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px]"}`} style={ARIAL}>
+              <div data-gfit data-pfill data-pfull className={`relative flex flex-col overflow-hidden bg-white ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px] rounded-[22px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5"}`} style={ARIAL}>
                 <GHead q={c.find.typed} port={port} />
                 <GTabs data-fcount port={port} />
                 <div className="relative min-h-0 flex-1 overflow-hidden">
@@ -2073,6 +2138,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                     {Array.from({ length: FAR_N }, (_, i) => (i === FAR_N - 1 ? c.find.me : c.far.list[i % c.far.list.length])).map(([t, u], i) => (
                       <GResult key={i} data-fr port={port} me={i === FAR_N - 1 && ans?.site !== "none"} name={t} url={u} title={i === FAR_N - 1 ? c.far.mine : `${t} · ${c.far.title}`} snip={c.far.snip} />
                     ))}
+                    {port && c.far.list.slice(0, 3).map(([t, u]) => <GResult key={`x${u}`} port name={t} url={u} title={`${t} · ${c.far.title}`} snip={c.far.snip} />)}
                   </div>
                   <div data-streak aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: 0 }}>
                     {STREAKS.map(([x, w, d], i) => (
@@ -2145,7 +2211,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             </div>
             {/* SEO: la stessa pagina di Google, e la tua attività sale in cima */}
             <div data-it data-seo className={center} style={HID}>
-              <div data-gfit data-pfill className={`relative flex flex-col overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5 ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px]"}`} style={ARIAL}>
+              <div data-gfit data-pfill data-pfull className={`relative flex flex-col overflow-hidden bg-white ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px] rounded-[22px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5"}`} style={ARIAL}>
                 <GHead q={c.find.typed} port={port} />
                 <GTabs port={port} />
                 <div className={`relative flex min-h-0 flex-1 flex-col gap-[24px] pt-5 ${port ? "px-5" : "pl-[118px]"}`}>
@@ -2158,11 +2224,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             </div>
             {/* GEO: sul desktop, solo l'icona di ChatGPT; un cursore la apre, scrive la domanda, e ChatGPT cita il tuo sito */}
             <div data-it data-geo className={center} style={HID}>
-              <div data-gfit data-pfill className={`relative ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px]"}`}>
+              <div data-gfit data-pfill data-pfull className={`relative ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px]"}`}>
                 <span data-cicon className="absolute left-1/2 top-1/2 flex h-[128px] w-[128px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[30px] bg-gradient-to-b from-white to-[#ececec] shadow-[0_24px_50px_-18px_rgba(0,0,0,.45),inset_0_1px_0_rgba(255,255,255,.9),inset_0_0_0_1px_rgba(0,0,0,.06)]">
                   <Spark size={76} />
                 </span>
-                <div data-cwin className="absolute inset-0 overflow-hidden rounded-[18px] bg-white text-[#0d0d0d] shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/10" style={HID}>
+                <div data-cwin className={`absolute inset-0 overflow-hidden bg-white text-[#0d0d0d] ${port ? "" : "rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/10"}`} style={HID}>
                   <Veil data-cveil />
                   {/* barra della finestra */}
                   <div className="flex h-[44px] items-center gap-2 border-b border-black/[.06] px-4">
@@ -2196,7 +2262,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                     </div>
                   </div>
                   {/* la conversazione */}
-                  <div className={`mx-auto flex flex-col pt-8 ${port ? "w-[360px]" : "w-[620px]"}`}>
+                  <div className={`mx-auto flex flex-col ${port ? "w-[360px] pt-16" : "w-[620px] pt-8"}`}>
                     <div data-gq className="max-w-[80%] self-end rounded-[16px] bg-[#f4f4f4] px-4 py-2.5 text-[16px]" style={HID}>
                       {c.geo.q}
                     </div>
@@ -2223,7 +2289,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                       </span>
                     </div>
                   </div>
-                  <div data-cbar className={`absolute bottom-5 left-1/2 flex h-[54px] -translate-x-1/2 ${port ? "w-[360px]" : "w-[620px]"} items-center justify-between rounded-[18px] bg-white pl-4 pr-2.5 text-[15px] text-[#8f8f8f] shadow-[0_4px_20px_-6px_rgba(0,0,0,.12)] ring-1 ring-black/10`} style={HID}>
+                  <div data-cbar className={`absolute left-1/2 ${port ? "bottom-[108px]" : "bottom-5"} flex h-[54px] -translate-x-1/2 ${port ? "w-[360px]" : "w-[620px]"} items-center justify-between rounded-[18px] bg-white pl-4 pr-2.5 text-[15px] text-[#8f8f8f] shadow-[0_4px_20px_-6px_rgba(0,0,0,.12)] ring-1 ring-black/10`} style={HID}>
                     {c.geo.reply}
                     <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-[#0d0d0d]/50 text-white">
                       <ArrowUp size={16} strokeWidth={2.4} />

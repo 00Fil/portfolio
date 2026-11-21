@@ -204,7 +204,7 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
   };
 
   const cur = C.steps[step];
-  const btn = "cine-fg flex min-h-[64px] w-full items-center justify-center rounded-[24px] px-4 text-center text-[18px] font-medium leading-[1.2] tracking-[-0.01em] transition-transform active:scale-[.98] max-sm:min-h-[52px] max-sm:text-[16px]";
+  const btn = "no-ring cine-fg flex min-h-[64px] w-full items-center justify-center rounded-[24px] px-4 text-center text-[18px] font-medium leading-[1.2] tracking-[-0.01em] transition-transform active:scale-[.98] max-sm:min-h-[52px] max-sm:text-[16px]";
   return (
     <div className="absolute inset-0 z-30 flex flex-col items-center justify-center overflow-hidden bg-[color-mix(in_srgb,var(--bg-canvas)_45%,transparent)] px-5 backdrop-blur-2xl">
       <div className="absolute right-4 top-4 flex gap-2.5 max-sm:right-3 max-sm:top-3">
@@ -260,10 +260,10 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
                           if (text.trim()) answer(cur.id, text.trim());
                         }}
                       >
-                        <Bead as="div" radius={24} className="flex h-[68px] min-w-0 flex-1 items-center px-7">
-                          <input autoFocus value={text} onChange={(e) => setText(e.target.value)} maxLength={28} placeholder={cur.ph} aria-label={cur.ph} className="cine-fg w-full bg-transparent text-[22px] font-medium tracking-[-0.01em] outline-none placeholder:opacity-45" />
+                        <Bead as="div" radius={24} className="flex h-[68px] min-w-0 flex-1 items-center px-7 max-sm:h-[56px] max-sm:px-5">
+                          <input autoFocus value={text} onChange={(e) => setText(e.target.value)} maxLength={28} placeholder={cur.ph} aria-label={cur.ph} className="no-ring cine-fg w-full bg-transparent text-[22px] font-medium tracking-[-0.01em] outline-none placeholder:opacity-45 max-sm:text-[18px]" />
                         </Bead>
-                        <Bead as="button" type="submit" tint="sky" radius={999} aria-label={C.next} className="cine-fg flex h-[68px] w-[68px] shrink-0 items-center justify-center">
+                        <Bead as="button" type="submit" tint="sky" radius={999} aria-label={C.next} className="no-ring cine-fg flex h-[68px] w-[68px] shrink-0 items-center justify-center max-sm:h-[56px] max-sm:w-[56px]">
                           <ArrowRight size={21} strokeWidth={1.9} aria-hidden />
                         </Bead>
                       </form>
