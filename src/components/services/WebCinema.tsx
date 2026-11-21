@@ -2042,7 +2042,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       </div>
       {gate && (
         <div ref={gateRef} className="absolute inset-0 z-30">
-          <FilmIntake en={locale === "en"} K={Kw} onDone={(a, snd) => begin(a, snd)} onSkip={(snd) => begin(null, snd)} />
+          <FilmIntake en={locale === "en"} onDone={(a, snd) => begin(a, snd)} onSkip={(snd) => begin(null, snd)} />
         </div>
       )}
       {!embed && !prefersReducedMotion() && (

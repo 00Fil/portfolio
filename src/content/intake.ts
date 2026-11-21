@@ -9,7 +9,7 @@ type Copy = { intro: Line[]; skip: string; next: string; steps: Step[]; busy: st
 
 const IT: Copy = {
   intro: [
-    { audio: "i1", t: "*Ciao*, sono *Aida*." },
+    { audio: "i1", t: "*Ciao*, sono *Sofia*." },
     { audio: "i2", t: "Ti faccio qualche domanda, poi preparo il tuo video." },
   ],
   done: "done",
@@ -26,7 +26,7 @@ const IT: Copy = {
 };
 const EN: Copy = {
   intro: [
-    { audio: "", t: "*Hello*, I’m *Aida*." },
+    { audio: "", t: "*Hello*, I’m *Sofia*." },
     { audio: "", t: "A few questions, then I’ll make your film." },
   ],
   done: "",

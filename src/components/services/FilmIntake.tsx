@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { ArrowRight, Volume2, VolumeX } from "lucide-react";
 import { gsap } from "gsap";
 import { Bead } from "@/components/glass/Bead";
@@ -9,7 +9,6 @@ import Strands from "@/components/ui/Strands";
 import { createVoice, type Voice } from "@/lib/voice";
 import { getIntake, type Answers } from "@/content/intake";
 
-type KwC = ComponentType<{ text: string }>;
 const PINK = ["#ff00ff", "#ffffff", "#5b00ff", "#ff00c9"];
 
 /** `*parola*` nel carattere della firma, con la sfumatura rosa degli strands. */
@@ -38,7 +37,7 @@ const reading = (t: string) => Math.max(1800, t.length * 62);
  * L'assistente si presenta con la bolla degli strands al centro (la voce ne muove la luce), poi la bolla si apre in una card
  * con le domande; il bordo luminoso ha gli stessi colori e reagisce alla voce. Le risposte personalizzano il video.
  */
-export function FilmIntake({ en, K, onDone, onSkip }: { en: boolean; K: KwC; onDone: (a: Answers, sound: boolean) => void; onSkip: (sound: boolean) => void }) {
+export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: Answers, sound: boolean) => void; onSkip: (sound: boolean) => void }) {
   const C = getIntake(en);
   const [phase, setPhase] = useState<"intro" | "form" | "busy">("intro");
   const [sub, setSub] = useState<string | null>(null);
@@ -171,7 +170,7 @@ export function FilmIntake({ en, K, onDone, onSkip }: { en: boolean; K: KwC; onD
       )}
 
       {phase !== "intro" && (
-        <div className="relative w-full max-w-[860px]">
+        <div className="relative w-full max-w-[980px]">
           <div ref={card} className="relative opacity-0">
             <Bead as="div" radius={44} className="relative px-12 pb-12 pt-14 text-center max-sm:px-5 max-sm:pb-7 max-sm:pt-9">
               <div ref={body} className="flex flex-col items-center gap-9 max-sm:gap-6">
@@ -183,7 +182,7 @@ export function FilmIntake({ en, K, onDone, onSkip }: { en: boolean; K: KwC; onD
                       ))}
                     </span>
                     <p data-in className="cine-fg text-[clamp(30px,5.2cqw,56px)] font-medium leading-[1.1] tracking-[-0.05em]">
-                      <K text={cur.q} />
+                      <Sub text={cur.q} />
                     </p>
                     {cur.opts ? (
                       <div data-in className={`grid w-full gap-3 ${cur.opts.length === 4 ? "grid-cols-2 max-sm:grid-cols-1" : "grid-cols-3 max-sm:grid-cols-1"}`}>
