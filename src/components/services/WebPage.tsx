@@ -9,6 +9,7 @@ import { BRANDS, type BrandKey } from "@/lib/brands";
 import { Link } from "@/i18n/navigation";
 import { Bead } from "@/components/glass/Bead";
 import { Drop } from "@/components/glass/Drop";
+import { FlowDiagram, DesignDiagram, PipelineDiagram, SnippetDiagram, VitalsDiagram, VersionsDiagram, AssistantDiagram, ReportDiagram, OwnershipDiagram } from "./WebDiagrams";
 import { Tile3D } from "@/components/ui/Tile3D";
 import { Script } from "@/components/ui/Script";
 import { prefersReducedMotion } from "@/lib/env";
@@ -603,8 +604,8 @@ function AssistantMock({ locale }: { locale: string }) {
   );
 }
 
-/** Un capitolo del dettaglio: titolo centrato, a sinistra o a destra il disegno, accanto le cose precise che faccio. */
-function Chapter({ n, title, lead, mock, specs, flip }: { n: number; title: string; lead: string; mock: ReactNode; specs: [string, string][]; flip: boolean }) {
+/** Un capitolo: titolo centrato, un diagramma che mostra il concetto e quattro note brevi sotto. */
+function Chapter({ n, title, lead, diagram, specs }: { n: number; title: string; lead: string; diagram: ReactNode; specs: [string, string][] }) {
   return (
     <section className={`${container} pt-24 sm:pt-36`}>
       <p data-rv className="text-center font-mono text-[12px] uppercase tracking-[0.18em] text-ink-3">
@@ -616,25 +617,18 @@ function Chapter({ n, title, lead, mock, specs, flip }: { n: number; title: stri
       <p data-rv className={lede}>
         {lead}
       </p>
-      <div className="mt-12 grid items-center gap-6 sm:mt-16 lg:grid-cols-2 lg:gap-8">
-        <Bead as="article" data-rv radius={40} className={`relative overflow-hidden p-5 sm:p-7 ${flip ? "lg:order-2" : ""}`}>
-          <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[70%] bg-[radial-gradient(60%_70%_at_50%_30%,color-mix(in_srgb,#5ec4ff_20%,transparent),transparent)]" />
-          <div className="relative h-[300px] sm:h-[340px]">{mock}</div>
-        </Bead>
-        <ul className="grid gap-3.5 sm:gap-4">
-          {specs.map(([t, b]) => (
-            <li key={t} data-rv className="flex items-start gap-4 px-1 sm:px-3">
-              <span className="mt-[3px] flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent)_22%,transparent)] text-ink">
-                <Check size={15} strokeWidth={2.2} aria-hidden />
-              </span>
-              <span>
-                <span className="block text-[clamp(18px,1.6vw,21px)] font-medium leading-[1.25] tracking-[-0.025em] text-ink">{t}</span>
-                <span className="mt-1.5 block max-w-[52ch] text-[15.5px] leading-[1.6] text-ink-2">{b}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <Bead as="div" data-rv radius={40} className="relative mt-12 overflow-hidden p-5 sm:mt-14 sm:p-9">
+        <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[60%] bg-[radial-gradient(60%_70%_at_50%_30%,color-mix(in_srgb,#5ec4ff_16%,transparent),transparent)]" />
+        <div className="relative">{diagram}</div>
+      </Bead>
+      <dl className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+        {specs.map(([t, b]) => (
+          <div key={t} data-rv className="border-t border-[var(--hair-strong)] pt-4">
+            <dt className="text-[16.5px] font-medium tracking-[-0.02em] text-ink">{t}</dt>
+            <dd className="mt-1.5 text-[14.5px] leading-[1.55] text-ink-2">{b}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
   );
 }
@@ -720,9 +714,8 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
           title={it.title}
           lead={it.lead}
           specs={it.specs}
-          flip={i % 2 === 1}
-          mock={
-            it.k === "analysis" ? <AnalysisMock rows={it.specs.map((x) => x[0])} /> : it.k === "build" ? <BuildMock rows={it.specs.map((x) => x[0])} /> : it.k === "contacts" ? <LeadsMock m={m} /> : it.k === "found" ? <FoundMock m={m} /> : it.k === "speed" ? <SpeedMock m={m} f={fs} /> : it.k === "design" ? <DesignMock /> : it.k === "screens" ? <ScreensMock /> : it.k === "edit" ? <EditMock m={m} /> : it.k === "assistant" ? <AssistantMock locale={locale} /> : <SafeMock m={m} />
+          diagram={
+            it.k === "analysis" ? <FlowDiagram it={locale !== "en"} /> : it.k === "design" ? <DesignDiagram it={locale !== "en"} /> : it.k === "build" ? <PipelineDiagram it={locale !== "en"} /> : it.k === "found" ? <SnippetDiagram it={locale !== "en"} /> : it.k === "speed" ? <VitalsDiagram it={locale !== "en"} /> : it.k === "screens" ? <div className="h-[300px] sm:h-[340px]"><ScreensMock /></div> : it.k === "edit" ? <VersionsDiagram it={locale !== "en"} /> : it.k === "assistant" ? <AssistantDiagram it={locale !== "en"} /> : it.k === "contacts" ? <ReportDiagram it={locale !== "en"} /> : <OwnershipDiagram it={locale !== "en"} />
           }
         />
       ))}
