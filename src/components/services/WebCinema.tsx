@@ -1418,7 +1418,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const VW = noSite ? VW_NONE : VW_SITE;
       const offs: number[] = [];
       {
-        let acc = 0.35;
+        let acc = 0.2;
         VW.s.forEach((_, i) => offs.push((acc += GAP[i] ?? 0)));
       }
       const w = (i: number, d = 0) => VW.s[i] + offs[i] + d;
@@ -1641,7 +1641,10 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         if (!flags.current.playing) return;
         // la voce parte con il film: finché il brano non è scaricato, il film aspetta all'inizio
         if (mt.time() < 0.3 && !F.ready()) return void F.preload();
-        const next = Math.min(mt.duration(), mt.time() + Math.min(dt, 34) / 1000);
+        // con la voce, comanda l'orologio dell'audio: se il disegno rallenta il film recupera, la voce non salta
+        const ck = F.clock();
+        const step = mt.time() + Math.min(dt, 34) / 1000;
+        const next = Math.min(mt.duration(), ck !== null && Math.abs(ck - mt.time()) < 0.4 ? Math.max(mt.time(), ck) : step);
         mt.time(next);
         F.sync(next, true);
         if (next >= mt.duration()) {

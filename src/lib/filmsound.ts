@@ -134,7 +134,7 @@ export const fx = {
     if (!c || !bus) return;
     // c'è il brano prodotto: suona quello, agganciato al tempo del video (i suoni d'effetto restano sopra)
     if (useTrack(c)) {
-      if (trackSrc && Math.abs(c.currentTime - trackT0 - t) > 0.12) stopTrack();
+      if (trackSrc && Math.abs(c.currentTime - trackT0 - t) > 0.45) stopTrack();
       if (!trackSrc && trackBuf && t < trackBuf.duration) startTrack(c, t);
       return;
     }
@@ -153,6 +153,11 @@ export const fx = {
   preload() {
     const c = ac();
     if (c) useTrack(c);
+  },
+  /** Il tempo del brano che sta suonando: il film lo segue, così voce e immagini non si staccano mai. */
+  clock(): number | null {
+    if (!trackSrc || !ctx || ctx.state !== "running") return null;
+    return ctx.currentTime - trackT0;
   },
   /** Il brano è pronto (o non serve): il film può partire. */
   ready() {

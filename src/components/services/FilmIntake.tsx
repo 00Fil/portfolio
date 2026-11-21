@@ -5,6 +5,7 @@ import { ArrowRight, Volume2, VolumeX } from "lucide-react";
 import { gsap } from "gsap";
 import { Bead } from "@/components/glass/Bead";
 import { GradientText } from "@/components/ui/GradientText";
+import ShinyText from "@/components/ui/ShinyText";
 import Strands from "@/components/ui/Strands";
 import { createVoice, type Voice } from "@/lib/voice";
 import { getIntake, type Answers } from "@/content/intake";
@@ -245,8 +246,8 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
                   </>
                 )}
                 {phase === "busy" && (
-                  <p data-in className="cine-fg py-6 text-[clamp(26px,3.6cqw,40px)] font-medium leading-[1.1] tracking-[-0.05em]">
-                    {C.busy}
+                  <p data-in className="py-6 text-[clamp(26px,3.6cqw,40px)] font-medium leading-[1.1] tracking-[-0.05em]">
+                    <ShinyText text={C.busy} color={light ? "#8e8e93" : "#b5b5b5"} shineColor={light ? "#1d1d1f" : "#ffffff"} speed={0.8} shineWidth={55} softness={0.8} trigger="loop" angle={97} direction="right" followPointer />
                   </p>
                 )}
               </div>
