@@ -1,0 +1,45 @@
+.strands-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.strands-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* bordo della card: gli stessi colori degli strands, il bagliore segue la voce */
+@property --rim-a {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes rim-spin {
+  to {
+    --rim-a: 360deg;
+  }
+}
+.rim-ring,
+.rim-glow {
+  position: absolute;
+  inset: -3px;
+  border-radius: 47px;
+  padding: 3px;
+  pointer-events: none;
+  background: conic-gradient(from var(--rim-a), #ff00ff, #ffffff, #5b00ff, #ff00c9, #ff00ff);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: rim-spin 9s linear infinite;
+}
+.rim-glow {
+  inset: -10px;
+  padding: 12px;
+  border-radius: 54px;
+  filter: blur(16px);
+  opacity: 0.35;
+}

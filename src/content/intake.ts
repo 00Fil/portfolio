@@ -4,13 +4,16 @@ import type { Cinema } from "./cinema";
 export type Answers = { name: string; sector: string; site: string; goal: string; found: string };
 type Opt = { id: string; t: string };
 type Step = { id: keyof Answers; audio: string; q: string; opts?: Opt[]; ph?: string };
-type Copy = { start: string; mute: string; skip: string; next: string; steps: Step[]; head: string; sub: string; busy: string };
+type Line = { audio: string; t: string };
+type Copy = { intro: Line[]; skip: string; next: string; steps: Step[]; busy: string; done: string };
 
 const IT: Copy = {
-  head: "Il video, *su di te*",
-  sub: "Cinque domande, poi parte",
-  start: "Inizia",
-  mute: "Senza audio",
+  intro: [
+    { audio: "i1", t: "*Ciao*! Sono *Aida*, l’assistente di Filippo." },
+    { audio: "i2", t: "Facciamo siti pensati per portarti clienti." },
+    { audio: "i3", t: "Prima di cominciare, ti faccio qualche domanda. Poi preparo un video fatto apposta per te." },
+  ],
+  done: "done",
   skip: "Salta",
   next: "Avanti",
   busy: "Preparo il tuo video",
@@ -23,10 +26,12 @@ const IT: Copy = {
   ],
 };
 const EN: Copy = {
-  head: "The film, *about you*",
-  sub: "Five questions, then it starts",
-  start: "Start",
-  mute: "Without sound",
+  intro: [
+    { audio: "", t: "*Hello*! I’m *Aida*, Filippo’s assistant." },
+    { audio: "", t: "We build websites designed to bring you customers." },
+    { audio: "", t: "Before we start, a few questions. Then I’ll make a film just for you." },
+  ],
+  done: "",
   skip: "Skip",
   next: "Next",
   busy: "Preparing your film",
