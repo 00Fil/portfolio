@@ -930,7 +930,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       slowTl
         .set([chrome, oldEl], { autoAlpha: 1 }, 0)
         .set(chrome, { y: 0 }, 0)
-        .set([sw, one("[data-gres]"), one("[data-gres2]"), one("[data-rival]"), one("[data-hero]")], { autoAlpha: 0 }, 0)
+        .set([sw, one("[data-gres]"), one("[data-rival]"), one("[data-hero]")], { autoAlpha: 0 }, 0)
         .set(os, { autoAlpha: 0 }, 0)
         .set(otext, { autoAlpha: 0, top: "24%" }, 0)
         .set(oimg, { clipPath: "inset(0% 0% 100% 0%)" }, 0)
@@ -963,38 +963,40 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const newTl = gsap.timeline({ paused: true });
       {
         const cur = one("[data-cur]");
-        const g2 = one("[data-gres2]");
+        const seoBox = one("[data-seo]");
         const hero = one("[data-hero]");
         const prog = one("[data-prog]");
         const url1 = one("[data-url1]");
-        const first = one('[data-g2t="0"]');
+        // il clic avviene sulla stessa pagina di Google della scena prima: la tua attività è già in cima
+        const rowsN = $("[data-sr]");
+        const first = rowsN[rowsN.length - 1];
         const pt = () => {
           const a = content.getBoundingClientRect();
           const r = first.getBoundingClientRect();
           const sc = a.width / content.offsetWidth || 1;
-          return { x: (r.left + r.width * 0.3 - a.left) / sc, y: (r.top + r.height * 0.7 - a.top) / sc };
+          return { x: (r.left + r.width * 0.18 - a.left) / sc, y: (r.top + r.height * 0.32 - a.top) / sc };
         };
         newTl
-          .set(chrome, { autoAlpha: 1, y: 0 }, 0)
           .set([oldEl, sw, one("[data-gres]"), one("[data-rival]"), hero], { autoAlpha: 0 }, 0)
-          .set(g2, { autoAlpha: 1 }, 0)
+          .set(seoBox, { autoAlpha: 1 }, 0)
+          .set(chrome, { autoAlpha: 0, y: 0 }, 0)
           .set([spin, stop], { autoAlpha: 0 }, 0)
           .set([fav, rl, tt1], { autoAlpha: 1 }, 0)
           .set(tt2, { autoAlpha: 0 }, 0)
           .call(() => void ((url1.textContent = c.find.typed), (tt1.textContent = c.find.typed)), undefined, 0)
           .fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.75, y: () => content.offsetHeight * 0.8, scale: 1 }, { autoAlpha: 1, x: () => pt().x, y: () => pt().y, immediateRender: false, duration: 0.75, ease: "power3.inOut" }, 0.1)
-          .set(first, { textDecoration: "underline" }, 0.8)
           .to(cur, { scale: 0.9, duration: 0.12, ease: "sine.inOut" }, 0.9)
           .to(cur, { scale: 1, duration: 0.3, ease: "power2.out" }, 0.98)
           .call(() => F.tick(1.3), undefined, 0.9)
           // carica: rotella nella scheda, indirizzo nuovo, barra in alto che corre
+          .set(seoBox, { autoAlpha: 0 }, 0.95)
+          .set(chrome, { autoAlpha: 1 }, 0.95)
           .set([fav, rl], { autoAlpha: 0 }, 0.95)
           .set([spin, stop], { autoAlpha: 1 }, 0.95)
           .call(() => void (url1.textContent = c.find.me[1]), undefined, 0.95)
           .fromTo(prog, { autoAlpha: 1, scaleX: 0 }, { scaleX: 0.75, duration: 0.25, ease: "power2.out", immediateRender: false }, 0.95)
           .to(prog, { scaleX: 1, duration: 0.15, ease: "power1.in" }, 1.2)
           .to(prog, { autoAlpha: 0, duration: 0.15 }, 1.35)
-          .set(g2, { autoAlpha: 0 }, 1.32)
           .fromTo(hero, { autoAlpha: 0, filter: "blur(6px)" }, { autoAlpha: 1, filter: "blur(0px)", duration: 0.3, ease: "power2.out", immediateRender: false }, 1.32)
           .set(cur, { autoAlpha: 0 }, 1.32)
           .call(() => F.glass(1), undefined, 1.32)
@@ -1311,7 +1313,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         S(2, [52, 53, 54, 55, 56, 57, 58, 59, 60], we(60, 0.25), "stop"),
         // con il nuovo sito
         S(3, [61, 62, 63], we(64, 0.1), "rise"),
-        { sub: seoTl, map: [[0, AUTO], [1.2, w(68)], [2.4, w(73)], [END, w(74, 0.75)]], marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"]], after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set(chrome, { autoAlpha: 1 }, t).set(meter, { autoAlpha: 0 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
+        { sub: seoTl, map: [[0, AUTO], [1.2, w(68)], [2.4, w(73)], [END, w(74, 0.75)]], marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"]], after: (t) => void mt.set(meter, { autoAlpha: 0 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
         { sub: newTl, map: [[0, w(75, -0.95)], [0.9, w(75, 0.12)], [1.32, w(81)], [END, we(93, 0.25)]], mood: "drive", still: true, marks: [[0.9, "clic sul tuo risultato"], [1.32, "il sito nuovo appare"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t) },
         I(1, [80, 81, 82, 83], w(84, -0.2)),
         I(2, [87, 88, 89, 90, 91, 92], we(93, 0.1)),
@@ -1688,26 +1690,6 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                       <span key={t} className="block whitespace-nowrap">
                         {t}
                       </span>
-                    ))}
-                  </div>
-                </div>
-                {/* la ricerca, con la tua attività ormai in cima: il cliente la apre */}
-                <div data-gres2 className="absolute inset-0 z-[5] bg-white px-[6%] pt-[5%] text-[#202124] [container-type:size]" style={{ ...HID, ...ARIAL }}>
-                  <div className="mb-[4cqh]">
-                    <GLogo size={24} />
-                  </div>
-                  <div className="flex h-[11cqh] min-h-[30px] w-[min(520px,80%)] items-center gap-2.5 rounded-full px-4 text-[clamp(11px,3.6cqh,16px)] shadow-[0_1px_6px_rgba(32,33,36,.28)]">
-                    <Search size={15} strokeWidth={1.8} className="shrink-0 text-[#9aa0a6]" />
-                    {c.find.typed}
-                  </div>
-                  <div className="mt-[6cqh] flex flex-col gap-[5cqh]">
-                    {[c.find.me, ...c.find.others].map(([t, u], i) => (
-                      <div key={u}>
-                        <span className="block text-[clamp(10px,3cqh,13px)] text-[#4d5156]">https://{u}</span>
-                        <span data-g2t={i} className="inline-block text-[clamp(14px,5cqh,22px)] text-[#1a0dab] underline-offset-4">
-                          {t}
-                        </span>
-                      </div>
                     ))}
                   </div>
                 </div>
