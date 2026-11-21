@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useLocale } from "next-intl";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
@@ -18,6 +18,8 @@ import { Wordmark } from "@/components/nav/Wordmark";
 import { GradientText } from "@/components/ui/GradientText";
 import { getCinema, type Cinema } from "@/content/cinema";
 import { VW } from "./film-words";
+import { FilmIntake } from "./FilmIntake";
+import { personalize, type Answers } from "@/content/intake";
 import { AppIcon } from "@/components/chat/ChatDock";
 
 gsap.registerPlugin(SplitText, useGSAP);
@@ -401,7 +403,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
     return () => filmMute(false);
   }, [embed]);
   const locale = useLocale() as Locale;
-  const c = getCinema(locale);
+  const [ans, setAns] = useState<Answers | null>(null);
+  const c = useMemo(() => personalize(getCinema(locale), ans, locale === "en"), [locale, ans]);
   const root = useRef<HTMLElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const bar = useRef<HTMLSpanElement>(null);
@@ -421,22 +424,39 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
     return () => void off();
   }, []);
   useEffect(() => {
-    if (embed || prefersReducedMotion() || soundOn()) return;
+    if (embed || prefersReducedMotion()) return;
+    let saved: Answers | null = null;
+    try {
+      saved = JSON.parse(sessionStorage.getItem("film-intake") ?? "null");
+    } catch {}
+    if (saved) {
+      setAns(saved);
+      setRun((r) => r + 1);
+      return;
+    }
     flags.current.paused = true;
     setGate(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const start = (withSound: boolean) => {
+  /** Le risposte (o nessuna, se salta) entrano nelle scritte, il video si ricostruisce e parte. */
+  const begin = (a: Answers | null, withSound: boolean) => {
     if (withSound) setSound(true);
+    if (a) {
+      try {
+        sessionStorage.setItem("film-intake", JSON.stringify(a));
+      } catch {}
+    }
     const done = () => {
       setGate(false);
-      flags.current.paused = false;
-      (root.current as unknown as { __go?: () => void } | null)?.__go?.();
+      setAns(a);
+      flags.current = { ...flags.current, ended: false, paused: false, playing: false };
+      F.reset();
+      F.duck(false);
+      setRun((r) => r + 1);
     };
     if (gateRef.current) gsap.to(gateRef.current, { autoAlpha: 0, duration: 0.5, ease: "power2.out", onComplete: done });
     else done();
   };
-
 
   /* la cornice sta tra la barra in alto e quella in basso, qualunque siano: le misuro */
   useEffect(() => {
@@ -2021,25 +2041,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
 
       </div>
       {gate && (
-        <div ref={gateRef} className="absolute inset-0 z-30 flex items-center justify-center bg-[color-mix(in_srgb,var(--bg-canvas)_45%,transparent)] px-5 backdrop-blur-2xl">
-          <Bead as="div" radius={44} className="flex w-full max-w-[400px] flex-col items-center gap-7 px-8 pb-8 pt-10 text-center">
-            <Bead as="span" tint="sky" radius={999} className="cine-fg flex h-[84px] w-[84px] items-center justify-center">
-              <Volume2 size={34} strokeWidth={1.7} aria-hidden />
-            </Bead>
-            <p className="cine-fg text-[clamp(30px,4.4cqw,44px)] font-medium leading-[1.08] tracking-[-0.05em]">
-              <Kw text={c.ctl.gateT} />
-              <span className="cine-fg2 mt-2 block text-[clamp(15px,1.8cqw,17.5px)] font-normal leading-[1.4] tracking-[-0.01em]">{c.ctl.gateS}</span>
-            </p>
-            <div className="grid w-full gap-2.5">
-              <Bead as="button" type="button" tint="sky" radius={26} onClick={() => start(true)} className="cine-fg flex h-[54px] w-full items-center justify-center gap-2.5 text-[16.5px] font-medium transition-transform active:scale-[.98]">
-                <Volume2 size={19} strokeWidth={1.9} aria-hidden />
-                {c.ctl.gateOn}
-              </Bead>
-              <Bead as="button" type="button" radius={26} onClick={() => start(false)} className="cine-fg2 flex h-[48px] w-full items-center justify-center text-[15px] transition-transform active:scale-[.98]">
-                {c.ctl.gateOff}
-              </Bead>
-            </div>
-          </Bead>
+        <div ref={gateRef} className="absolute inset-0 z-30">
+          <FilmIntake en={locale === "en"} K={Kw} onDone={(a, snd) => begin(a, snd)} onSkip={(snd) => begin(null, snd)} />
         </div>
       )}
       {!embed && !prefersReducedMotion() && (
