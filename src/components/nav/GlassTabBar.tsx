@@ -562,6 +562,7 @@ export function GlassTabBar({ tabs, navLabel, detail, plain = false }: Props) {
 
   return (
     <nav
+      data-site-nav-b
       aria-label={navLabel}
       className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 min-[400px]:px-5 lg:hidden"
       style={{ paddingBottom: "calc(10px + env(safe-area-inset-bottom))" }}

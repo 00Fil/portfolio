@@ -673,3 +673,7 @@ html[data-perf="low"] .drop > .drop-glow { display: none; }
 [data-site-nav] { transition: transform .8s cubic-bezier(.22, 1, .36, 1), opacity .5s ease; }
 html[data-film-immersive]:not([data-nav-peek]) [data-site-nav] { transform: translateY(-120%); opacity: 0; }
 html[data-film-immersive]:not([data-nav-peek]) [data-site-nav] * { pointer-events: none !important; }
+html[data-film-immersive]:not([data-nav-peek]) [data-film-hide] { opacity: 0 !important; visibility: hidden; pointer-events: none !important; transition: opacity .5s ease, visibility 0s .5s; }
+[data-site-nav-b] { transition: transform .8s cubic-bezier(.22, 1, .36, 1), opacity .5s ease; }
+html[data-film-immersive]:not([data-nav-peek]) [data-site-nav-b] { transform: translateY(120%); opacity: 0; }
+html[data-film-immersive]:not([data-nav-peek]) [data-site-nav-b] * { pointer-events: none !important; }

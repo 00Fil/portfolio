@@ -256,6 +256,7 @@ export function ChatDock() {
       {/* notifica */}
       {note && (
         <div
+          data-film-hide
           className={`pointer-events-none fixed z-[96] ${desk ? "bottom-7 left-1/2 w-[392px] -translate-x-1/2" : "left-1/2 top-[max(env(safe-area-inset-top),8px)] w-[min(calc(100vw-16px),420px)] -translate-x-1/2"}`}
           role="status"
         >
@@ -320,6 +321,7 @@ export function ChatDock() {
           type="button"
           onClick={openChat}
           aria-label={t.open}
+          data-film-hide
           className={`drop acrylic fixed z-[60] flex items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 ${desk ? "bottom-6 right-6 h-[68px] w-[68px]" : "right-4 h-14 w-14 lg:hidden"}`}
           style={{
             ["--drop-tint" as string]: "var(--acrylic)",

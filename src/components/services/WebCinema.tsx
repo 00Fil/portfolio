@@ -275,61 +275,61 @@ function OldSite({ c }: { c: Cinema }) {
 
 /* ───────────── La hero di questo portfolio, ricostruita pezzo per pezzo: è il sito d'esempio del video ───────────── */
 const HM_ACC = "#2b9fe6";
-function HeroMock({ edit = "hardware" }: { edit?: string }) {
+function HeroMock({ edit = "hardware", port = false }: { edit?: string; port?: boolean }) {
   return (
     <div className="relative h-full w-full overflow-hidden text-[#121316]" style={{ background: "radial-gradient(60% 50% at 15% 0%, rgba(94,196,255,.16), transparent 70%), radial-gradient(50% 50% at 100% 100%, rgba(94,196,255,.12), transparent 70%), #f6f6f3" }}>
-      <div data-hx className="absolute left-1/2 top-[18px] w-[980px] -translate-x-1/2 overflow-hidden rounded-[22px] bg-white/85 shadow-[0_10px_30px_-16px_rgba(20,30,50,.35)] ring-1 ring-black/5">
+      <div data-hx className={`absolute left-1/2 top-[18px] -translate-x-1/2 ${port ? "w-[404px]" : "w-[980px]"} overflow-hidden rounded-[22px] bg-white/85 shadow-[0_10px_30px_-16px_rgba(20,30,50,.35)] ring-1 ring-black/5`}>
         <div className="flex h-[54px] items-center justify-between px-5">
           <span className="text-[24px] leading-none" style={{ fontFamily: "var(--font-logo), var(--font-sans)", color: HM_ACC }}>
             Filippo Corsini
           </span>
-          <span className="flex items-center gap-7 text-[14px] text-[#55565c]">
+          <span className={`items-center gap-7 text-[14px] text-[#55565c] ${port ? "hidden" : "flex"}`}>
             <span>Servizi</span>
             <span>Lavori</span>
             <span>Percorso</span>
           </span>
           <span className="flex items-center gap-2 text-[13px]">
-            <span className="rounded-full bg-[#ececE8] px-3 py-1 font-medium">IT</span>
+            <span className={`rounded-full bg-[#ececE8] px-3 py-1 font-medium ${port ? "hidden" : ""}`}>IT</span>
             <span className="rounded-full bg-[#9edcff] px-4 py-1.5 font-medium">Contattami</span>
           </span>
         </div>
-        <div className="flex h-[30px] items-center bg-[#dff1fc] px-5 text-[12px] text-[#55565c]">
+        <div className="flex h-[30px] items-center overflow-hidden whitespace-nowrap bg-[#dff1fc] px-5 text-[12px] text-[#55565c]">
           <b className="mr-1 font-semibold text-[#121316]">Area clienti inclusa in ogni progetto.</b> Parli con il team e segui l’avanzamento.
         </div>
       </div>
-      <div className="absolute inset-x-0 top-[150px] flex flex-col items-center text-center">
+      <div className={`absolute inset-x-0 flex flex-col items-center px-5 text-center ${port ? "top-[150px]" : "top-[150px]"}`}>
         <span data-hx className="flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-[#55565c]">
           <span className="h-1.5 w-1.5 rounded-full" style={{ background: HM_ACC }} />
           Disponibile per nuovi progetti
         </span>
-        <div className="mt-6 text-[66px] font-medium leading-[1.02] tracking-[-0.05em]">
-          <span data-hx className="flex items-center justify-center gap-4">
+        <div className={`mt-6 font-medium leading-[1.02] tracking-[-0.05em] ${port ? "text-[40px]" : "text-[66px]"}`}>
+          <span data-hx className={`flex items-center justify-center ${port ? "gap-2.5" : "gap-4"}`}>
             Progetto
-            <span className="flex h-[52px] w-[84px] items-center justify-center rounded-[14px] bg-gradient-to-b from-[#1b2b46] to-[#0c1424] shadow-[0_10px_24px_-10px_rgba(0,0,0,.6)]">
-              <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[#3b8cff] text-white">
-                <Sparkles size={15} strokeWidth={2.2} />
+            <span className={`flex items-center justify-center rounded-[14px] bg-gradient-to-b from-[#1b2b46] to-[#0c1424] shadow-[0_10px_24px_-10px_rgba(0,0,0,.6)] ${port ? "h-[32px] w-[52px] rounded-[10px]" : "h-[52px] w-[84px]"}`}>
+              <span className={`flex items-center justify-center rounded-[8px] bg-[#3b8cff] text-white ${port ? "h-[18px] w-[18px] rounded-[5px]" : "h-7 w-7"}`}>
+                <Sparkles size={port ? 10 : 15} strokeWidth={2.2} />
               </span>
             </span>
             e sviluppo
           </span>
-          <span data-hx className="flex items-center justify-center gap-4">
+          <span data-hx className={`flex items-center justify-center ${port ? "gap-2.5" : "gap-4"}`}>
             <span className="relative">
               <span data-hsel className="pointer-events-none absolute -inset-x-2 -inset-y-1 origin-left rounded-[10px] bg-[#5ec4ff]/30" style={HID} />
               <span data-hw className="relative" style={{ color: HM_ACC }}>
                 {edit}
               </span>
             </span>
-            <span className="h-[50px] w-[50px] rounded-full" style={{ background: "radial-gradient(circle at 35% 30%, #c8ecff, #5ec4ff 55%, #2b9fe6)" }} />
+            <span className={`rounded-full ${port ? "h-[30px] w-[30px]" : "h-[50px] w-[50px]"}`} style={{ background: "radial-gradient(circle at 35% 30%, #c8ecff, #5ec4ff 55%, #2b9fe6)" }} />
             su misura
           </span>
           <span data-hx className="block">
             per <span style={{ color: HM_ACC }}>l’industria</span>
           </span>
         </div>
-        <p data-hx className="mt-7 max-w-[560px] text-[16px] leading-[1.6] text-[#55565c]">
+        <p data-hx className={`mt-7 leading-[1.6] text-[#55565c] ${port ? "max-w-[340px] text-[14px]" : "max-w-[560px] text-[16px]"}`}>
           Sono Filippo Corsini. Realizzo software su misura per aziende e professionisti: piattaforme web, app e sistemi con intelligenza artificiale che automatizzano i processi.
         </p>
-        <span data-hx className="mt-7 flex items-center gap-3 text-[15px] font-medium">
+        <span data-hx className={`mt-7 flex items-center gap-3 font-medium ${port ? "text-[13px]" : "text-[15px]"}`}>
           <span className="rounded-full bg-[#9edcff] px-6 py-3">Prenota una chiamata →</span>
           <span className="rounded-full bg-white px-6 py-3 ring-1 ring-black/5">Vedi i lavori ↓</span>
         </span>
@@ -379,7 +379,7 @@ function GBox({ q, w, h = 46, typed = false }: { q: string; w: number; h?: numbe
   return (
     <span className="flex items-center gap-3 rounded-full border border-[#dadce0] bg-white pl-5 pr-[0.3em] text-[#1f1f1f] shadow-[0_2px_8px_-2px_rgba(32,33,36,.18)]" style={{ width: w, height: h, fontSize: h * 0.34, ...ARIAL }}>
       <Search size={h * 0.38} strokeWidth={2} className="shrink-0 text-[#1f1f1f]" />
-      <span className="flex min-w-0 flex-1 items-center">
+      <span className="flex min-w-0 flex-1 items-center overflow-hidden">
         {typed ? (
           <span className="inline-flex items-center leading-none">
             <span data-typed className="whitespace-pre" />
@@ -397,12 +397,26 @@ function GBox({ q, w, h = 46, typed = false }: { q: string; w: number; h?: numbe
     </span>
   );
 }
+/** La testata di Google: logo e barra affiancati sul computer, uno sopra l'altra sul telefono. */
+function GHead({ q, port }: { q: string; port: boolean }) {
+  return port ? (
+    <div className="relative z-30 flex shrink-0 flex-col items-center gap-3 bg-white px-4 pb-3 pt-5">
+      <GLogo size={28} />
+      <GBox q={q} w={368} h={44} />
+    </div>
+  ) : (
+    <div className="relative z-30 flex h-[84px] shrink-0 items-center gap-7 bg-white px-8">
+      <GLogo size={32} />
+      <GBox q={q} w={560} />
+    </div>
+  );
+}
 /** Le schede sotto la barra, come nella pagina dei risultati di oggi. */
-function GTabs({ active = 1, ...rest }: { active?: number } & Record<string, unknown>) {
+function GTabs({ active = 1, port = false, ...rest }: { active?: number; port?: boolean } & Record<string, unknown>) {
   const en = useLocale() === "en";
   const tabs = en ? ["AI Mode", "All", "Images", "Videos", "News", "Shopping", "More"] : ["Modalità IA", "Tutti", "Immagini", "Video", "Notizie", "Shopping", "Altro"];
   return (
-    <div {...rest} className="relative z-30 flex h-[40px] items-end gap-6 border-b border-[#ebebeb] bg-white pl-[118px] text-[14px] text-[#4d5156]" style={ARIAL}>
+    <div {...rest} className={`relative z-30 flex h-[40px] shrink-0 items-end overflow-hidden whitespace-nowrap border-b border-[#ebebeb] bg-white text-[14px] text-[#4d5156] ${port ? "gap-5 pl-5" : "gap-6 pl-[118px]"}`} style={ARIAL}>
       {tabs.map((t, i) => (
         <span key={t} className={`relative flex items-center gap-1.5 pb-2.5 ${i === active ? "font-medium text-[#1f1f1f]" : ""}`}>
           {i === 0 && <AiLens size={15} />}
@@ -414,9 +428,9 @@ function GTabs({ active = 1, ...rest }: { active?: number } & Record<string, unk
   );
 }
 /** Un risultato di Google: sito, indirizzo, titolo blu, descrizione. `me` gli mette dietro la bolla di vetro per evidenziarlo. */
-function GResult({ name, url, title, snip, me = false, ...rest }: { name: string; url: string; title: string; snip: string; me?: boolean } & Record<string, unknown>) {
+function GResult({ name, url, title, snip, me = false, port = false, ...rest }: { name: string; url: string; title: string; snip: string; me?: boolean; port?: boolean } & Record<string, unknown>) {
   return (
-    <div {...rest} className={`relative w-[600px] ${me ? "z-20" : ""}`} style={ARIAL}>
+    <div {...rest} className={`relative ${port ? "w-full" : "w-[600px]"} ${me ? "z-20" : ""}`} style={ARIAL}>
       {me && <Bead as="span" data-bub radius={26} className="absolute -inset-x-6 -inset-y-4 -z-10" style={HID} />}
       <span className="flex items-center gap-3">
         <span className="flex h-[28px] w-[28px] items-center justify-center rounded-full border border-[#dadce0] bg-white text-[13px] font-bold text-[#5f6368]">{name[0]}</span>
@@ -491,6 +505,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
   const gateRef = useRef<HTMLDivElement>(null);
   // ogni nuova riproduzione ricostruisce il video da zero: niente resti della volta prima
   const [run, setRun] = useState(0);
+  // telefono in verticale: le scene si ridisegnano strette e alte
+  const [port, setPort] = useState(false);
 
   useEffect(() => {
     setSnd(soundOn());
@@ -541,7 +557,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
   useEffect(() => {
     if (embed) return;
     const h = document.documentElement;
-    const on = playing && scrollY < 40;
+    const on = (playing || gate) && scrollY < 40;
     if (!on) {
       h.removeAttribute("data-film-immersive");
       h.removeAttribute("data-nav-peek");
@@ -562,11 +578,12 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       else if (e.clientY > 150) peek(false);
     };
     const down = (e: PointerEvent) => {
-      if (e.pointerType === "touch" && e.clientY < 72) peek(!h.hasAttribute("data-nav-peek"));
-      else if (e.clientY > 150 && h.hasAttribute("data-nav-peek")) peek(false);
+      const edge = e.clientY < 72 || e.clientY > innerHeight - 72;
+      if (e.pointerType === "touch" && edge) peek(!h.hasAttribute("data-nav-peek"));
+      else if (!edge && e.clientY > 150 && h.hasAttribute("data-nav-peek")) peek(false);
     };
     const fin = (e: FocusEvent) => {
-      if ((e.target as HTMLElement).closest?.("[data-site-nav]")) peek(true);
+      if ((e.target as HTMLElement).closest?.("[data-site-nav], [data-site-nav-b]")) peek(true);
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerdown", down);
@@ -579,7 +596,18 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       h.removeAttribute("data-film-immersive");
       h.removeAttribute("data-nav-peek");
     };
-  }, [playing, embed]);
+  }, [playing, gate, embed]);
+
+  /* telefono in verticale: lo decide la forma della sezione, non il dispositivo */
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const check = () => setPort(el.offsetWidth < 760 && el.offsetWidth / Math.max(1, el.offsetHeight) < 0.85);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   /* la cornice sta tra la barra in alto e quella in basso, qualunque siano: le misuro */
   useEffect(() => {
@@ -594,7 +622,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const imm = document.documentElement.hasAttribute("data-film-immersive");
       document.querySelectorAll<HTMLElement>(".drop, .float-glass").forEach((d) => {
         if (el.contains(d)) return;
-        if (imm && d.closest("[data-site-nav]")) return;
+        if (imm && d.closest("[data-site-nav], [data-site-nav-b]")) return;
         let x: HTMLElement | null = d;
         let fixed = false;
         while (x && x !== document.body) {
@@ -693,7 +721,28 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const res = $("[data-res]");
       const py = () => 0;
       // le interfacce disegnate a misura fissa si adattano al riquadro (anche nell'anteprima)
-      $("[data-gfit]").forEach((e) => gsap.set(e, { scale: () => Math.min(1, (cam.offsetWidth * 0.9) / e.offsetWidth, (cam.offsetHeight * 0.84) / e.offsetHeight) }));
+      // sul telefono in verticale le interfacce si allungano fino a riempire l'altezza, invece di restare piccole al centro
+      const gfac = port ? 0.72 : 0.84;
+      const fitAll = () =>
+        $("[data-gfit]").forEach((e) => {
+          if (e.hasAttribute("data-pfill")) e.style.height = "";
+          if (port && e.hasAttribute("data-pfill")) {
+            const s = Math.min(1.25, (cam.offsetWidth * 0.92) / e.offsetWidth);
+            e.style.height = `${Math.round(Math.min(1000, Math.max(560, (cam.offsetHeight * gfac) / s)))}px`;
+          }
+          gsap.set(e, { scale: Math.min(port ? 1.25 : 1, (cam.offsetWidth * (port ? 0.92 : 0.9)) / e.offsetWidth, (cam.offsetHeight * gfac) / e.offsetHeight) });
+        });
+      fitAll();
+      // la cornice cambia misura (la barra del sito che sparisce, il telefono che ruota): le interfacce si riadattano
+      let fw = cam.offsetWidth;
+      let fh = cam.offsetHeight;
+      const fro = new ResizeObserver(() => {
+        if (Math.abs(cam.offsetWidth - fw) < 2 && Math.abs(cam.offsetHeight - fh) < 2) return;
+        fw = cam.offsetWidth;
+        fh = cam.offsetHeight;
+        fitAll();
+      });
+      fro.observe(cam);
       const ry = (i: number) => () => (-40 + i * 92) * k();
       gsap.set(pill, { y: py });
       tl.call(() => F.whoosh(0.6, true, 0.7), undefined, 0)
@@ -1719,13 +1768,14 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         });
       (el as unknown as { __go: () => void }).__go = go;
       return () => {
+        fro.disconnect();
         io.disconnect();
         gsap.ticker.remove(drive);
         window.removeEventListener("load", onReady);
         F.chill(false);
       };
     },
-    { scope: root, dependencies: [locale, run], revertOnUpdate: true },
+    { scope: root, dependencies: [locale, run, port], revertOnUpdate: true },
   );
 
   useEffect(() => {
@@ -1760,11 +1810,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
   return (
     <section ref={root} className={embed ? "relative h-full w-full [container-type:size]" : "relative h-svh min-h-[560px] [container-type:size]"} aria-label={title} style={{ "--ft": "84px", "--fb": "16px" } as CSSProperties}>
       {!embed && <h1 className="sr-only">{title}</h1>}
-      <div key={run} data-frame className={embed ? "cine-film cine-acr absolute inset-0 overflow-hidden" : "cine-film cine-acr absolute overflow-hidden rounded-[34px] transition-[top] duration-[800ms] ease-[cubic-bezier(.22,1,.36,1)] shadow-[inset_0_0_0_1px_var(--hair-strong)] max-md:left-2 max-md:right-2 md:left-4 md:right-4"} style={embed ? undefined : { top: "var(--ft)", bottom: "var(--fb)" }}>
+      <div key={run} data-frame className={embed ? "cine-film cine-acr absolute inset-0 overflow-hidden" : "cine-film cine-acr absolute overflow-hidden rounded-[34px] transition-[top,bottom] duration-[800ms] ease-[cubic-bezier(.22,1,.36,1)] shadow-[inset_0_0_0_1px_var(--hair-strong)] max-md:left-2 max-md:right-2 md:left-4 md:right-4"} style={embed ? undefined : { top: "var(--ft)", bottom: "var(--fb)" }}>
         {/* una frase troppo lunga per una riga si divide in più battute (|), ognuna su una riga sola */}
         {[c.far.tired, c.far.open, c.far.stays].map((t, i) =>
           t.split("|").map((x, j) => (
-            <p key={`${i}-${j}`} data-inline={i} data-t={x.replace(/[*!^~]/g, "")} className="pointer-events-none absolute inset-x-0 top-[8%] z-20 mx-auto whitespace-nowrap px-6 text-center font-semibold leading-[1.16] tracking-[-0.045em] [word-spacing:0.16em] cine-fg" style={{ ...HID, fontSize: fitLine(x, "clamp(30px,4.6cqw,72px)") }}>
+            <p key={`${i}-${j}`} data-inline={i} data-t={x.replace(/[*!^~]/g, "")} className={`pointer-events-none absolute inset-x-0 z-20 mx-auto ${port ? "top-[4.5%]" : "top-[8%]"} whitespace-nowrap px-6 text-center font-semibold leading-[1.16] tracking-[-0.045em] [word-spacing:0.16em] cine-fg`} style={{ ...HID, fontSize: fitLine(x, "clamp(30px,4.6cqw,72px)") }}>
               <Kw text={x} />
             </p>
           )),
@@ -1778,12 +1828,12 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         )}
         <div data-rig className="absolute inset-0 will-change-transform">
         <div data-cam className="absolute inset-0 will-change-transform">
-          <div className="absolute inset-x-0 top-[50%] h-0">
+          <div className={`absolute inset-x-0 h-0 ${port ? "top-[51%]" : "top-[50%]"}`}>
             {/* la home di Google: il cliente scrive */}
             <div data-it data-pill className={`${center} flex flex-col items-center gap-8`} style={HID}>
               <span data-gfit className="flex flex-col items-center gap-8">
-                <GLogo size={92} />
-                <GBox q="" w={680} h={54} typed />
+                <GLogo size={port ? 64 : 92} />
+                <GBox q="" w={port ? 340 : 680} h={port ? 48 : 54} typed />
                 <span className="flex gap-3" style={ARIAL}>
                   {(locale === "en" ? ["Google Search", "I’m Feeling Lucky"] : ["Cerca con Google", "Mi sento fortunato"]).map((t) => (
                     <span key={t} className="rounded-[8px] border border-transparent bg-[#f8f9fa] px-4 py-2.5 text-[14px] text-[#3c4043]">
@@ -1835,7 +1885,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             </div>
             {/* il browser: prima carica lento, poi tutto insieme */}
             <div data-it className={`${center} flex flex-col items-center gap-[clamp(16px,3cqh,32px)]`}>
-              <div data-chrome className={`relative w-[min(88cqw,calc(min(46cqh,440px)*1.58))] aspect-[1.58] max-md:aspect-[.82] flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
+              <div data-chrome className={`relative ${port ? "w-[min(90cqw,calc(68cqh*.6))] aspect-[.6]" : "w-[min(88cqw,calc(min(46cqh,440px)*1.58))] aspect-[1.58] max-md:aspect-[.82]"} flex flex-col overflow-hidden rounded-[18px] shadow-[0_40px_120px_-40px_rgba(0,0,0,.5),inset_0_0_0_1px_var(--hair-strong)]`} style={{ ...HID, ["--r" as string]: "20px" }}>
               <div className="flex h-[38px] shrink-0 items-end gap-3 bg-[color-mix(in_srgb,var(--label-primary)_9%,var(--bg-canvas))] px-3">
                 <span className="mb-[13px] flex gap-[7px]">
                   {["#ff5f57", "#febc2e", "#28c840"].map((k) => (
@@ -1917,7 +1967,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                 </div>
                 {/* il sito nuovo: la hero vera, che si dipinge appena arriva */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img data-hero src={cin("hero-desktop")} alt="" draggable={false} className="absolute inset-0 z-[7] h-full w-full object-cover object-top" style={HID} />
+                <img data-hero src={cin(port ? "hero-phone" : "hero-desktop")} alt="" draggable={false} className="absolute inset-0 z-[7] h-full w-full object-cover object-top" style={HID} />
                 <div data-sw className="absolute inset-0">
                   <MiniSite c={c} />
                 </div>
@@ -1945,13 +1995,10 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             </div>
             {/* la Modalità IA di Google: risponde, e consiglia qualcun altro */}
             <div data-it data-aim className={center} style={HID}>
-              <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5" style={ARIAL}>
-                <div className="relative z-30 flex h-[84px] items-center gap-7 bg-white px-8">
-                  <GLogo size={32} />
-                  <GBox q={c.find.typed} w={560} />
-                </div>
-                <GTabs active={0} />
-                <div className="absolute inset-x-0 bottom-0 top-[124px] px-[118px] pt-6 text-[#1f1f1f]">
+              <div data-gfit data-pfill className={`relative flex flex-col overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5 ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px]"}`} style={ARIAL}>
+                <GHead q={c.find.typed} port={port} />
+                <GTabs active={0} port={port} />
+                <div className={`relative min-h-0 flex-1 pt-6 text-[#1f1f1f] ${port ? "px-5" : "px-[118px]"}`}>
                   <div data-aq className="ml-auto w-fit max-w-[70%] rounded-[20px] rounded-tr-[6px] bg-[#f1f3f4] px-4 py-2.5 text-[15px]" style={HID}>
                     {c.find.typed}
                   </div>
@@ -1979,13 +2026,10 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             </div>
             {/* il contrario: la Modalità IA ora cita te, per primo */}
             <div data-it data-aim2 className={center} style={HID}>
-              <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5" style={ARIAL}>
-                <div className="relative z-30 flex h-[84px] items-center gap-7 bg-white px-8">
-                  <GLogo size={32} />
-                  <GBox q={c.find.typed} w={560} />
-                </div>
-                <GTabs active={0} />
-                <div className="absolute inset-x-0 bottom-0 top-[124px] px-[118px] pt-6 text-[#1f1f1f]">
+              <div data-gfit data-pfill className={`relative flex flex-col overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5 ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px]"}`} style={ARIAL}>
+                <GHead q={c.find.typed} port={port} />
+                <GTabs active={0} port={port} />
+                <div className={`relative min-h-0 flex-1 pt-6 text-[#1f1f1f] ${port ? "px-5" : "px-[118px]"}`}>
                   <div data-bq className="ml-auto w-fit max-w-[70%] rounded-[20px] rounded-tr-[6px] bg-[#f1f3f4] px-4 py-2.5 text-[15px]" style={HID}>
                     {c.find.typed}
                   </div>
@@ -2020,17 +2064,14 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                   <feGaussianBlur data-vb stdDeviation="0 0" />
                 </filter>
               </svg>
-              <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5" style={ARIAL}>
-                <div className="relative z-30 flex h-[84px] items-center gap-7 bg-white px-8">
-                  <GLogo size={32} />
-                  <GBox q={c.find.typed} w={560} />
-                </div>
-                <GTabs data-fcount />
-                <div className="absolute inset-x-0 bottom-0 top-[124px] overflow-hidden">
-                  <div data-fl className="relative flex flex-col gap-[30px] pb-[200px] pl-[118px] pt-2 will-change-transform">
+              <div data-gfit data-pfill className={`relative flex flex-col overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5 ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px]"}`} style={ARIAL}>
+                <GHead q={c.find.typed} port={port} />
+                <GTabs data-fcount port={port} />
+                <div className="relative min-h-0 flex-1 overflow-hidden">
+                  <div data-fl className={`relative flex flex-col gap-[30px] pb-[200px] pt-2 will-change-transform ${port ? "px-5" : "pl-[118px]"}`}>
                     <Veil data-veil />
                     {Array.from({ length: FAR_N }, (_, i) => (i === FAR_N - 1 ? c.find.me : c.far.list[i % c.far.list.length])).map(([t, u], i) => (
-                      <GResult key={i} data-fr me={i === FAR_N - 1 && ans?.site !== "none"} name={t} url={u} title={i === FAR_N - 1 ? c.far.mine : `${t} · ${c.far.title}`} snip={c.far.snip} />
+                      <GResult key={i} data-fr port={port} me={i === FAR_N - 1 && ans?.site !== "none"} name={t} url={u} title={i === FAR_N - 1 ? c.far.mine : `${t} · ${c.far.title}`} snip={c.far.snip} />
                     ))}
                   </div>
                   <div data-streak aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: 0 }}>
@@ -2043,8 +2084,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             </div>
             {/* la hero del portfolio: si compone in Figma e poi si modifica */}
             <div data-it data-hm className={center} style={HID}>
-              <div data-gfit className="relative h-[640px] w-[1100px] overflow-hidden rounded-[26px] shadow-[0_50px_140px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5">
-                <HeroMock />
+              <div data-gfit data-pfill className={`relative overflow-hidden rounded-[26px] shadow-[0_50px_140px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5 ${port ? "h-[760px] w-[440px]" : "h-[640px] w-[1100px]"}`}>
+                <HeroMock port={port} />
                 {/* selezione di Figma: rettangolo blu con i quadratini bianchi agli angoli */}
                 <div data-hsl className="pointer-events-none absolute left-0 top-0 z-20 border-[1.5px] border-[#0d99ff]" style={HID}>
                   {["-left-[4px] -top-[4px]", "-right-[4px] -top-[4px]", "-left-[4px] -bottom-[4px]", "-right-[4px] -bottom-[4px]"].map((q) => (
@@ -2074,7 +2115,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                   <path d="M5 3l14 8-6 1.6L10.4 19z" fill="#14171c" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
                 </svg>
 <div data-hsaved className="absolute inset-0 z-30 flex items-center justify-center" style={{ ...HID, background: "color-mix(in srgb, #f6f6f3 50%, transparent)", backdropFilter: "blur(18px) saturate(1.3)", WebkitBackdropFilter: "blur(18px) saturate(1.3)" }}>
-                  <span data-hsavedt className="text-[150px] leading-none" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSynthesis: "none", letterSpacing: "normal" }}>
+                  <span data-hsavedt className={`leading-none ${port ? "text-[84px]" : "text-[150px]"}`} style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSynthesis: "none", letterSpacing: "normal" }}>
                     <GradientText colors={["#25c06a", "#7df0ae", "#16a05a", "#b5f7cf"]} animationSpeed={8} variant="flow" glow={1}>
                       {c.edit.saved + "!"}
                     </GradientText>
@@ -2084,19 +2125,19 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             </div>
             {/* ogni schermo: il sito vero (la hero di questo portfolio) su computer, tablet e telefono */}
             <div data-it data-devs className={center} style={HID}>
-              <div data-gfit className="relative flex h-[560px] w-[1040px] items-end justify-center">
-                <div data-dtab className="relative z-10 mb-[6px] mr-[-60px] w-[250px] rounded-[26px] bg-[#16181c] p-[9px] shadow-[0_30px_80px_-30px_rgba(0,0,0,.55)]">
+              <div data-gfit className={port ? "relative grid h-[700px] w-[440px] grid-cols-[auto_auto] content-center items-end justify-center gap-x-8 gap-y-10" : "relative flex h-[560px] w-[1040px] items-end justify-center"}>
+                <div data-dtab className={`relative z-10 rounded-[26px] bg-[#16181c] p-[9px] shadow-[0_30px_80px_-30px_rgba(0,0,0,.55)] ${port ? "order-2 w-[210px]" : "mb-[6px] mr-[-60px] w-[250px]"}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={cin("hero-tablet")} alt="" draggable={false} className="block w-full rounded-[18px]" />
                 </div>
-                <div data-dpc className="relative flex flex-col items-center">
-                  <div className="w-[620px] rounded-t-[20px] bg-[#16181c] p-[10px] pb-[12px] shadow-[0_40px_100px_-40px_rgba(0,0,0,.55)]">
+                <div data-dpc className={`relative flex flex-col items-center ${port ? "order-1 col-span-2" : ""}`}>
+                  <div className={`rounded-t-[20px] bg-[#16181c] p-[10px] pb-[12px] shadow-[0_40px_100px_-40px_rgba(0,0,0,.55)] ${port ? "w-[376px]" : "w-[620px]"}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={cin("hero-desktop")} alt="" draggable={false} className="block w-full rounded-[10px]" />
                   </div>
-                  <div className="h-[16px] w-[720px] rounded-b-[16px] bg-gradient-to-b from-[#e4e5e9] to-[#b9bbc2] shadow-[0_20px_40px_-18px_rgba(0,0,0,.5)]" />
+                  <div className={`h-[16px] rounded-b-[16px] bg-gradient-to-b from-[#e4e5e9] to-[#b9bbc2] shadow-[0_20px_40px_-18px_rgba(0,0,0,.5)] ${port ? "w-[430px]" : "w-[720px]"}`} />
                 </div>
-                <div data-dphone className="relative z-10 mb-[-10px] ml-[-70px] w-[150px] rounded-[30px] bg-[#16181c] p-[6px] shadow-[0_30px_70px_-26px_rgba(0,0,0,.6)]">
+                <div data-dphone className={`relative z-10 rounded-[30px] bg-[#16181c] p-[6px] shadow-[0_30px_70px_-26px_rgba(0,0,0,.6)] ${port ? "order-3 w-[112px]" : "mb-[-10px] ml-[-70px] w-[150px]"}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={cin("hero-phone")} alt="" draggable={false} className="block w-full rounded-[25px]" />
                 </div>
@@ -2104,23 +2145,20 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             </div>
             {/* SEO: la stessa pagina di Google, e la tua attività sale in cima */}
             <div data-it data-seo className={center} style={HID}>
-              <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5" style={ARIAL}>
-                <div className="relative z-30 flex h-[84px] items-center gap-7 bg-white px-8">
-                  <GLogo size={32} />
-                  <GBox q={c.find.typed} w={560} />
-                </div>
-                <GTabs />
-                <div className="absolute inset-x-0 bottom-0 top-[124px] flex flex-col gap-[24px] pl-[118px] pt-5">
+              <div data-gfit data-pfill className={`relative flex flex-col overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5 ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px]"}`} style={ARIAL}>
+                <GHead q={c.find.typed} port={port} />
+                <GTabs port={port} />
+                <div className={`relative flex min-h-0 flex-1 flex-col gap-[24px] pt-5 ${port ? "px-5" : "pl-[118px]"}`}>
                   <Veil data-sveil />
                   {[...c.find.others, c.seo.more[0], c.find.me].map(([t, u], i, all) => (
-                    <GResult key={u} data-sr me={i === all.length - 1} name={t} url={u} title={i === all.length - 1 ? c.far.mine : `${t} · ${c.far.title}`} snip={c.far.snip} />
+                    <GResult key={u} data-sr port={port} me={i === all.length - 1} name={t} url={u} title={i === all.length - 1 ? c.far.mine : `${t} · ${c.far.title}`} snip={c.far.snip} />
                   ))}
                 </div>
               </div>
             </div>
             {/* GEO: sul desktop, solo l'icona di ChatGPT; un cursore la apre, scrive la domanda, e ChatGPT cita il tuo sito */}
             <div data-it data-geo className={center} style={HID}>
-              <div data-gfit className="relative h-[560px] w-[820px]">
+              <div data-gfit data-pfill className={`relative ${port ? "h-[720px] w-[400px]" : "h-[560px] w-[820px]"}`}>
                 <span data-cicon className="absolute left-1/2 top-1/2 flex h-[128px] w-[128px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[30px] bg-gradient-to-b from-white to-[#ececec] shadow-[0_24px_50px_-18px_rgba(0,0,0,.45),inset_0_1px_0_rgba(255,255,255,.9),inset_0_0_0_1px_rgba(0,0,0,.06)]">
                   <Spark size={76} />
                 </span>
@@ -2134,12 +2172,12 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                     <span className="ml-4 text-[13px] text-[#6b6b6b]">{c.geo.title}</span>
                   </div>
                   {/* nuova chat: saluto e campo al centro */}
-                  <div data-cnew className="absolute inset-x-0 top-[150px] flex flex-col items-center">
-                    <span className="flex items-center gap-3 text-[34px] tracking-[-0.01em]">
+                  <div data-cnew className={`absolute inset-x-0 flex flex-col items-center ${port ? "top-[34%]" : "top-[150px]"}`}>
+                    <span className={`flex items-center gap-3 tracking-[-0.01em] ${port ? "text-[24px]" : "text-[34px]"}`}>
                       <Spark size={30} />
                       {c.geo.hello}
                     </span>
-                    <div className="mt-8 flex h-[104px] w-[620px] flex-col justify-between rounded-[20px] bg-white px-4 pb-3 pt-4 text-[16px] shadow-[0_4px_20px_-6px_rgba(0,0,0,.12)] ring-1 ring-black/10">
+                    <div className={`mt-8 flex h-[104px] flex-col justify-between rounded-[20px] bg-white px-4 pb-3 pt-4 text-[16px] shadow-[0_4px_20px_-6px_rgba(0,0,0,.12)] ring-1 ring-black/10 ${port ? "w-[360px]" : "w-[620px]"}`}>
                       <span className="flex items-center">
                         <span data-cin className="whitespace-pre" />
                         <span className="ml-[1px] inline-block h-[1.15em] w-[2px] animate-pulse bg-[#0d0d0d]" />
@@ -2158,7 +2196,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                     </div>
                   </div>
                   {/* la conversazione */}
-                  <div className="mx-auto flex w-[620px] flex-col pt-8">
+                  <div className={`mx-auto flex flex-col pt-8 ${port ? "w-[360px]" : "w-[620px]"}`}>
                     <div data-gq className="max-w-[80%] self-end rounded-[16px] bg-[#f4f4f4] px-4 py-2.5 text-[16px]" style={HID}>
                       {c.geo.q}
                     </div>
@@ -2185,7 +2223,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                       </span>
                     </div>
                   </div>
-                  <div data-cbar className="absolute bottom-5 left-1/2 flex h-[54px] w-[620px] -translate-x-1/2 items-center justify-between rounded-[18px] bg-white pl-4 pr-2.5 text-[15px] text-[#8f8f8f] shadow-[0_4px_20px_-6px_rgba(0,0,0,.12)] ring-1 ring-black/10" style={HID}>
+                  <div data-cbar className={`absolute bottom-5 left-1/2 flex h-[54px] -translate-x-1/2 ${port ? "w-[360px]" : "w-[620px]"} items-center justify-between rounded-[18px] bg-white pl-4 pr-2.5 text-[15px] text-[#8f8f8f] shadow-[0_4px_20px_-6px_rgba(0,0,0,.12)] ring-1 ring-black/10`} style={HID}>
                     {c.geo.reply}
                     <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-[#0d0d0d]/50 text-white">
                       <ArrowUp size={16} strokeWidth={2.4} />
@@ -2200,7 +2238,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             {/* l'assistente su WhatsApp, con la stessa finestra della chat di supporto del sito */}
             <div data-it data-wa className={center} style={HID}>
               <div data-wph>
-                <Bead as="div" data-gfit radius={26} className="acrylic relative flex h-[640px] w-[400px] flex-col overflow-hidden text-ink">
+                <Bead as="div" data-gfit data-pfill radius={26} className="acrylic relative flex h-[640px] w-[400px] flex-col overflow-hidden text-ink">
                   <div className="relative flex items-center gap-3 border-b border-[var(--hair)] px-4 py-3.5">
                     <span className="relative">
                       <AppIcon size={46} />
