@@ -34,6 +34,7 @@ type Q = (s: string) => HTMLElement[];
 /** Le parole tra asterischi diventano parole chiave, riempite dal gradiente animato. Con "!" davanti (*!perso*) il gradiente è rosso: una cosa che si perde. */
 const GT_RED = ["#d92d20", "#ff6b5e", "#b42318", "#ff8a80"];
 const GT_VIOLET = ["#ff00ff", "#ffffff", "#5b00ff", "#ff00c9"];
+const GT_GREEN = ["#25D366", "#9af5bd", "#128C7E", "#25D366"];
 export function Kw({ text }: { text: string }) {
   const parts = text.split("*");
   // l'apostrofo resta attaccato alla parola evidenziata: «l'intelligenza» non va mai a capo dopo «l'»
@@ -43,7 +44,8 @@ export function Kw({ text }: { text: string }) {
     const red = p.startsWith("!");
     const plain = p.startsWith("^");
     const violet = p.startsWith("~");
-    const full = red || plain || violet ? p.slice(1) : p;
+    const green = p.startsWith("%");
+    const full = red || plain || violet || green ? p.slice(1) : p;
     // ogni parola evidenziata è un pezzo a sé: le scritte arrivano sempre parola per parola, anche nel corsivo
     const ws = full.split(" ");
     return (
@@ -66,8 +68,8 @@ export function Kw({ text }: { text: string }) {
         </span>
       );
     return (
-      <span key={j} data-kw className="inline-block" style={{ ...(red ? { "--gt-glow-color": "#ff5a52" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.45em 0.34em 0.5em", margin: "-0.45em -0.34em -0.5em" }}>
-        <GradientText colors={red ? GT_RED : violet ? GT_VIOLET : GT} animationSpeed={8} variant="flow" glow={violet ? 0.8 : 1}>
+      <span key={j} data-kw className="inline-block" style={{ ...(red ? { "--gt-glow-color": "#ff5a52" } : green ? { "--gt-glow-color": "#25D366" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.45em 0.34em 0.5em", margin: "-0.45em -0.34em -0.5em" }}>
+        <GradientText colors={red ? GT_RED : violet ? GT_VIOLET : green ? GT_GREEN : GT} animationSpeed={8} variant="flow" glow={violet || green ? 0.8 : 1}>
           {w}
         </GradientText>
       </span>
@@ -450,7 +452,7 @@ function GTabs({ active = 1, port = false, ...rest }: { active?: number; port?: 
   const tabs = en ? ["AI Mode", "All", "Images", "Videos", "News", "Shopping", "More"] : ["Modalità IA", "Tutti", "Immagini", "Video", "Notizie", "Shopping", "Altro"];
   return (
     <div {...rest} className={`relative z-30 flex h-[40px] shrink-0 items-end overflow-hidden whitespace-nowrap border-b border-[#ebebeb] bg-white text-[14px] text-[#4d5156] ${port ? "gap-5 pl-5" : "gap-6 pl-[118px]"}`} style={ARIAL}>
-      {tabs.map((t, i) => (
+      {(port ? tabs.slice(0, 4) : tabs).map((t, i) => (
         <span key={t} className={`relative flex items-center gap-1.5 pb-2.5 ${i === active ? "font-medium text-[#1f1f1f]" : ""}`}>
           {i === 0 && <AiLens size={15} />}
           {t}
@@ -505,7 +507,7 @@ const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
 const ICONS_PROMISE = [FileText, UserRound, Tag, LockOpen];
 /** Ogni scritta sta su una riga sola: il corpo scende quanto serve perché la frase entri nella larghezza del film (il corsivo è più largo). */
 export function fitLine(t: string, max: string) {
-  const kw = (t.match(/\*[^*]*\*/g) ?? []).join("").replace(/[*!^~]/g, "").length;
+  const kw = (t.match(/\*[^*]*\*/g) ?? []).join("").replace(/[*!^~%]/g, "").length;
   const plain = t.replace(/\*[^*]*\*/g, "").length;
   const em = plain * 0.54 + kw * 0.66 + 0.4;
   return `min(${max}, calc((100cqw - 64px) / ${em.toFixed(2)}))`;
@@ -591,11 +593,13 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
     if (embed) return;
     const h = document.documentElement;
     const on = (playing || gate) && scrollY < 40;
+    // la cornice si rimisura anche a barra arrivata: in pausa il riquadro dei comandi sale sopra la barra del sito
+    const again = [120, 450, 900].map((d) => window.setTimeout(() => window.dispatchEvent(new Event("resize")), d));
     if (!on) {
       h.removeAttribute("data-film-immersive");
       h.removeAttribute("data-nav-peek");
       window.dispatchEvent(new Event("resize"));
-      return;
+      return () => again.forEach((x) => window.clearTimeout(x));
     }
     h.setAttribute("data-film-immersive", "");
     window.dispatchEvent(new Event("resize"));
@@ -623,6 +627,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
     window.addEventListener("focusin", fin);
     return () => {
       window.clearTimeout(t);
+      again.forEach((x) => window.clearTimeout(x));
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerdown", down);
       window.removeEventListener("focusin", fin);
@@ -1237,19 +1242,30 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const figmaTl = gsap.timeline({ paused: true });
       {
         const start = [[0.2, 0.3], [0.78, 0.22], [0.55, 0.85]];
+        // il nome segue il cursore ma non esce mai dal riquadro: verso il bordo destro passa a sinistra della freccia
+        const flip = (f: HTMLElement) => {
+          const lab = f.querySelector<HTMLElement>("[data-hcl]");
+          if (!lab) return;
+          const right = Number(gsap.getProperty(f, "x")) + lab.offsetWidth + 24 > hmIn.offsetWidth - 8;
+          lab.style.left = right ? "auto" : "16px";
+          lab.style.right = right ? "10px" : "auto";
+          const low = Number(gsap.getProperty(f, "y")) + lab.offsetHeight + 30 > hmIn.offsetHeight - 8;
+          lab.style.top = low ? "auto" : "18px";
+          lab.style.bottom = low ? "18px" : "auto";
+        };
         figmaTl
           .set([chrome, one("[data-devs]")], { autoAlpha: 0 }, 0)
           .set(hm, { autoAlpha: 1 }, 0)
           .set(hx, { autoAlpha: 0 }, 0)
           .set([one("[data-hcur]"), one("[data-hsaved]")], { autoAlpha: 0 }, 0)
           .fromTo(one("[data-hbar]"), { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, 0.05);
-        hcs.forEach((f, j) => figmaTl.fromTo(f, { autoAlpha: 0, x: () => hmIn.offsetWidth * start[j][0], y: () => hmIn.offsetHeight * start[j][1] }, { autoAlpha: 1, immediateRender: false, duration: 0.3, ease: "power2.out" }, 0.1 + j * 0.08));
+        hcs.forEach((f, j) => figmaTl.fromTo(f, { autoAlpha: 0, x: () => hmIn.offsetWidth * start[j][0], y: () => hmIn.offsetHeight * start[j][1] }, { autoAlpha: 1, immediateRender: false, duration: 0.3, ease: "power2.out", onUpdate: () => flip(f) }, 0.1 + j * 0.08));
         hx.forEach((e, i) => {
           const j = i % hcs.length;
           const t = 0.55 + i * 0.42;
           // il cursore va dove il pezzo deve stare (angolo in basso a destra), lo «posa», e la selezione lo abbraccia
           figmaTl
-            .to(hcs[j], { x: () => offIn(e).x + offIn(e).w - 4, y: () => offIn(e).y + offIn(e).h - 4, duration: 0.38, ease: "power3.inOut" }, t - 0.38)
+            .to(hcs[j], { x: () => offIn(e).x + offIn(e).w - 4, y: () => offIn(e).y + offIn(e).h - 4, duration: 0.38, ease: "power3.inOut", onUpdate: () => flip(hcs[j]) }, t - 0.38)
             .fromTo(e, { autoAlpha: 0, scale: 0.97 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: "expo.out", immediateRender: false }, t)
             .set(hsl, { autoAlpha: 1, x: () => offIn(e).x, y: () => offIn(e).y, width: () => offIn(e).w, height: () => offIn(e).h }, t)
             .call(() => void (hsz.textContent = `${Math.round(offIn(e).w)} × ${Math.round(offIn(e).h)}`), undefined, t)
@@ -1395,7 +1411,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         // il clic avviene sulla stessa pagina, nello stesso movimento di camera: una sola scena, niente ricarica del widget
         newTl.paused(false);
         seoTl.add(newTl, 3.6);
-        seoTl.fromTo(rigEl, { scale: 1.1 }, { scale: 0.8, duration: 7.1, ease: "sine.inOut", immediateRender: false }, 0);
+        if (!port) seoTl.fromTo(rigEl, { scale: 1.1 }, { scale: 0.8, duration: 7.1, ease: "sine.inOut", immediateRender: false }, 0);
       }
       /* Ogni schermo: computer, poi tablet e telefono che arrivano ai lati */
       const devsTl = gsap.timeline({ paused: true });
@@ -1542,7 +1558,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const AUTO = NaN;
       const END = -1;
       type Say = { el: HTMLElement; u: HTMLElement[]; at: number[]; end?: number; inScene?: boolean; mood?: Mood; q?: boolean; chain?: boolean };
-      type Scn = { sub?: gsap.core.Timeline; seg?: [number, number]; map: [number, number][]; mood?: Mood; still?: boolean; blank?: boolean; marks?: [number, string][]; after?: (t: number) => void };
+      type Scn = { sub?: gsap.core.Timeline; seg?: [number, number]; map: [number, number][]; mood?: Mood; still?: boolean; full?: boolean; blank?: boolean; marks?: [number, string][]; after?: (t: number) => void };
       // una frase in più battute: le parole della voce si dividono tra le righe, ogni riga esce prima che entri la successiva
       const multi = (els: HTMLElement[], at: number[], end: number, base: Partial<Say>): Say[] => {
         const us = els.map(unitsOf);
@@ -1558,7 +1574,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       };
       const S = (i: number, at: number[], end: number, mood?: Mood, q?: boolean) => multi($(`[data-say="${i}"]`), at, end, { mood, q });
       const I = (i: number, at: number[], end: number) => multi($(`[data-inline="${i}"]`), at, end, { inScene: true });
-      one("[data-eh]").dataset.t = c.end.t.replace(/[*!^~]/g, "");
+      one("[data-eh]").dataset.t = c.end.t.replace(/[*!^~%]/g, "");
       // senza sito il cliente non apre niente di tuo: la finestra parte già sui risultati di Google
       const noSiteBack = (t: number) =>
         mt
@@ -1570,13 +1586,13 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const story: (Say | Scn | Say[])[] = noSite
           ? [
               // senza sito: la lista scorre e tu non ci sei; poi sceglie il primo e apre il concorrente
-              { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(26)], [0.8 + 3.4, w(32, 0.15)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4, "si ferma: tu non ci sei"]], after: (t: number) => void (mt.set(one("[data-far]"), { autoAlpha: 0 }, t), noSiteBack(t)) },
+              { sub: farTl, full: true, map: [[0, w(21, 0.06)], [0.8, w(26)], [0.8 + 3.4, w(32, 0.15)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4, "si ferma: tu non ci sei"]], after: (t: number) => void (mt.set(one("[data-far]"), { autoAlpha: 0 }, t), noSiteBack(t)) },
               S(1, [33, 34, 34], w(35, -0.5)),
               { sub: back, map: [[0.7, AUTO], [1.2, w(41)], [1.38, w(51)], [END, w(51, 0.6)]], marks: [[1.28, "clic sul concorrente"], [1.38, "si apre il concorrente"]], after: (t: number) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
               S(2, [52, 53, 54, 55, 56, 57, 58], we(58, 0.25), "stop"),
             ]
           : [
-            { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(26)], [0.8 + 3.4, w(32, 0.15)], [END, w(33, -0.4)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
+            { sub: farTl, full: true, map: [[0, w(21, 0.06)], [0.8, w(26)], [0.8 + 3.4, w(32, 0.15)], [END, w(33, -0.4)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
             S(1, [33, 34, 34], w(35, -0.5)),
             { sub: slowTl, map: [[0, AUTO], [2.8, w(43, -0.58)], [END, w(45, -0.26)]], mood: "tense", still: true, marks: [[0, "il tuo sito carica a pacchetti, zoom in continuo"], [2.8, "sospiro: zoom indietro brusco"]] },
             I(0, [43, 44], w(45, -0.4)),
@@ -1590,12 +1606,12 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         S(11, [8, 9, 10, 11, 12], w(13, -0.02), "calm", true),
         S(12, [13, 14, 15, 16], we(16, -0.2), "calm", true),
         { seg: [0, T(3.5)], map: [[0, AUTO], [T(0.9), w(17)], [T(3.3), w(18, -0.1)], [T(3.5), w(18, 0.05)]], marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
-        { sub: aiTl, map: [[0, w(18, 0.06)], [0.35, w(18, 0.7)], [1.0, w(19)], [1.35, w(20)], [END, w(21, -0.1)]], marks: [[0.35, "Modalità IA: la domanda"], [1.0, "la risposta"], [1.35, "consiglia gli altri"]], after: (t) => void mt.set(one("[data-aim]"), { autoAlpha: 0 }, t) },
+        { sub: aiTl, full: true, map: [[0, w(18, 0.06)], [0.35, w(18, 0.7)], [1.0, w(19)], [1.35, w(20)], [END, w(21, -0.1)]], marks: [[0.35, "Modalità IA: la domanda"], [1.0, "la risposta"], [1.35, "consiglia gli altri"]], after: (t) => void mt.set(one("[data-aim]"), { autoAlpha: 0 }, t) },
         ...story,
         // con il nuovo sito
         S(3, [61, 62, 63, 64], w(65, -0.2), "rise"),
-        { sub: aiMeTl, map: [[0, w(65, -0.15)], [0.5, w(65, 0.1)], [1.2, w(67)], [END, we(67, 0.05)]], marks: [[0.2, "Modalità IA: ora cita te"], [1.2, "sei il primo consiglio"]], after: (t) => void mt.set(one("[data-aim2]"), { autoAlpha: 0 }, t) },
-        { sub: seoTl, map: [[0, w(68, -0.1)], [1.2, w(69, 0.05)], [2.4, w(72)], [3.6, w(74)], [3.6 + 0.75, w(75, -0.06)], [3.6 + 0.9, w(75, 0.05)], [3.6 + 0.95, w(75, 0.1)], [3.6 + 1.32, w(75, 0.42)], [END, we(93, 0.25)]], still: true, marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"], [3.6 + 0.9, "clic sul tuo risultato"], [3.6 + 1.32, "il sito nuovo appare"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t).set(meter, { autoAlpha: 0 }, t) },
+        { sub: aiMeTl, full: true, map: [[0, w(65, -0.15)], [0.5, w(65, 0.1)], [1.2, w(67)], [END, we(67, 0.05)]], marks: [[0.2, "Modalità IA: ora cita te"], [1.2, "sei il primo consiglio"]], after: (t) => void mt.set(one("[data-aim2]"), { autoAlpha: 0 }, t) },
+        { sub: seoTl, full: true, map: [[0, w(68, -0.1)], [1.2, w(69, 0.05)], [2.4, w(72)], [3.6, w(74)], [3.6 + 0.75, w(75, -0.06)], [3.6 + 0.9, w(75, 0.05)], [3.6 + 0.95, w(75, 0.1)], [3.6 + 1.32, w(75, 0.42)], [END, we(93, 0.25)]], still: true, marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"], [3.6 + 0.9, "clic sul tuo risultato"], [3.6 + 1.32, "il sito nuovo appare"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t).set(meter, { autoAlpha: 0 }, t) },
         I(1, [80, 81, 82, 83], w(84, -0.2)),
         I(2, [87, 88, 89, 90, 90, 91, 92, 93, 93], we(93, 0.1)),
         S(4, [94, 95, 96, 97], w(99, -0.05)),
@@ -1608,7 +1624,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         { sub: waTl, map: [[0, w(138, -0.2)], [0.3, w(139)], [1.0, we(141)], [1.9, w(146)], [2.35, we(148)], [3.25, we(150)], [3.7, we(151)], [END, we(151, 0.7)]], marks: [[0.55, "WhatsApp: modifica"], [1.9, "WhatsApp: visite"], [3.25, "WhatsApp: da richiamare"]], after: (t) => void mt.set(one("[data-wa]"), { autoAlpha: 0 }, t) },
         S(8, [153, 154, 155, 156, 157, 158, 159], we(162, 0.1)),
         S(9, [164, 165, 166, 168, 169, 170], w(171, -0.02)),
-        { sub: geoTl, map: [[0, AUTO], [5.5, w(182)], [5.75, w(184)], [END, w(188, -0.45)]], marks: [[0.05, "icona dell'assistente"], [1.35, "clic sull'icona"], [3.4, "invio"], [5.5, "fonte citata"], [5.75, "evidenziata"]], after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
+        { sub: geoTl, full: true, map: [[0, AUTO], [5.5, w(182)], [5.75, w(184)], [END, w(188, -0.45)]], marks: [[0.05, "icona dell'assistente"], [1.35, "clic sull'icona"], [3.4, "invio"], [5.5, "fonte citata"], [5.75, "evidenziata"]], after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
         { seg: [T(54.8), scene.duration()], map: [[T(54.8), w(188, -0.3)], [T(55.0) + 1.7, we(193, 0.3)], [T(55.0) + 2.1, w(194, -0.05)], [END, we(195, 1.4)]], blank: true, mood: "end", marks: [[T(55.0) + 2.1 - T(54.8), "firma: il tuo nome"]] },
         { el: one("[data-eh]"), u: [...eg.a, ...eg.b], at: [188, 189, 190, 191], inScene: true },
       ];
@@ -1730,7 +1746,9 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         };
         const T0 = M[0][0];
         const T1 = M[M.length - 1][0];
-        if (camOn && !k.still) shoot(f0, f1 - f0);
+        // sul telefono le finestre a schermo pieno non si muovono: ogni zoom taglierebbe i bordi
+        if (port && k.full) mt.set(rig, { scale: 1, xPercent: 0, yPercent: 0 }, f0);
+        else if (camOn && !k.still) shoot(f0, f1 - f0);
         mt.add((k.seg ? scene : k.sub!).tweenFromTo(T0, T1, { duration: f1 - f0, ease, immediateRender: false }), f0);
         (k.marks ?? []).forEach(([s, what]) => marks.push({ t: film(s0 + s), what }));
         prevEnd = f1;
@@ -1854,14 +1872,14 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         {/* una frase troppo lunga per una riga si divide in più battute (|), ognuna su una riga sola */}
         {[c.far.tired, c.far.open, c.far.stays].map((t, i) =>
           t.split("|").map((x, j) => (
-            <p key={`${i}-${j}`} data-inline={i} data-t={x.replace(/[*!^~]/g, "")} className={`pointer-events-none absolute inset-x-0 z-20 mx-auto ${port ? "top-[4.5%]" : "top-[8%]"} whitespace-nowrap px-6 text-center font-semibold leading-[1.16] tracking-[-0.045em] [word-spacing:0.16em] cine-fg`} style={{ ...HID, fontSize: fitLine(x, "clamp(30px,4.6cqw,72px)") }}>
+            <p key={`${i}-${j}`} data-inline={i} data-t={x.replace(/[*!^~%]/g, "")} className={`pointer-events-none absolute inset-x-0 z-20 mx-auto ${port ? "top-[4.5%]" : "top-[8%]"} whitespace-nowrap px-6 text-center font-semibold leading-[1.16] tracking-[-0.045em] [word-spacing:0.16em] cine-fg`} style={{ ...HID, fontSize: fitLine(x, "clamp(30px,4.6cqw,72px)") }}>
               <Kw text={x} />
             </p>
           )),
         )}
         {c.say.map((t, i) =>
           t.split("|").map((x, j) => (
-            <p key={`${i}-${j}`} data-say={i} data-t={x.replace(/[*!^~]/g, "")} className={CAPS} style={{ ...HID, fontSize: fitLine(x, "clamp(34px,6.4cqw,108px)") }}>
+            <p key={`${i}-${j}`} data-say={i} data-t={x.replace(/[*!^~%]/g, "")} className={CAPS} style={{ ...HID, fontSize: fitLine(x, "clamp(34px,6.4cqw,108px)") }}>
               <Kw text={x} />
             </p>
           )),
@@ -2171,7 +2189,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,.3))" }}>
                       <path d="M5 3l14 8-6 1.6L10.4 19z" fill={TEAM_C[i % 3]} stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
                     </svg>
-                    <span className="absolute left-[16px] top-[18px] whitespace-nowrap rounded-[7px] px-2 py-[3px] text-[12px] font-medium text-white" style={{ background: TEAM_C[i % 3] }}>
+                    <span data-hcl className="absolute left-[16px] top-[18px] whitespace-nowrap rounded-[7px] px-2 py-[3px] text-[12px] font-medium text-white" style={{ background: TEAM_C[i % 3] }}>
                       {n}
                     </span>
                   </span>

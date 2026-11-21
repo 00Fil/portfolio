@@ -144,13 +144,18 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
     if (phase !== "busy" || !card.current || !body.current) return;
     const txt = body.current.querySelector<HTMLElement>("p");
     const z = { p: 0 };
+    // la scritta diventa un solo strato sulla scheda grafica: lo zoom scala un'immagine, non ridisegna il testo a ogni fotogramma
+    if (txt) {
+      txt.style.willChange = "transform";
+      txt.style.backfaceVisibility = "hidden";
+    }
     let tl: gsap.core.Timeline | null = null;
     zoom.current = new Promise<void>((res) => {
       tl = gsap.timeline({ onComplete: res });
       // zoom percepito costante sul logaritmo: p^3 lo rende lentissimo all'inizio e fulmineo alla fine
       tl.to(z, { p: 1, duration: 1.15, ease: "power2.in", onUpdate: () => {
         const k = Math.exp(Math.log(420) * z.p);
-        if (txt) gsap.set(txt, { scale: k, transformOrigin: "50% 50%" });
+        if (txt) gsap.set(txt, { scale: k, transformOrigin: "50% 50%", force3D: true });
         gsap.set(card.current, { opacity: 1 - Math.max(0, z.p - 0.82) * 5.5 });
       } }, 0);
       if (rim.current) tl.to(rim.current, { scale: 1.8, autoAlpha: 0, duration: 0.8, ease: "power2.in", force3D: true }, 0.3);
