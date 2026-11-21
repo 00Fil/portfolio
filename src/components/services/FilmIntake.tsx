@@ -145,9 +145,9 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
     let tl: gsap.core.Timeline | null = null;
     zoom.current = new Promise<void>((res) => {
       tl = gsap.timeline({ onComplete: res });
-      tl.to(card.current, { scale: 34, duration: 3.4, ease: "expo.in", force3D: true }, 0.35);
-      if (rim.current) tl.to(rim.current, { scale: 1.6, autoAlpha: 0, duration: 2.6, ease: "expo.in", force3D: true }, 1.0);
-      tl.fromTo(flash.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5, ease: "power2.in" }, 3.25);
+      tl.to(card.current, { scale: 30, duration: 2.3, ease: "power3.in", force3D: true }, 0.1);
+      if (rim.current) tl.to(rim.current, { scale: 1.6, autoAlpha: 0, duration: 1.8, ease: "power2.in", force3D: true }, 0.6);
+      tl.fromTo(flash.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, ease: "power2.in" }, 2.0);
     });
     return () => void tl?.kill();
   }, [phase]);
