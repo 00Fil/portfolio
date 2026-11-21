@@ -11,7 +11,7 @@ export type Cinema = {
   /** le scritte del film, nell'ordine in cui la voce le dice */
   say: string[];
   title: string[];
-  ctl: { play: string; pause: string; replay: string; on: string; off: string };
+  ctl: { play: string; pause: string; replay: string; on: string; off: string; gateT: string; gateS: string; gateOn: string; gateOff: string };
   find: { q: string; typed: string; loading: string; a: string; me: [string, string]; others: [string, string][] };
   listen: { q: string; asks: string[]; a: string };
   draw: { q: string; a: string };
@@ -43,7 +43,7 @@ const IT: Cinema = {
   say: ["Una persona ha *bisogno di te*.", "*Una fra tante*.", "Hai perso un *!cliente*. E non lo saprai mai.", "Ora immagina *il contrario*.", "Lo disegniamo *intorno a te*.", "*Ovunque* ti cerchino.", "Lo *fai tu*.", "Oppure lo chiedi *su WhatsApp*.", "Per tutto il resto, *ci siamo noi*.", "Quando qualcuno chiederà all'*intelligenza* *artificiale*"],
   cap: ["Qualcuno ha *bisogno di te*.", "Ti trova, ma è *lento*.", "Si apre *all'istante*.", "Disegnato *intorno a te*.", "Poi lo *costruiremo*.", "Perfetto, *ovunque*.", "Arriveranno i *clienti*.", "Online, *al sicuro*.", "Lo *cambi tu*.", "Tutto *compreso*.", "Senza *sorprese*."],
   title: ["Il tuo lavoro,", "sempre aggiornato"],
-  ctl: { play: "Riproduci", pause: "Pausa", replay: "Rivedi", on: "Audio attivo", off: "Audio spento" },
+  ctl: { play: "Riproduci", pause: "Pausa", replay: "Rivedi", on: "Audio attivo", off: "Audio spento", gateT: "Attiva l’*audio*", gateS: "per un’esperienza migliore", gateOn: "Attiva audio", gateOff: "Senza audio" },
   find: { q: "Un nuovo cliente ti cerca. Cosa trova?", typed: "chi può aiutarmi qui vicino", loading: "Sta caricando…", a: "Se il sito è lento o confuso, ne sceglie un altro.", me: ["La tua attività", "latuaattivita.it"], others: [["Un’altra attività", "unaltra.it"], ["Un’altra ancora", "unaltraancora.it"]] },
   listen: { q: "Da dove si parte?", asks: ["Chi sono i tuoi clienti?", "Cosa vogliono sapere?", "Cosa devono fare sul sito?"], a: "Da te. Prima di tutto ti ascoltiamo." },
   draw: { q: "Come sai cosa stai comprando?", a: "Vedi le pagine vere, prima che esistano." },
@@ -96,7 +96,7 @@ const EN: Cinema = {
   say: ["Someone *needs you*.", "*One of many*.", "You lost a *!customer*. And you’ll never know.", "Now imagine *the opposite*.", "Designed *around you*.", "*Everywhere* they look.", "You *do it*.", "Or just ask *on WhatsApp*.", "For everything else, *we’re here*.", "When someone asks *^AI* for advice"],
   cap: ["A customer is *looking* for you.", "They find you, but it’s *slow*.", "And it will open in *0.8 seconds*.", "We’ll build it *just for you*.", "Then, we’ll *build* it.", "Perfect, *everywhere*.", "*Customers* will arrive.", "Online, and *safe*.", "*You’ll* change it.", "Everything *included*.", "No *surprises*."],
   title: ["Your work,", "always current"],
-  ctl: { play: "Play", pause: "Pause", replay: "Replay", on: "Sound on", off: "Sound off" },
+  ctl: { play: "Play", pause: "Pause", replay: "Replay", on: "Sound on", off: "Sound off", gateT: "Turn on the *sound*", gateS: "for a better experience", gateOn: "Turn on sound", gateOff: "Without sound" },
   find: { q: "A new customer is looking for you. What do they find?", typed: "who can help me nearby", loading: "Loading…", a: "If the site is slow or confusing, they pick another one.", me: ["Your business", "yourbusiness.com"], others: [["Another business", "another.com"], ["One more", "onemore.com"]] },
   listen: { q: "Where do we start?", asks: ["Who are your customers?", "What do they want to know?", "What should they do on the site?"], a: "With you. First of all, we listen." },
   draw: { q: "How do you know what you’re buying?", a: "You see the real pages before they exist." },

@@ -18,6 +18,7 @@ import { Wordmark } from "@/components/nav/Wordmark";
 import { GradientText } from "@/components/ui/GradientText";
 import { getCinema, type Cinema } from "@/content/cinema";
 import { VW } from "./film-words";
+import { WRITE_STYLE, writeOn } from "@/lib/handwrite";
 import { AppIcon } from "@/components/chat/ChatDock";
 
 gsap.registerPlugin(SplitText, useGSAP);
@@ -41,14 +42,14 @@ export function Kw({ text }: { text: string }) {
     const w = red || plain ? p.slice(1) : p;
     if (plain)
       return (
-        <span key={i} data-kw className="inline-block font-semibold" style={{ padding: "0.1em 0.12em", margin: "-0.1em -0.12em" }}>
+        <span key={i} data-kw className="inline-block font-semibold" style={{ ...WRITE_STYLE, padding: "0.1em 0.12em", margin: "-0.1em -0.12em" }}>
           <GradientText colors={GT} animationSpeed={8} variant="flow" glow={0.6}>
             {w + (m ? m[0] : "")}
           </GradientText>
         </span>
       );
     return (
-      <span key={i} data-kw className="inline-block" style={{ ...(red ? { "--gt-glow-color": "#ff5a52" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.2em 0.34em 0.5em", margin: "-0.2em -0.34em -0.5em" }}>
+      <span key={i} data-kw className="inline-block" style={{ ...WRITE_STYLE, ...(red ? { "--gt-glow-color": "#ff5a52" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.2em 0.34em 0.5em", margin: "-0.2em -0.34em -0.5em" }}>
         <GradientText colors={red ? GT_RED : GT} animationSpeed={8} variant="flow" glow={1}>
           {w + (m ? m[0] : "")}
         </GradientText>
@@ -409,6 +410,9 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
   const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
   const [snd, setSnd] = useState(false);
+  // all'inizio, a pagina, il video aspetta una scelta: con o senza audio
+  const [gate, setGate] = useState(false);
+  const gateRef = useRef<HTMLDivElement>(null);
   // ogni nuova riproduzione ricostruisce il video da zero: niente resti della volta prima
   const [run, setRun] = useState(0);
 
@@ -417,6 +421,22 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
     const off = onSound(setSnd);
     return () => void off();
   }, []);
+  useEffect(() => {
+    if (embed || prefersReducedMotion() || soundOn()) return;
+    flags.current.paused = true;
+    setGate(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const start = (withSound: boolean) => {
+    if (withSound) setSound(true);
+    const done = () => {
+      setGate(false);
+      flags.current.paused = false;
+      (root.current as unknown as { __go?: () => void } | null)?.__go?.();
+    };
+    if (gateRef.current) gsap.to(gateRef.current, { autoAlpha: 0, duration: 0.5, ease: "power2.out", onComplete: done });
+    else done();
+  };
 
 
   /* la cornice sta tra la barra in alto e quella in basso, qualunque siano: le misuro */
@@ -1322,7 +1342,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         mt.set(k.el, { autoAlpha: 1 }, t0);
         k.u.forEach((x, j) => {
           const kw = x.hasAttribute("data-kw");
-          mt.fromTo(x, kw ? { autoAlpha: 0, scale: 0.9, yPercent: 0, filter: "blur(10px)" } : { autoAlpha: 0, scale: 1, yPercent: 45, filter: "blur(8px)" }, { autoAlpha: 1, scale: 1, yPercent: 0, filter: "blur(0px)", duration: kw ? 0.6 : 0.42, ease: "power3.out" }, ts[j]);
+          if (kw) {
+            // il corsivo si scrive a mano, nel tempo in cui la voce dice la parola
+            mt.fromTo(x, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.05 }, ts[j]);
+            writeOn(mt, x, ts[j]);
+          } else mt.fromTo(x, { autoAlpha: 0, yPercent: 45, filter: "blur(8px)" }, { autoAlpha: 1, yPercent: 0, filter: "blur(0px)", duration: 0.42, ease: "power3.out" }, ts[j]);
         });
         mt.call(() => F.whoosh(0.45, true, 0.3), undefined, t0);
         marks.push({ t: t0, what: `frase: ${k.el.dataset.t ?? k.el.textContent}` });
@@ -2002,6 +2026,28 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         </div>
 
       </div>
+      {gate && (
+        <div ref={gateRef} className="absolute inset-0 z-30 flex items-center justify-center bg-[color-mix(in_srgb,var(--bg-canvas)_45%,transparent)] px-5 backdrop-blur-2xl">
+          <Bead as="div" radius={44} className="flex w-full max-w-[400px] flex-col items-center gap-7 px-8 pb-8 pt-10 text-center">
+            <Bead as="span" tint="sky" radius={999} className="cine-fg flex h-[84px] w-[84px] items-center justify-center">
+              <Volume2 size={34} strokeWidth={1.7} aria-hidden />
+            </Bead>
+            <p className="cine-fg text-[clamp(30px,4.4cqw,44px)] font-medium leading-[1.08] tracking-[-0.05em]">
+              <Kw text={c.ctl.gateT} />
+              <span className="cine-fg2 mt-2 block text-[clamp(15px,1.8cqw,17.5px)] font-normal leading-[1.4] tracking-[-0.01em]">{c.ctl.gateS}</span>
+            </p>
+            <div className="grid w-full gap-2.5">
+              <Bead as="button" type="button" tint="sky" radius={26} onClick={() => start(true)} className="cine-fg flex h-[54px] w-full items-center justify-center gap-2.5 text-[16.5px] font-medium transition-transform active:scale-[.98]">
+                <Volume2 size={19} strokeWidth={1.9} aria-hidden />
+                {c.ctl.gateOn}
+              </Bead>
+              <Bead as="button" type="button" radius={26} onClick={() => start(false)} className="cine-fg2 flex h-[48px] w-full items-center justify-center text-[15px] transition-transform active:scale-[.98]">
+                {c.ctl.gateOff}
+              </Bead>
+            </div>
+          </Bead>
+        </div>
+      )}
       {!embed && !prefersReducedMotion() && (
         <div className="absolute inset-x-0 bottom-3 z-10 flex justify-center px-5">
           <Bead as="div" radius={24} className="cine-fg relative flex h-12 items-center gap-1 overflow-hidden px-1.5">

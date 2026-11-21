@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { GradientText } from "@/components/ui/GradientText";
+import { WRITE_STYLE } from "@/lib/handwrite";
 import { LOGO_COLORS } from "@/components/nav/Wordmark";
 
 /** Testo con le parole tra asterischi nel font del marchio, in gradiente azzurro (come il nome). La punteggiatura che segue entra nel tratto. */
@@ -11,7 +12,7 @@ export function Script({ text }: { text: string }) {
         if (i % 2) {
           const m = /^[.,!?;:]+/.exec(parts[i + 1] ?? "");
           return (
-            <span key={i} className="inline-block" style={{ fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.2em 0.34em 0.5em", margin: "-0.2em -0.34em -0.5em" }}>
+            <span key={i} data-script className="inline-block" style={{ ...WRITE_STYLE, fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.2em 0.34em 0.5em", margin: "-0.2em -0.34em -0.5em" }}>
               <GradientText colors={LOGO_COLORS} animationSpeed={8} variant="flow" glow={1}>
                 {p + (m ? m[0] : "")}
               </GradientText>
