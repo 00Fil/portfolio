@@ -114,7 +114,7 @@ export function FilmIntake({ en, K, onDone, onSkip }: { en: boolean; K: KwC; onD
   useEffect(() => {
     let raf = 0;
     const loop = () => {
-      if (glow.current) glow.current.style.opacity = String(0.3 + Math.min(1, level.current.current) * 0.7);
+      if (glow.current) glow.current.style.opacity = String(0.2 + Math.min(1, level.current.current) * 0.55);
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -145,12 +145,6 @@ export function FilmIntake({ en, K, onDone, onSkip }: { en: boolean; K: KwC; onD
 
   const cur = C.steps[step];
   const btn = "cine-fg flex min-h-[64px] w-full items-center justify-center rounded-[24px] px-4 text-center text-[18px] font-medium leading-[1.2] tracking-[-0.01em] transition-transform active:scale-[.98] max-sm:min-h-[52px] max-sm:text-[16px]";
-  const ribbon = (flip: boolean): ReactNode => (
-    <div aria-hidden style={{ WebkitMaskImage: "linear-gradient(to bottom, transparent, #000 35%, #000 65%, transparent)", maskImage: "linear-gradient(to bottom, transparent, #000 35%, #000 65%, transparent)" }} className={`pointer-events-none absolute inset-x-[4%] h-[150px] opacity-90 ${flip ? "-bottom-[84px] scale-y-[-1]" : "-top-[84px]"}`}>
-      <Strands glass={false} colors={PINK} lightMode={light} energy={0.55} levelRef={level.current} interactive={false} clickPulse={false} intro={false} />
-    </div>
-  );
-
   return (
     <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[color-mix(in_srgb,var(--bg-canvas)_45%,transparent)] px-5 backdrop-blur-2xl">
       <div className="absolute right-4 top-4 flex gap-2.5 max-sm:right-3 max-sm:top-3">
@@ -177,10 +171,6 @@ export function FilmIntake({ en, K, onDone, onSkip }: { en: boolean; K: KwC; onD
       {phase !== "intro" && (
         <div className="relative w-full max-w-[860px]">
           <div ref={card} className="relative opacity-0">
-            <div ref={glow} aria-hidden className="rim-glow" />
-            <div aria-hidden className="rim-ring" />
-            {ribbon(false)}
-            {ribbon(true)}
             <Bead as="div" radius={44} className="relative px-12 pb-12 pt-14 text-center max-sm:px-5 max-sm:pb-7 max-sm:pt-9">
               <div ref={body} className="flex flex-col items-center gap-9 max-sm:gap-6">
                 {phase === "form" && (
@@ -227,6 +217,10 @@ export function FilmIntake({ en, K, onDone, onSkip }: { en: boolean; K: KwC; onD
                 )}
               </div>
             </Bead>
+            <div aria-hidden className="pointer-events-none absolute inset-0 z-20 overflow-hidden rounded-[44px]">
+              <div ref={glow} className="rim-glow" />
+              <div className="rim-ring" />
+            </div>
           </div>
         </div>
       )}

@@ -26,8 +26,8 @@
 .rim-ring,
 .rim-glow {
   position: absolute;
-  inset: -3px;
-  border-radius: 47px;
+  inset: 0;
+  border-radius: 44px;
   padding: 3px;
   pointer-events: none;
   background: conic-gradient(from var(--rim-a), #ff00ff, #ffffff, #5b00ff, #ff00c9, #ff00ff);
@@ -37,9 +37,7 @@
   animation: rim-spin 9s linear infinite;
 }
 .rim-glow {
-  inset: -10px;
-  padding: 12px;
-  border-radius: 54px;
-  filter: blur(16px);
-  opacity: 0.35;
+  padding: 20px;
+  filter: blur(14px);
+  opacity: 0.45;
 }
