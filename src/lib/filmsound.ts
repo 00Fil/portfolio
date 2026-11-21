@@ -161,37 +161,41 @@ export const fx = {
     o.start(t + 0.1);
     o.stop(t + 1);
   },
-  /** La firma: un respiro d'aria che sale e si apre in un accordo luminoso, lungo. */
+  /** La firma: un accordo d'aria che si apre piano e svanisce, morbido (niente attacchi, niente note acute secche). */
   shine(vel = 1) {
     const c = ac();
-    if (!c || !bus || !noise) return;
+    if (!c || !bus) return;
     const t = c.currentTime;
-    const s = c.createBufferSource();
-    s.buffer = noise;
-    const f = c.createBiquadFilter();
-    f.type = "bandpass";
-    f.Q.value = 0.8;
-    f.frequency.setValueAtTime(600, t);
-    f.frequency.exponentialRampToValueAtTime(6000, t + 0.6);
+    const m = music(c);
+    const lp = c.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.setValueAtTime(700, t);
+    lp.frequency.linearRampToValueAtTime(2200, t + 1.2);
+    lp.frequency.linearRampToValueAtTime(900, t + 3.8);
     const g = c.createGain();
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(0.12 * vel, t + 0.5);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.3);
-    s.connect(f).connect(g).connect(bus);
-    s.start(t);
-    s.stop(t + 1.4);
-    [72, 76, 79, 83, 88].forEach((m, i) => {
-      const o = c.createOscillator();
-      const og = c.createGain();
-      o.type = "sine";
-      o.frequency.value = 440 * 2 ** ((m - 69) / 12);
-      og.gain.setValueAtTime(0.0001, t + 0.45 + i * 0.04);
-      og.gain.linearRampToValueAtTime(0.035 * vel, t + 0.6 + i * 0.04);
-      og.gain.exponentialRampToValueAtTime(0.0001, t + 3.2);
-      o.connect(og).connect(bus!);
-      o.start(t + 0.45);
-      o.stop(t + 3.3);
-    });
+    g.gain.linearRampToValueAtTime(0.11 * vel, t + 0.9);
+    g.gain.setValueAtTime(0.11 * vel, t + 1.6);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 4.2);
+    lp.connect(g);
+    g.connect(bus!);
+    const w = c.createGain();
+    w.gain.value = 0.9;
+    g.connect(w).connect(m.verb);
+    // Do maggiore con la nona, voci centrali, ogni nota due volte leggermente scordata (coro)
+    [48, 55, 60, 64, 67, 74].forEach((k) =>
+      [-7, 7].forEach((d) => {
+        const o = c.createOscillator();
+        o.type = k < 50 ? "sine" : "triangle";
+        o.frequency.value = 440 * 2 ** ((k - 69) / 12);
+        o.detune.value = d;
+        const og = c.createGain();
+        og.gain.value = k < 50 ? 0.6 : 0.28;
+        o.connect(og).connect(lp);
+        o.start(t);
+        o.stop(t + 4.3);
+      }),
+    );
   },
   /** Salita di tensione prima di un colpo. */
   riser(dur = 1.6) {
@@ -259,7 +263,7 @@ export const fx = {
     const c = ac();
     if (!c || !bus) return;
     const m = music(c);
-    const STEP = 0.125;
+    const STEP = 60 / BPM / 4;
     let n = Math.max(last + 1, Math.floor((t - 0.04) / STEP) + 1);
     if (t < lastT - 0.3) n = Math.floor(t / STEP) + 1;
     lastT = t;
@@ -340,6 +344,8 @@ function music(c: AudioContext) {
  *   light  · lo cambi tu, l'AI ti consiglia: più leggero, piano in primo piano
  *   end    · accordo pieno che resta
  */
+/** Tempo del film: musica, tagli e movimenti cadono su questa griglia. */
+export const BPM = 128;
 export type Mood = "calm" | "doubt" | "tense" | "stop" | "rise" | "drive" | "light" | "end";
 const N = (m: number) => 440 * 2 ** ((m - 69) / 12);
 type Chord = { notes: number[]; root: number };
@@ -368,7 +374,7 @@ const MEL: Record<number, number>[] = [
 let cues: { beat: number; mood: Mood }[] = [];
 /** Il video chiede un umore al tempo t (secondi del film): parte sul battito successivo. */
 export function cue(mood: Mood, t: number) {
-  const beat = Math.max(0, Math.ceil(t * 2 - 0.08));
+  const beat = Math.max(0, Math.ceil(t / (60 / BPM) - 0.08));
   cues = cues.filter((q) => q.beat < beat).concat({ beat, mood });
 }
 export function resetCues() {
