@@ -668,3 +668,8 @@ html[data-perf="low"] .drop > .drop-glow { display: none; }
   .ms-hero { right: calc(var(--i) + 3cqw); width: auto; bottom: 42%; }
   .ms-photo { left: var(--i); width: auto; top: 60%; }
 }
+
+/* film in riproduzione: la barra del sito scivola via, torna con il mouse in alto, un tocco in alto o il tab */
+[data-site-nav] { transition: transform .8s cubic-bezier(.22, 1, .36, 1), opacity .5s ease; }
+html[data-film-immersive]:not([data-nav-peek]) [data-site-nav] { transform: translateY(-120%); opacity: 0; }
+html[data-film-immersive]:not([data-nav-peek]) [data-site-nav] * { pointer-events: none !important; }

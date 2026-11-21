@@ -46,6 +46,7 @@ export function TopBar() {
 
   return (
     <header
+      data-site-nav
       className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-between px-4 pt-[max(12px,env(safe-area-inset-top))] sm:px-6 sm:pt-5 lg:hidden`}
     >
       <a

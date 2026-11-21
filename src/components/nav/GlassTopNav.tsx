@@ -244,7 +244,7 @@ export function GlassTopNav({ home, section = "work", plain = false }: { home: b
   };
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-0 z-50 hidden justify-center px-6 pt-4 lg:flex">
+    <div data-site-nav className="pointer-events-none fixed inset-x-0 top-0 z-50 hidden justify-center px-6 pt-4 lg:flex">
       <div ref={wrap} className="pointer-events-auto relative w-full max-w-[1180px]" onMouseLeave={scheduleClose}>
         <div
           ref={shell}

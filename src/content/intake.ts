@@ -1,6 +1,6 @@
 import type { Cinema } from "./cinema";
 
-/** Le domande di rito prima del video: le risposte entrano nelle scritte del film (nome, settore, sito, obiettivo, come ti trovano). */
+/** Le domande di rito prima dell’esperienza: le risposte entrano nelle scritte del film (nome, settore, sito, obiettivo, come ti trovano). */
 export type Answers = { name: string; sector: string; site: string; goal: string; found: string };
 type Opt = { id: string; t: string };
 type Step = { id: keyof Answers; audio: string; q: string; opts?: Opt[]; ph?: string };
@@ -10,12 +10,12 @@ type Copy = { intro: Line[]; skip: string; next: string; steps: Step[]; busy: st
 const IT: Copy = {
   intro: [
     { audio: "i1", t: "*Ciao*, sono *Sofia*." },
-    { audio: "i2", t: "Ti faccio qualche domanda, poi preparo il tuo video." },
+    { audio: "i2", t: "Ti faccio qualche domanda, poi *personalizzo la tua esperienza*." },
   ],
   done: "done",
   skip: "Salta",
   next: "Avanti",
-  busy: "Preparo il tuo video",
+  busy: "Personalizzo la tua esperienza",
   steps: [
     { id: "name", audio: "name", q: "Come si chiama la *tua attività*?", ph: "Nome dell’attività" },
     { id: "sector", audio: "sector", q: "Di cosa *ti occupi*?", opts: [{ id: "food", t: "Ristorazione" }, { id: "pro", t: "Studio professionale" }, { id: "shop", t: "Negozio" }, { id: "craft", t: "Artigiano o servizi" }, { id: "care", t: "Salute e benessere" }, { id: "home", t: "Casa e immobili" }, { id: "event", t: "Eventi e turismo" }, { id: "school", t: "Formazione" }, { id: "other", t: "Altro" }] },
@@ -27,12 +27,12 @@ const IT: Copy = {
 const EN: Copy = {
   intro: [
     { audio: "", t: "*Hello*, I’m *Sofia*." },
-    { audio: "", t: "A few questions, then I’ll make your film." },
+    { audio: "", t: "A few questions, then I’ll *tailor your experience*." },
   ],
   done: "",
   skip: "Skip",
   next: "Next",
-  busy: "Preparing your film",
+  busy: "Tailoring your experience",
   steps: [
     { id: "name", audio: "", q: "What’s your *business* called?", ph: "Business name" },
     { id: "sector", audio: "", q: "What do *you do*?", opts: [{ id: "food", t: "Food & drink" }, { id: "pro", t: "Professional firm" }, { id: "shop", t: "Shop" }, { id: "craft", t: "Trades & services" }, { id: "care", t: "Health & wellness" }, { id: "home", t: "Home & property" }, { id: "event", t: "Events & travel" }, { id: "school", t: "Training" }, { id: "other", t: "Other" }] },
