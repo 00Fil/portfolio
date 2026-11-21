@@ -83,11 +83,22 @@ function build(text: string, family: string): Skel {
   const at = new Int32Array(w * h).fill(-1);
   for (let i = 0; i < a.length; i++) if (a[i]) { at[i] = idx.length; idx.push(i); }
   const N = idx.length;
-  const nb: number[][] = idx.map((i) => {
+  const nb0: number[][] = idx.map((i) => {
     const o: number[] = [];
     for (const dd of [-w - 1, -w, -w + 1, -1, 1, w - 1, w, w + 1]) { const j = at[i + dd]; if (j >= 0) o.push(j); }
     return o;
   });
+  // ogni lettera è un pezzo a sé: la penna ne finisce una prima di cominciare la successiva
+  const bounds: number[] = [];
+  for (let k = 0; k <= text.length; k++) bounds.push(ctx.measureText(text.slice(0, k)).width);
+  const letterOf = (n: number) => {
+    const x = idx[n] % w - PAD;
+    let k = 0;
+    while (k < text.length - 1 && x >= bounds[k + 1]) k++;
+    return k;
+  };
+  const let0 = idx.map((_, n) => letterOf(n));
+  const nb: number[][] = nb0.map((o, n) => o.filter((m) => let0[m] === let0[n]));
   const X = (n: number) => idx[n] % w, Y = (n: number) => (idx[n] / w) | 0;
   const half = N ? ink / N / 2 : 4;
   // componenti
@@ -101,13 +112,14 @@ function build(text: string, family: string): Skel {
     comps.push(c);
   }
   const order = comps
-    .map((c) => ({ c, x: Math.min(...c.map(X)), small: c.length < S * 0.28 }))
-    .sort((p, q) => (p.small === q.small ? p.x - q.x : p.small ? 1 : -1));
+    .map((c) => ({ c, k: let0[c[0]] }))
+    .sort((p, q) => p.k - q.k || q.c.length - p.c.length);
   // Una penna sola: parte da un capo (in alto a sinistra), segue il tratto e fa un ramo alla volta
   // (i rami corti subito, il filo principale per ultimo); i pezzi staccati vanno dopo. Ogni pezzo continuo è una polilinea levigata.
   const lines: number[][] = [];
+  let pen = -1;
   for (const { c } of order) {
-    if (c.length < 6) continue;
+    if (c.length < 4) continue;
     const far = (from: number) => {
       const d = new Map<number, number>([[from, 0]]);
       const qq = [from];
@@ -116,7 +128,11 @@ function build(text: string, family: string): Skel {
     };
     const A = far(c[0]), B = far(A);
     const sc = (n: number) => X(n) + Y(n) * 0.6;
-    const start = sc(A) <= sc(B) ? A : B;
+    let start = sc(A) <= sc(B) ? A : B;
+    if (pen >= 0) {
+      let bd = Infinity;
+      for (const n of c) { const dd = Math.hypot(X(n) - X(pen), Y(n) - Y(pen)); if (dd < bd) { bd = dd; start = n; } }
+    }
     const par = new Map<number, number>();
     const seen = new Set<number>();
     const kids = new Map<number, number[]>();
@@ -159,6 +175,7 @@ function build(text: string, family: string): Skel {
       cur.push(n);
       last = n;
     }
+    pen = last;
   }
   // levigatura: media mobile, estremi fermi
   const smooth = (px: Pt[]): Pt[] => {
