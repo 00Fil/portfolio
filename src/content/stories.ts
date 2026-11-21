@@ -849,7 +849,7 @@ const EXTRA_IT: Record<ServiceKey, Extra> = {
       ["«Da telefono il sito si apre lento e si legge male.»", "Si apre in un attimo, su qualsiasi schermo"],
       ["«Gestiamo tutto tra fogli Excel e messaggi.»", "Un solo posto dove tu e il tuo team trovate tutto"],
     ],
-    no: ["Funzioni che non ti servono, solo per gonfiare il progetto.", "Un modello già pronto spacciato per su misura."],
+    no: ["Il primo posto su Google: nessuno può garantirlo.", "Funzioni che non ti servono, solo per gonfiare il progetto.", "Un modello già pronto spacciato per su misura."],
   },
   seo: {
     hero: ["Il tuo sito si apre in un attimo, e Google lo capisce.", "Sistemo velocità, errori e struttura che ti fanno perdere visite. Ti mostro i numeri prima e dopo."],
@@ -951,7 +951,7 @@ const EXTRA_EN: Record<ServiceKey, Extra> = {
       ["“On a phone the site is slow and hard to read.”", "It opens instantly, on any screen"],
       ["“We run everything across spreadsheets and messages.”", "One place where you and your team find everything"],
     ],
-    no: ["Features you don’t need, just to inflate the project.", "A ready-made template passed off as custom."],
+    no: ["First place on Google: nobody can guarantee it.", "Features you don’t need, just to inflate the project.", "A ready-made template passed off as custom."],
   },
   seo: {
     hero: ["Your site opens instantly, and Google understands it.", "I fix the speed, errors and structure that lose you visits. I show you the numbers before and after."],

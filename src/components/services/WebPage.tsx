@@ -517,7 +517,7 @@ function DesignMock() {
         </span>
       </div>
       <div className={`flex flex-col justify-between rounded-[20px] p-3 ${surface}`}>
-        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Stile</span>
+        <span className="h-2 w-10 rounded-full bg-[var(--hair-strong)]" />
         <span className="flex gap-1.5">
           {["#5ec4ff", "#2f6fe0", "#14171c", "#f3f4f6"].map((c) => (
             <span key={c} className="h-7 flex-1 rounded-[8px]" style={{ background: c, boxShadow: "inset 0 0 0 1px var(--hair-strong)" }} />
@@ -526,6 +526,79 @@ function DesignMock() {
         <span className="text-[30px] font-medium leading-none tracking-[-0.05em] text-ink">Aa</span>
         <span className="h-6 rounded-full" style={{ background: blue }} />
       </div>
+    </div>
+  );
+}
+
+/** Il piano di partenza: obiettivi, ricerche, struttura, preventivo, ognuno con il suo avanzamento. */
+function AnalysisMock({ rows }: { rows: string[] }) {
+  return (
+    <div className="flex h-full flex-col justify-center gap-2.5">
+      {rows.map((r, i) => (
+        <Bead key={r} as="div" radius={20} className="flex items-center gap-3 px-3.5 py-3">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white" style={{ background: blue }}>
+            <Check size={15} strokeWidth={2.4} aria-hidden />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[14px] font-medium text-ink">{r}</span>
+            <span className="mt-1.5 block h-1.5 overflow-hidden rounded-full bg-[var(--hair-strong)]">
+              <span className="block h-full rounded-full" style={{ width: `${[100, 88, 74, 100][i % 4]}%`, background: blue }} />
+            </span>
+          </span>
+        </Bead>
+      ))}
+    </div>
+  );
+}
+
+/** Lo sviluppo: la cartella del progetto, l'anteprima e le integrazioni. */
+function BuildMock({ rows }: { rows: string[] }) {
+  return (
+    <div className="grid h-full grid-cols-[1.15fr_1fr] gap-3">
+      <div className={`flex flex-col gap-1.5 rounded-[20px] p-3.5 font-mono text-[12px] leading-[1.7] text-ink-2 ${surface}`}>
+        <span className="flex gap-1.5 pb-1">
+          {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
+            <span key={c} className="h-2 w-2 rounded-full" style={{ background: c }} />
+          ))}
+        </span>
+        {["app/", "  page.tsx", "  servizi/page.tsx", "  contatti/page.tsx", "components/", "  Hero.tsx", "  Form.tsx", "lib/seo.ts"].map((l) => (
+          <span key={l} className={l.endsWith("/") ? "text-ink" : ""} style={{ whiteSpace: "pre" }}>
+            {l}
+          </span>
+        ))}
+      </div>
+      <div className="flex flex-col justify-center gap-2.5">
+        {rows.map((r) => (
+          <Bead key={r} as="div" radius={18} className="flex items-center gap-2.5 px-3 py-2.5">
+            <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: "#2fb36a", boxShadow: "0 0 0 3px color-mix(in srgb,#2fb36a 25%,transparent)" }} />
+            <span className="truncate text-[13px] font-medium text-ink">{r}</span>
+          </Bead>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** La chat con l'assistente: tre richieste, tre risposte, nello stile della chat del sito. */
+function AssistantMock({ locale }: { locale: string }) {
+  const it = locale !== "en";
+  const chat: [string, string][] = it
+    ? [["Sabato apriamo alle 9, aggiorna il sito", "Fatto, il sito è aggiornato."], ["Come sta andando il sito?", "1.284 visite questa settimana, +18%."], ["Chi ha chiesto di essere ricontattato?", "Due persone, oggi: Giulia R. e Marco B."]]
+    : [["We open at 9 on Saturday, update the site", "Done, the site is updated."], ["How is the site doing?", "1,284 visits this week, +18%."], ["Who asked to be called back?", "Two people today: Giulia R. and Marco B."]];
+  return (
+    <div className="flex h-full flex-col justify-center gap-2">
+      {chat.map(([q, a]) => (
+        <div key={q} className="grid gap-1.5">
+          <div className="flex justify-end">
+            <Bead as="p" tint="sky" radius={18} className="max-w-[84%] px-3.5 py-2 text-[14px] leading-[1.35] text-ink">
+              {q}
+            </Bead>
+          </div>
+          <Bead as="p" radius={18} className="w-fit max-w-[88%] px-3.5 py-2 text-[14px] leading-[1.4] text-ink">
+            {a}
+          </Bead>
+        </div>
+      ))}
     </div>
   );
 }
@@ -649,7 +722,7 @@ export function WebPage({ locale, copy, tale, proof, github, ctaLabel, ctaLead }
           specs={it.specs}
           flip={i % 2 === 1}
           mock={
-            it.k === "found" ? <FoundMock m={m} /> : it.k === "speed" ? <SpeedMock m={m} f={fs} /> : it.k === "design" ? <DesignMock /> : it.k === "screens" ? <ScreensMock /> : it.k === "edit" ? <EditMock m={m} /> : it.k === "assistant" ? <LeadsMock m={m} /> : <SafeMock m={m} />
+            it.k === "analysis" ? <AnalysisMock rows={it.specs.map((x) => x[0])} /> : it.k === "build" ? <BuildMock rows={it.specs.map((x) => x[0])} /> : it.k === "contacts" ? <LeadsMock m={m} /> : it.k === "found" ? <FoundMock m={m} /> : it.k === "speed" ? <SpeedMock m={m} f={fs} /> : it.k === "design" ? <DesignMock /> : it.k === "screens" ? <ScreensMock /> : it.k === "edit" ? <EditMock m={m} /> : it.k === "assistant" ? <AssistantMock locale={locale} /> : <SafeMock m={m} />
           }
         />
       ))}
