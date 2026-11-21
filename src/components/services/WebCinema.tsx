@@ -494,9 +494,9 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const units = caps.map(split);
       // le parole entrano una alla volta, morbide: salgono appena e si mettono a fuoco
       const slam = (g: { a: HTMLElement[]; b: HTMLElement[] }, at: number, deg: number, L: gsap.core.Timeline = tl) => {
-        if (g.a.length) L.fromTo(g.a, { autoAlpha: 0, yPercent: 70, filter: "blur(6px)" }, { autoAlpha: 1, yPercent: 0, filter: "blur(0px)", duration: 0.6, ease: "expo.out", stagger: 0.035 }, at);
+        if (g.a.length) L.fromTo(g.a, { autoAlpha: 0, yPercent: 50, filter: "blur(6px)" }, { autoAlpha: 1, yPercent: 0, filter: "blur(0px)", duration: 0.7, ease: "power3.out", stagger: 0.04 }, at);
         const kt = at + 0.035 * g.a.length;
-        if (g.b.length) L.fromTo(g.b, { autoAlpha: 0, scale: 0.86, filter: "blur(12px)" }, { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.7, ease: "expo.out" }, kt);
+        if (g.b.length) L.fromTo(g.b, { autoAlpha: 0, scale: 0.92, filter: "blur(10px)" }, { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.8, ease: "power3.out" }, kt);
         L.call(() => F.tick(0.8), undefined, at);
         if (g.b.length) L.call(() => F.pluck(deg + 7, 0.9, 0.5), undefined, kt);
       };
@@ -942,18 +942,18 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .fromTo(prog, { autoAlpha: 1, scaleX: 0 }, { scaleX: 0.75, duration: 0.25, ease: "power2.out", immediateRender: false }, 0.95)
           .to(prog, { scaleX: 1, duration: 0.15, ease: "power1.in" }, 1.2)
           .to(prog, { autoAlpha: 0, duration: 0.15 }, 1.35)
-          .fromTo(rigEl, { scale: 1 }, { scale: 1.22, duration: 0.6, ease: "power2.in" }, 0.95)
           .set(g2, { autoAlpha: 0 }, 1.32)
-          .fromTo(hero, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.12, ease: "none", immediateRender: false }, 1.32)
+          .fromTo(hero, { autoAlpha: 0, filter: "blur(6px)" }, { autoAlpha: 1, filter: "blur(0px)", duration: 0.3, ease: "power2.out", immediateRender: false }, 1.32)
           .set(cur, { autoAlpha: 0 }, 1.32)
           .set([spin, stop], { autoAlpha: 0 }, 1.4)
           .set([fav, rl], { autoAlpha: 1 }, 1.4)
           .call(() => void (tt1.textContent = c.find.me[0]), undefined, 1.4)
           .call(() => void (tt1.textContent = c.find.typed), undefined, 1.39)
-          .to(rigEl, { scale: 0.66, duration: 0.5, ease: "expo.out" }, 1.6)
           .call(() => F.chord([0, 2, 4], 0.8), undefined, 1.6);
-        say(newTl, inl[1], 1.75, 3.0);
-        newTl.to(rigEl, { scale: 1, duration: 0.55, ease: "expo.inOut" }, 3.0).set({}, {}, 3.55);
+        // tutta la scena è una sola carrellata lenta e continua: la camera si allontana piano e la frase arriva con calma
+        newTl.fromTo(rigEl, { scale: 1.06 }, { scale: 0.8, duration: 3.4, ease: "sine.inOut" }, 0);
+        say(newTl, inl[1], 1.8, 3.1);
+        newTl.set({}, {}, 3.5);
       }
 
       /* Figma: la pagina vera ma vuota; il team, ognuno con il suo cursore, mette un pezzo alla volta. Ogni pezzo arriva selezionato. */
@@ -1223,16 +1223,16 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const rig = one("[data-rig]");
       // ogni scena entra con un movimento di camera diverso, poi la camera continua a muoversi piano
       const moves = [
-        { scale: 1.3, yPercent: 8 },
-        { scale: 0.8, xPercent: -6 },
-        { scale: 1.22, xPercent: 8 },
-        { scale: 1.32, yPercent: -6 },
-        { scale: 0.84, yPercent: 6 },
+        { scale: 1.14, yPercent: 4 },
+        { scale: 0.9, xPercent: -3 },
+        { scale: 1.12, xPercent: 4 },
+        { scale: 1.15, yPercent: -3 },
+        { scale: 0.92, yPercent: 3 },
       ];
       const shoot = (i: number, t: number, d: number) => {
         const m = moves[i % moves.length];
-        mt.fromTo(rig, { xPercent: 0, yPercent: 0, ...m }, { scale: 1, xPercent: 0, yPercent: 0, duration: 0.9, ease: "expo.out", immediateRender: false }, t);
-        if (d > 1.2) mt.to(rig, { scale: i % 2 ? 0.96 : 1.05, duration: d - 0.9, ease: "sine.inOut" }, t + 0.9);
+        // un solo movimento per scena, continuo: entra, rallenta e continua a scivolare fino al taglio
+        mt.fromTo(rig, { xPercent: 0, yPercent: 0, ...m }, { scale: i % 2 ? 0.98 : 1.03, xPercent: 0, yPercent: 0, duration: Math.max(1.2, d), ease: "power2.out", immediateRender: false }, t);
       };
       ch.forEach((k, i) => {
         at = q8(at);
@@ -1244,8 +1244,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         }
         let shot = -1;
         if (k.u && k.el) {
-          mt.to(cam, { autoAlpha: 0, duration: 0.22, ease: "power2.in" }, at);
-          pending?.(at + 0.23);
+          mt.to(cam, { autoAlpha: 0, duration: 0.3, ease: "sine.inOut" }, at);
+          pending?.(at + 0.31);
           pending = undefined;
           const words = [...k.u.a, ...k.u.b];
           const c0 = q8(at + 0.2);
@@ -1257,28 +1257,28 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           if (style === 0) slam(k.u, c0, i % 5, mt);
           else {
             mt.set(words, { autoAlpha: 1, yPercent: 0, scale: 1, filter: "blur(0px)" }, c0);
-            if (style === 1) mt.fromTo(el, { scale: 1.8, filter: "blur(10px)", autoAlpha: 0 }, { scale: 1, filter: "blur(0px)", autoAlpha: 1, duration: 0.75, ease: "expo.out" }, c0);
-            if (style === 2) mt.fromTo(el, { scale: 0.55, filter: "blur(8px)", autoAlpha: 0 }, { scale: 1, filter: "blur(0px)", autoAlpha: 1, duration: 0.7, ease: "expo.out" }, c0);
+            if (style === 1) mt.fromTo(el, { scale: 1.3, filter: "blur(8px)", autoAlpha: 0 }, { scale: 1, filter: "blur(0px)", autoAlpha: 1, duration: 0.8, ease: "power3.out" }, c0);
+            if (style === 2) mt.fromTo(el, { scale: 0.75, filter: "blur(6px)", autoAlpha: 0 }, { scale: 1, filter: "blur(0px)", autoAlpha: 1, duration: 0.75, ease: "power3.out" }, c0);
             if (style === 3) mt.fromTo(el, { letterSpacing: "0.35em", filter: "blur(10px)", autoAlpha: 0 }, { letterSpacing: "-0.05em", filter: "blur(0px)", autoAlpha: 1, duration: 0.85, ease: "expo.out" }, c0);
-            if (style === 4) mt.fromTo(el, { clipPath: "inset(-40% 112% -40% -12%)", x: -30 }, { clipPath: glow, x: 0, duration: 0.7, ease: "expo.inOut" }, c0);
+            if (style === 4) mt.fromTo(el, { clipPath: "inset(-40% 112% -40% -12%)", x: -20 }, { clipPath: glow, x: 0, duration: 0.75, ease: "power2.inOut" }, c0);
             mt.call(() => F.tick(0.8), undefined, c0);
           }
           const c1 = q8(c0 + 0.4 + 0.03 * (words.length - 1) + (el.textContent?.length ?? 20) * 0.007);
           marks.push({ t: c0, what: `frase: ${el.dataset.t}` });
-          if (style === 2) mt.to(el, { scale: 2.6, autoAlpha: 0, duration: 0.24, ease: "power2.in" }, c1);
-          else if (style === 1) mt.to(el, { scale: 0.7, autoAlpha: 0, filter: "blur(8px)", duration: 0.28, ease: "power3.in" }, c1);
-          else if (style === 4) mt.to(el, { clipPath: "inset(-40% -12% -40% 112%)", x: 30, duration: 0.3, ease: "expo.in" }, c1);
+          if (style === 2) mt.to(el, { scale: 1.5, autoAlpha: 0, duration: 0.35, ease: "power2.in" }, c1);
+          else if (style === 1) mt.to(el, { scale: 0.85, autoAlpha: 0, filter: "blur(6px)", duration: 0.35, ease: "power2.in" }, c1);
+          else if (style === 4) mt.to(el, { clipPath: "inset(-40% -12% -40% 112%)", x: 20, duration: 0.4, ease: "power2.inOut" }, c1);
           else {
-            if (k.u.a.length) mt.to(k.u.a, { autoAlpha: 0, yPercent: -60, filter: "blur(6px)", duration: 0.25, ease: "power3.in", stagger: 0.015 }, c1);
-            if (k.u.b.length) mt.to(k.u.b, { autoAlpha: 0, scale: 1.08, filter: "blur(10px)", duration: 0.25, ease: "power3.in" }, c1);
+            if (k.u.a.length) mt.to(k.u.a, { autoAlpha: 0, yPercent: -40, filter: "blur(6px)", duration: 0.35, ease: "power2.in", stagger: 0.015 }, c1);
+            if (k.u.b.length) mt.to(k.u.b, { autoAlpha: 0, scale: 1.05, filter: "blur(8px)", duration: 0.35, ease: "power2.in" }, c1);
           }
-          mt.set(el, { autoAlpha: 0 }, c1 + 0.32);
-          at = c1 + 0.32;
+          mt.set(el, { autoAlpha: 0 }, c1 + 0.42);
+          at = c1 + 0.36;
           if (k.textOnly) {
             at += 0.25;
             return;
           }
-          mt.fromTo(cam, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "power2.out", immediateRender: false }, at);
+          mt.fromTo(cam, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "sine.out", immediateRender: false }, at);
           shot = i;
         }
         if (!k.el && pending) {

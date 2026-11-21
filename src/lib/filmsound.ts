@@ -350,26 +350,28 @@ export type Mood = "calm" | "doubt" | "tense" | "stop" | "rise" | "drive" | "lig
 const N = (m: number) => 440 * 2 ** ((m - 69) / 12);
 type Chord = { notes: number[]; root: number };
 const C = (root: number, ...notes: number[]): Chord => ({ root, notes });
+/*
+ * Il giro è quello del Canone di Pachelbel (1680 circa, pubblico dominio): il basso che scende D A B F# G D G A,
+ * il più riconoscibile e «appiccicoso» che ci sia. Nella parte del problema lo stesso giro va in minore;
+ * nel nuovo sito torna in maggiore. La melodia è la sua linea che scende, cantata a due voci (sempre con la terza sotto).
+ */
 const PROG: Record<"a" | "b" | "c", Chord[]> = {
-  // calm: Fmaj7 Am7 Dm9 G6
-  a: [C(41, 57, 60, 64, 65), C(45, 57, 60, 64, 67), C(38, 57, 60, 62, 65), C(43, 55, 59, 62, 64)],
-  // doubt / tense: Dm Bb Gm A
-  b: [C(38, 57, 62, 65), C(34, 58, 62, 65), C(43, 58, 62, 67), C(45, 57, 61, 64)],
-  // nuovo sito: C G/B Am F
-  c: [C(36, 60, 64, 67, 71), C(35, 59, 62, 67, 69), C(45, 60, 64, 67, 69), C(41, 60, 65, 69, 72)],
+  a: [C(26, 62, 66, 69), C(33, 61, 64, 69), C(35, 62, 66, 71), C(30, 61, 66, 69), C(31, 62, 67, 71), C(26, 62, 66, 69), C(31, 59, 62, 67), C(33, 61, 64, 69)],
+  b: [C(26, 62, 65, 69), C(33, 61, 64, 69), C(34, 62, 65, 70), C(29, 60, 65, 69), C(31, 62, 67, 70), C(26, 62, 65, 69), C(31, 58, 62, 67), C(33, 61, 64, 69)],
+  c: [C(26, 62, 66, 69), C(33, 61, 64, 69), C(35, 62, 66, 71), C(30, 61, 66, 69), C(31, 62, 67, 71), C(26, 62, 66, 69), C(31, 59, 62, 67), C(33, 61, 64, 69)],
 };
 const GROUP: Record<Mood, "a" | "b" | "c"> = { calm: "a", doubt: "b", tense: "b", stop: "b", rise: "c", drive: "c", light: "c", end: "c" };
-/** Melodia del nuovo sito, otto battute (nota MIDI per sedicesimo). */
-const MEL: Record<number, number>[] = [
-  { 0: 76, 3: 79, 6: 84, 10: 83, 12: 79 },
-  { 0: 74, 3: 79, 6: 83, 10: 81, 12: 79 },
-  { 0: 72, 3: 76, 6: 81, 10: 79, 12: 76 },
-  { 0: 77, 3: 81, 6: 84, 10: 81, 12: 79 },
-  { 0: 76, 2: 79, 4: 84, 8: 86, 12: 88 },
-  { 0: 86, 4: 83, 8: 79, 12: 83, 14: 86 },
-  { 0: 84, 4: 83, 6: 81, 10: 76 },
-  { 0: 77, 2: 81, 4: 84, 12: 79 },
-];
+const LINE = { maj: [78, 76, 74, 73, 71, 69, 71, 73], min: [77, 76, 74, 72, 70, 69, 70, 73] };
+const HARM = { maj: [74, 73, 71, 69, 67, 66, 67, 69], min: [74, 73, 70, 69, 67, 65, 67, 69] };
+/** Il gancio, in ogni battuta: la nota della linea (lunga), ribattuta, un sospiro sulla nota di prima, di nuovo, e l'anticipo della prossima. */
+const HOOK: Record<number, -1 | 0 | 1> = { 0: 0, 6: 0, 8: -1, 10: 0, 14: 1 };
+function melAt(minor: boolean, bar: number, s: number): [number, number] | null {
+  const h = HOOK[s];
+  if (h === undefined) return null;
+  const i = (((bar + h) % 8) + 8) % 8;
+  const k = minor ? "min" : "maj";
+  return [LINE[k][i], HARM[k][i]];
+}
 
 let cues: { beat: number; mood: Mood }[] = [];
 /** Il video chiede un umore al tempo t (secondi del film): parte sul battito successivo. */
@@ -408,7 +410,7 @@ function step(c: AudioContext, m: Mus, n: number, at: number) {
   const g = GROUP[mood];
   const st = groupStart(beat, g);
   const bar = Math.max(0, Math.floor((beat - st) / 4));
-  const ch = PROG[g][bar % 4];
+  const ch = PROG[g][bar % 8];
   const fresh = beat === since && n % 4 === 0; // primo battito del nuovo umore
 
   const voice = (fr: number, type: OscillatorType, peak: number, atk: number, dec: number, lp: number, o2: { wet?: number; echo?: number; det?: number[]; pumped?: boolean; lpEnd?: number; when?: number } = {}) => {
@@ -472,7 +474,15 @@ function step(c: AudioContext, m: Mus, n: number, at: number) {
     ].forEach(([h, a, d]) => voice(fr * h, "sine", 0.07 * vel * a, 0.004, dur * d, 4200, { wet: 0.38, when }));
   };
   /** Pluck da spot: sega filtrata che si chiude subito, con il respiro della cassa e un'eco. */
-  const pluck = (k: number, vel: number) => voice(N(k), "sawtooth", 0.07 * vel, 0.003, 0.32, 3400, { wet: 0.25, echo: 0.18, det: [-8, 8], pumped: true, lpEnd: 380 });
+  const pluck = (k: number, vel: number) => voice(N(k), "sawtooth", 0.06 * vel, 0.004, 0.38, 3000, { wet: 0.3, echo: 0.18, det: [-12, 0, 12], pumped: true, lpEnd: 500 });
+  /** la melodia a due voci: nota e terza sotto, mai una nota sola */
+  const duet = (minor: boolean, how: "piano" | "pluck" | "both", vel = 1) => {
+    const m = melAt(minor, bar, s);
+    if (!m) return;
+    const long = s === 0 ? 1.4 : 0.6;
+    if (how !== "pluck") m.forEach((k, i) => piano(k, (i ? 0.55 : 0.8) * vel, long, i * 0.006));
+    if (how !== "piano") m.forEach((k, i) => pluck(k, (i ? 0.6 : 0.85) * vel));
+  };
   const pad = (lp: number, lpEnd: number, peak = 0.026, pumped = false) =>
     ch.notes.forEach((k) => voice(N(k), "sawtooth", peak, 0.35, 2.1, lp, { wet: 0.55, det: [-10, 10], pumped, lpEnd }));
   const sub = (peak: number, dec: number, oct = 0) => voice(N(ch.root + 12 * oct), "sine", peak, 0.008, dec, 400, { wet: 0 });
@@ -493,6 +503,8 @@ function step(c: AudioContext, m: Mus, n: number, at: number) {
     impact(1);
     [36, 48, 55, 60, 64, 67, 71, 74].forEach((k, i) => (k < 50 ? voice(N(k), "sine", 0.2, 0.01, 4.5, 300, { wet: 0.4 }) : piano(k, 1.1, 4, i * 0.012)));
     PROG.c[0].notes.forEach((k) => voice(N(k), "sawtooth", 0.03, 0.4, 4.5, 1200, { wet: 0.7, det: [-10, 10], lpEnd: 400 }));
+    piano(78, 0.8, 4, 0.05);
+    piano(74, 0.7, 4, 0.06);
     return;
   }
   if (mood === "stop") {
@@ -506,8 +518,7 @@ function step(c: AudioContext, m: Mus, n: number, at: number) {
       ch.notes.forEach((k, i) => piano(k, 0.9, 2.2, i * 0.025));
       sub(0.12, 1.8, 1);
     }
-    if (s === 8) piano(ch.notes[ch.notes.length - 1] + 12, 0.6, 1.2);
-    if (s === 12) piano(ch.notes[1] + 12, 0.45, 1);
+    duet(false, "piano", 0.7);
     return;
   }
 
@@ -525,7 +536,7 @@ function step(c: AudioContext, m: Mus, n: number, at: number) {
     // cuore: due colpi
     if (tense && (s === 0 || s === 3)) kickAt(c, m.out, at, s === 0 ? 0.75 : 0.5);
     if (!tense && s === 0) kickAt(c, m.out, at, 0.45);
-    if (!tense && s === 8) piano(ch.notes[2] + 12, 0.5, 1.4);
+    if (s === 0 || s === 10) duet(true, "piano", tense ? 0.55 : 0.65);
     return;
   }
 
@@ -538,6 +549,7 @@ function step(c: AudioContext, m: Mus, n: number, at: number) {
     if (s === 0) sub(0.15, 1.6);
     if (bar >= 1 && s % 4 === 0) kickAt(c, m.out, at, 0.7);
     if (s === 12) noiseHit("highpass", 2000, 0.6, 0.05, 0.5);
+    duet(false, "piano", 0.8);
     return;
   }
 
@@ -559,11 +571,7 @@ function step(c: AudioContext, m: Mus, n: number, at: number) {
     voice(N(ch.root + 12), "sine", 0.17, 0.006, 0.22, 600, { wet: 0 });
     voice(N(ch.root + 12), "sawtooth", 0.05, 0.006, 0.2, 700, { wet: 0, lpEnd: 180 });
   }
-  const mel = MEL[bar % 8][s];
-  if (mel !== undefined) {
-    if (drive) pluck(mel, 1);
-    else piano(mel, 0.9, 1.2);
-  }
+  duet(false, drive ? "both" : "piano", drive ? 1 : 0.9);
   if (!drive && s === 0) ch.notes.forEach((k, i) => piano(k, 0.5, 1.8, i * 0.02));
   if (s === 0 && bar % 4 === 0) noiseHit("highpass", 5200, 0.5, 0.08, 1.4);
 }
