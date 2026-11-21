@@ -140,7 +140,7 @@ const IT: Record<ServiceKey, Body> = {
       ["Quanto tempo ci vuole?", "Un sito di presentazione richiede in genere poche settimane, uno strumento su misura qualche mese. I tempi precisi sono nel preventivo, divisi in tappe."],
       ["Devo preparare io testi e foto?", "Se li hai, parto da quelli. Altrimenti ti aiuto a scriverli e a scegliere le immagini giuste."],
       ["E dopo la messa online?", "Il sito è tuo. Se vuoi me ne occupo io con un canone mensile: aggiornamenti, sicurezza e piccole modifiche."],
-      ["Userete un modello già pronto?", "No. Ogni sito è disegnato intorno alla tua attività, alla tua storia e al tuo lavoro. Niente modelli copiati."],
+      ["Userete un modello già pronto?", "No. Ogni sito è disegnato intorno alla tua attività, alla tua storia e al tuo lavoro: un progetto unico, non un template."],
       ["Come funziona l’assistente su WhatsApp?", "È una chat con il tuo assistente: gli chiedi di cambiare una parola, una foto o un orario, come sta andando il sito e chi ha chiesto di essere ricontattato."],
       ["Mi troverò primo su Google?", "Nessuno può garantirlo. Il sito nasce veloce, chiaro e in ordine, con le informazioni che Google e gli assistenti di intelligenza artificiale leggono: è la base per farsi trovare."],
     ],

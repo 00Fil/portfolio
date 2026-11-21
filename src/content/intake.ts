@@ -115,6 +115,9 @@ export function personalize(c: Cinema, a: Answers | null, en: boolean): Cinema {
     out.cap = c.cap.map((t, i) => (i === 1 ? (en ? "They look for you, but *can’t find you*." : "Ti cerca, ma *non ti trova*.") : i === 2 ? (en ? "With your site, *fast*. They find you." : "Con il tuo sito, *veloce*. Ti trova.") : t));
     out.find = { ...out.find, loading: en ? "No results" : "Nessun risultato", a: en ? "Without a site, they can’t find you: they pick another." : "Senza un sito non ti trova: ne sceglie un altro." };
     out.seo = { ...c.seo, cap: en ? "With your site, you’re *among the first*." : "Con il tuo sito, *tra i primi risultati*." };
+    // senza sito, il film racconta un'altra storia: tra i risultati non ci sei, e il cliente chiama il concorrente
+    out.say = c.say.map((t, i) => (i === 1 ? (en ? "You’re *not there*." : "Non ci *sei*.") : i === 2 ? (en ? "You lost a *!customer*, without even knowing." : "Hai perso un *!cliente*, senza nemmeno saperlo.") : t));
+    out.far = { ...out.far, mine: en ? "Bianchi & Sons · Official site" : "Bianchi & Figli · Sito ufficiale" };
   }
   return out;
 }

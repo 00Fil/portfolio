@@ -17,12 +17,15 @@ def load(path, ch):
     raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", path, "-ac", str(ch), "-ar", str(SR), "-f", "f32le", "-"], capture_output=True, check=True).stdout
     return np.frombuffer(raw, dtype=np.float32).reshape(-1, ch).copy()
 
-vo = load(os.path.join(HERE, "voice", "vo-it.mp3"), 1)[:, 0]
-WORDS = os.path.join(HERE, "voice", "vo-it-words.json")
+# variante del film: "" (ha già un sito) oppure "none" (non ha un sito): FILM_VAR=none python3 scripts/film-voice.py ...
+VAR = os.environ.get("FILM_VAR", "")
+SUF = f"-{VAR}" if VAR else ""
+vo = load(os.path.join(HERE, "voice", f"vo-it{SUF}.mp3"), 1)[:, 0]
+WORDS = os.path.join(HERE, "voice", f"vo-it{SUF}-words.json")
 # prima parola di ogni frase del copione
 B = [0, 17, 35, 43, 52, 61, 75, 84, 94, 108, 117, 128, 152, 163, 185, 194]
 # correzioni a mano dove whisper sbaglia l'attacco (secondi nella ripresa)
-FIX = {43: 15.22}  # «Si stanca»: prima c'è il sospiro
+FIX: dict[int, float] = {}
 
 w = int(0.01 * SR)
 e = np.array([np.sqrt(np.mean(vo[i:i + w] ** 2)) for i in range(0, len(vo) - w, w)])
@@ -41,7 +44,7 @@ def gap(t0, t1):
     return best[0] / 100, best[1] / 100
 
 if len(sys.argv) > 1 and sys.argv[1] == "cut":
-    W = json.load(open("/tmp/vo-words.json"))
+    W = json.load(open(f"/tmp/vo-words{SUF}.json"))
     json.dump(W, open(WORDS, "w"))
     s, en = [], []
     for k, b in enumerate(B):
@@ -58,7 +61,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "cut":
             a = FIX.get(i, a)
             z = min(W[i][1], p1) if i == nb - 1 else min(W[i][1], W[i + 1][0])
             s.append(round(a, 2)); en.append(round(max(z, a + 0.08), 2))
-    out = os.path.join(HERE, "..", "src", "components", "services", "film-words.ts")
+    out = os.path.join(HERE, "..", "src", "components", "services", f"film-words{SUF}.ts")
     open(out, "w").write(
         "// Scritto da scripts/film-voice.py cut: inizio e fine di ogni parola nella ripresa della voce (secondi).\n"
         f"export const VW = {{ s: {json.dumps(s)}, e: {json.dumps(en)} }};\n"
@@ -68,7 +71,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "cut":
 
 W = json.load(open(WORDS))
 music = load(os.path.join(HERE, "..", "public", "sfx", "film-web.mp3"), 2)
-pieces = json.load(open("/tmp/film-marks.json"))["vo"]  # [[parola, spostamento], ...] in ordine
+pieces = json.load(open(f"/tmp/film-marks{SUF}.json"))["vo"]  # [[parola, spostamento], ...] in ordine
 cuts = []
 for i, (s, off) in enumerate(pieces):
     a = FIRST - 0.04 if s == 0 else gap(W[s - 1][1] - 0.15, W[s][0] + 0.6)[1] - 0.04
@@ -98,6 +101,6 @@ duck = np.convolve(duck, np.ones(k) / k, mode="same")
 mix = music / (np.max(np.abs(music)) + 1e-9) * 0.42 * duck[:, None] + voice[:, None] * 0.92
 mix = np.tanh(mix * 1.15) / np.tanh(1.15) * 0.95
 raw = "/tmp/film-it.f32"; mix.astype(np.float32).tofile(raw)
-out = os.path.join(HERE, "..", "public", "sfx", "film-web-it.mp3")
+out = os.path.join(HERE, "..", "public", "sfx", f"film-web-it{SUF}.mp3")
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "f32le", "-ar", str(SR), "-ac", "2", "-i", raw, "-b:a", "192k", out], check=True)
 print("ok")

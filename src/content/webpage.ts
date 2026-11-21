@@ -26,7 +26,7 @@ const IT: WebCopy = {
   },
   bento: {
     title: "Tutto quello che serve a chi ti cerca, *già dentro*.",
-    lead: "Niente pezzi da mettere insieme: un sito completo, disegnato intorno alla tua attività. Niente modelli copiati.",
+    lead: "Niente pezzi da mettere insieme: un sito completo, disegnato intorno alla tua attività. Un progetto unico, non un template.",
     cells: {
       speed: ["Si apre all’istante", "Chi aspetta si stanca e chiama il concorrente. Il tuo sito carica subito, anche da telefono con poco segnale."],
       screens: ["Perfetto su ogni schermo", "Telefono, tablet e computer: sempre leggibile e comodo da usare."],

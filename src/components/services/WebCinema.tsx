@@ -11,13 +11,14 @@ import type { Locale } from "@/i18n/routing";
 import { prefersReducedMotion } from "@/lib/env";
 import { onIntroLift } from "@/lib/intro";
 import { soundOn, onSound, setSound } from "@/lib/sound";
-import { fx, filmMute, cue, BPM, type Mood } from "@/lib/filmsound";
+import { fx, filmMute, cue, setFilmVariant, BPM, type Mood } from "@/lib/filmsound";
 import { getLenis, scrollToY } from "@/lib/scroll";
 import { Bead } from "@/components/glass/Bead";
 import { Wordmark } from "@/components/nav/Wordmark";
 import { GradientText } from "@/components/ui/GradientText";
 import { getCinema, type Cinema } from "@/content/cinema";
-import { VW } from "./film-words";
+import { VW as VW_SITE } from "./film-words";
+import { VW as VW_NONE } from "./film-words-none";
 import { FilmIntake } from "./FilmIntake";
 import { personalize, type Answers } from "@/content/intake";
 import { AppIcon } from "@/components/chat/ChatDock";
@@ -448,6 +449,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       saved = JSON.parse(sessionStorage.getItem("film-intake") ?? "null");
     } catch {}
     if (saved) {
+      setFilmVariant(saved.site === "none" ? "none" : "");
       setAns(saved);
       setRun((r) => r + 1);
       return;
@@ -458,6 +460,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
   }, []);
   /** Le risposte (o nessuna, se salta) entrano nelle scritte, il video si ricostruisce e parte. */
   const begin = (a: Answers | null, withSound: boolean) => {
+    setFilmVariant(a?.site === "none" ? "none" : "");
     if (withSound) {
       setSound(true);
       F.preload();
@@ -1343,6 +1346,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
          Dove una scena ha bisogno di respiro, la ripresa si apre in un silenzio (GAP): la voce resta quella vera, mai accelerata. */
       // secondi di respiro aggiunti prima di una parola (sempre in una pausa della ripresa)
       const GAP: Record<number, number> = { 33: 0.5, 35: 0.4, 52: 0.5, 61: 0.6, 65: 0.6, 75: 0.8, 94: 0.6, 114: 0.6, 117: 0.3, 125: 0.35, 128: 0.6, 152: 0.9, 163: 0.5, 174: 0.5, 194: 0.4 };
+      const noSite = ans?.site === "none";
+      const VW = noSite ? VW_NONE : VW_SITE;
       const offs: number[] = [];
       {
         let acc = 0.35;
@@ -1369,6 +1374,30 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const I = (i: number, at: number[], end: number): Say => ({ el: inl[i], u: inlU[i], at, end, inScene: true });
       inl.forEach((e, i) => (e.dataset.t = [c.far.tired, c.far.open, c.far.stays][i].replace(/[*!^~]/g, "")));
       one("[data-eh]").dataset.t = c.end.t.replace(/[*!^~]/g, "");
+      // senza sito il cliente non apre niente di tuo: la finestra parte già sui risultati di Google
+      const noSiteBack = (t: number) =>
+        mt
+          .set(chrome, { autoAlpha: 1, y: 0 }, t)
+          .set([oldEl, one("[data-rival]"), spin, stop, meter], { autoAlpha: 0 }, t)
+          .set([one("[data-gres]"), fav, rl, tt1], { autoAlpha: 1 }, t)
+          .call(() => void ((one("[data-url1]").textContent = c.find.typed), (tt1.textContent = c.find.typed)), undefined, t);
+      // la parte della storia prima del nostro intervento cambia con le risposte: con il sito lento, oppure senza sito
+      const story: (Say | Scn)[] = noSite
+          ? [
+              // senza sito: la lista scorre e tu non ci sei; poi sceglie il primo e apre il concorrente
+              { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(25)], [0.8 + 3.4, w(32, 0.15)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4, "si ferma: tu non ci sei"]], after: (t: number) => void (mt.set(one("[data-far]"), { autoAlpha: 0 }, t), noSiteBack(t)) },
+              S(1, [33, 34, 34], w(35, -0.5)),
+              { sub: back, map: [[0.7, AUTO], [1.2, w(41)], [1.38, w(51)], [END, w(51, 0.6)]], marks: [[1.28, "clic sul concorrente"], [1.38, "si apre il concorrente"]], after: (t: number) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
+              S(2, [52, 53, 54, 55, 56, 57, 58], we(58, 0.25), "stop"),
+            ]
+          : [
+            { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(25)], [0.8 + 3.4, w(32, 0.15)], [END, w(33, -0.4)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
+            S(1, [33, 34, 34], w(35, -0.5)),
+            { sub: slowTl, map: [[0, AUTO], [2.8, w(43, -0.58)], [END, w(45, -0.26)]], mood: "tense", still: true, marks: [[0, "il tuo sito carica a pacchetti, zoom in continuo"], [2.8, "sospiro: zoom indietro brusco"]] },
+            I(0, [43, 44], w(45, -0.4)),
+            { sub: back, still: true, map: [[0, w(45, -0.25)], [0.58, w(46)], [1.2, w(49)], [1.38, w(51)], [END, w(51, 0.6)]], marks: [[0.58, "clic su indietro"], [1.28, "clic sul concorrente"], [1.38, "si apre il concorrente"]], after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
+              S(2, [52, 53, 54, 55, 56, 57, 58, 59, 60], we(60, 0.25), "stop"),
+            ];
       const ch: (Say | Scn)[] = [
         // prima del nostro intervento
         S(0, [0, 2, 3], w(4, -0.02), "calm", true),
@@ -1376,12 +1405,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         S(11, [8, 9, 10, 11, 12], w(13, -0.02), "calm", true),
         S(12, [13, 14, 15, 16], we(16, -0.2), "calm", true),
         { seg: [0, T(3.5)], map: [[0, AUTO], [T(0.9), w(17)], [T(3.3), w(21, -0.1)], [T(3.5), w(21, 0.05)]], marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
-        { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(25)], [0.8 + 3.4, w(32, 0.15)], [END, w(33, -0.4)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
-        S(1, [33, 34, 34], w(35, -0.5)),
-        { sub: slowTl, map: [[0, AUTO], [2.8, w(43, -0.58)], [END, w(45, -0.26)]], mood: "tense", still: true, marks: [[0, "il tuo sito carica a pacchetti, zoom in continuo"], [2.8, "sospiro: zoom indietro brusco"]] },
-        I(0, [43, 44], w(45, -0.4)),
-        { sub: back, map: [[0, w(45, -0.25)], [0.58, w(46)], [1.2, w(49)], [1.38, w(51)], [END, w(51, 0.6)]], marks: [[0.58, "clic su indietro"], [1.28, "clic sul concorrente"], [1.38, "si apre il concorrente"]], after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
-        S(2, [52, 53, 54, 55, 56, 57, 58, 59, 60], we(60, 0.25), "stop"),
+        ...story,
         // con il nuovo sito
         S(3, [61, 62, 63, 64], we(64, 0.1), "rise"),
         { sub: seoTl, map: [[0, AUTO], [1.2, w(67)], [2.4, w(71)], [3.6, w(74)], [3.6 + 0.75, w(75, -0.06)], [3.6 + 0.9, w(75, 0.05)], [3.6 + 0.95, w(75, 0.1)], [3.6 + 1.32, w(75, 0.42)], [END, we(93, 0.25)]], still: true, marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"], [3.6 + 0.9, "clic sul tuo risultato"], [3.6 + 1.32, "il sito nuovo appare"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t).set(meter, { autoAlpha: 0 }, t) },
@@ -1746,7 +1770,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                     {c.find.typed}
                   </div>
                   <div className="mt-[6cqh] flex flex-col gap-[5cqh]">
-                    {[...c.find.others, c.find.me].map(([t, u], i) => (
+                    {[...c.find.others, ...(ans?.site === "none" ? [] : [c.find.me])].map(([t, u], i) => (
                       <div key={u} data-gr={i}>
                         <span className="block text-[clamp(10px,3cqh,13px)] text-[#4d5156]">https://{u}</span>
                         <span data-grt className="inline-block text-[clamp(14px,5cqh,22px)] text-[#1a0dab] underline-offset-4">
@@ -1825,7 +1849,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                   <div data-fl className="relative flex flex-col gap-[30px] pb-[200px] pl-[118px] pt-2 will-change-transform">
                     <Veil data-veil />
                     {Array.from({ length: FAR_N }, (_, i) => (i === FAR_N - 1 ? c.find.me : c.far.list[i % c.far.list.length])).map(([t, u], i) => (
-                      <GResult key={i} data-fr me={i === FAR_N - 1} name={t} url={u} title={i === FAR_N - 1 ? c.far.mine : `${t} · ${c.far.title}`} snip={c.far.snip} />
+                      <GResult key={i} data-fr me={i === FAR_N - 1 && ans?.site !== "none"} name={t} url={u} title={i === FAR_N - 1 ? c.far.mine : `${t} · ${c.far.title}`} snip={c.far.snip} />
                     ))}
                   </div>
                   <div data-streak aria-hidden className="pointer-events-none absolute inset-0" style={{ opacity: 0 }}>

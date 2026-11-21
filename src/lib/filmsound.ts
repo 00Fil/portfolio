@@ -212,7 +212,17 @@ export const fx = {
 
 /* Il brano vero del film (generato e prodotto fuori): se il file c'è, sostituisce la musica sintetizzata. */
 /** in italiano il brano ha anche la voce narrante (Antonio Farina, ElevenLabs), mixata sopra la musica */
-const trackUrl = () => (typeof document !== "undefined" && document.documentElement.lang === "it" ? "/sfx/film-web-it.mp3" : "/sfx/film-web.mp3");
+let variant = "";
+/** La versione del film (chi non ha un sito ne vede e ne sente un'altra): cambia il brano da scaricare. */
+export function setFilmVariant(v: string) {
+  if (v === variant) return;
+  variant = v;
+  stopTrack();
+  trackBuf = null;
+  trackMissing = false;
+  trackLoading = false;
+}
+const trackUrl = () => (typeof document !== "undefined" && document.documentElement.lang === "it" ? `/sfx/film-web-it${variant ? `-${variant}` : ""}.mp3` : "/sfx/film-web.mp3");
 let trackBuf: AudioBuffer | null = null;
 let trackLoading = false;
 let trackMissing = false;
@@ -222,10 +232,11 @@ function useTrack(c: AudioContext) {
   if (trackBuf) return true;
   if (!trackLoading && !trackMissing) {
     trackLoading = true;
-    fetch(trackUrl())
+    const want = trackUrl();
+    fetch(want)
       .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject()))
       .then((a) => c.decodeAudioData(a))
-      .then((b) => void (trackBuf = b))
+      .then((b) => void (want === trackUrl() && (trackBuf = b)))
       .catch(() => void (trackMissing = true))
       .finally(() => void (trackLoading = false));
   }
