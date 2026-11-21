@@ -1,4 +1,5 @@
 import { gsap } from "gsap";
+import NAME_PEN from "./name-pen.json";
 
 /**
  * Il corsivo del marchio si scrive davvero a mano: la parola viene disegnata su un canvas con lo stesso font,
@@ -11,8 +12,10 @@ const PAD = 40;
 const BASE = 150;
 
 type Pt = [number, number, number?];
-type Stroke = { pts: Pt[]; start: number };
-type Skel = { strokes: Stroke[]; dots: { x: number; y: number; r: number; at: number }[]; total: number; w: number };
+type Item = { p?: number[][]; d?: number[]; t: number[] };
+type Skel = { items: Item[]; total: number; w: number };
+/** Il nome ha la sua penna disegnata a mano (ordine dei tratti, ritorni sul già scritto più veloci): niente calcolo automatico. */
+const PEN = NAME_PEN as Record<string, Skel>;
 const cache = new Map<string, Skel>();
 let fontsReady = false;
 
@@ -188,28 +191,24 @@ function build(text: string, family: string): Skel {
       return [sx / (2 * k + 1), sy / (2 * k + 1)] as Pt;
     });
   };
-  const strokes: Stroke[] = [];
+  const items: Item[] = [];
   let total = 0;
+  const strokes: { pts: Pt[]; start: number }[] = [];
   for (const ln of lines) {
     if (ln.length < 2) continue;
     const pts = smooth(ln.map((n) => [(X(n) + 0.5 - PAD) / S, (Y(n) + 0.5 - BASE) / S] as Pt));
-    strokes.push({ pts, start: total });
-    for (let k = 1; k < pts.length; k++) total += Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]);
+    const t = [total];
+    for (let k = 1; k < pts.length; k++) { total += Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]); t.push(total); }
+    strokes.push({ pts, start: t[0] });
+    items.push({ p: pts as number[][], t });
   }
-  // i puntini compaiono interi, appena la penna passa dal gambo della loro lettera
-  const dts = dots.map((dt) => {
+  for (const dt of dots) {
     const dx = (dt[0] - PAD) / S, dy = (dt[1] - BASE) / S;
     let at = total;
-    for (const st of strokes) {
-      let L = st.start;
-      for (let k = 0; k < st.pts.length; k++) {
-        if (k) L += Math.hypot(st.pts[k][0] - st.pts[k - 1][0], st.pts[k][1] - st.pts[k - 1][1]);
-        if (Math.abs(st.pts[k][0] - dx) < 0.14 && st.pts[k][1] > dy) at = L;
-      }
-    }
-    return { x: dx, y: dy, r: (dt[2] + 1.5) / S, at };
-  });
-  const out: Skel = { strokes, dots: dts, total, w: (2 * (half * 1.3 + 2.5)) / S };
+    for (const it of items) it.p!.forEach((q, k) => { if (Math.abs(q[0] - dx) < 0.14 && q[1] > dy) at = it.t[k]; });
+    items.push({ d: [dx, dy, (dt[2] + 1.5) / S], t: [at, at + 0.03] });
+  }
+  const out: Skel = { items, total, w: (2 * (half * 1.3 + 2.5)) / S };
   cache.set(key, out);
   return out;
 }
@@ -254,31 +253,30 @@ function render(e: HTMLElement, p: number) {
   ctx.strokeStyle = ctx.fillStyle = "#000";
   ctx.lineCap = ctx.lineJoin = "round";
   ctx.lineWidth = sk.w * fs;
-  const Lw = p * sk.total;
-  const px = (q: Pt): [number, number] => [(ox + q[0]) * fs, (by + q[1]) * fs];
-  for (const s of sk.strokes) {
-    if (Lw <= s.start) break;
-    let L = s.start;
+  const T = p * sk.total;
+  const px = (x: number, y: number): [number, number] => [(ox + x) * fs, (by + y) * fs];
+  for (const it of sk.items) {
+    if (T <= it.t[0]) continue;
+    if (it.d) {
+      const f = Math.min(1, (T - it.t[0]) / Math.max(1e-4, it.t[1] - it.t[0]));
+      const [x, y] = px(it.d[0], it.d[1]);
+      ctx.beginPath();
+      ctx.arc(x, y, it.d[2] * fs * (0.35 + 0.65 * f), 0, Math.PI * 2);
+      ctx.fill();
+      continue;
+    }
+    const P = it.p!, t = it.t;
     ctx.beginPath();
-    ctx.moveTo(...px(s.pts[0]));
-    for (let k = 1; k < s.pts.length; k++) {
-      const g = Math.hypot(s.pts[k][0] - s.pts[k - 1][0], s.pts[k][1] - s.pts[k - 1][1]);
-      if (L + g >= Lw) {
-        const f = g ? (Lw - L) / g : 1;
-        ctx.lineTo(...px([s.pts[k - 1][0] + (s.pts[k][0] - s.pts[k - 1][0]) * f, s.pts[k - 1][1] + (s.pts[k][1] - s.pts[k - 1][1]) * f]));
+    ctx.moveTo(...px(P[0][0], P[0][1]));
+    for (let k = 1; k < P.length; k++) {
+      if (t[k] >= T) {
+        const f = (T - t[k - 1]) / Math.max(1e-6, t[k] - t[k - 1]);
+        ctx.lineTo(...px(P[k - 1][0] + (P[k][0] - P[k - 1][0]) * f, P[k - 1][1] + (P[k][1] - P[k - 1][1]) * f));
         break;
       }
-      L += g;
-      ctx.lineTo(...px(s.pts[k]));
+      ctx.lineTo(...px(P[k][0], P[k][1]));
     }
     ctx.stroke();
-  }
-  for (const d of sk.dots) {
-    if (Lw < d.at) continue;
-    const [x, y] = px([d.x, d.y]);
-    ctx.beginPath();
-    ctx.arc(x, y, d.r * fs, 0, Math.PI * 2);
-    ctx.fill();
   }
   const url = `url(${cv.toDataURL()})`;
   for (const k of ["", "-webkit-"]) {
@@ -295,8 +293,8 @@ export function prepareWrite(el: Element) {
   const go = () => {
     const m = measure(e);
     if (!m.text) return;
-    const sk = build(m.text, m.family);
-    if (!sk.strokes.length) return;
+    const sk = PEN[m.text] ?? build(m.text, m.family);
+    if (!sk.items.length) return;
     const cv = state.get(e)?.cv ?? document.createElement("canvas");
     cv.width = Math.ceil(e.offsetWidth);
     cv.height = Math.ceil(e.offsetHeight);
