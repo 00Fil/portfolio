@@ -18,7 +18,6 @@ import { Wordmark } from "@/components/nav/Wordmark";
 import { GradientText } from "@/components/ui/GradientText";
 import { getCinema, type Cinema } from "@/content/cinema";
 import { VW } from "./film-words";
-import { writeOn } from "@/lib/handwrite";
 import { AppIcon } from "@/components/chat/ChatDock";
 
 gsap.registerPlugin(SplitText, useGSAP);
@@ -1341,12 +1340,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const ts = k.u.map((_, j) => (n === k.at.length ? w(k.at[j], -0.06) : n < 2 ? t0 : t0 + ((t1 - t0) * j) / (n - 1)));
         mt.set(k.el, { autoAlpha: 1 }, t0);
         k.u.forEach((x, j) => {
-          const kw = x.hasAttribute("data-kw");
-          if (kw) {
-            // il corsivo si scrive a mano, nel tempo in cui la voce dice la parola
-            mt.fromTo(x, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.05 }, ts[j]);
-            writeOn(mt, x, ts[j]);
-          } else mt.fromTo(x, { autoAlpha: 0, yPercent: 45, filter: "blur(8px)" }, { autoAlpha: 1, yPercent: 0, filter: "blur(0px)", duration: 0.42, ease: "power3.out" }, ts[j]);
+          mt.fromTo(x, { autoAlpha: 0, yPercent: 45, filter: "blur(8px)" }, { autoAlpha: 1, yPercent: 0, filter: "blur(0px)", duration: 0.42, ease: "power3.out" }, ts[j]);
         });
         mt.call(() => F.whoosh(0.45, true, 0.3), undefined, t0);
         marks.push({ t: t0, what: `frase: ${k.el.dataset.t ?? k.el.textContent}` });

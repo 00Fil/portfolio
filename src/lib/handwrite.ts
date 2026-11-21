@@ -162,11 +162,15 @@ function build(text: string, family: string): Skel {
       lx = x; ly = y;
     }
   }
-  // i puntini: dopo l'assottigliamento spariscono, ma il punto è più largo del tratto
+  // i puntini: dopo l'assottigliamento spariscono, ma il punto è più largo del tratto; si fanno subito dopo il gambo della loro lettera
   for (const dt of dots) {
-    pts.push([(dt[0] - PAD) / S, (dt[1] - BASE) / S]);
-    const ring = Math.max(0, dt[2] - r);
-    if (ring > 1) for (let k = 0; k < 6; k++) pts.push([(dt[0] + Math.cos((k * Math.PI) / 3) * ring - PAD) / S, (dt[1] + Math.sin((k * Math.PI) / 3) * ring - BASE) / S]);
+    const dx = (dt[0] - PAD) / S, dy = (dt[1] - BASE) / S;
+    const add: Pt[] = [[dx, dy]];
+    const ring = Math.max(0, dt[2] - r) / S;
+    if (ring > 0.01) for (let k = 0; k < 6; k++) add.push([dx + Math.cos((k * Math.PI) / 3) * ring, dy + Math.sin((k * Math.PI) / 3) * ring]);
+    let at = -1;
+    pts.forEach((q, k) => { if (Math.abs(q[0] - dx) < 0.14 && q[1] > dy) at = k; });
+    pts.splice(at < 0 ? pts.length : at + 1, 0, ...add);
   }
   for (let k = 1; k < pts.length; k++) {
     const g = Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]);

@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
 import { settled } from "@/lib/intro";
+import { prepareWrite, writeOn, writeTime } from "@/lib/handwrite";
 
 /** Attesa massima per ciò che serve alla prima schermata, oltre l'ingresso del nome. */
 const MAX_WAIT_MS = 1000;
@@ -48,10 +50,17 @@ export function Preloader({ label }: { label: string }) {
     }
     if (html.dataset.intro !== "run") return;
 
-    // l'ingresso del nome è già partito in CSS: si aspetta che ogni lettera abbia davvero finito
-    // (le animazioni partono col primo disegno, non dall'inizio della navigazione) e che la pagina sia pronta
-    const letters = Array.from(el.querySelectorAll(".pre-ch")).flatMap((c) => c.getAnimations?.() ?? []);
-    const entered = letters.length ? Promise.all(letters.map((a) => a.finished.catch(() => undefined))) : wait((0.12 + total * STAGGER + 1.1) * 1000);
+    // il nome si scrive a mano, una parola dopo l'altra; poi si aspetta che la pagina sia pronta
+    const spans = Array.from(el.querySelectorAll<HTMLElement>(".pre-ch"));
+    const tl = gsap.timeline();
+    let at = 0.2;
+    spans.forEach((sp) => {
+      prepareWrite(sp);
+      const d = writeTime(sp);
+      writeOn(tl, sp, at, d);
+      at += d + 0.1;
+    });
+    const entered = new Promise<void>((r) => tl.call(r, undefined, at + 0.3));
     const ready = entered.then(() => Promise.race([Promise.all([document.fonts?.ready, loaded()]).then(settled), wait(MAX_WAIT_MS)]));
     ready.then(() => {
       if (!alive) return;
@@ -59,13 +68,16 @@ export function Preloader({ label }: { label: string }) {
       el.classList.add("pre-out");
       window.setTimeout(finish, 1200);
     });
-    return () => void (alive = false);
+    return () => {
+      alive = false;
+      tl.kill();
+    };
   }, [total]);
 
   /* la parola intera in un solo pezzo: il font del marchio collega le lettere, separarle le sfalserebbe */
   let k = 0;
   const chars = (s: string, light = false) => (
-    <span className={`pre-ch inline-block ${light ? "font-normal" : ""}`} style={{ ["--i" as string]: (k += 5) }}>
+    <span data-script className={`pre-ch inline-block ${light ? "font-normal" : ""}`} style={{ ["--i" as string]: (k += 5) }}>
       {s}
     </span>
   );
