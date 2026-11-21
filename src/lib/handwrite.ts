@@ -240,16 +240,23 @@ function measure(el: HTMLElement) {
   return { family: cs.fontFamily, ox, by, fs, text: (tn?.textContent ?? el.textContent ?? "").trim() };
 }
 
-type St = { sk: Skel; ox: number; by: number; fs: number; cv: HTMLCanvasElement };
+type St = { sk: Skel; ox: number; by: number; fs: number; cv: HTMLCanvasElement; text: string; font: string; color: string; dpr: number };
 const state = new WeakMap<HTMLElement, St>();
 
-/** Disegna sul canvas il tratto scritto fino a p (0..1) e lo mette come maschera della parola. */
+/**
+ * Mentre scrive, la parola vera è nascosta e al suo posto c'è un canvas alla risoluzione dello schermo:
+ * la stessa parola, stesso font e stessa posizione, ritagliata dal tratto della penna fino a p (0..1).
+ * Alla fine il canvas sparisce e torna il testo: identico, nessuno scatto.
+ */
 function render(e: HTMLElement, p: number) {
   const st = state.get(e);
   if (!st) return;
-  const { sk, ox, by, fs, cv } = st;
+  const { sk, ox, by, fs, cv, dpr } = st;
   const ctx = cv.getContext("2d")!;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalCompositeOperation = "source-over";
   ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.strokeStyle = ctx.fillStyle = "#000";
   ctx.lineCap = ctx.lineJoin = "round";
   ctx.lineWidth = sk.w * fs;
@@ -278,12 +285,19 @@ function render(e: HTMLElement, p: number) {
     }
     ctx.stroke();
   }
-  const url = `url(${cv.toDataURL()})`;
-  for (const k of ["", "-webkit-"]) {
-    e.style.setProperty(k + "mask-image", url);
-    e.style.setProperty(k + "mask-size", "100% 100%");
-    e.style.setProperty(k + "mask-repeat", "no-repeat");
-  }
+  ctx.globalCompositeOperation = "source-in";
+  ctx.fillStyle = st.color;
+  ctx.font = st.font;
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText(st.text, ox * fs, by * fs);
+}
+
+/** Toglie il canvas e rimette il testo vero. */
+function finish(e: HTMLElement) {
+  const st = state.get(e);
+  st?.cv.remove();
+  e.style.removeProperty("-webkit-text-fill-color");
+  clearMask(e);
 }
 
 /** Prepara la parola: calcola la linea di scrittura e la porta a «niente scritto». */
@@ -291,17 +305,27 @@ export function prepareWrite(el: Element) {
   const e = el as HTMLElement;
   if (!isScript(e) || typeof document === "undefined") return;
   const go = () => {
+    const prev = state.get(e);
+    if (prev?.cv.isConnected && e.dataset.wdone) return;
     const m = measure(e);
     if (!m.text) return;
     const sk = PEN[m.text] ?? build(m.text, m.family);
     if (!sk.items.length) return;
-    const cv = state.get(e)?.cv ?? document.createElement("canvas");
-    cv.width = Math.ceil(e.offsetWidth);
-    cv.height = Math.ceil(e.offsetHeight);
-    const had = state.has(e);
-    state.set(e, { sk, ox: m.ox, by: m.by, fs: m.fs, cv });
+    const cs = getComputedStyle(e);
+    const color = prev?.color ?? cs.color;
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    const cv = prev?.cv ?? document.createElement("canvas");
+    const w = e.offsetWidth, h = e.offsetHeight;
+    cv.width = Math.ceil(w * dpr);
+    cv.height = Math.ceil(h * dpr);
+    cv.setAttribute("aria-hidden", "true");
+    cv.style.cssText = `position:absolute;left:0;top:0;width:${w}px;height:${h}px;pointer-events:none`;
+    if (getComputedStyle(e).position === "static") e.style.position = "relative";
+    if (!cv.isConnected) e.appendChild(cv);
+    e.style.setProperty("-webkit-text-fill-color", "transparent");
+    state.set(e, { sk, ox: m.ox, by: m.by, fs: m.fs, cv, text: m.text, font: `${cs.fontStyle} ${cs.fontWeight} ${m.fs}px ${m.family}`, color, dpr });
     e.dataset.wlen = String(sk.total);
-    if (!had || !e.dataset.wp) render(e, 0);
+    render(e, Number(e.dataset.wp ?? 0));
   };
   go();
   if (!fontsReady && document.fonts) document.fonts.ready.then(() => { fontsReady = true; cache.clear(); go(); });
@@ -328,10 +352,10 @@ export const writeOn = (L: gsap.core.Timeline, el: Element, at: number, dur = wr
   const e = el as HTMLElement;
   if (isScript(e)) {
     prepareWrite(e);
-    e.dataset.wp = "1";
+    e.dataset.wp = "0";
     const pr = { p: 0 };
-    L.fromTo(pr, { p: 0 }, { p: 1, duration: dur, ease: "sine.inOut", onUpdate: () => render(e, pr.p) }, at);
-    L.call(() => clearMask(e), undefined, at + dur + 0.02);
+    L.fromTo(pr, { p: 0 }, { p: 1, duration: dur, ease: "sine.inOut", onUpdate: () => { e.dataset.wp = String(pr.p); render(e, pr.p); } }, at);
+    L.call(() => { e.dataset.wdone = "1"; finish(e); }, undefined, at + dur + 0.02);
     return L;
   }
   wipeStyle(e);
@@ -343,8 +367,8 @@ export const writeOnScroll = (els: Element[], delay = 0.3) => {
   els.forEach((e, i) => {
     const el = e as HTMLElement;
     prepareWrite(el);
-    el.dataset.wp = "1";
+    el.dataset.wp = "0";
     const pr = { p: 0 };
-    gsap.to(pr, { p: 1, duration: writeTime(el), ease: "sine.inOut", delay: delay + i * 0.18, onUpdate: () => render(el, pr.p), onComplete: () => clearMask(el) });
+    gsap.to(pr, { p: 1, duration: writeTime(el), ease: "sine.inOut", delay: delay + i * 0.18, onUpdate: () => { el.dataset.wp = String(pr.p); render(el, pr.p); }, onComplete: () => { el.dataset.wdone = "1"; finish(el); } });
   });
 };
