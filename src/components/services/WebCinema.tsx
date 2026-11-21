@@ -1413,7 +1413,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
          il computer, il tablet, il telefono, ogni messaggio) cadono sulla parola che li nomina: tra due parole la scena corre in modo uniforme.
          Dove una scena ha bisogno di respiro, la ripresa si apre in un silenzio (GAP): la voce resta quella vera, mai accelerata. */
       // secondi di respiro aggiunti prima di una parola (sempre in una pausa della ripresa)
-      const GAP: Record<number, number> = { 35: 0.3, 52: 0.35, 61: 0.4, 75: 0.6, 94: 0.4, 108: 0.3, 112: 0.2, 117: 0.2, 125: 0.25, 152: 0.5, 163: 0.35, 194: 0.3 };
+      const GAP: Record<number, number> = { 35: 0.3, 52: 0.35, 61: 0.4, 75: 0.6, 94: 0.4, 108: 0.3, 112: 0.2, 117: 0.2, 152: 0.5, 163: 0.35, 194: 0.3 };
       const noSite = ans?.site === "none";
       const VW = noSite ? VW_NONE : VW_SITE;
       const offs: number[] = [];
