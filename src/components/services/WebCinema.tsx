@@ -32,6 +32,7 @@ type Q = (s: string) => HTMLElement[];
 
 /** Le parole tra asterischi diventano parole chiave, riempite dal gradiente animato. Con "!" davanti (*!perso*) il gradiente è rosso: una cosa che si perde. */
 const GT_RED = ["#d92d20", "#ff6b5e", "#b42318", "#ff8a80"];
+const GT_VIOLET = ["#ff00ff", "#ffffff", "#5b00ff", "#ff00c9"];
 export function Kw({ text }: { text: string }) {
   const parts = text.split("*");
   // l'apostrofo resta attaccato alla parola evidenziata: «l'intelligenza» non va mai a capo dopo «l'»
@@ -40,7 +41,8 @@ export function Kw({ text }: { text: string }) {
     const m = /^[.,!?;:]+/.exec(parts[i + 1] ?? "");
     const red = p.startsWith("!");
     const plain = p.startsWith("^");
-    const w = red || plain ? p.slice(1) : p;
+    const violet = p.startsWith("~");
+    const w = red || plain || violet ? p.slice(1) : p;
     if (plain)
       return (
         <span key={i} data-kw className="inline-block font-semibold" style={{ padding: "0.1em 0.12em", margin: "-0.1em -0.12em" }}>
@@ -51,7 +53,7 @@ export function Kw({ text }: { text: string }) {
       );
     return (
       <span key={i} data-kw className="inline-block" style={{ ...(red ? { "--gt-glow-color": "#ff5a52" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.45em 0.34em 0.5em", margin: "-0.45em -0.34em -0.5em" }}>
-        <GradientText colors={red ? GT_RED : GT} animationSpeed={8} variant="flow" glow={1}>
+        <GradientText colors={red ? GT_RED : violet ? GT_VIOLET : GT} animationSpeed={8} variant="flow" glow={violet ? 0.8 : 1}>
           {w + (m ? m[0] : "")}
         </GradientText>
       </span>
@@ -990,14 +992,12 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .set([spin, stop], { autoAlpha: 1 }, 0)
         .set([fav, rl, tt2], { autoAlpha: 0 }, 0)
         .set(tt1, { autoAlpha: 1 }, 0)
-        .fromTo(rigEl, { scale: 1 }, { scale: 1.42, duration: 2.8, ease: "sine.inOut" }, 0)
-        .call(() => F.riser(1.4), undefined, 1.4);
+        .fromTo(rigEl, { scale: 1 }, { scale: 1.42, duration: 2.8, ease: "sine.inOut" }, 0);
       // arriva a pacchetti: un pezzo, poi un altro, di scatto; quando arriva la foto il testo salta giù; la foto resta a metà
       const pk = (els: HTMLElement[], t: number) =>
         slowTl
           .set(els, { autoAlpha: 1 }, t)
-          .fromTo(els, { y: -8 }, { y: 0, duration: 0.12, ease: "power3.out", immediateRender: false }, t)
-          .call(() => F.tick(0.45), undefined, t);
+          .fromTo(els, { y: -8 }, { y: 0, duration: 0.12, ease: "power3.out", immediateRender: false }, t);
       pk([os[0], os[1]], 0.25);
       pk([os[2]], 0.7);
       pk([os[3], otext], 1.15);
@@ -1005,12 +1005,10 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .set(oimg, { clipPath: "inset(0% 0% 66% 0%)" }, 1.65)
         .set(otext, { top: "74%" }, 1.65)
         .fromTo(otext, { y: -12 }, { y: 0, duration: 0.15, ease: "power3.out", immediateRender: false }, 1.65)
-        .call(() => F.tick(0.9), undefined, 1.65)
-        .set(oimg, { clipPath: "inset(0% 0% 34% 0%)" }, 2.2)
-        .call(() => F.tick(0.9), undefined, 2.2);
+        .set(oimg, { clipPath: "inset(0% 0% 34% 0%)" }, 2.2);
       pk([os[4]], 2.5);
       // il sospiro: un solo movimento continuo che torna indietro, senza scatti né rimbalzi
-      slowTl.to(rigEl, { scale: 1, duration: 1.25, ease: "sine.inOut" }, 2.8).call(() => F.sigh(1), undefined, 2.8).set({}, {}, 4.05);
+      slowTl.to(rigEl, { scale: 1, duration: 1.25, ease: "sine.inOut" }, 2.8).set({}, {}, 4.05);
 
       /* Il sito nuovo: dalla ricerca, clic sul primo risultato, una barra veloce e la pagina è lì. Poi lo stesso colpo indietro: il cliente resta. */
       const newTl = gsap.timeline({ paused: true });
@@ -1355,8 +1353,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       type Scn = { sub?: gsap.core.Timeline; seg?: [number, number]; map: [number, number][]; mood?: Mood; still?: boolean; blank?: boolean; marks?: [number, string][]; after?: (t: number) => void };
       const S = (i: number, at: number[], end: number, mood?: Mood, q?: boolean): Say => ({ el: says[i], u: sayU[i], at, end, mood, q });
       const I = (i: number, at: number[], end: number): Say => ({ el: inl[i], u: inlU[i], at, end, inScene: true });
-      inl.forEach((e, i) => (e.dataset.t = [c.far.tired, c.far.open, c.far.stays][i].replace(/[*!^]/g, "")));
-      one("[data-eh]").dataset.t = c.end.t.replace(/[*!^]/g, "");
+      inl.forEach((e, i) => (e.dataset.t = [c.far.tired, c.far.open, c.far.stays][i].replace(/[*!^~]/g, "")));
+      one("[data-eh]").dataset.t = c.end.t.replace(/[*!^~]/g, "");
       const ch: (Say | Scn)[] = [
         // prima del nostro intervento
         S(0, [0, 2, 3], w(4, -0.02), "calm", true),
@@ -1383,7 +1381,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         S(6, [125, 126], we(127, 0.12)),
         S(7, [128, 129, 130, 131, 132, 133], w(134, -0.45)),
         S(13, [134, 135], we(135, 0.0)),
-        { sub: waTl, map: [[0, AUTO], [0.55, w(136)], [1.0, w(139)], [1.9, w(142)], [2.35, w(144)], [3.25, w(146)], [3.7, we(151)], [END, we(151, 0.7)]], marks: [[0.55, "WhatsApp: modifica"], [1.9, "WhatsApp: visite"], [3.25, "WhatsApp: da richiamare"]], after: (t) => void mt.set(one("[data-wa]"), { autoAlpha: 0 }, t) },
+        { sub: waTl, map: [[0, w(136, -0.2)], [0.3, w(136)], [1.0, w(139)], [1.9, w(142)], [2.35, w(144)], [3.25, w(146)], [3.7, we(151)], [END, we(151, 0.7)]], marks: [[0.55, "WhatsApp: modifica"], [1.9, "WhatsApp: visite"], [3.25, "WhatsApp: da richiamare"]], after: (t) => void mt.set(one("[data-wa]"), { autoAlpha: 0 }, t) },
         S(8, [153, 154, 155, 156, 157], we(162, 0.1)),
         S(9, [164, 165, 166, 168, 169, 170], w(171, -0.02)),
         { sub: geoTl, map: [[0, AUTO], [5.5, w(182)], [5.75, w(184)], [END, w(188, -0.45)]], marks: [[0.05, "icona dell'assistente"], [1.35, "clic sull'icona"], [3.4, "invio"], [5.5, "fonte citata"], [5.75, "evidenziata"]], after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
@@ -1414,11 +1412,13 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         mt.fromTo(rig, { xPercent: 0, yPercent: 0, ...m }, { scale: i % 2 ? 0.98 : 1.03, xPercent: 0, yPercent: 0, duration: Math.max(1.2, d), ease: "power2.out", immediateRender: false }, t);
       };
       // una scritta: ogni parola entra quando la voce la dice (in inglese, senza voce, le parole si dividono lo stesso tempo)
-      const reveal = (k: Say) => {
+      const reveal = (k: Say, floor = 0) => {
         const n = k.u.length;
-        const t0 = w(k.at[0], -0.06);
-        const t1 = w(k.at[k.at.length - 1], -0.06);
-        const ts = k.u.map((_, j) => (n === k.at.length ? w(k.at[j], -0.06) : n < 2 ? t0 : t0 + ((t1 - t0) * j) / (n - 1)));
+        // la frase nuova comincia solo quando l'uscita della precedente è finita del tutto
+        const sh = Math.max(0, floor - w(k.at[0], -0.06));
+        const t0 = w(k.at[0], -0.06) + sh;
+        const t1 = w(k.at[k.at.length - 1], -0.06) + sh;
+        const ts = k.u.map((_, j) => (n === k.at.length ? w(k.at[j], -0.06) + sh : n < 2 ? t0 : t0 + ((t1 - t0) * j) / (n - 1)));
         mt.set(k.el, { autoAlpha: 1 }, t0);
         k.u.forEach((x, j) => {
           mt.fromTo(x, { autoAlpha: 0, yPercent: 45, filter: "blur(8px)" }, { autoAlpha: 1, yPercent: 0, filter: "blur(0px)", duration: k.q ? 0.2 : 0.42, ease: "power3.out" }, ts[j]);
@@ -1452,7 +1452,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           camOn = false;
           pending?.(t0);
           pending = undefined;
-          prevEnd = reveal(k) + (k.q ? 0.14 : 0.36);
+          prevEnd = reveal(k, prevEnd) + (k.q ? 0.16 : 0.45);
           return;
         }
         const len = k.seg ? k.seg[1] - k.seg[0] : k.sub!.duration();
@@ -1622,7 +1622,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           </p>
         ))}
         {c.say.map((t, i) => (
-          <p key={t} data-say={i} data-t={t.replace(/[*!^]/g, "")} className={i === 0 || i >= 10 ? CAPL : CAPF} style={HID}>
+          <p key={t} data-say={i} data-t={t.replace(/[*!^~]/g, "")} className={i === 0 || i >= 10 ? CAPL : CAPF} style={HID}>
             <Kw text={t} />
           </p>
         ))}
