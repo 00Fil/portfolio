@@ -148,13 +148,13 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
     zoom.current = new Promise<void>((res) => {
       tl = gsap.timeline({ onComplete: res });
       // zoom percepito costante sul logaritmo: p^3 lo rende lentissimo all'inizio e fulmineo alla fine
-      tl.to(z, { p: 1, duration: 2.0, ease: "power3.in", onUpdate: () => {
+      tl.to(z, { p: 1, duration: 1.15, ease: "power2.in", onUpdate: () => {
         const k = Math.exp(Math.log(420) * z.p);
         if (txt) gsap.set(txt, { scale: k, transformOrigin: "50% 50%" });
         gsap.set(card.current, { opacity: 1 - Math.max(0, z.p - 0.82) * 5.5 });
-      } }, 0.1);
-      if (rim.current) tl.to(rim.current, { scale: 1.8, autoAlpha: 0, duration: 1.3, ease: "power3.in", force3D: true }, 0.5);
-      tl.fromTo(flash.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.16, ease: "power1.in" }, 1.92);
+      } }, 0);
+      if (rim.current) tl.to(rim.current, { scale: 1.8, autoAlpha: 0, duration: 0.8, ease: "power2.in", force3D: true }, 0.3);
+      tl.fromTo(flash.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.12, ease: "power1.in" }, 1.05);
     });
     return () => void tl?.kill();
   }, [phase]);
