@@ -139,15 +139,22 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
     return () => void tl.kill();
   }, [phase]);
 
-  // personalizzo la tua esperienza: uno zoom che parte lentissimo e accelera fino allo sfondo pieno, poi parte il film
+  // personalizzo la tua esperienza: lo zoom parte lentissimo, accelera sempre di piu, attraversa la scritta e arriva allo sfondo pieno
   useEffect(() => {
-    if (phase !== "busy" || !card.current) return;
+    if (phase !== "busy" || !card.current || !body.current) return;
+    const txt = body.current.querySelector<HTMLElement>("p");
+    const z = { p: 0 };
     let tl: gsap.core.Timeline | null = null;
     zoom.current = new Promise<void>((res) => {
       tl = gsap.timeline({ onComplete: res });
-      tl.to(card.current, { scale: 30, duration: 2.3, ease: "power3.in", force3D: true }, 0.1);
-      if (rim.current) tl.to(rim.current, { scale: 1.6, autoAlpha: 0, duration: 1.8, ease: "power2.in", force3D: true }, 0.6);
-      tl.fromTo(flash.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, ease: "power2.in" }, 2.0);
+      // zoom percepito costante sul logaritmo: p^3 lo rende lentissimo all'inizio e fulmineo alla fine
+      tl.to(z, { p: 1, duration: 2.0, ease: "power3.in", onUpdate: () => {
+        const k = Math.exp(Math.log(420) * z.p);
+        if (txt) gsap.set(txt, { scale: k, transformOrigin: "50% 50%" });
+        gsap.set(card.current, { opacity: 1 - Math.max(0, z.p - 0.82) * 5.5 });
+      } }, 0.1);
+      if (rim.current) tl.to(rim.current, { scale: 1.8, autoAlpha: 0, duration: 1.3, ease: "power3.in", force3D: true }, 0.5);
+      tl.fromTo(flash.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.16, ease: "power1.in" }, 1.92);
     });
     return () => void tl?.kill();
   }, [phase]);
@@ -180,7 +187,10 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
     setPhase("busy");
     const v = voice.current;
     v?.cut();
-    await Promise.all([v?.say(src(C.done), 1100), new Promise((r) => window.setTimeout(r, 60)).then(() => zoom.current)]);
+    void v?.say(src(C.done), 1100);
+    await new Promise((r) => window.setTimeout(r, 120));
+    await zoom.current;
+    v?.cut();
     onDone(a, !mutedRef.current);
   };
   const answer = (id: keyof Answers, val: string) => {
