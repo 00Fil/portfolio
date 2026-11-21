@@ -351,26 +351,35 @@ const N = (m: number) => 440 * 2 ** ((m - 69) / 12);
 type Chord = { notes: number[]; root: number };
 const C = (root: number, ...notes: number[]): Chord => ({ root, notes });
 /*
- * Il giro è quello del Canone di Pachelbel (1680 circa, pubblico dominio): il basso che scende D A B F# G D G A,
- * il più riconoscibile e «appiccicoso» che ci sia. Nella parte del problema lo stesso giro va in minore;
- * nel nuovo sito torna in maggiore. La melodia è la sua linea che scende, cantata a due voci (sempre con la terza sotto).
+ * Il tema è l'«Inno alla gioia» di Beethoven (Nona sinfonia, 1824, pubblico dominio): lo conoscono tutti, si canta da solo.
+ * Nella parte del problema va in minore (stesse note, il Fa# diventa Fa), nel nuovo sito torna maggiore.
+ * Sempre a due voci: la nota e la sua terza sotto. Giro: D A D A D A G D.
  */
-const PROG: Record<"a" | "b" | "c", Chord[]> = {
-  a: [C(26, 62, 66, 69), C(33, 61, 64, 69), C(35, 62, 66, 71), C(30, 61, 66, 69), C(31, 62, 67, 71), C(26, 62, 66, 69), C(31, 59, 62, 67), C(33, 61, 64, 69)],
-  b: [C(26, 62, 65, 69), C(33, 61, 64, 69), C(34, 62, 65, 70), C(29, 60, 65, 69), C(31, 62, 67, 70), C(26, 62, 65, 69), C(31, 58, 62, 67), C(33, 61, 64, 69)],
-  c: [C(26, 62, 66, 69), C(33, 61, 64, 69), C(35, 62, 66, 71), C(30, 61, 66, 69), C(31, 62, 67, 71), C(26, 62, 66, 69), C(31, 59, 62, 67), C(33, 61, 64, 69)],
-};
+const D_ = (m: boolean) => (m ? [62, 65, 69] : [62, 66, 69]);
+const A_ = [61, 64, 69];
+const G_ = (m: boolean) => (m ? [62, 67, 70] : [62, 67, 71]);
+const prog = (m: boolean): Chord[] => [C(26, ...D_(m)), C(33, ...A_), C(26, ...D_(m)), C(33, ...A_), C(26, ...D_(m)), C(33, ...A_), C(31, ...G_(m)), C(26, ...D_(m))];
+const PROG: Record<"a" | "b" | "c", Chord[]> = { a: prog(false), b: prog(true), c: prog(false) };
 const GROUP: Record<Mood, "a" | "b" | "c"> = { calm: "a", doubt: "b", tense: "b", stop: "b", rise: "c", drive: "c", light: "c", end: "c" };
-const LINE = { maj: [78, 76, 74, 73, 71, 69, 71, 73], min: [77, 76, 74, 72, 70, 69, 70, 73] };
-const HARM = { maj: [74, 73, 71, 69, 67, 66, 67, 69], min: [74, 73, 70, 69, 67, 65, 67, 69] };
-/** Il gancio, in ogni battuta: la nota della linea (lunga), ribattuta, un sospiro sulla nota di prima, di nuovo, e l'anticipo della prossima. */
-const HOOK: Record<number, -1 | 0 | 1> = { 0: 0, 6: 0, 8: -1, 10: 0, 14: 1 };
+/** Le otto battute del tema (sedicesimo → nota, in Re maggiore). */
+const ODE: Record<number, number>[] = [
+  { 0: 78, 4: 78, 8: 79, 12: 81 },
+  { 0: 81, 4: 79, 8: 78, 12: 76 },
+  { 0: 74, 4: 74, 8: 76, 12: 78 },
+  { 0: 78, 6: 76, 8: 76 },
+  { 0: 78, 4: 78, 8: 79, 12: 81 },
+  { 0: 81, 4: 79, 8: 78, 12: 76 },
+  { 0: 74, 4: 74, 8: 76, 12: 78 },
+  { 0: 76, 6: 74, 8: 74 },
+];
+/** terza sotto, nella scala del momento */
+const THIRD: Record<number, [number, number]> = { 81: [78, 77], 79: [76, 76], 78: [74, 74], 77: [74, 74], 76: [73, 72], 74: [71, 70] };
 function melAt(minor: boolean, bar: number, s: number): [number, number] | null {
-  const h = HOOK[s];
-  if (h === undefined) return null;
-  const i = (((bar + h) % 8) + 8) % 8;
-  const k = minor ? "min" : "maj";
-  return [LINE[k][i], HARM[k][i]];
+  let k = ODE[bar % 8][s];
+  if (k === undefined) return null;
+  if (minor && k === 78) k = 77;
+  const t = THIRD[k];
+  return [k, minor ? t[1] : t[0]];
 }
 
 let cues: { beat: number; mood: Mood }[] = [];
@@ -479,7 +488,7 @@ function step(c: AudioContext, m: Mus, n: number, at: number) {
   const duet = (minor: boolean, how: "piano" | "pluck" | "both", vel = 1) => {
     const m = melAt(minor, bar, s);
     if (!m) return;
-    const long = s === 0 ? 1.4 : 0.6;
+    const long = s === 8 && (bar % 4 === 3) ? 1.4 : 0.55;
     if (how !== "pluck") m.forEach((k, i) => piano(k, (i ? 0.55 : 0.8) * vel, long, i * 0.006));
     if (how !== "piano") m.forEach((k, i) => pluck(k, (i ? 0.6 : 0.85) * vel));
   };
@@ -503,8 +512,8 @@ function step(c: AudioContext, m: Mus, n: number, at: number) {
     impact(1);
     [36, 48, 55, 60, 64, 67, 71, 74].forEach((k, i) => (k < 50 ? voice(N(k), "sine", 0.2, 0.01, 4.5, 300, { wet: 0.4 }) : piano(k, 1.1, 4, i * 0.012)));
     PROG.c[0].notes.forEach((k) => voice(N(k), "sawtooth", 0.03, 0.4, 4.5, 1200, { wet: 0.7, det: [-10, 10], lpEnd: 400 }));
-    piano(78, 0.8, 4, 0.05);
-    piano(74, 0.7, 4, 0.06);
+    piano(74, 0.8, 4, 0.05);
+    piano(69, 0.6, 4, 0.06);
     return;
   }
   if (mood === "stop") {
@@ -536,7 +545,7 @@ function step(c: AudioContext, m: Mus, n: number, at: number) {
     // cuore: due colpi
     if (tense && (s === 0 || s === 3)) kickAt(c, m.out, at, s === 0 ? 0.75 : 0.5);
     if (!tense && s === 0) kickAt(c, m.out, at, 0.45);
-    if (s === 0 || s === 10) duet(true, "piano", tense ? 0.55 : 0.65);
+    if (s === 0 || s === 8) duet(true, "piano", tense ? 0.55 : 0.65);
     return;
   }
 
