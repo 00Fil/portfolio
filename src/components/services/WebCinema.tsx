@@ -30,32 +30,47 @@ type Q = (s: string) => HTMLElement[];
 const GT_RED = ["#d92d20", "#ff6b5e", "#b42318", "#ff8a80"];
 export function Kw({ text }: { text: string }) {
   const parts = text.split("*");
+  // l'apostrofo resta attaccato alla parola evidenziata: «l'intelligenza» non va mai a capo dopo «l'»
+  const glue = (p: string, i: number) => (i % 2 === 0 && i + 1 < parts.length ? /\S*['’]$/.exec(p)?.[0] ?? "" : "");
+  const word = (p: string, i: number) => {
+    const m = /^[.,!?;:]+/.exec(parts[i + 1] ?? "");
+    const red = p.startsWith("!");
+    const plain = p.startsWith("^");
+    const w = red || plain ? p.slice(1) : p;
+    if (plain)
+      return (
+        <span key={i} data-kw className="inline-block font-semibold" style={{ padding: "0.1em 0.12em", margin: "-0.1em -0.12em" }}>
+          <GradientText colors={GT} animationSpeed={8} variant="flow" glow={0.6}>
+            {w + (m ? m[0] : "")}
+          </GradientText>
+        </span>
+      );
+    return (
+      <span key={i} data-kw className="inline-block" style={{ ...(red ? { "--gt-glow-color": "#ff5a52" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.2em 0.34em 0.5em", margin: "-0.2em -0.34em -0.5em" }}>
+        <GradientText colors={red ? GT_RED : GT} animationSpeed={8} variant="flow" glow={1}>
+          {w + (m ? m[0] : "")}
+        </GradientText>
+      </span>
+    );
+  };
   return (
     <>
       {parts.map((p, i) => {
         if (i % 2) {
-          const m = /^[.,!?;:]+/.exec(parts[i + 1] ?? "");
-          const red = p.startsWith("!");
-          const plain = p.startsWith("^");
-          const w = red || plain ? p.slice(1) : p;
-          if (plain)
-            return (
-              <span key={i} data-kw className="inline-block font-semibold" style={{ padding: "0.1em 0.12em", margin: "-0.1em -0.12em" }}>
-                <GradientText colors={GT} animationSpeed={8} variant="flow" glow={0.6}>
-                  {w + (m ? m[0] : "")}
-                </GradientText>
-              </span>
-            );
-          return (
-            <span key={i} data-kw className="inline-block" style={{ ...(red ? { "--gt-glow-color": "#ff5a52" } : {}), fontFamily: "var(--font-logo), var(--font-sans)", fontWeight: 400, fontSize: "1.2em", fontSynthesis: "none", letterSpacing: "normal", lineHeight: 1, padding: "0.2em 0.34em 0.5em", margin: "-0.2em -0.34em -0.5em" }}>
-              <GradientText colors={red ? GT_RED : GT} animationSpeed={8} variant="flow" glow={1}>
-                {w + (m ? m[0] : "")}
-              </GradientText>
+          const g = glue(parts[i - 1], i - 1);
+          return g ? (
+            <span key={i} className="whitespace-nowrap">
+              {g}
+              {word(p, i)}
             </span>
+          ) : (
+            word(p, i)
           );
         }
         const prev = /^[.,!?;:]+/.exec(p);
-        return <Fragment key={i}>{i > 0 && prev ? p.slice(prev[0].length) : p}</Fragment>;
+        const body = i > 0 && prev ? p.slice(prev[0].length) : p;
+        const g = glue(p, i);
+        return <Fragment key={i}>{g ? body.slice(0, body.length - g.length) : body}</Fragment>;
       })}
     </>
   );
@@ -608,7 +623,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const bk = at(() => one("[data-back]"), 0.4, 0.55);
         const sc2 = at(() => second, 0.3, 0.7);
         back
-          .fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.7, y: () => content.offsetHeight * 0.75, scale: 1 }, { autoAlpha: 1, x: () => bk().x, y: () => bk().y, duration: 0.5, ease: "power3.inOut" }, 0.05)
+          .fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.7, y: () => content.offsetHeight * 0.75, scale: 1 }, { autoAlpha: 1, x: () => bk().x, y: () => bk().y, immediateRender: false, duration: 0.5, ease: "power3.inOut" }, 0.05)
           .to(cur, { scale: 0.8, duration: 0.07, ease: "power2.out" }, 0.58)
           .to(cur, { scale: 1, duration: 0.2, ease: "back.out(3)" }, 0.65)
           .call(() => F.tick(1.4), undefined, 0.58)
@@ -680,7 +695,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         };
         const A = 7.05;
         const nxt = c.site.nav[1].toLowerCase().replace(/\s+/g, "-");
-        tl.fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.85, y: () => content.offsetHeight * 0.95 }, { autoAlpha: 1, x: () => loc().x, y: () => loc().y, duration: 0.5, ease: "power3.inOut" }, A)
+        tl.fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.85, y: () => content.offsetHeight * 0.95 }, { autoAlpha: 1, x: () => loc().x, y: () => loc().y, immediateRender: false, duration: 0.5, ease: "power3.inOut" }, A)
           .to(cur, { scale: 0.82, duration: 0.08, ease: "power2.out" }, A + 0.55)
           .to(cur, { scale: 1, duration: 0.25, ease: "back.out(3)" }, A + 0.63)
           .call(() => F.tick(1.4), undefined, A + 0.55)
@@ -722,7 +737,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         const start = [[0.16, 0.34], [0.74, 0.2], [0.5, 0.78]];
         const drift = [[0.3, 0.6], [0.6, 0.42], [0.72, 0.68]];
         fcs.forEach((f, j) =>
-          tl.fromTo(f, { autoAlpha: 0, x: () => wire.offsetWidth * start[j][0], y: () => wire.offsetHeight * start[j][1] }, { autoAlpha: 1, duration: 0.4, ease: "power2.out" }, T(12.1) + j * 0.12),
+          tl.fromTo(f, { autoAlpha: 0, x: () => wire.offsetWidth * start[j][0], y: () => wire.offsetHeight * start[j][1] }, { autoAlpha: 1, immediateRender: false, duration: 0.4, ease: "power2.out" }, T(12.1) + j * 0.12),
         );
         wireBits.forEach((b, i) => {
           const j = i % fcs.length;
@@ -854,7 +869,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         .call(() => F.whoosh(0.5, true, 0.7), undefined, T(49.8));
       ps.forEach((p, i) => {
         const at = T(49.8 + i * 0.4);
-        tl.fromTo(p, { autoAlpha: 0, scale: 0.82, x: () => pp(i).x, y: () => pp(i).y + 80 }, { autoAlpha: 1, scale: 1, x: () => pp(i).x, y: () => pp(i).y, duration: 0.7, ease: "expo.out" }, at)
+        tl.fromTo(p, { autoAlpha: 0, scale: 0.82, x: () => pp(i).x, y: () => pp(i).y + 80 }, { autoAlpha: 1, scale: 1, x: () => pp(i).x, y: () => pp(i).y, immediateRender: false, duration: 0.7, ease: "expo.out" }, at)
           .fromTo(p.querySelector("[data-tile]"), { rotationY: -40, rotationX: 18 }, { rotationY: 30, rotationX: -12, duration: Math.max(1, T(54.2) - at), ease: "sine.inOut" }, at)
           .call(() => F.bell(7 + i * 2, 0.9), undefined, at + 0.05);
       });
@@ -943,7 +958,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .set([fav, rl, tt1], { autoAlpha: 1 }, 0)
           .set(tt2, { autoAlpha: 0 }, 0)
           .call(() => void ((url1.textContent = c.find.typed), (tt1.textContent = c.find.typed)), undefined, 0)
-          .fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.75, y: () => content.offsetHeight * 0.8, scale: 1 }, { autoAlpha: 1, x: () => pt().x, y: () => pt().y, duration: 0.75, ease: "power3.inOut" }, 0.1)
+          .fromTo(cur, { autoAlpha: 0, x: () => content.offsetWidth * 0.75, y: () => content.offsetHeight * 0.8, scale: 1 }, { autoAlpha: 1, x: () => pt().x, y: () => pt().y, immediateRender: false, duration: 0.75, ease: "power3.inOut" }, 0.1)
           .set(first, { textDecoration: "underline" }, 0.8)
           .to(cur, { scale: 0.8, duration: 0.08, ease: "power2.out" }, 0.9)
           .to(cur, { scale: 1, duration: 0.25, ease: "back.out(3)" }, 0.98)
@@ -992,7 +1007,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .set(hx, { autoAlpha: 0 }, 0)
           .set([one("[data-hcur]"), one("[data-hsaved]")], { autoAlpha: 0 }, 0)
           .fromTo(one("[data-hbar]"), { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "expo.out" }, 0.05);
-        hcs.forEach((f, j) => figmaTl.fromTo(f, { autoAlpha: 0, x: () => hmIn.offsetWidth * start[j][0], y: () => hmIn.offsetHeight * start[j][1] }, { autoAlpha: 1, duration: 0.3, ease: "power2.out" }, 0.1 + j * 0.08));
+        hcs.forEach((f, j) => figmaTl.fromTo(f, { autoAlpha: 0, x: () => hmIn.offsetWidth * start[j][0], y: () => hmIn.offsetHeight * start[j][1] }, { autoAlpha: 1, immediateRender: false, duration: 0.3, ease: "power2.out" }, 0.1 + j * 0.08));
         hx.forEach((e, i) => {
           const j = i % hcs.length;
           const t = 0.55 + i * 0.42;
@@ -1029,7 +1044,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           .set([hm], { autoAlpha: 1 }, 0)
           .set(hx, { autoAlpha: 1, scale: 1 }, 0)
           .call(() => void (hw.textContent = "hardware"), undefined, 0)
-          .fromTo(cur, { autoAlpha: 0, x: () => hmIn.offsetWidth * 0.75, y: () => hmIn.offsetHeight * 0.85 }, { autoAlpha: 1, x: () => p().x, y: () => p().y, duration: 0.6, ease: "power3.inOut" }, 0.1)
+          .fromTo(cur, { autoAlpha: 0, x: () => hmIn.offsetWidth * 0.75, y: () => hmIn.offsetHeight * 0.85 }, { autoAlpha: 1, x: () => p().x, y: () => p().y, immediateRender: false, duration: 0.6, ease: "power3.inOut" }, 0.1)
           .to(cur, { scale: 0.82, duration: 0.06, yoyo: true, repeat: 3, ease: "power1.inOut" }, 0.75)
           .call(() => F.tick(1), undefined, 0.75)
           .call(() => F.tick(0.9), undefined, 0.87)
@@ -1233,27 +1248,28 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       const xcaps = [0, 1, 2, 3, 4, 5].map((i) => one(`[data-capx="${i}"]`));
       const xunits = xcaps.map(split);
       const scene = tl;
-      type Ch = { vo?: number; voAt?: [number, number]; marks?: [number, string][]; still?: boolean; cs?: number; mood?: Mood; textOnly?: boolean; u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
+      type Ch = { vo?: number; voAt?: [number, number][]; marks?: [number, string][]; still?: boolean; cs?: number; mood?: Mood; textOnly?: boolean; u?: { a: HTMLElement[]; b: HTMLElement[] }; el?: HTMLElement; seg?: [number, number]; sub?: gsap.core.Timeline; speed?: number; hold?: number; after?: (t: number) => void };
       // solo i passaggi che dicono qualcosa: il problema, poi cosa cambia (in cima, veloce, fatto su misura, ogni schermo, lo modifichi tu, l'AI ti cita, tutto compreso)
       // durata di ogni frase della voce narrante (scripts/film-voice.py cut): il film le lascia finire tutte
       const VO = [4.58, 5.91, 2.96, 4.03, 3.0, 4.76, 2.59, 2.97, 5.15, 4.11, 3.61, 7.16, 3.46, 7.44, 2.9, 1.07];
       const ch: Ch[] = [
         // prima del nostro intervento
         { u: units[0], el: caps[0], seg: [0, T(3.5)], speed: 1.3, vo: 0, mood: "calm", marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
-        { u: xunits[2], el: xcaps[2], sub: farTl, speed: 1.2, vo: 1, mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
-        { u: units[1], el: caps[1], sub: slowTl, hold: 0, vo: 2, voAt: [3, 2.9], mood: "tense", still: true, marks: [[0, "il tuo sito carica a pacchetti, zoom in continuo"], [2.8, "zoom indietro brusco + sbuffo"], [2.9, "frase in scena: il cliente si è stufato"]] },
+        { sub: farTl, speed: 1.2, voAt: [[1, 0]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
+        { u: xunits[2], el: xcaps[2], textOnly: true, cs: 1 },
+        { sub: slowTl, hold: 0, voAt: [[2, 0], [3, 2.9]], mood: "tense", still: true, marks: [[0, "il tuo sito carica a pacchetti, zoom in continuo"], [2.8, "zoom indietro brusco + sbuffo"], [2.9, "frase in scena: il cliente si è stufato"]] },
         { sub: back, speed: 0.85, hold: 0.15, marks: [[0.58, "clic su indietro"], [1.28, "clic sul concorrente"], [1.38, "si apre il concorrente"]], after: (t) => void mt.set([one("[data-rival]"), one("[data-cur]")], { autoAlpha: 0 }, t) },
         { u: xunits[3], el: xcaps[3], textOnly: true, vo: 4, mood: "stop", cs: 1 },
         // con il nuovo sito
         { u: xunits[0], el: xcaps[0], sub: seoTl, speed: 1.55, vo: 5, mood: "rise", marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"]], after: (t) => void mt.set(one("[data-seo]"), { autoAlpha: 0 }, t).set(chrome, { autoAlpha: 1 }, t).set(meter, { autoAlpha: 0 }, t).call(() => void (tt1.textContent = c.find.me[1]), undefined, t) },
-        { u: units[2], el: caps[2], sub: newTl, vo: 6, voAt: [7, 1.75], mood: "drive", still: true, marks: [[0.9, "clic sul tuo risultato"], [1.32, "il sito nuovo appare"], [1.6, "zoom indietro"], [1.75, "frase in scena: il cliente resta"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t) },
+        { u: units[2], el: caps[2], sub: newTl, vo: 6, voAt: [[7, 1.75]], mood: "drive", still: true, marks: [[0.9, "clic sul tuo risultato"], [1.32, "il sito nuovo appare"], [1.6, "zoom indietro"], [1.75, "frase in scena: il cliente resta"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t) },
         { u: units[3], el: caps[3], sub: figmaTl, vo: 8, marks: [[0.55, "Figma: primo pezzo"], [0.55 + 6 * 0.42, "Figma: ultimo pezzo"]] },
         { u: units[5], el: caps[5], sub: devsTl, speed: 1.35, vo: 9, marks: [[0.05, "computer"], [0.55, "tablet"], [0.85, "telefono"]], after: (t) => void mt.set(one("[data-devs]"), { autoAlpha: 0 }, t) },
         { u: units[8], el: caps[8], sub: editTl, vo: 10, mood: "light", marks: [[0.75, "doppio clic sulla parola"], [1.2, "si cancella"], [1.55, "si riscrive"], [2.25, "Salvato! a tutto schermo"]], after: (t) => void mt.set(hm, { autoAlpha: 0 }, t) },
         { u: xunits[4], el: xcaps[4], sub: waTl, vo: 11, marks: [[0.55, "WhatsApp: modifica"], [1.9, "WhatsApp: visite"], [3.25, "WhatsApp: da richiamare"]], after: (t) => void mt.set(one("[data-wa]"), { autoAlpha: 0 }, t) },
         { u: xunits[5], el: xcaps[5], textOnly: true, vo: 12, cs: 2 },
         { u: xunits[1], el: xcaps[1], sub: geoTl, speed: 1.25, vo: 13, marks: [[0.05, "icona di Claude"], [1.35, "clic sull'icona"], [1.75, "si apre la finestra"], [2.45, "scrive la domanda"], [3.4, "invio"], [3.95, "la risposta si scrive"], [5.5, "fonte citata"], [5.75, "evidenziata"]], after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
-        { seg: [T(54.8), scene.duration()], hold: 0, speed: 0.62, voAt: [14, T(55.0) - T(54.8)], mood: "end", marks: [[T(55.0) - T(54.8), "frase finale: il tuo sito, fatto bene"], [T(55.0) + 2.1 - T(54.8), "firma: il tuo nome"]] },
+        { seg: [T(54.8), scene.duration()], hold: 0, speed: 0.62, voAt: [[14, T(55.0) - T(54.8)]], mood: "end", marks: [[T(55.0) - T(54.8), "frase finale: il tuo sito, fatto bene"], [T(55.0) + 2.1 - T(54.8), "firma: il tuo nome"]] },
       ];
       const mt = gsap.timeline({
         paused: true,
@@ -1298,12 +1314,15 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       cstyle = 0;
       free = 0;
       const waits = ch.map(() => 0);
+      let camOff = false;
       ch.forEach((k, i) => {
         let ext = 0;
-        if (k.vo !== undefined && free + 0.12 - 0.2 > at) {
-          waits[i] = free + 0.12 - 0.2 - at;
+        // la frase parte con la scritta (0,2 s dopo) o, senza scritta, con la scena
+        const lead = k.vo !== undefined ? 0.2 : k.voAt?.some(([, o]) => o === 0) ? 0 : -1;
+        if (lead >= 0 && free + 0.12 - lead > at) {
+          waits[i] = free + 0.12 - lead - at;
           marks.push({ t: at, what: `attesa voce ${waits[i].toFixed(2)}` });
-          at = free + 0.12 - 0.2;
+          at = free + 0.12 - lead;
         }
         at = q8(at);
         if (k.mood) {
@@ -1335,6 +1354,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           }
           let c1 = q8(c0 + 0.4 + 0.03 * (words.length - 1) + (el.textContent?.length ?? 20) * 0.007);
           marks.push({ t: c0, what: `frase: ${el.dataset.t}` });
+          if (k.textOnly && k.vo === undefined) c1 = Math.max(c1, q8(c0 + 1.7));
           if (k.vo !== undefined) {
             marks.push({ t: c0, what: `voce ${k.vo}` });
             free = c0 + VO[k.vo];
@@ -1355,11 +1375,14 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           at = c1 + 0.36;
           if (k.textOnly) {
             at += 0.25;
+            camOff = true;
             return;
           }
           mt.fromTo(cam, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "sine.out", immediateRender: false }, at);
           shot = i;
         }
+        if (!k.el && camOff) mt.fromTo(cam, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: "sine.out", immediateRender: false }, at);
+        camOff = false;
         if (!k.el && pending) {
           mt.to(cam, { autoAlpha: 0, duration: 0.22, ease: "power2.in" }, at);
           pending(at + 0.23);
@@ -1373,11 +1396,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         if (k.seg) mt.add(scene.tweenFromTo(k.seg[0], k.seg[1], { duration: d, ease: "none", immediateRender: false }), at);
         if (k.sub) mt.add(k.sub.tweenFromTo(0, k.sub.duration(), { duration: d, ease: "none", immediateRender: false }), at);
         (k.marks ?? []).forEach(([mt0, w]) => marks.push({ t: at + mt0 * (d / Math.max(0.001, k.seg ? k.seg[1] - k.seg[0] : k.sub!.duration())), what: w }));
-        if (k.voAt) {
-          const tv = at + k.voAt[1] * (d / Math.max(0.001, k.seg ? k.seg[1] - k.seg[0] : k.sub!.duration()));
-          marks.push({ t: tv, what: `voce ${k.voAt[0]}` });
-          free = Math.max(free, tv) + VO[k.voAt[0]];
-        }
+        (k.voAt ?? []).forEach(([n, o]) => {
+          const tv = at + o * (d / Math.max(0.001, k.seg ? k.seg[1] - k.seg[0] : k.sub!.duration()));
+          marks.push({ t: tv, what: `voce ${n}` });
+          free = Math.max(free, tv) + VO[n];
+        });
         at += d + (k.hold ?? 0.25);
         if (k.after) pending = k.after;
       });
@@ -1618,7 +1641,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                     {[...c.find.others, c.find.me].map(([t, u], i) => (
                       <div key={u} data-gr={i}>
                         <span className="block text-[clamp(10px,3cqh,13px)] text-[#4d5156]">https://{u}</span>
-                        <span data-grt className="block text-[clamp(14px,5cqh,22px)] text-[#1a0dab] underline-offset-4">
+                        <span data-grt className="inline-block text-[clamp(14px,5cqh,22px)] text-[#1a0dab] underline-offset-4">
                           {t}
                         </span>
                       </div>
@@ -1660,7 +1683,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                     {[c.find.me, ...c.find.others].map(([t, u], i) => (
                       <div key={u}>
                         <span className="block text-[clamp(10px,3cqh,13px)] text-[#4d5156]">https://{u}</span>
-                        <span data-g2t={i} className="block text-[clamp(14px,5cqh,22px)] text-[#1a0dab] underline-offset-4">
+                        <span data-g2t={i} className="inline-block text-[clamp(14px,5cqh,22px)] text-[#1a0dab] underline-offset-4">
                           {t}
                         </span>
                       </div>
