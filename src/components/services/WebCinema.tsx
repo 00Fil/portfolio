@@ -372,11 +372,12 @@ function Veil({ ...rest }: Record<string, unknown>) {
   return <span {...rest} aria-hidden className="pointer-events-none absolute inset-0 z-10" style={{ ...HID, background: "linear-gradient(135deg, rgba(31,143,208,.34), rgba(94,196,255,.24) 45%, rgba(47,111,224,.34))" }} />;
 }
 /** Il marchio di Claude (tracciato ufficiale, da Simple Icons). */
+/** Il marchio di OpenAI/ChatGPT (tracciato ufficiale, da Simple Icons). */
+const GPT_PATH = "M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z";
 function Spark({ size = 22, color = "#0d0d0d" }: { size?: number; color?: string }) {
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden className="shrink-0">
-      <circle cx="12" cy="12" r="8.4" fill="none" stroke={color} strokeWidth="2.6" />
-      <circle cx="12" cy="12" r="2.6" fill={color} />
+      <path d={GPT_PATH} fill={color} />
     </svg>
   );
 }
@@ -391,6 +392,7 @@ const T = (n: number) => (n >= 9.2 ? n + 5 : n) * B;
 const U = (n: number) => n * B;
 const ICONS_GETS = [Globe, KeyRound, ShieldCheck, PencilLine, Inbox, LifeBuoy];
 const ICONS_PROMISE = [FileText, UserRound, Tag, LockOpen];
+export const CAPL = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[44ch] -translate-y-1/2 px-6 text-center text-[clamp(26px,4.6cqw,84px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg";
 export const CAPF = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[14ch] -translate-y-1/2 px-6 text-center text-[clamp(38px,7cqw,120px)] font-semibold leading-[1.04] tracking-[-0.05em] cine-fg";
 export const CAP = "pointer-events-none absolute inset-x-0 top-[5%] mx-auto max-w-[19ch] px-6 text-center text-[clamp(30px,4.6cqw,76px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg md:top-[7%] md:max-w-[24ch]";
 
@@ -1323,10 +1325,10 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
          il computer, il tablet, il telefono, ogni messaggio) cadono sulla parola che li nomina: tra due parole la scena corre in modo uniforme.
          Dove una scena ha bisogno di respiro, la ripresa si apre in un silenzio (GAP): la voce resta quella vera, mai accelerata. */
       // secondi di respiro aggiunti prima di una parola (sempre in una pausa della ripresa)
-      const GAP: Record<number, number> = { 33: 0.5, 35: 0.4, 52: 0.5, 61: 0.6, 65: 0.6, 75: 0.8, 94: 0.6, 114: 0.6, 117: 0.3, 125: 0.35, 128: 0.6, 152: 0.9, 163: 0.5, 174: 0.5, 194: 0.4 };
+      const GAP: Record<number, number> = { 33: 0.3, 35: 0.25, 52: 0.5, 61: 0.6, 65: 0.6, 75: 0.8, 94: 0.6, 114: 0.6, 117: 0.3, 125: 0.35, 128: 0.6, 152: 0.9, 163: 0.5, 174: 0.5, 194: 0.4 };
       const offs: number[] = [];
       {
-        let acc = 0.3;
+        let acc = 0.1;
         VW.s.forEach((_, i) => offs.push((acc += GAP[i] ?? 0)));
       }
       const w = (i: number, d = 0) => VW.s[i] + offs[i] + d;
@@ -1352,7 +1354,8 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
       one("[data-eh]").dataset.t = c.end.t.replace(/[*!^]/g, "");
       const ch: (Say | Scn)[] = [
         // prima del nostro intervento
-        S(0, [0, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 15, 16], we(16, 0.1), "calm"),
+        S(0, [0, 2, 3, 4, 5, 6, 7], w(8, -0.06), "calm"),
+        S(10, [8, 9, 13, 14, 15, 16], we(16, 0.1), "calm"),
         { seg: [0, T(3.5)], map: [[0, AUTO], [T(0.9), w(17)], [T(3.3), w(21, -0.1)], [T(3.5), w(21, 0.05)]], marks: [[0, "home di Google, il cliente scrive la ricerca"]] },
         { sub: farTl, map: [[0, w(21, 0.06)], [0.8, w(25)], [0.8 + 3.4, w(32, 0.15)], [END, w(33, -0.4)]], mood: "doubt", marks: [[0.8, "la lista dei risultati parte piano"], [0.8 + 3.4 * 0.5, "velocità massima, scie di luce"], [0.8 + 3.4, "si ferma sulla tua attività, evidenziata"]], after: (t) => void mt.set(one("[data-far]"), { autoAlpha: 0 }, t) },
         S(1, [33], w(35, -0.5)),
@@ -1371,7 +1374,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         S(5, [114, 115, 116], we(116, 0.1)),
         { sub: editTl, map: [[0, AUTO], [0.75, w(120)], [1.2, w(121, 0.1)], [2.15, we(124)]], mood: "light", marks: [[0.75, "doppio clic sulla parola"], [1.2, "si cancella"], [1.55, "si riscrive"]], after: (t) => void mt.set(hm, { autoAlpha: 0 }, t) },
         S(6, [125, 126], we(127, 0.12)),
-        S(7, [128, 129, 130, 131, 132], w(133, -0.05)),
+        S(7, [128, 129, 130, 131, 132, 133], w(134, 0.1)),
         { sub: waTl, map: [[0, AUTO], [0.55, w(136)], [1.0, w(139)], [1.9, w(142)], [2.35, w(144)], [3.25, w(146)], [3.7, we(151)], [END, we(151, 0.7)]], marks: [[0.55, "WhatsApp: modifica"], [1.9, "WhatsApp: visite"], [3.25, "WhatsApp: da richiamare"]], after: (t) => void mt.set(one("[data-wa]"), { autoAlpha: 0 }, t) },
         S(8, [153, 154, 155, 156, 157], we(162, 0.1)),
         S(9, [164, 165, 166, 168, 169, 170], w(171, -0.02)),
@@ -1607,7 +1610,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
           </p>
         ))}
         {c.say.map((t, i) => (
-          <p key={t} data-say={i} data-t={t.replace(/[*!^]/g, "")} className={CAPF} style={HID}>
+          <p key={t} data-say={i} data-t={t.replace(/[*!^]/g, "")} className={i === 0 || i === 10 ? CAPL : CAPF} style={HID}>
             <Kw text={t} />
           </p>
         ))}
