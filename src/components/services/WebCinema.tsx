@@ -6,7 +6,7 @@ import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 import type { LucideIcon } from "lucide-react";
-import { ArrowUp, Sparkles, Frame, MessageCircle, MousePointer2, PenTool, Square, Type, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
+import { ArrowUp, Camera, Mic, Sparkles, Frame, MessageCircle, MousePointer2, PenTool, Square, Type, ArrowLeft, ArrowRight, Bell, Check, FileText, Globe, Inbox, KeyRound, LifeBuoy, Lock, LockOpen, Menu, Pause, PencilLine, Play, Plus, RotateCcw, RotateCw, Search, ShieldCheck, Tag, UserRound, Volume2, VolumeX, X, EllipsisVertical } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { prefersReducedMotion } from "@/lib/env";
 import { onIntroLift } from "@/lib/intro";
@@ -352,19 +352,47 @@ function GLogo({ size }: { size: number }) {
     </span>
   );
 }
+/** La barra di ricerca di Google di oggi: lente, testo, microfono, Lens e il pulsante della Modalità IA. */
 function GBox({ q, w, h = 46, typed = false }: { q: string; w: number; h?: number; typed?: boolean }) {
+  const en = useLocale() === "en";
   return (
-    <span className="flex items-center gap-3 rounded-full bg-white px-5 text-[#202124] shadow-[0_1px_6px_rgba(32,33,36,.28)]" style={{ width: w, height: h, fontSize: h * 0.36, ...ARIAL }}>
-      <Search size={h * 0.4} strokeWidth={2} className="shrink-0 text-[#9aa0a6]" />
-      {typed ? (
-        <span className="inline-flex items-center leading-none">
-          <span data-typed className="whitespace-pre" />
-          <span className="ml-[1px] inline-block h-[1.15em] w-[2px] animate-pulse bg-[#202124]" />
-        </span>
-      ) : (
-        <span className="truncate">{q}</span>
-      )}
+    <span className="flex items-center gap-3 rounded-full border border-[#dadce0] bg-white pl-5 pr-[0.3em] text-[#1f1f1f] shadow-[0_2px_8px_-2px_rgba(32,33,36,.18)]" style={{ width: w, height: h, fontSize: h * 0.34, ...ARIAL }}>
+      <Search size={h * 0.38} strokeWidth={2} className="shrink-0 text-[#5f6368]" />
+      <span className="flex min-w-0 flex-1 items-center">
+        {typed ? (
+          <span className="inline-flex items-center leading-none">
+            <span data-typed className="whitespace-pre" />
+            <span className="ml-[1px] inline-block h-[1.15em] w-[2px] animate-pulse bg-[#1f1f1f]" />
+          </span>
+        ) : (
+          <span className="truncate">{q}</span>
+        )}
+      </span>
+      {!typed && <X size={h * 0.4} strokeWidth={1.7} className="shrink-0 text-[#5f6368]" />}
+      {!typed && <span className="h-[55%] w-px shrink-0 bg-[#dadce0]" />}
+      <Mic size={h * 0.4} strokeWidth={1.9} className="shrink-0 text-[#4285f4]" />
+      <Camera size={h * 0.4} strokeWidth={1.9} className="shrink-0 text-[#34a853]" />
+      <span className="flex shrink-0 items-center gap-[0.35em] rounded-full bg-[#f1f3f4] px-[0.8em] text-[0.82em] font-medium text-[#1f1f1f]" style={{ height: h * 0.72 }}>
+        <Sparkles size={h * 0.3} strokeWidth={2} className="text-[#4285f4]" />
+        {en ? "AI Mode" : "Modalità IA"}
+      </span>
     </span>
+  );
+}
+/** Le schede sotto la barra, come nella pagina dei risultati di oggi. */
+function GTabs({ ...rest }: Record<string, unknown>) {
+  const en = useLocale() === "en";
+  const tabs = en ? ["AI Mode", "All", "Images", "Videos", "News", "Shopping", "More"] : ["Modalità IA", "Tutti", "Immagini", "Video", "Notizie", "Shopping", "Altro"];
+  return (
+    <div {...rest} className="relative z-30 flex h-[40px] items-end gap-6 border-b border-[#ebebeb] bg-white pl-[118px] text-[14px] text-[#4d5156]" style={ARIAL}>
+      {tabs.map((t, i) => (
+        <span key={t} className={`relative flex items-center gap-1.5 pb-2.5 ${i === 1 ? "font-medium text-[#1f1f1f]" : ""}`}>
+          {i === 0 && <Sparkles size={13} strokeWidth={2} className="text-[#4285f4]" />}
+          {t}
+          {i === 1 && <span className="absolute inset-x-0 bottom-0 h-[3px] rounded-t-full bg-[#1f1f1f]" />}
+        </span>
+      ))}
+    </div>
   );
 }
 /** Un risultato di Google: sito, indirizzo, titolo blu, descrizione. `me` gli mette dietro la bolla di vetro per evidenziarlo. */
@@ -373,14 +401,15 @@ function GResult({ name, url, title, snip, me = false, ...rest }: { name: string
     <div {...rest} className={`relative w-[600px] ${me ? "z-20" : ""}`} style={ARIAL}>
       {me && <Bead as="span" data-bub radius={26} className="absolute -inset-x-6 -inset-y-4 -z-10" style={HID} />}
       <span className="flex items-center gap-3">
-        <span className="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#f1f3f4] text-[13px] font-bold text-[#5f6368]">{name[0]}</span>
-        <span className="leading-tight">
-          <span className="block text-[14px] text-[#202124]">{name}</span>
+        <span className="flex h-[28px] w-[28px] items-center justify-center rounded-full border border-[#dadce0] bg-white text-[13px] font-bold text-[#5f6368]">{name[0]}</span>
+        <span className="min-w-0 flex-1 leading-[1.3]">
+          <span className="block text-[14px] text-[#1f1f1f]">{name}</span>
           <span className="block text-[12px] text-[#4d5156]">https://{url}</span>
         </span>
+        <EllipsisVertical size={16} strokeWidth={2} className="shrink-0 text-[#5f6368]" />
       </span>
-      <span data-gt className="mt-1.5 block text-[20px] leading-tight text-[#1a0dab]">{title}</span>
-      <span className="mt-1 block text-[14px] leading-snug text-[#4d5156]">{snip}</span>
+      <span data-gt className="mt-2 block text-[20px] leading-[1.3] text-[#1a0dab]">{title}</span>
+      <span className="mt-1 block text-[14px] leading-[1.58] text-[#474747]">{snip}</span>
     </div>
   );
 }
@@ -416,7 +445,7 @@ export function fitLine(t: string, max: string) {
   const em = plain * 0.54 + kw * 0.66 + 0.4;
   return `min(${max}, calc((100cqw - 64px) / ${em.toFixed(2)}))`;
 }
-export const CAPS = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto -translate-y-1/2 whitespace-nowrap px-6 text-center font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
+export const CAPS = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto -translate-y-1/2 whitespace-nowrap px-6 text-center font-semibold leading-[1.16] tracking-[-0.045em] [word-spacing:0.16em] cine-fg";
 export const CAPL = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-none whitespace-nowrap -translate-y-1/2 px-6 text-center text-[clamp(30px,6.2cqw,104px)] font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
 export const CAPF = "pointer-events-none absolute inset-x-0 top-1/2 mx-auto max-w-[14ch] -translate-y-1/2 px-6 text-center text-[clamp(38px,7cqw,120px)] font-semibold leading-[1.16] tracking-[-0.05em] cine-fg";
 export const CAP = "pointer-events-none absolute inset-x-0 top-[5%] mx-auto max-w-[19ch] px-6 text-center text-[clamp(30px,4.6cqw,76px)] font-semibold leading-[1.06] tracking-[-0.05em] cine-fg md:top-[7%] md:max-w-[24ch]";
@@ -1117,7 +1146,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             .fromTo(e, { autoAlpha: 0, scale: 0.97 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: "expo.out", immediateRender: false }, t)
             .set(hsl, { autoAlpha: 1, x: () => offIn(e).x, y: () => offIn(e).y, width: () => offIn(e).w, height: () => offIn(e).h }, t)
             .call(() => void (hsz.textContent = `${Math.round(offIn(e).w)} × ${Math.round(offIn(e).h)}`), undefined, t)
-            .call(() => F.bell(7, 0.8), undefined, t);
+            .call(() => F.place(0.9), undefined, t);
         });
         const end = 0.55 + hx.length * 0.42;
         figmaTl
@@ -1353,7 +1382,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
          il computer, il tablet, il telefono, ogni messaggio) cadono sulla parola che li nomina: tra due parole la scena corre in modo uniforme.
          Dove una scena ha bisogno di respiro, la ripresa si apre in un silenzio (GAP): la voce resta quella vera, mai accelerata. */
       // secondi di respiro aggiunti prima di una parola (sempre in una pausa della ripresa)
-      const GAP: Record<number, number> = { 33: 0.5, 35: 0.4, 52: 0.5, 61: 0.6, 65: 0.6, 75: 0.8, 94: 0.6, 114: 0.6, 117: 0.3, 125: 0.35, 128: 0.6, 152: 0.9, 163: 0.5, 174: 0.5, 194: 0.4 };
+      const GAP: Record<number, number> = { 33: 0.5, 35: 0.4, 52: 0.5, 61: 0.6, 65: 0.6, 75: 0.8, 94: 0.6, 114: 0.6, 117: 0.3, 125: 0.35, 129: 0.5, 152: 0.9, 163: 0.5, 174: 0.5, 194: 0.4 };
       const noSite = ans?.site === "none";
       const VW = noSite ? VW_NONE : VW_SITE;
       const offs: number[] = [];
@@ -1431,16 +1460,15 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         S(3, [61, 62, 63, 64], we(64, 0.1), "rise"),
         { sub: seoTl, map: [[0, AUTO], [1.2, w(67)], [2.4, w(71)], [3.6, w(74)], [3.6 + 0.75, w(75, -0.06)], [3.6 + 0.9, w(75, 0.05)], [3.6 + 0.95, w(75, 0.1)], [3.6 + 1.32, w(75, 0.42)], [END, we(93, 0.25)]], still: true, marks: [[0.05, "risultati di Google"], [1.2, "la tua attività sale in cima"], [2.4, "evidenziata con velo e bolla"], [3.6 + 0.9, "clic sul tuo risultato"], [3.6 + 1.32, "il sito nuovo appare"]], after: (t) => void mt.set(chrome, { autoAlpha: 0 }, t).set(meter, { autoAlpha: 0 }, t) },
         I(1, [80, 81, 82, 83], w(84, -0.2)),
-        I(2, [87, 88, 89, 90, 91, 92, 93], we(93, 0.1)),
+        I(2, [87, 88, 89, 90, 90, 91, 92, 93, 93], we(93, 0.1)),
         S(4, [94, 95, 96, 97], w(99, -0.05)),
         { sub: figmaTl, map: [[0, AUTO], [0.55 + 6 * 0.42, w(107)], [END, w(108, -0.05)]], marks: [[0.55, "Figma: primo pezzo"], [0.55 + 6 * 0.42, "Figma: ultimo pezzo"]] },
-        { sub: devsTl, map: [[0, w(108, 0.05)], [0.05, w(110, -0.12)], [0.55, w(111, -0.12)], [0.85, w(113, -0.12)], [1.75, w(114, -0.75)], [END, w(114, -0.4)]], marks: [[0.05, "computer"], [0.55, "tablet"], [0.85, "telefono"]], after: (t) => void mt.set(one("[data-devs]"), { autoAlpha: 0 }, t) },
-        S(5, [114, 115, 116], we(116, 0.1)),
+        { sub: devsTl, map: [[0, we(107)], [0.05, w(110, -0.12)], [0.55, w(111, -0.12)], [0.85, w(113, -0.12)], [1.75, w(114, -0.75)], [END, w(114, -0.1)]], marks: [[0.05, "computer"], [0.55, "tablet"], [0.85, "telefono"]], after: (t) => void mt.set(one("[data-devs]"), { autoAlpha: 0 }, t) },
+        S(5, [114, 115, 116, 116], we(116, 0.1)),
         { sub: editTl, map: [[0, AUTO], [0.75, w(120)], [1.2, w(121, 0.1)], [2.15, we(124)]], mood: "light", marks: [[0.75, "doppio clic sulla parola"], [1.2, "si cancella"], [1.55, "si riscrive"]], after: (t) => void mt.set(hm, { autoAlpha: 0 }, t) },
-        S(6, [125, 126, 127], we(127, 0.12)),
-        S(7, [128, 129, 130, 131, 132, 133], w(134, -0.45)),
-        S(13, [134, 135, 136, 137, 138, 139], we(139, 0.0)),
-        { sub: waTl, map: [[0, w(140, -0.2)], [0.3, w(140)], [1.0, w(141, 0.3)], [1.9, w(144)], [2.35, we(144)], [3.25, w(147)], [3.7, we(149)], [END, we(149, 0.7)]], marks: [[0.55, "WhatsApp: modifica"], [1.9, "WhatsApp: visite"], [3.25, "WhatsApp: da richiamare"]], after: (t) => void mt.set(one("[data-wa]"), { autoAlpha: 0 }, t) },
+        S(6, [125, 126, 127, 128], we(128, 0.05), undefined, true),
+        S(7, [129, 130, 131, 132, 133, 134, 135, 136, 137], w(138, -0.45)),
+        { sub: waTl, map: [[0, w(138, -0.2)], [0.3, w(139)], [1.0, we(141)], [1.9, w(146)], [2.35, we(148)], [3.25, we(150)], [3.7, we(151)], [END, we(151, 0.7)]], marks: [[0.55, "WhatsApp: modifica"], [1.9, "WhatsApp: visite"], [3.25, "WhatsApp: da richiamare"]], after: (t) => void mt.set(one("[data-wa]"), { autoAlpha: 0 }, t) },
         S(8, [153, 154, 155, 156, 157, 158, 159], we(162, 0.1)),
         S(9, [164, 165, 166, 168, 169, 170], w(171, -0.02)),
         { sub: geoTl, map: [[0, AUTO], [5.5, w(182)], [5.75, w(184)], [END, w(188, -0.45)]], marks: [[0.05, "icona dell'assistente"], [1.35, "clic sull'icona"], [3.4, "invio"], [5.5, "fonte citata"], [5.75, "evidenziata"]], after: (t) => void mt.set(one("[data-geo]"), { autoAlpha: 0 }, t) },
@@ -1685,7 +1713,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         {/* una frase troppo lunga per una riga si divide in più battute (|), ognuna su una riga sola */}
         {[c.far.tired, c.far.open, c.far.stays].map((t, i) =>
           t.split("|").map((x, j) => (
-            <p key={`${i}-${j}`} data-inline={i} data-t={x.replace(/[*!^~]/g, "")} className="pointer-events-none absolute inset-x-0 top-[8%] z-20 mx-auto whitespace-nowrap px-6 text-center font-semibold leading-[1.16] tracking-[-0.045em] cine-fg" style={{ ...HID, fontSize: fitLine(x, "clamp(30px,4.6cqw,72px)") }}>
+            <p key={`${i}-${j}`} data-inline={i} data-t={x.replace(/[*!^~]/g, "")} className="pointer-events-none absolute inset-x-0 top-[8%] z-20 mx-auto whitespace-nowrap px-6 text-center font-semibold leading-[1.16] tracking-[-0.045em] [word-spacing:0.16em] cine-fg" style={{ ...HID, fontSize: fitLine(x, "clamp(30px,4.6cqw,72px)") }}>
               <Kw text={x} />
             </p>
           )),
@@ -1704,7 +1732,14 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             <div data-it data-pill className={`${center} flex flex-col items-center gap-8`} style={HID}>
               <span data-gfit className="flex flex-col items-center gap-8">
                 <GLogo size={92} />
-                <GBox q="" w={620} h={54} typed />
+                <GBox q="" w={680} h={54} typed />
+                <span className="flex gap-3" style={ARIAL}>
+                  {(locale === "en" ? ["Google Search", "I’m Feeling Lucky"] : ["Cerca con Google", "Mi sento fortunato"]).map((t) => (
+                    <span key={t} className="rounded-[8px] border border-transparent bg-[#f8f9fa] px-4 py-2.5 text-[14px] text-[#3c4043]">
+                      {t}
+                    </span>
+                  ))}
+                </span>
               </span>
             </div>
             {[c.find.me, ...c.find.others].map(([t, u]) => (
@@ -1865,13 +1900,11 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
                 </filter>
               </svg>
               <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5" style={ARIAL}>
-                <div className="relative z-30 flex h-[84px] items-center gap-7 border-b border-[#ebebeb] bg-white px-8">
+                <div className="relative z-30 flex h-[84px] items-center gap-7 bg-white px-8">
                   <GLogo size={32} />
                   <GBox q={c.find.typed} w={560} />
                 </div>
-                <p data-fcount className="relative z-30 bg-white pb-3 pl-[118px] pt-3 text-[13px] text-[#70757a]">
-                  {c.far.count}
-                </p>
+                <GTabs data-fcount />
                 <div className="absolute inset-x-0 bottom-0 top-[124px] overflow-hidden">
                   <div data-fl className="relative flex flex-col gap-[30px] pb-[200px] pl-[118px] pt-2 will-change-transform">
                     <Veil data-veil />
@@ -1951,11 +1984,12 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
             {/* SEO: la stessa pagina di Google, e la tua attività sale in cima */}
             <div data-it data-seo className={center} style={HID}>
               <div data-gfit className="relative h-[560px] w-[820px] overflow-hidden rounded-[22px] bg-white shadow-[0_40px_120px_-40px_rgba(0,0,0,.45)] ring-1 ring-black/5" style={ARIAL}>
-                <div className="relative z-30 flex h-[84px] items-center gap-7 border-b border-[#ebebeb] bg-white px-8">
+                <div className="relative z-30 flex h-[84px] items-center gap-7 bg-white px-8">
                   <GLogo size={32} />
                   <GBox q={c.find.typed} w={560} />
                 </div>
-                <div className="absolute inset-x-0 bottom-0 top-[84px] flex flex-col gap-[24px] pl-[118px] pt-6">
+                <GTabs />
+                <div className="absolute inset-x-0 bottom-0 top-[124px] flex flex-col gap-[24px] pl-[118px] pt-5">
                   <Veil data-sveil />
                   {[...c.find.others, c.seo.more[0], c.find.me].map(([t, u], i, all) => (
                     <GResult key={u} data-sr me={i === all.length - 1} name={t} url={u} title={i === all.length - 1 ? c.far.mine : `${t} · ${c.far.title}`} snip={c.far.snip} />
@@ -2148,7 +2182,7 @@ export function WebCinema({ title, embed = false, play = true }: { title: string
         </div>
       </div>
       <div data-end className="absolute inset-0 flex flex-col items-center justify-center" style={HID}>
-        <p data-eh className="mx-auto whitespace-nowrap px-6 text-center font-medium leading-[1.16] tracking-[-0.05em] cine-fg" style={{ fontSize: fitLine(c.end.t, "clamp(38px,6.6cqw,108px)") }}>
+        <p data-eh className="mx-auto whitespace-nowrap px-6 text-center font-medium leading-[1.16] tracking-[-0.045em] [word-spacing:0.16em] cine-fg" style={{ fontSize: fitLine(c.end.t, "clamp(38px,6.6cqw,108px)") }}>
           <Kw text={c.end.t} />
         </p>
       </div>

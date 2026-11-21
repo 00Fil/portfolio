@@ -45,7 +45,7 @@ const env = (g: GainNode, t: number, peak: number, atk: number, dec: number) => 
 };
 
 /* Effetti del film: suoni disegnati a parte (scripts/film-sfx.py) e caricati una volta. Se non sono ancora pronti, si tace. */
-const SFX = ["click", "key1", "key2", "key3", "pop", "swoosh-up", "swoosh-down", "chime", "glass", "thump", "thump-big", "riser", "shine", "sigh"] as const;
+const SFX = ["click", "key1", "key2", "key3", "pop", "swoosh-up", "swoosh-down", "chime", "glass", "thump", "thump-big", "riser", "shine", "sigh", "place"] as const;
 type SfxName = (typeof SFX)[number];
 const sfxBuf: Partial<Record<SfxName, AudioBuffer>> = {};
 let sfxLoading = false;
@@ -95,6 +95,10 @@ export const fx = {
   /** Lo sbuffo di chi si è stufato. */
   sigh(vel = 1) {
     play("sigh", vel);
+  },
+  /** Un pezzo che si aggancia alla griglia (Figma): un tocco morbido, non un campanello. */
+  place(vel = 1) {
+    play("place", 0.75 * vel);
   },
   /** La firma: un respiro luminoso. */
   shine(vel = 1) {

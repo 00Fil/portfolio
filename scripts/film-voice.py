@@ -23,7 +23,7 @@ SUF = f"-{VAR}" if VAR else ""
 vo = load(os.path.join(HERE, "voice", f"vo-it{SUF}.mp3"), 1)[:, 0]
 WORDS = os.path.join(HERE, "voice", f"vo-it{SUF}-words.json")
 # prima parola di ogni frase del copione
-B = [0, 17, 35, 43, 52, 61, 75, 84, 94, 108, 117, 128, 152, 163, 185, 194]
+B = [0, 17, 35, 52, 61, 75, 84, 94, 105, 114, 117, 125, 129, 138, 152, 163, 185, 194] if not VAR else [0, 17, 21, 32, 35, 52, 61, 75, 84, 94, 105, 114, 117, 125, 129, 138, 152, 163, 185, 194]
 # correzioni a mano dove whisper sbaglia l'attacco (secondi nella ripresa)
 FIX: dict[int, float] = {}
 
