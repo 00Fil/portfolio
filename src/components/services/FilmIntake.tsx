@@ -58,6 +58,8 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
   const [light, setLight] = useState(true);
   // durante lo zoom la scritta smette di brillare: un testo fermo si scala senza ridisegnarlo a ogni fotogramma
   const [frozen, setFrozen] = useState(false);
+  // la bolla resta montata finche' la card non l'ha sostituita: il passaggio e' un'unica animazione, senza stacchi
+  const [orbOn, setOrbOn] = useState(true);
   const level = useRef({ current: 0 });
   const voice = useRef<Voice | null>(null);
   const mutedRef = useRef(false);
@@ -131,13 +133,13 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
     gsap.fromTo(subRef.current.querySelectorAll("[data-w]"), { autoAlpha: 0, y: 14, filter: "blur(6px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.28, ease: "power3.out", stagger: 0.085 });
   }, [sub]);
 
-  // la bolla si espande nella card
+  // la bolla si espande nella card: la bolla cresce e si scioglie mentre la card nasce dallo stesso centro
   useEffect(() => {
     if (phase !== "form" || !card.current) return;
-    const tl = gsap.timeline();
-    if (orb.current) tl.to(orb.current, { scale: 2.2, autoAlpha: 0, duration: 0.9, ease: "sine.inOut", force3D: true }, 0);
-    tl.fromTo(card.current, { scale: 0.92, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.9, ease: "sine.inOut", force3D: true }, 0.15);
-    if (rim.current) tl.fromTo(rim.current, { scale: 0.8, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 1.0, ease: "sine.inOut", force3D: true }, 0.05);
+    const tl = gsap.timeline({ onComplete: () => setOrbOn(false) });
+    if (orb.current) tl.to(orb.current, { scale: 1.9, autoAlpha: 0, filter: "blur(14px)", duration: 0.85, ease: "power2.inOut" }, 0);
+    tl.fromTo(card.current, { scale: 0.62, autoAlpha: 0, filter: "blur(16px)" }, { scale: 1, autoAlpha: 1, filter: "blur(0px)", duration: 0.95, ease: "power3.out", clearProps: "filter" }, 0.12);
+    if (rim.current) tl.fromTo(rim.current, { scale: 0.86, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 1.0, ease: "power2.out" }, 0.2);
     return () => void tl.kill();
   }, [phase]);
 
@@ -165,7 +167,7 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
   // ogni domanda entra con un respiro
   useEffect(() => {
     if (phase === "intro" || !body.current) return;
-    gsap.fromTo(body.current.querySelectorAll("[data-in]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.04, overwrite: true, delay: step === 0 && phase === "form" ? 0.6 : 0 });
+    gsap.fromTo(body.current.querySelectorAll("[data-in]"), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.04, overwrite: true, delay: step === 0 && phase === "form" ? 0.55 : 0 });
     // la domanda arriva parola per parola
     gsap.fromTo(body.current.querySelectorAll("p [data-w]"), { autoAlpha: 0, y: 12, filter: "blur(6px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.28, ease: "power3.out", stagger: 0.07, overwrite: true, delay: (step === 0 && phase === "form" ? 0.6 : 0) + 0.1 });
   }, [step, phase]);
@@ -216,8 +218,8 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
         </Bead>
       </div>
 
-      {phase === "intro" && (
-        <>
+      {orbOn && (
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-5">
           <div ref={orb} className="relative aspect-square w-[min(40vh,360px,74vw)]">
             <Strands colors={PINK} lightMode={light} levelRef={level.current} energy={0.45} />
           </div>
@@ -228,7 +230,7 @@ export function FilmIntake({ en, onDone, onSkip }: { en: boolean; onDone: (a: An
               </p>
             )}
           </div>
-        </>
+        </div>
       )}
 
       {phase !== "intro" && (
