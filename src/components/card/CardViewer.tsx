@@ -39,39 +39,60 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
   const intro = useRef<gsap.core.Timeline | null>(null);
 
   /**
-   * Ingresso: una stanza bianca (lo schermo e' la parete di fondo, poi due pareti, pavimento e soffitto).
-   * La card parte distesa sul pavimento, si alza e fluttua, poi la camera avanza fino alla situazione di sempre;
-   * a quel punto il "Ciao!" si scrive a mano e compare il campo del codice.
+   * Ingresso: lo schermo e' la quarta parete di una stanza (una scatola vista da davanti: le pareti convergono
+   * verso il fondo con la prospettiva giusta). La card parte distesa sul pavimento, si alza e fluttua; poi la
+   * camera avanza fino alla card, la stanza svanisce e si torna alla vista di sempre. Il "Ciao!" si scrive per ultimo.
    */
   useEffect(() => {
     const st = stage.current;
     const wd = world.current;
     const fl = float.current;
-    if (!st || !wd || !fl) return;
+    const sc = scene.current;
+    if (!st || !wd || !fl || !sc) return;
     const pens = Array.from(st.querySelectorAll<SVGPathElement>(".pen"));
     const spark = st.querySelector<SVGElement>(".spark");
     const dot = st.querySelector<SVGElement>(".dot");
     const planes = Array.from(st.querySelectorAll<HTMLElement>("[data-plane]"));
     const drop = st.querySelector<HTMLElement>("[data-drop]");
-    const done = () => {
+    const finish = () => {
       st.dataset.intro = "done";
+      st.style.perspective = "";
+      st.style.perspectiveOrigin = "";
+      gsap.set([wd, fl], { clearProps: "transform" });
     };
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const settle = () => {
       pens.forEach((p) => p.setAttribute("stroke-dashoffset", "0"));
       spark?.setAttribute("transform", "");
       dot?.setAttribute("transform", "");
-      return done();
+    };
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      settle();
+      return finish();
     }
-    // misure della stanza sul vero schermo, prima che appaia qualcosa
+
+    // geometria: l'apertura della scatola coincide con lo schermo; il centro prospettico e' il centro dello schermo
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    const rh = Math.round(vh * 0.55);
-    st.style.setProperty("--rw", `${Math.round(vw * 1.4)}px`);
-    st.style.setProperty("--rh", `${rh}px`);
-    const portrait = vw < vh;
-    gsap.set(fl, { y: rh - 3, rotationX: 90, rotationZ: -7, transformOrigin: "50% 50%" });
-    gsap.set(wd, { z: portrait ? -1500 : -1100, y: -vh * 0.06, rotationX: portrait ? -24 : -20, transformOrigin: "50% 50%" });
-    if (drop) gsap.set(drop, { opacity: 0.85, scale: 1 });
+    const r = sc.getBoundingClientRect();
+    const hs = r.height;
+    const dx = vw / 2 - (r.left + r.width / 2);
+    const dy = vh / 2 - (r.top + hs / 2);
+    const P = Math.round(Math.max(vw, vh) * 1.15);
+    const RD = Math.round(P * 0.8);
+    const ZC = Math.round(RD * 0.5);
+    const hh = vh / 2;
+    st.style.perspective = `${P}px`;
+    st.style.perspectiveOrigin = `${(st.clientWidth || r.width) / 2 + dx}px ${hs / 2 + dy}px`;
+    st.style.setProperty("--hw", `${vw / 2}px`);
+    st.style.setProperty("--hh", `${hh}px`);
+    st.style.setProperty("--rd", `${RD}px`);
+    st.style.setProperty("--dx", `${dx}px`);
+    st.style.setProperty("--dy", `${dy}px`);
+
+    // la card sta ferma sul pavimento, a meta' profondita'
+    const yFloor = hh + dy - 4;
+    gsap.set(fl, { z: -ZC, y: yFloor, rotationX: 90, rotationZ: -6, transformOrigin: "50% 50%" });
+    if (drop) gsap.set(drop, { x: -dx, y: hh - 1, z: -ZC, rotationX: -90, xPercent: -50, yPercent: -50, opacity: 0.6, scale: 1 });
     st.dataset.intro = "run";
 
     const SPEED = 560;
@@ -82,22 +103,37 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
       tl.to(o, { k: 1, duration: 0.32, ease: "back.out(2)", onUpdate: () => el.setAttribute("transform", `translate(${cx} ${cy}) scale(${o.k}) translate(${-cx} ${-cy})`) }, t);
     };
     const build = () => {
-      const tl = gsap.timeline({ delay: 0.2, onComplete: done });
+      const tl = gsap.timeline({ delay: 0.2 });
       intro.current = tl;
-      // 1. la card si stacca dal pavimento e sale
-      tl.to(fl, { y: 0, rotationX: 0, duration: 1.7, ease: "power3.out" }, 0);
+      // 1. si rialza dal pavimento ruotando sul suo bordo: il punto piu' basso non entra mai nel pavimento
+      const o = { p: 0 };
+      tl.to(o, {
+        p: 1,
+        duration: 1.8,
+        ease: "power2.out",
+        onUpdate: () => {
+          const a = 90 * (1 - o.p);
+          const limit = yFloor - (hs / 2) * Math.cos((a * Math.PI) / 180);
+          const lift = yFloor * (1 - o.p);
+          const y = Math.min(lift, limit);
+          gsap.set(fl, { y, rotationX: a });
+          if (drop) {
+            const h = Math.min(1, (yFloor - y) / Math.max(1, yFloor));
+            gsap.set(drop, { opacity: 0.6 - 0.32 * h, scale: 1 - 0.3 * h });
+          }
+        },
+      }, 0);
       tl.to(fl, { rotationZ: 0, duration: 1.9, ease: "sine.out" }, 0);
-      if (drop) tl.to(drop, { opacity: 0.32, scale: 0.72, duration: 1.7, ease: "power3.out" }, 0);
       // 2. fluttua
-      tl.to(fl, { y: -16, rotationY: 7, duration: 0.8, ease: "sine.inOut" }, 1.55);
-      tl.to(fl, { y: 0, rotationY: 0, duration: 0.7, ease: "sine.inOut" }, 2.35);
-      // 3. la camera avanza fino alla vista di sempre
-      tl.to(wd, { z: 0, y: 0, rotationX: 0, duration: 1.9, ease: "power3.inOut" }, 1.9);
-      tl.to(planes, { opacity: 0, duration: 0.6, ease: "power1.in" }, 3.2);
-      if (drop) tl.to(drop, { opacity: 0, duration: 0.5 }, 3.2);
-      tl.add(() => done(), 3.8);
-      // 4. il Ciao! si scrive a mano
-      const w0 = 3.55;
+      tl.to(fl, { y: -14, rotationY: 7, duration: 0.8, ease: "sine.inOut" }, 1.7);
+      tl.to(fl, { y: 0, rotationY: 0, duration: 0.7, ease: "sine.inOut" }, 2.5);
+      // 3. la camera avanza fino alla card
+      tl.to(wd, { z: ZC, duration: 1.8, ease: "power3.inOut" }, 2.0);
+      tl.to(planes, { opacity: 0, duration: 0.55, ease: "power1.in" }, 3.25);
+      if (drop) tl.to(drop, { opacity: 0, duration: 0.4 }, 3.25);
+      tl.add(finish, 3.85);
+      // 4. il Ciao! si scrive a mano (la scena e' gia' piatta: nessuna prospettiva da ricalcolare)
+      const w0 = 3.9;
       tl.to(pens[0], { strokeDashoffset: 0, duration: at(0), ease: "sine.inOut" }, w0);
       tl.to(pens[1], { strokeDashoffset: 0, duration: at(1) * 0.9, ease: "none" }, ">-0.05");
       tl.to(pens[2], { strokeDashoffset: 0, duration: at(2), ease: "sine.inOut" }, ">-0.12");
@@ -278,20 +314,13 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
               <>
                 <div className={s.ciao}>
                   <svg viewBox="0 0 1320 450" className={s.ciaoShadow} aria-hidden>
-                    <defs>
-                      <filter id="ciao-shadow" x="-6%" y="-14%" width="112%" height="140%" colorInterpolationFilters="sRGB">
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="9" result="sb" />
-                        <feFlood floodColor="#000" floodOpacity=".62" />
-                        <feComposite in2="sb" operator="in" />
-                      </filter>
-                    </defs>
                     <g mask="url(#ciao-write)">
-                      <image href="/card/ciao.png" width="1320" height="450" filter="url(#ciao-shadow)" />
+                      <image href="/card/ciao-shadow.webp" x="-40" y="-40" width="1400" height="530" />
                     </g>
                   </svg>
                   <svg viewBox="0 0 1320 450" className={s.glassEdge} aria-hidden>
                     <defs>
-                      {/* la scrittura: i tratti bianchi si disegnano e scoprono il vetro sotto */}
+                      {/* la scrittura: i tratti bianchi si disegnano e scoprono il vetro (gia' cotto in immagine) */}
                       <mask id="ciao-write" maskUnits="userSpaceOnUse" x="-60" y="-60" width="1440" height="570">
                         {PEN.map((t, i) => (
                           <path key={i} className="pen" d={t.d} pathLength={1} fill="none" stroke="#fff" strokeWidth="100" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="1 1" strokeDashoffset="1" />
@@ -299,61 +328,9 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
                         <circle className="spark" cx="432" cy="97" r="80" fill="#fff" transform="translate(432 97) scale(0) translate(-432 -97)" />
                         <circle className="dot" cx="1201" cy="384" r="58" fill="#fff" transform="translate(1201 384) scale(0) translate(-1201 -384)" />
                       </mask>
-                      {/* goccia d'acqua su un tavolo: cupola dalla mappa dell'alpha, rifrazione dello sfondo, luce che scivola, caustica in basso a destra */}
-                      <filter id="ciao-glass" x="-5%" y="-12%" width="110%" height="132%" colorInterpolationFilters="sRGB">
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="h" />
-                        <feColorMatrix in="h" type="matrix" values="0 0 0 1 0  0 0 0 1 0  0 0 0 1 0  0 0 0 0 1" result="hc" />
-                        <feOffset in="hc" dx="3" result="xp" />
-                        <feOffset in="hc" dx="-3" result="xm" />
-                        <feOffset in="hc" dy="3" result="yp" />
-                        <feOffset in="hc" dy="-3" result="ym" />
-                        <feComposite in="xp" in2="xm" operator="arithmetic" k1="0" k2="2.4" k3="-2.4" k4=".5" result="gx" />
-                        <feComposite in="yp" in2="ym" operator="arithmetic" k1="0" k2="2.4" k3="-2.4" k4=".5" result="gy" />
-                        <feColorMatrix in="gx" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0 1" result="mx" />
-                        <feColorMatrix in="gy" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 0 1" result="my" />
-                        <feComposite in="mx" in2="my" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="map" />
-                        <feImage href="/card/back-dark.webp" x="-394" y="-411" width="2020" height="1274" preserveAspectRatio="none" result="bg" />
-                        <feDisplacementMap in="bg" in2="map" scale="120" xChannelSelector="R" yChannelSelector="G" result="refr" />
-                        <feDiffuseLighting in="h" surfaceScale="14" diffuseConstant="1.25" lightingColor="#ffffff" result="dif">
-                          <feDistantLight azimuth="225" elevation="50" />
-                        </feDiffuseLighting>
-                        <feBlend in="refr" in2="dif" mode="multiply" result="shaded" />
-                        <feComposite in="shaded" in2="SourceAlpha" operator="in" result="lens" />
-                        <feFlood floodColor="#cfeaff" floodOpacity=".2" />
-                        <feComposite in2="SourceAlpha" operator="in" result="veil" />
-                        {/* caustica: la luce si concentra nel bordo opposto alla sorgente */}
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="ib" />
-                        <feOffset in="ib" dx="-9" dy="-12" result="io" />
-                        <feComposite in="SourceAlpha" in2="io" operator="out" result="band" />
-                        <feFlood floodColor="#a9defe" floodOpacity=".9" />
-                        <feComposite in2="band" operator="in" result="caustic" />
-                        {/* riflessi della sorgente */}
-                        <feSpecularLighting in="h" surfaceScale="16" specularConstant="1.6" specularExponent="34" lightingColor="#ffffff" result="sp1">
-                          <feDistantLight azimuth="225" elevation="44" />
-                        </feSpecularLighting>
-                        <feComposite in="sp1" in2="SourceAlpha" operator="in" result="spec1" />
-                        <feSpecularLighting in="h" surfaceScale="10" specularConstant="1" specularExponent="18" lightingColor="#7cc8ff" result="sp2">
-                          <feDistantLight azimuth="40" elevation="36" />
-                        </feSpecularLighting>
-                        <feComposite in="sp2" in2="SourceAlpha" operator="in" result="spec2" />
-                        {/* filo di luce sul contorno */}
-                        <feMorphology in="SourceAlpha" operator="erode" radius="1.8" result="er" />
-                        <feComposite in="SourceAlpha" in2="er" operator="out" result="ring" />
-                        <feGaussianBlur in="ring" stdDeviation=".7" result="ringb" />
-                        <feFlood floodColor="#ffffff" floodOpacity=".9" />
-                        <feComposite in2="ringb" operator="in" result="rim" />
-                        <feMerge>
-                          <feMergeNode in="lens" />
-                          <feMergeNode in="veil" />
-                          <feMergeNode in="caustic" />
-                          <feMergeNode in="spec2" />
-                          <feMergeNode in="spec1" />
-                          <feMergeNode in="rim" />
-                        </feMerge>
-                      </filter>
                     </defs>
                     <g mask="url(#ciao-write)">
-                      <image href="/card/ciao.png" width="1320" height="450" filter="url(#ciao-glass)" />
+                      <image href="/card/ciao-glass.webp" x="-40" y="-40" width="1400" height="530" />
                     </g>
                   </svg>
                 </div>
