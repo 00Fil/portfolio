@@ -193,7 +193,7 @@ function Row({ c, editing, onEdit, onClose }: { c: CardT; editing: boolean; onEd
   );
 }
 
-export function AdminPanel({ cards, maintenance, persist }: { cards: CardT[]; maintenance: boolean; persist: boolean | null }) {
+export function AdminPanel({ cards, maintenance, persist }: { cards: CardT[]; maintenance: boolean; persist: { ok: boolean; dir: string; fs: string } | null }) {
   const router = useRouter();
   const [edit, setEdit] = useState<string | null>(null);
   const [on, setOn] = useState(maintenance);
@@ -232,8 +232,8 @@ export function AdminPanel({ cards, maintenance, persist }: { cards: CardT[]; ma
 
         {persist !== null && (
           <p className="mt-4 flex items-center gap-2.5 pl-3 text-[13.5px] text-ink-2">
-            <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: persist ? "#30d158" : "#e5484d" }} />
-            {persist ? "Dati su volume" : "Dati non persistenti"}
+            <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: persist.ok ? "#30d158" : "#e5484d" }} />
+            {persist.ok ? "Dati su volume" : "Dati non persistenti"} · {persist.dir} · {persist.fs}
           </p>
         )}
 

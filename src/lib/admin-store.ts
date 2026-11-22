@@ -118,22 +118,28 @@ export const readLogo = (id: string) => (/^[a-f0-9]{16}$/.test(id) && fs.existsS
 export const removeLogo = (id: string) => fs.rmSync(logoFile(id), { force: true });
 
 /**
- * La cartella dei dati sta su un volume? Si legge la tabella dei mount di Linux: conta un mount (non overlay/tmpfs)
- * esattamente su DATA_DIR o su una sua cartella madre diversa da "/". null se non si puo' sapere.
+ * La cartella dei dati sta su un volume? Si legge la tabella dei mount di Linux: conta un mount esattamente su DATA_DIR
+ * (di qualunque tipo, tranne tmpfs) o su una cartella madre diversa da "/" che non sia overlay.
+ * Restituisce anche il percorso e il tipo di filesystem trovato, per capire cosa succede.
  */
-export function dataPersistent(): boolean | null {
+export function dataPersistent(): { ok: boolean; dir: string; fs: string } | null {
   try {
     fs.mkdirSync(DATA_DIR, { recursive: true });
     const dir = fs.realpathSync(DATA_DIR);
     const lines = fs.readFileSync("/proc/self/mountinfo", "utf8").split("\n");
+    let best: { mp: string; fstype: string } | null = null;
     for (const l of lines) {
       const [pre, post] = l.split(" - ");
       if (!post) continue;
-      const mp = pre.split(" ")[4];
+      const mp = pre.split(" ")[4]?.replace(/\\040/g, " ");
       const fstype = post.split(" ")[0];
-      if (mp && mp !== "/" && (dir === mp || dir.startsWith(mp + "/")) && fstype !== "overlay" && fstype !== "tmpfs" && fstype !== "proc" && fstype !== "sysfs") return true;
+      if (!mp || mp === "/" || !(dir === mp || dir.startsWith(mp + "/"))) continue;
+      if (!best || mp.length >= best.mp.length) best = { mp, fstype };
     }
-    return false;
+    if (!best) return { ok: false, dir, fs: "overlay" };
+    const exact = best.mp === dir;
+    const ok = best.fstype !== "tmpfs" && (exact || !["overlay", "proc", "sysfs"].includes(best.fstype));
+    return { ok, dir, fs: best.fstype };
   } catch {
     return null;
   }
