@@ -252,6 +252,62 @@ function buildCiaoMesh(cols = 280, rows = 96) {
   return { vertices: verts, indices };
 }
 
+// --- Mesh 3D per le 2 pillole credenziali sul retro (stesso rilievo liquid glass del "Ciao!", sporgenti in -Z) ---
+function buildBackPillsMesh(cols = 120, rows = 36) {
+  const pills = [
+    { id: 0, v0: 0.30, v1: 0.478 },
+    { id: 1, v0: 0.525, v1: 0.703 },
+  ];
+  const u0 = 0.1262;
+  const u1 = 0.1262 + 0.7477;
+  const zBase = -CARD_T * 0.5 + 0.004;
+
+  const vertsPerPill = (cols + 1) * (rows + 1);
+  const verts = new Float32Array(pills.length * vertsPerPill * 8);
+  const indices = new Uint32Array(pills.length * cols * rows * 6);
+  let vPtr = 0;
+  let iPtr = 0;
+
+  for (let pIdx = 0; pIdx < pills.length; pIdx++) {
+    const p = pills[pIdx];
+    const baseVertex = pIdx * vertsPerPill;
+    for (let j = 0; j <= rows; j++) {
+      const pv = j / rows;
+      const bv = p.v0 + (p.v1 - p.v0) * pv;
+      const y = (0.5 - bv) * CARD_H;
+      for (let i = 0; i <= cols; i++) {
+        const pu = i / cols;
+        const bu = u0 + (u1 - u0) * pu;
+        const x = (0.5 - bu) * CARD_W;
+        verts[vPtr++] = x;
+        verts[vPtr++] = y;
+        verts[vPtr++] = zBase;
+        verts[vPtr++] = pu;
+        verts[vPtr++] = pv;
+        verts[vPtr++] = bu;
+        verts[vPtr++] = bv;
+        verts[vPtr++] = p.id;
+      }
+    }
+    const stride = cols + 1;
+    for (let j = 0; j < rows; j++) {
+      for (let i = 0; i < cols; i++) {
+        const a = baseVertex + j * stride + i;
+        const b = a + 1;
+        const c = a + stride;
+        const d = c + 1;
+        indices[iPtr++] = a;
+        indices[iPtr++] = b;
+        indices[iPtr++] = c;
+        indices[iPtr++] = b;
+        indices[iPtr++] = d;
+        indices[iPtr++] = c;
+      }
+    }
+  }
+  return { vertices: verts, indices };
+}
+
 // --- Piano studio infinito 3D ---
 function buildFloorGeometry() {
   const s = 60;
@@ -411,9 +467,17 @@ void main() {
     vec4 signTex = texture(uFrontTex, vUv);
     col = mix(col, signTex.rgb, signTex.a);
   } else if (vMat < 1.5) {
-    // Retro: pillole credenziali
-    vec4 backTex = texture(uBackTex, vUv);
-    col = mix(col, backTex.rgb, backTex.a);
+    // Ombra morbida di contatto delle due pillole 3D sul retro della card
+    vec3 L_local = normalize(transpose(uRot3) * L1);
+    vec2 shOff = vec2(L_local.x, L_local.y) * vec2(0.012, 0.022);
+    vec2 sUv = vUv - shOff;
+    float pAspect = (0.7477 * 8.56) / (0.178 * 5.4);
+    float halfSpan = pAspect * 0.5 - 0.5;
+    float d1 = length(vec2(max(abs((sUv.x - 0.5) / 0.7477 * pAspect) - halfSpan, 0.0), (sUv.y - 0.389) / 0.178)) - 0.5;
+    float d2 = length(vec2(max(abs((sUv.x - 0.5) / 0.7477 * pAspect) - halfSpan, 0.0), (sUv.y - 0.614) / 0.178)) - 0.5;
+    float dMin = min(d1, d2);
+    float pillShadow = (1.0 - smoothstep(-0.08, 0.22, dMin)) * 0.42;
+    col = mix(col, col * 0.26, pillShadow);
   }
 
   outColor = vec4(clamp(col, 0.0, 1.0), 1.0);
@@ -630,6 +694,174 @@ void main() {
   outColor = vec4(clamp(glass.rgb, 0.0, 1.0), alpha);
 }`;
 
+const PILL_VERT = `#version 300 es
+in vec3 aPos;
+in vec2 aPillUv;
+in vec2 aBackUv;
+in float aPillId;
+
+uniform mat4 uVP;
+uniform mat4 uModel;
+
+out vec2 vPillUv;
+out vec2 vBackUv;
+out vec3 vWorldPos;
+out float vPillId;
+
+const float PILL_ASPECT = (0.7477 * 8.56) / (0.178 * 5.4);
+
+float pillDome(vec2 uv) {
+  vec2 q = (uv - 0.5) * vec2(PILL_ASPECT, 1.0);
+  float r = 0.48;
+  float halfSpan = PILL_ASPECT * 0.5 - r;
+  float sd = length(vec2(max(abs(q.x) - halfSpan, 0.0), q.y)) - r;
+  float dist = max(0.0, -sd);
+  float u = clamp(dist / 0.24, 0.0, 1.0);
+  return sqrt(max(0.0, 1.0 - (1.0 - u) * (1.0 - u)));
+}
+
+void main() {
+  float h = pillDome(aPillUv);
+  vec3 pos = aPos;
+  // Spostamento 3D fisico verso -Z (sporge dalla faccia posteriore della card come il "Ciao!" davanti)
+  pos.z -= h * 0.19;
+
+  vec4 wp = uModel * vec4(pos, 1.0);
+  vWorldPos = wp.xyz;
+  vPillUv = aPillUv;
+  vBackUv = aBackUv;
+  vPillId = aPillId;
+  gl_Position = uVP * wp;
+}`;
+
+const PILL_FRAG = `#version 300 es
+precision highp float;
+in vec2 vPillUv;
+in vec2 vBackUv;
+in vec3 vWorldPos;
+in float vPillId;
+
+uniform mat3 uRot3;
+uniform vec3 uCamPos;
+uniform vec3 uCardColor;
+uniform sampler2D uBackTex;
+uniform float uCopiedPill; // -1.0 = nessuna, 0.0 = user, 1.0 = pass
+
+out vec4 outColor;
+
+const float PILL_ASPECT = (0.7477 * 8.56) / (0.178 * 5.4);
+const float U_IOR = 1.50;
+const float U_DISPERSION = 0.24;
+const float U_REFLECTION = 1.04;
+
+float pillSdf(vec2 uv) {
+  vec2 q = (uv - 0.5) * vec2(PILL_ASPECT, 1.0);
+  float r = 0.48;
+  float halfSpan = PILL_ASPECT * 0.5 - r;
+  return length(vec2(max(abs(q.x) - halfSpan, 0.0), q.y)) - r;
+}
+
+float pillHeight(vec2 uv) {
+  float dist = max(0.0, -pillSdf(uv));
+  float u = clamp(dist / 0.24, 0.0, 1.0);
+  return sqrt(max(0.0, 1.0 - (1.0 - u) * (1.0 - u)));
+}
+
+vec3 studio(vec3 d) {
+  vec2 a = vec2(atan(d.x, d.z), d.y);
+  float key = smoothstep(0.46, 0.22, abs(a.x + 0.60)) * smoothstep(0.32, 0.12, abs(a.y - 0.50));
+  float strip = smoothstep(0.14, 0.05, abs(a.x - 0.94)) * smoothstep(0.82, 0.34, abs(a.y - 0.06));
+  float dome = smoothstep(0.0, 1.0, d.z) * 0.045;
+  return vec3(16.0) * key + vec3(7.5) * strip + vec3(dome);
+}
+
+vec4 fgLight(vec3 d, float weight) {
+  vec3 c = studio(d) * weight;
+  float a = clamp(max(c.r, max(c.g, c.b)), 0.0, 1.0);
+  return vec4(min(c, vec3(a)), a);
+}
+
+vec3 backSurfaceAt(vec2 buv, vec3 backN, vec3 V) {
+  vec3 L1 = normalize(vec3(-0.22, 0.82, 0.53));
+  vec3 L2 = normalize(vec3(0.55, 0.35, 0.75));
+  float diff1 = max(dot(backN, L1), 0.0);
+  float diff2 = max(dot(backN, L2), 0.0);
+  vec3 H1 = normalize(L1 + V);
+  float spec = pow(max(dot(backN, H1), 0.0), 46.0) * 0.20;
+  vec3 col = uCardColor * (0.72 + 0.34 * diff1 + 0.14 * diff2) + vec3(0.88, 0.94, 0.97) * spec;
+
+  vec4 txt = texture(uBackTex, clamp(buv, 0.002, 0.998));
+  col = mix(col, txt.rgb, txt.a);
+  return clamp(col, 0.0, 1.0);
+}
+
+void main() {
+  float sd = pillSdf(vPillUv);
+  float aa = max(fwidth(sd) * 1.25, 0.004);
+  float alpha = 1.0 - smoothstep(-aa, aa, sd);
+  if (alpha < 0.01) discard;
+
+  float hC = pillHeight(vPillUv);
+  vec2 eps = vec2(0.003, 0.018);
+  float hR = pillHeight(vPillUv + vec2(eps.x, 0.0));
+  float hL = pillHeight(vPillUv - vec2(eps.x, 0.0));
+  float hD = pillHeight(vPillUv + vec2(0.0, eps.y));
+  float hU = pillHeight(vPillUv - vec2(0.0, eps.y));
+
+  // Sul retro +u va verso -X, +v va verso -Y, e la normale sporge verso -Z
+  float slopeX = 0.52;
+  float slopeY = 2.85;
+  vec3 N_local = normalize(vec3((hR - hL) * slopeX, (hD - hU) * slopeY, -1.0));
+  vec3 N_world = normalize(uRot3 * N_local);
+  vec3 backN = normalize(uRot3 * vec3(0.0, 0.0, -1.0));
+
+  vec3 V_world = normalize(uCamPos - vWorldPos);
+  vec3 rd = -V_world;
+
+  // FluidGlass: Schlick Fresnel con IOR = 1.50
+  float cosi = clamp(-dot(rd, N_world), 0.0, 1.0);
+  float f0 = pow((U_IOR - 1.0) / (U_IOR + 1.0), 2.0);
+  float fresnel = f0 + (1.0 - f0) * pow(1.0 - cosi, 5.0);
+
+  // Rifrazione + dispersione RGB sul contenuto della pillola (testo/icona o overlay copiato full-pill)
+  vec3 rdLocal = normalize(transpose(uRot3) * rd);
+  vec3 insideG = refract(rdLocal, N_local, 1.0 / U_IOR);
+  vec3 spread = vec3(-1.0, 0.0, 1.0) * U_DISPERSION * 0.06;
+  vec3 insideR = refract(rdLocal, N_local, 1.0 / (U_IOR + spread.x));
+  vec3 insideB = refract(rdLocal, N_local, 1.0 / (U_IOR + spread.z));
+
+  float edgeBend = 1.0 - smoothstep(0.0, 0.92, hC);
+  float thick = 0.006 + 0.042 * edgeBend;
+  vec2 hitR = vBackUv + vec2(-insideR.x, -insideR.y) / max(abs(insideR.z), 0.28) * thick;
+  vec2 hitG = vBackUv + vec2(-insideG.x, -insideG.y) / max(abs(insideG.z), 0.28) * thick;
+  vec2 hitB = vBackUv + vec2(-insideB.x, -insideB.y) / max(abs(insideB.z), 0.28) * thick;
+
+  vec3 colR = backSurfaceAt(hitR, backN, V_world);
+  vec3 colG = backSurfaceAt(hitG, backN, V_world);
+  vec3 colB = backSurfaceAt(hitB, backN, V_world);
+  vec4 transmitted = vec4(colR.r, colG.g, colB.b, 1.0);
+
+  vec3 mirrorDir = reflect(rd, N_world);
+  vec4 mirror = fgLight(mirrorDir, U_REFLECTION);
+  vec4 reflected = fgLight(mirrorDir, U_REFLECTION * fresnel);
+
+  vec4 glass = reflected + transmitted * (1.0 - reflected.a);
+  float edge = 1.0 - smoothstep(0.05, 0.34, cosi);
+  glass = mix(glass, mirror + transmitted * (1.0 - mirror.a), edge * 0.68);
+
+  vec2 facing = normalize(vec2(-0.42, 0.55));
+  float rimLight = pow(1.0 - cosi, 3.0) * (0.25 + 0.75 * abs(dot(normalize(N_local.xy + 1e-5), facing))) * 0.44 * U_REFLECTION;
+  rimLight *= smoothstep(0.0, 0.08, cosi);
+  glass.rgb = vec3(rimLight) + glass.rgb * (1.0 - rimLight);
+
+  // Leggero bagliore quando questa pillola mostra l'overlay "Copiato"
+  if (abs(vPillId - uCopiedPill) < 0.25) {
+    glass.rgb = mix(glass.rgb, vec3(1.0), 0.12);
+  }
+
+  outColor = vec4(clamp(glass.rgb, 0.0, 1.0), alpha);
+}`;
+
 function compileShader(gl: WebGL2RenderingContext, type: number, src: string) {
   const sh = gl.createShader(type)!;
   gl.shaderSource(sh, src);
@@ -747,6 +979,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
     const floorProg = linkProgram(gl, FLOOR_VERT, FLOOR_FRAG);
     const cardProg = linkProgram(gl, CARD_VERT, CARD_FRAG);
     const ciaoProg = linkProgram(gl, CIAO_VERT, CIAO_FRAG);
+    const pillProg = linkProgram(gl, PILL_VERT, PILL_FRAG);
 
     // Geometries + VAOs
     const floorGeo = buildFloorGeometry();
@@ -795,6 +1028,25 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
     const ciaoIbo = gl.createBuffer()!;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ciaoIbo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, ciaoGeo.indices, gl.STATIC_DRAW);
+
+    const pillGeo = buildBackPillsMesh(120, 36);
+    const pillVao = gl.createVertexArray()!;
+    gl.bindVertexArray(pillVao);
+    const pillVbo = gl.createBuffer()!;
+    gl.bindBuffer(gl.ARRAY_BUFFER, pillVbo);
+    gl.bufferData(gl.ARRAY_BUFFER, pillGeo.vertices, gl.STATIC_DRAW);
+    const pStride = 8 * 4;
+    const pPos = gl.getAttribLocation(pillProg, "aPos");
+    const pPillUv = gl.getAttribLocation(pillProg, "aPillUv");
+    const pBackUv = gl.getAttribLocation(pillProg, "aBackUv");
+    const pPillId = gl.getAttribLocation(pillProg, "aPillId");
+    gl.enableVertexAttribArray(pPos); gl.vertexAttribPointer(pPos, 3, gl.FLOAT, false, pStride, 0);
+    gl.enableVertexAttribArray(pPillUv); gl.vertexAttribPointer(pPillUv, 2, gl.FLOAT, false, pStride, 12);
+    gl.enableVertexAttribArray(pBackUv); gl.vertexAttribPointer(pBackUv, 2, gl.FLOAT, false, pStride, 20);
+    gl.enableVertexAttribArray(pPillId); gl.vertexAttribPointer(pPillId, 1, gl.FLOAT, false, pStride, 28);
+    const pillIbo = gl.createBuffer()!;
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, pillIbo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, pillGeo.indices, gl.STATIC_DRAW);
     gl.bindVertexArray(null);
 
     // Textures
@@ -913,24 +1165,47 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
         const pw = 0.7477 * backCv.width;
         const py = topFrac * backCv.height;
         const ph = 0.178 * backCv.height;
+        const iy = py + ph * 0.5;
 
-        const grad = ctx.createLinearGradient(0, py, 0, py + ph);
-        grad.addColorStop(0, "rgba(255,255,255,0.86)");
-        grad.addColorStop(1, "rgba(232,244,250,0.62)");
-        drawRoundedRect(ctx, px, py, pw, ph, ph * 0.5);
-        ctx.fillStyle = grad;
-        ctx.fill();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = "rgba(255,255,255,0.9)";
-        ctx.stroke();
+        if (isTip) {
+          // Overlay completo che copre 100% della pillola quando si copia
+          const grad = ctx.createLinearGradient(0, py, 0, py + ph);
+          grad.addColorStop(0, "rgba(255, 255, 255, 0.96)");
+          grad.addColorStop(1, "rgba(228, 241, 247, 0.92)");
+          drawRoundedRect(ctx, px, py, pw, ph, ph * 0.5);
+          ctx.fillStyle = grad;
+          ctx.fill();
 
-        // Icona minimalista a sinistra
-        ctx.strokeStyle = "#162d36";
+          // Checkmark + testo "Copiato" centrati sull'intero input
+          ctx.font = "700 54px system-ui, -apple-system, sans-serif";
+          const labelW = ctx.measureText(cp).width;
+          const checkW = 42;
+          const gap = 22;
+          const startX = px + (pw - (checkW + gap + labelW)) * 0.5;
+
+          ctx.strokeStyle = "#14262e";
+          ctx.lineWidth = 8;
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          ctx.beginPath();
+          ctx.moveTo(startX, iy + 2);
+          ctx.lineTo(startX + 14, iy + 16);
+          ctx.lineTo(startX + checkW, iy - 14);
+          ctx.stroke();
+
+          ctx.fillStyle = "#14262e";
+          ctx.textAlign = "left";
+          ctx.textBaseline = "middle";
+          ctx.fillText(cp, startX + checkW + gap, iy + 2);
+          return;
+        }
+
+        // Contenuto bianco nitido rifratto direttamente attraverso la pillola 3D in liquid glass
+        ctx.strokeStyle = isDots ? "rgba(255, 255, 255, 0.72)" : "rgba(255, 255, 255, 0.95)";
         ctx.lineWidth = 6;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
         const ix = px + 88;
-        const iy = py + ph * 0.5;
         if (isUser) {
           ctx.beginPath();
           ctx.arc(ix, iy - 12, 14, 0, Math.PI * 2);
@@ -949,18 +1224,11 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
           ctx.stroke();
         }
 
-        ctx.fillStyle = isDots ? "rgba(22, 45, 54, 0.55)" : "#162d36";
+        ctx.fillStyle = isDots ? "rgba(255, 255, 255, 0.70)" : "#ffffff";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.font = `700 ${isUser ? 66 : 54}px system-ui, -apple-system, sans-serif`;
         ctx.fillText(text, px + pw * 0.5, iy + 2);
-
-        if (isTip) {
-          ctx.textAlign = "right";
-          ctx.fillStyle = "rgba(22, 45, 54, 0.78)";
-          ctx.font = "700 34px system-ui, -apple-system, sans-serif";
-          ctx.fillText(cp, px + pw - 52, iy + 2);
-        }
         ctx.textAlign = "left";
       };
 
@@ -1002,6 +1270,15 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       uProgress: gl.getUniformLocation(ciaoProg, "uProgress"),
       uData: gl.getUniformLocation(ciaoProg, "uData"),
       uPass2: gl.getUniformLocation(ciaoProg, "uPass2"),
+    };
+    const pLoc = {
+      uVP: gl.getUniformLocation(pillProg, "uVP"),
+      uModel: gl.getUniformLocation(pillProg, "uModel"),
+      uRot3: gl.getUniformLocation(pillProg, "uRot3"),
+      uCamPos: gl.getUniformLocation(pillProg, "uCamPos"),
+      uCardColor: gl.getUniformLocation(pillProg, "uCardColor"),
+      uBackTex: gl.getUniformLocation(pillProg, "uBackTex"),
+      uCopiedPill: gl.getUniformLocation(pillProg, "uCopiedPill"),
     };
 
     const viewMat = mat4LookAt(CAM_POS, CAM_TARGET);
@@ -1148,6 +1425,21 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
         gl.drawElements(gl.TRIANGLES, ciaoGeo.indices.length, gl.UNSIGNED_INT, 0);
       }
 
+      // Passo 4: Pillole credenziali 3D in liquid glass sul retro (sporgenti in -Z)
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      gl.useProgram(pillProg);
+      gl.bindVertexArray(pillVao);
+      gl.uniformMatrix4fv(pLoc.uVP, false, vpMat);
+      gl.uniformMatrix4fv(pLoc.uModel, false, model);
+      gl.uniformMatrix3fv(pLoc.uRot3, false, rot3);
+      gl.uniform3fv(pLoc.uCamPos, CAM_POS);
+      gl.uniform3fv(pLoc.uCardColor, CARD_RGB);
+      gl.uniform1i(pLoc.uBackTex, 3);
+      const copiedId = propsRef.current.tip === "user" ? 0 : propsRef.current.tip === "pass" ? 1 : -1;
+      gl.uniform1f(pLoc.uCopiedPill, copiedId);
+      gl.drawElements(gl.TRIANGLES, pillGeo.indices.length, gl.UNSIGNED_INT, 0);
+
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
@@ -1163,7 +1455,8 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       gl.deleteBuffer(floorVbo); gl.deleteBuffer(floorIbo); gl.deleteVertexArray(floorVao);
       gl.deleteBuffer(cardVbo); gl.deleteBuffer(cardIbo); gl.deleteVertexArray(cardVao);
       gl.deleteBuffer(ciaoVbo); gl.deleteBuffer(ciaoIbo); gl.deleteVertexArray(ciaoVao);
-      gl.deleteProgram(floorProg); gl.deleteProgram(cardProg); gl.deleteProgram(ciaoProg);
+      gl.deleteBuffer(pillVbo); gl.deleteBuffer(pillIbo); gl.deleteVertexArray(pillVao);
+      gl.deleteProgram(floorProg); gl.deleteProgram(cardProg); gl.deleteProgram(ciaoProg); gl.deleteProgram(pillProg);
     };
   }, []);
 
