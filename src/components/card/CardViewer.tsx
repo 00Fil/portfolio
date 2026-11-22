@@ -26,16 +26,18 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
   const [shake, setShake] = useState(false);
   const [pending, setPending] = useState(false);
   const [tip, setTip] = useState<"user" | "pass" | null>(null);
+  const [bloom, setBloom] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
       ciao.current?.settle();
+      setBloom(true);
       return;
     }
     return onIntroLift(() => {
-      ciao.current?.play(180);
+      ciao.current?.play(180, () => setBloom(true));
     });
   }, [slug]);
 
@@ -199,19 +201,17 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
                 <div className={s.frontSilk} aria-hidden>
                   <CardSilk
                     lightMode={false}
-                    color="#1a1e26"
-                    sheenColor="#2e3542"
-                    speed={3.4}
+                    color="#0d1326"
+                    sheenColor="#25345c"
+                    colorBloom={bloom}
+                    speed={3.2}
                     scale={1.15}
-                    depth={0.75}
-                    sheen={0.48}
-                    glow={0.22}
-                    noiseIntensity={1.1}
+                    depth={0.68}
+                    sheen={0.55}
+                    glow={0.32}
+                    noiseIntensity={1.0}
                     onCanvas={(el) => { silkCanvas.current = el; }}
                   />
-                </div>
-                <div className={s.ciao}>
-                  <CiaoGlass ref={ciao} bgCanvasRef={silkCanvas} />
                 </div>
                 <div className={s.sign}>
                   {logo ? (
@@ -228,6 +228,11 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
             <div className={s.sheen} />
             <div className={s.glare} />
           </div>
+          {slug && (
+            <div className={s.ciao3d}>
+              <CiaoGlass ref={ciao} bgCanvasRef={silkCanvas} />
+            </div>
+          )}
           <div className={`${s.face} ${s.back} ${slug ? s.backCustom : ""}`}>
             <div className={s.bar} data-copy="user" style={{ top: "18.93cqw", ["--fs" as string]: "4.67cqw" }}>
               <User aria-hidden strokeWidth={2} />
@@ -242,7 +247,10 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
             <div className={s.sheen} />
             <div className={s.glare} />
           </div>
-          <i className={`${s.edge} ${s.eR}`} /><i className={`${s.edge} ${s.eL}`} /><i className={`${s.edge} ${s.eT}`} /><i className={`${s.edge} ${s.eB}`} />
+          <i className={`${s.edge} ${s.eR} ${slug ? s.edgeCustom : ""}`} />
+          <i className={`${s.edge} ${s.eL} ${slug ? s.edgeCustom : ""}`} />
+          <i className={`${s.edge} ${s.eT} ${slug ? s.edgeCustom : ""}`} />
+          <i className={`${s.edge} ${s.eB} ${slug ? s.edgeCustom : ""}`} />
         </div>
         <div className={s.shadow} aria-hidden />
       </div>

@@ -86,6 +86,7 @@ uniform float uDepth;
 uniform float uSheen;
 uniform float uGlow;
 uniform float uLightMode;
+uniform float uColorBloom;
 uniform vec3 uLight;
 uniform vec2 uStep;
 uniform float uPresence;
@@ -100,6 +101,24 @@ float smootherstep01(float t) {
 vec3 softClip(vec3 c) {
   vec3 over = max(c - 0.75, 0.0);
   return min(c, 0.75) + 0.25 * (1.0 - exp(-over * 4.0));
+}
+
+// Palette multicolore luminosa ad alto contrasto con il vetro trasparente:
+// cobalto elettrico -> ciano -> viola iris -> magenta -> corallo caldo
+vec3 prismPalette(vec2 uv, float p, float t) {
+  float w1 = sin(uv.x * 2.6 + uv.y * 1.8 + p * 2.4 + t * 0.22) * 0.5 + 0.5;
+  float w2 = cos(uv.x * 2.1 - uv.y * 2.7 + p * 3.0 - t * 0.18) * 0.5 + 0.5;
+  float w3 = sin((uv.x - uv.y) * 2.4 - p * 2.0 + t * 0.15) * 0.5 + 0.5;
+  vec3 cCobalt  = vec3(0.14, 0.42, 0.96);
+  vec3 cCyan    = vec3(0.05, 0.76, 0.88);
+  vec3 cViolet  = vec3(0.52, 0.24, 0.94);
+  vec3 cMagenta = vec3(0.92, 0.26, 0.62);
+  vec3 cCoral   = vec3(0.98, 0.46, 0.22);
+  vec3 col = mix(cCobalt, cCyan, smoothstep(0.25, 0.85, w1));
+  col = mix(col, cViolet, smoothstep(0.30, 0.85, w2) * 0.85);
+  col = mix(col, cMagenta, smoothstep(0.42, 0.92, w3) * 0.85);
+  col = mix(col, cCoral, smoothstep(0.68, 0.98, w1 * w3) * 0.75);
+  return col;
 }
 
 void main() {
@@ -127,12 +146,15 @@ void main() {
     bloom += textureLod(uBloom, vUv, 4.0).r * 0.15;
   }
 
+  vec3 baseCol = mix(uColor, prismPalette(coord, pattern, uTime), uColorBloom);
+  vec3 sheenCol = mix(uSheenColor, min(baseCol * 1.55 + vec3(0.25), vec3(1.0)), uColorBloom);
+
   vec3 result;
   if (uLightMode > 0.5) {
     float fold = smoothstep(0.28, 0.9, pattern);
     float specular = smoothstep(0.72, 0.98, pattern);
-    vec3 shadowColor = uColor * (0.72 - 0.12 * uDepth);
-    vec3 bodyColor = min(uColor * 1.18, vec3(1.0));
+    vec3 shadowColor = baseCol * (0.72 - 0.12 * uDepth);
+    vec3 bodyColor = min(baseCol * 1.18, vec3(1.0));
     vec3 lightBase = mix(shadowColor, bodyColor, fold) * mix(1.0, relief, 0.6);
     lightBase = mix(lightBase, vec3(1.0), clamp(specular * 0.92 + shine * 0.22 + bloom * uGlow * 0.2, 0.0, 1.0));
     float fineNoise = noise(gl_FragCoord.xy * 0.63 + vec2(17.0, 41.0));
@@ -141,12 +163,12 @@ void main() {
     result = clamp(lightBase + grainSignal * grainStrength, 0.0, 1.0);
   } else {
     float grain = rnd / 15.0 * uNoiseIntensity;
-    float floorValue = mix(0.2, 0.03, uDepth);
-    float curve = uDepth > 0.0 ? pow(n, 1.0 + 1.4 * uDepth) : n;
+    float floorValue = mix(0.2, 0.05, uDepth);
+    float curve = uDepth > 0.0 ? pow(n, 1.0 + 1.25 * uDepth) : n;
     float shade = uDepth > 0.0 ? floorValue + (1.0 - floorValue) * curve : pattern;
-    vec3 tone = mix(uColor, pow(uColor, vec3(1.45)), (1.0 - n) * uDepth);
+    vec3 tone = mix(baseCol, pow(baseCol, vec3(1.35)), (1.0 - n) * uDepth);
     vec3 lit = tone * shade * relief - vec3(grain);
-    vec3 tint = mix(uColor, uSheenColor, 0.8);
+    vec3 tint = mix(baseCol, sheenCol, 0.8);
     vec3 extra = tint * (shine + bloom * uGlow * 0.55);
     float blend = clamp((uSheen + uGlow) * 4.0, 0.0, 1.0);
     result = mix(clamp(lit, 0.0, 1.0), clamp(softClip(lit + extra), 0.0, 1.0), blend);
@@ -239,6 +261,7 @@ export type CardSilkProps = {
   intro?: boolean;
   fade?: number;
   lightMode?: boolean;
+  colorBloom?: boolean;
   paused?: boolean;
   dpr?: number;
   className?: string;
@@ -265,6 +288,7 @@ export function CardSilk({
   intro = true,
   fade = 0,
   lightMode = false,
+  colorBloom = false,
   paused = false,
   dpr,
   className = "",
@@ -295,6 +319,7 @@ export function CardSilk({
     intro,
     fade: clamp(fade, 0, 1),
     lightMode,
+    colorBloom,
     paused,
     dpr,
   });
@@ -317,6 +342,7 @@ export function CardSilk({
     intro,
     fade: clamp(fade, 0, 1),
     lightMode,
+    colorBloom,
     paused,
     dpr,
   };
@@ -391,6 +417,7 @@ export function CardSilk({
     const state = {
       flow: 0,
       intro: settingsRef.current.intro && !reduce ? 0 : 1,
+      bloom: settingsRef.current.colorBloom ? 1 : 0,
       touch: 0,
       x: 0,
       y: 0,
@@ -458,6 +485,7 @@ export function CardSilk({
       gl.uniform1f(c.uSheen, s.sheen);
       gl.uniform1f(c.uGlow, s.glow);
       gl.uniform1f(c.uLightMode, s.lightMode ? 1 : 0);
+      gl.uniform1f(c.uColorBloom, ease(state.bloom));
       gl.uniform3f(c.uLight, state.lightX, state.lightY, state.touch * s.interactionStrength);
       gl.uniform2f(c.uStep, view.ratio / canvas.width, view.ratio / canvas.height);
       gl.uniform1f(c.uPresence, presence);
@@ -478,6 +506,11 @@ export function CardSilk({
       if (flowing) state.flow += dt * 0.1 * s.speed;
       if (!s.intro || reduce) state.intro = 1;
       else if (state.intro < 1) state.intro = Math.min(1, state.intro + dt / INTRO_SECONDS);
+      const bloomGoal = s.colorBloom ? 1 : 0;
+      if (state.bloom !== bloomGoal) {
+        const step = dt / 1.8;
+        state.bloom = bloomGoal > state.bloom ? Math.min(1, state.bloom + step) : Math.max(0, state.bloom - step);
+      }
 
       const engaged = s.mouseInteraction && pointer.inside && !reduce;
       if (engaged && state.touch < 0.01) {
@@ -523,6 +556,7 @@ export function CardSilk({
 
       const settling =
         state.intro < 1 ||
+        Math.abs(bloomGoal - state.bloom) > 0.001 ||
         waves.length > 0 ||
         Math.abs((engaged ? 1 : 0) - state.touch) > 0.002 ||
         Math.abs(state.dragX) + Math.abs(state.dragY) > 0.0002 ||

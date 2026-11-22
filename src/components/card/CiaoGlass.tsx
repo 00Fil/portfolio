@@ -7,7 +7,7 @@ export type CiaoGlassHandle = {
   /** Aggiorna la rotazione 3D della card (in gradi) senza re-render React. */
   setTilt: (rxDeg: number, ryDeg: number) => void;
   /** Avvia l'animazione fluida di scrittura del "Ciao!". */
-  play: (delayMs?: number) => void;
+  play: (delayMs?: number, onDone?: () => void) => void;
   /** Mostra subito il "Ciao!" completo. */
   settle: () => void;
 };
@@ -144,8 +144,9 @@ void main() {
   vec3 L_local = normalize(Rt * L_world);
   vec3 V_local = normalize(Rt * V_world);
 
-  // 1. Ombra 3D della goccia emisferica con caustica luminosa
-  vec2 shDir = vec2(-L_local.x, L_local.y) * vec2(0.014, 0.038);
+  // 1. Ombra 3D ancorata al piano della card sotto il rilievo (parallasse vista + direzione luce)
+  vec2 viewParallax = vec2(V_local.x, -V_local.y) / max(V_local.z, 0.42);
+  vec2 shDir = vec2(-L_local.x, L_local.y) * vec2(0.015, 0.040) - viewParallax * vec2(0.016, 0.026);
   vec2 sUv = duv - shDir;
   vec2 sRad = TEXEL * 8.5;
   float sh = 0.0;
@@ -158,39 +159,41 @@ void main() {
   vec4 sd4 = sampleData(sUv + vec2( 0.0, -sRad.y)); sh += sd4.g * revealAt(sd4) * 0.17;
 
   float shadowCore = smoothstep(0.35, 0.90, sd0.r) * sRev0;
-  float shadowAlpha = clamp(sh * 0.65 * (1.0 - 0.40 * shadowCore), 0.0, 0.70);
-  float castCaustic = shadowCore * 0.12 * max(L_local.y, 0.0);
+  float shadowAlpha = clamp(sh * 0.68 * (1.0 - 0.38 * shadowCore), 0.0, 0.74);
+  float castCaustic = shadowCore * 0.14 * max(L_local.y, 0.0);
 
-  // 2. Maschera e rigonfiamento fluido della goccia d'acqua
-  float rev = revealAt(dat);
-  float glassAlpha = smoothstep(0.06, 0.68, dat.g) * rev;
+  // 2. Parallasse 3D della cupola emisferica (spessore visibile anche di profilo)
+  vec2 pUv = duv - viewParallax * dat.r * vec2(0.008, 0.016);
+  vec4 pDat = sampleData(pUv);
+  float rev = revealAt(pDat);
+  float glassAlpha = smoothstep(0.06, 0.68, pDat.g) * rev;
 
   if (glassAlpha < 0.004 && shadowAlpha < 0.004 && castCaustic < 0.004) {
     discard;
   }
 
-  vec3 outCol = mix(vec3(0.01, 0.01, 0.015), vec3(0.85, 0.88, 0.92), clamp(castCaustic * 2.0, 0.0, 1.0));
+  vec3 outCol = mix(vec3(0.01, 0.01, 0.018), vec3(0.86, 0.90, 0.96), clamp(castCaustic * 2.0, 0.0, 1.0));
   float outA = max(shadowAlpha, castCaustic * 0.30);
 
   if (glassAlpha >= 0.004) {
     float swell = smoothstep(0.0, 1.0, rev);
-    float p2 = overlapAt(duv);
-    float hC = combinedHeight(duv, swell);
+    float p2 = overlapAt(pUv);
+    float hC = combinedHeight(pUv, swell);
 
     // Gradiente della semisfera liscia -> normale 3D continua (zero cresta centrale)
     vec2 gStep = TEXEL * 3.0;
-    float hR = combinedHeight(duv + vec2(gStep.x, 0.0), swell);
-    float hL = combinedHeight(duv - vec2(gStep.x, 0.0), swell);
-    float hD = combinedHeight(duv + vec2(0.0, gStep.y), swell);
-    float hU = combinedHeight(duv - vec2(0.0, gStep.y), swell);
+    float hR = combinedHeight(pUv + vec2(gStep.x, 0.0), swell);
+    float hL = combinedHeight(pUv - vec2(gStep.x, 0.0), swell);
+    float hD = combinedHeight(pUv + vec2(0.0, gStep.y), swell);
+    float hU = combinedHeight(pUv - vec2(0.0, gStep.y), swell);
 
-    float slope = 5.2;
+    float slope = 5.4;
     vec3 N_local = normalize(vec3(-(hR - hL) * slope, (hD - hU) * slope, 1.0));
     vec3 N_world = normalize(R * N_local);
 
-    // 3. Forte rifrazione d'acqua live sullo sfondo Silk
-    vec2 cardUv = vec2(0.1168 + duv.x * 0.771, 0.25 + duv.y * 0.416652);
-    float thick = (0.045 + 0.135 * hC) * swell;
+    // 3. Forte rifrazione d'acqua live sullo sfondo Silk (con parallasse ottica dal rilievo 3D)
+    vec2 cardUv = vec2(0.1168 + pUv.x * 0.771, 0.25 + pUv.y * 0.416652) - viewParallax * vec2(0.012, 0.018);
+    float thick = (0.045 + 0.14 * hC) * swell;
 
     vec3 tr = refract(-V_local, N_local, 1.0 / 1.318);
     vec3 tg = refract(-V_local, N_local, 1.0 / 1.333);
@@ -227,7 +230,7 @@ void main() {
 
     // 6. Caustica interna sul bordo inferiore della semisfera
     float lowerCurve = clamp(-N_local.y, 0.0, 1.0);
-    float edgeBand = (1.0 - clamp(hC, 0.0, 1.0)) * smoothstep(0.05, 0.55, dat.r);
+    float edgeBand = (1.0 - clamp(hC, 0.0, 1.0)) * smoothstep(0.05, 0.55, pDat.r);
     float innerCaustic = pow(lowerCurve, 1.4) * edgeBand * max(L_local.y, 0.0) * 0.45;
 
     vec3 waterCol = mix(transmitted + vec3(innerCaustic), envColor, clamp(fresnel * 0.80, 0.0, 0.90)) + specColor;
@@ -266,7 +269,7 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean; bgCa
       st.ry = (ryDeg * Math.PI) / 180;
       st.draw();
     },
-    play(delayMs = 120) {
+    play(delayMs = 120, onDone?: () => void) {
       const st = stateRef.current;
       cancelAnimationFrame(st.animRaf);
       window.clearTimeout(st.delayId);
@@ -283,6 +286,7 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean; bgCa
           else {
             st.progress = 1;
             st.draw();
+            onDone?.();
           }
         };
         st.animRaf = requestAnimationFrame(step);
