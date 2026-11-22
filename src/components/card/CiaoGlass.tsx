@@ -28,10 +28,11 @@ const FRAG = `
 precision highp float;
 
 uniform sampler2D uData;  // R = sdf (0..1), G = alpha, B = t1 primo passaggio
-uniform sampler2D uBg;    // back.webp
+uniform sampler2D uBg;    // sfondo Silk live
 uniform sampler2D uPass2; // R = t2 secondo passaggio (1.0 = nessun ripasso)
 uniform vec2 uRot;        // (rxRad, ryRad)
 uniform float uProgress;  // 0..1
+uniform float uLayer;     // 0.0 = entrambi, 1.0 = solo ombra sul piano card, 2.0 = solo vetro in rilievo 3D
 
 varying vec2 vUv;
 
@@ -53,27 +54,6 @@ float samplePass2(vec2 duv) {
     return 1.0;
   }
   return texture2D(uPass2, duv).r;
-}
-
-// Campiona la distanza SDF lisciata per evitare creste sull'asse mediano
-float smoothSdf(vec2 duv) {
-  vec2 o = TEXEL * 2.2;
-  float s = sampleData(duv).r * 0.28;
-  s += sampleData(duv + vec2( o.x,  0.0)).r * 0.12;
-  s += sampleData(duv + vec2(-o.x,  0.0)).r * 0.12;
-  s += sampleData(duv + vec2( 0.0,  o.y)).r * 0.12;
-  s += sampleData(duv + vec2( 0.0, -o.y)).r * 0.12;
-  s += sampleData(duv + vec2( o.x,  o.y)).r * 0.06;
-  s += sampleData(duv + vec2(-o.x,  o.y)).r * 0.06;
-  s += sampleData(duv + vec2( o.x, -o.y)).r * 0.06;
-  s += sampleData(duv + vec2(-o.x, -o.y)).r * 0.06;
-  return s;
-}
-
-// Profilo a goccia d'acqua 3D in forte rilievo (menisco ripido ai bordi, cupola alta)
-float domeHeight(float d) {
-  float u = clamp(d * 1.08, 0.0, 1.0);
-  return pow(max(0.0, 1.0 - (1.0 - u) * (1.0 - u)), 0.42);
 }
 
 float revealTime(float tVal) {
@@ -132,7 +112,6 @@ void main() {
   vec4 dat = sampleData(duv);
 
   mat3 R = cardRot(uRot);
-  // Luce reale dall'alto (stanza bianca luminosa)
   vec3 L_world = normalize(vec3(-0.18, 0.84, 0.51));
   vec3 V_world = vec3(0.0, 0.0, 1.0);
 
@@ -144,56 +123,63 @@ void main() {
   vec3 L_local = normalize(Rt * L_world);
   vec3 V_local = normalize(Rt * V_world);
 
-  // 1. Ombra 3D ancorata al piano della card sotto il rilievo (parallasse vista + direzione luce)
-  vec2 viewParallax = vec2(V_local.x, -V_local.y) / max(V_local.z, 0.42);
-  vec2 shDir = vec2(-L_local.x, L_local.y) * vec2(0.015, 0.040) - viewParallax * vec2(0.016, 0.026);
-  vec2 sUv = duv - shDir;
-  vec2 sRad = TEXEL * 8.5;
-  float sh = 0.0;
-  vec4 sd0 = sampleData(sUv);
-  float sRev0 = revealAt(sd0);
-  sh += sd0.g * sRev0 * (1.0 + 0.24 * overlapAt(sUv)) * 0.32;
-  vec4 sd1 = sampleData(sUv + vec2( sRad.x,  0.0)); sh += sd1.g * revealAt(sd1) * 0.17;
-  vec4 sd2 = sampleData(sUv + vec2(-sRad.x,  0.0)); sh += sd2.g * revealAt(sd2) * 0.17;
-  vec4 sd3 = sampleData(sUv + vec2( 0.0,  sRad.y)); sh += sd3.g * revealAt(sd3) * 0.17;
-  vec4 sd4 = sampleData(sUv + vec2( 0.0, -sRad.y)); sh += sd4.g * revealAt(sd4) * 0.17;
+  // 1. Ombra 3D aderente al piano della card + caustica morbida
+  vec3 outCol = vec3(0.0);
+  float outA = 0.0;
+  if (uLayer < 1.5) {
+    vec2 shDir = vec2(-L_local.x, L_local.y) * vec2(0.012, 0.032);
+    vec2 sUv = duv - shDir;
+    vec2 sRad = TEXEL * 9.0;
+    float sh = 0.0;
+    vec4 sd0 = sampleData(sUv);
+    float sRev0 = revealAt(sd0);
+    sh += sd0.g * sRev0 * (1.0 + 0.22 * overlapAt(sUv)) * 0.32;
+    vec4 sd1 = sampleData(sUv + vec2( sRad.x,  0.0)); sh += sd1.g * revealAt(sd1) * 0.17;
+    vec4 sd2 = sampleData(sUv + vec2(-sRad.x,  0.0)); sh += sd2.g * revealAt(sd2) * 0.17;
+    vec4 sd3 = sampleData(sUv + vec2( 0.0,  sRad.y)); sh += sd3.g * revealAt(sd3) * 0.17;
+    vec4 sd4 = sampleData(sUv + vec2( 0.0, -sRad.y)); sh += sd4.g * revealAt(sd4) * 0.17;
 
-  float shadowCore = smoothstep(0.35, 0.90, sd0.r) * sRev0;
-  float shadowAlpha = clamp(sh * 0.68 * (1.0 - 0.38 * shadowCore), 0.0, 0.74);
-  float castCaustic = shadowCore * 0.14 * max(L_local.y, 0.0);
+    float shadowCore = smoothstep(0.35, 0.90, sd0.r) * sRev0;
+    float shadowAlpha = clamp(sh * 0.62 * (1.0 - 0.38 * shadowCore), 0.0, 0.68);
+    float castCaustic = shadowCore * 0.14 * max(L_local.y, 0.0);
 
-  // 2. Parallasse 3D della cupola emisferica (spessore visibile anche di profilo)
-  vec2 pUv = duv - viewParallax * dat.r * vec2(0.008, 0.016);
-  vec4 pDat = sampleData(pUv);
-  float rev = revealAt(pDat);
-  float glassAlpha = smoothstep(0.06, 0.68, pDat.g) * rev;
+    outCol = mix(vec3(0.01, 0.015, 0.03), vec3(0.85, 0.92, 1.0), clamp(castCaustic * 2.0, 0.0, 1.0));
+    outA = max(shadowAlpha, castCaustic * 0.30);
 
-  if (glassAlpha < 0.004 && shadowAlpha < 0.004 && castCaustic < 0.004) {
+    if (uLayer > 0.5) {
+      if (outA < 0.004) discard;
+      gl_FragColor = vec4(outCol * outA, outA);
+      return;
+    }
+  }
+
+  // 2. Maschera e cupola emisferica cristallina (senza distorsioni sui bordi)
+  float rev = revealAt(dat);
+  float glassAlpha = smoothstep(0.06, 0.68, dat.g) * rev;
+
+  if (glassAlpha < 0.004 && outA < 0.004) {
     discard;
   }
 
-  vec3 outCol = mix(vec3(0.01, 0.01, 0.018), vec3(0.86, 0.90, 0.96), clamp(castCaustic * 2.0, 0.0, 1.0));
-  float outA = max(shadowAlpha, castCaustic * 0.30);
-
   if (glassAlpha >= 0.004) {
     float swell = smoothstep(0.0, 1.0, rev);
-    float p2 = overlapAt(pUv);
-    float hC = combinedHeight(pUv, swell);
+    float p2 = overlapAt(duv);
+    float hC = combinedHeight(duv, swell);
 
     // Gradiente della semisfera liscia -> normale 3D continua (zero cresta centrale)
     vec2 gStep = TEXEL * 3.0;
-    float hR = combinedHeight(pUv + vec2(gStep.x, 0.0), swell);
-    float hL = combinedHeight(pUv - vec2(gStep.x, 0.0), swell);
-    float hD = combinedHeight(pUv + vec2(0.0, gStep.y), swell);
-    float hU = combinedHeight(pUv - vec2(0.0, gStep.y), swell);
+    float hR = combinedHeight(duv + vec2(gStep.x, 0.0), swell);
+    float hL = combinedHeight(duv - vec2(gStep.x, 0.0), swell);
+    float hD = combinedHeight(duv + vec2(0.0, gStep.y), swell);
+    float hU = combinedHeight(duv - vec2(0.0, gStep.y), swell);
 
-    float slope = 5.4;
+    float slope = 5.2;
     vec3 N_local = normalize(vec3(-(hR - hL) * slope, (hD - hU) * slope, 1.0));
     vec3 N_world = normalize(R * N_local);
 
-    // 3. Forte rifrazione d'acqua live sullo sfondo Silk (con parallasse ottica dal rilievo 3D)
-    vec2 cardUv = vec2(0.1168 + pUv.x * 0.771, 0.25 + pUv.y * 0.416652) - viewParallax * vec2(0.012, 0.018);
-    float thick = (0.045 + 0.14 * hC) * swell;
+    // 3. Forte rifrazione d'acqua live sullo sfondo Silk
+    vec2 cardUv = vec2(0.1168 + duv.x * 0.771, 0.25 + duv.y * 0.416652);
+    float thick = (0.045 + 0.135 * hC) * swell;
 
     vec3 tr = refract(-V_local, N_local, 1.0 / 1.318);
     vec3 tg = refract(-V_local, N_local, 1.0 / 1.333);
@@ -212,28 +198,28 @@ void main() {
     // Acqua cristallina neutra (stesso colore puro dello sfondo senza tinte artificiali)
     float NdotV = max(dot(N_world, V_world), 0.0);
     float NdotL = max(dot(N_world, L_world), 0.0);
-    vec3 transmitted = refracted * (1.24 + 0.18 * hC + 0.10 * p2);
+    vec3 transmitted = refracted * (1.28 + 0.20 * hC + 0.10 * p2);
 
-    // 4. Riflessione Fresnel reale della stanza bianca sulla semisfera d'acqua
-    float fresnel = 0.035 + 0.965 * pow(1.0 - NdotV, 3.2);
+    // 4. Riflessione Fresnel nitida sulla semisfera d'acqua
+    float fresnel = 0.04 + 0.96 * pow(1.0 - NdotV, 3.0);
     vec3 Refl = reflect(-V_world, N_world);
     float skyBand = smoothstep(-0.25, 0.85, Refl.y);
     float spotCone = smoothstep(0.10, 0.85, Refl.y) * exp(-pow(Refl.x + 0.12, 2.0) * 1.5);
-    vec3 envColor = mix(vec3(0.22, 0.24, 0.28), vec3(1.0, 1.0, 1.0), clamp(skyBand * 0.55 + spotCone * 0.65, 0.0, 1.0));
+    vec3 envColor = mix(vec3(0.24, 0.28, 0.36), vec3(1.0, 1.0, 1.0), clamp(skyBand * 0.58 + spotCone * 0.65, 0.0, 1.0));
 
     // 5. Riflessi speculari bagnati nitidi sulla curva emisferica
     vec3 H = normalize(L_world + V_world);
     float NdotH = max(dot(N_world, H), 0.0);
-    float specPinpoint = pow(NdotH, 200.0) * (1.8 + 0.25 * p2) * smoothstep(0.0, 0.1, NdotL);
-    float specWet = pow(NdotH, 28.0) * 0.30 * NdotL;
+    float specPinpoint = pow(NdotH, 190.0) * (1.85 + 0.25 * p2) * smoothstep(0.0, 0.1, NdotL);
+    float specWet = pow(NdotH, 28.0) * 0.32 * NdotL;
     vec3 specColor = vec3(1.0) * (specPinpoint + specWet);
 
     // 6. Caustica interna sul bordo inferiore della semisfera
     float lowerCurve = clamp(-N_local.y, 0.0, 1.0);
-    float edgeBand = (1.0 - clamp(hC, 0.0, 1.0)) * smoothstep(0.05, 0.55, pDat.r);
+    float edgeBand = (1.0 - clamp(hC, 0.0, 1.0)) * smoothstep(0.05, 0.55, dat.r);
     float innerCaustic = pow(lowerCurve, 1.4) * edgeBand * max(L_local.y, 0.0) * 0.45;
 
-    vec3 waterCol = mix(transmitted + vec3(innerCaustic), envColor, clamp(fresnel * 0.80, 0.0, 0.90)) + specColor;
+    vec3 waterCol = mix(transmitted + vec3(innerCaustic), envColor, clamp(fresnel * 0.82, 0.0, 0.92)) + specColor;
     waterCol = clamp(waterCol, 0.0, 1.0);
 
     float invG = 1.0 - glassAlpha;
@@ -247,10 +233,19 @@ void main() {
 }
 `;
 
-export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean; bgCanvasRef?: React.RefObject<HTMLCanvasElement | null> }>(function CiaoGlass({ immediate = false, bgCanvasRef }, ref) {
+export const CiaoGlass = forwardRef<
+  CiaoGlassHandle,
+  {
+    immediate?: boolean;
+    bgCanvasRef?: React.RefObject<HTMLCanvasElement | null>;
+    bgColor?: string;
+    layer?: "both" | "shadow" | "glass";
+  }
+>(function CiaoGlass({ immediate = false, bgCanvasRef, bgColor = "#182032", layer = "both" }, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bgRef = useRef(bgCanvasRef);
   bgRef.current = bgCanvasRef;
+  const layerVal = layer === "shadow" ? 1 : layer === "glass" ? 2 : 0;
   const stateRef = useRef({
     rx: 0,
     ry: 0,
@@ -259,8 +254,18 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean; bgCa
     ready: 0,
     animRaf: 0,
     delayId: 0,
+    bgColor,
+    layerVal,
+    uploadBgColor: (_hex: string) => {},
     draw: () => {},
   });
+  stateRef.current.layerVal = layerVal;
+
+  useEffect(() => {
+    stateRef.current.bgColor = bgColor;
+    stateRef.current.uploadBgColor(bgColor);
+    stateRef.current.draw();
+  }, [bgColor]);
 
   useImperativeHandle(ref, () => ({
     setTilt(rxDeg: number, ryDeg: number) {
@@ -334,6 +339,7 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean; bgCa
     const uPass2 = gl.getUniformLocation(prog, "uPass2");
     const uRot = gl.getUniformLocation(prog, "uRot");
     const uProgress = gl.getUniformLocation(prog, "uProgress");
+    const uLayer = gl.getUniformLocation(prog, "uLayer");
 
     gl.uniform1i(uData, 0);
     gl.uniform1i(uBg, 1);
@@ -359,8 +365,21 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean; bgCa
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    // Inizializza con 1px bianco finche' il canvas Silk non e' pronto
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([240, 246, 252, 255]));
+
+    const uploadBgColor = (hex: string) => {
+      if (dead) return;
+      const clean = hex.replace("#", "");
+      const full = clean.length === 3 ? clean.split("").map((c) => c + c).join("") : clean;
+      const n = Number.parseInt(full, 16);
+      const r = Number.isNaN(n) ? 24 : (n >> 16) & 255;
+      const g = Number.isNaN(n) ? 32 : (n >> 8) & 255;
+      const b = Number.isNaN(n) ? 50 : n & 255;
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, t1);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([r, g, b, 255]));
+    };
+    st.uploadBgColor = uploadBgColor;
+    uploadBgColor(st.bgColor);
 
     const draw = () => {
       if (dead || st.ready < 2) return;
@@ -376,6 +395,7 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean; bgCa
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform2f(uRot, st.rx, st.ry);
       gl.uniform1f(uProgress, st.progress);
+      gl.uniform1f(uLayer, st.layerVal);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
     st.draw = draw;
@@ -404,14 +424,13 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean; bgCa
     const t0 = loadTex("/card/ciao-data.png", 0);
     const t2 = loadTex("/card/ciao-pass2.png", 2);
 
-    // Aggiorna la rifrazione dell'acqua in tempo reale mentre lo sfondo Silk scorre dietro
     let liveRaf = 0;
     const tick = () => {
       if (dead) return;
       if (!document.hidden && st.ready >= 2 && bgRef.current?.current) draw();
-      liveRaf = requestAnimationFrame(tick);
+      if (bgRef.current) liveRaf = requestAnimationFrame(tick);
     };
-    liveRaf = requestAnimationFrame(tick);
+    if (bgRef.current) liveRaf = requestAnimationFrame(tick);
 
     const ro = new ResizeObserver(() => draw());
     ro.observe(canvas);

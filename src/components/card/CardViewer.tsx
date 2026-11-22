@@ -5,11 +5,12 @@ import { ArrowRight, ArrowUpRight, KeyRound, User } from "lucide-react";
 import { onIntroLift } from "@/lib/intro";
 import localFont from "next/font/local";
 import { unlockCard } from "@/app/[locale]/card/actions";
-import { CardSilk } from "./CardSilk";
 import { CiaoGlass, type CiaoGlassHandle } from "./CiaoGlass";
 import s from "./card.module.css";
 
 const nunito = localFont({ src: "../../fonts/nunito-700.woff2", variable: "--nunito", display: "swap", weight: "700" });
+
+const SWATCHES = ["#182032", "#132a5e", "#1d4ed8", "#0d3b32", "#4a1525", "#232126"];
 
 type Txt = { code: string; open: string; flip: string; site: string; copied: string; errors: { wrong: string; limit: string; off: string } };
 
@@ -20,24 +21,25 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
   const scene = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
   const ciao = useRef<CiaoGlassHandle>(null);
-  const silkCanvas = useRef<HTMLCanvasElement | null>(null);
+  const ciaoShadow = useRef<CiaoGlassHandle>(null);
   const [creds, setCreds] = useState<{ user: string; pass: string; url: string } | null>(null);
   const [err, setErr] = useState("");
   const [shake, setShake] = useState(false);
   const [pending, setPending] = useState(false);
   const [tip, setTip] = useState<"user" | "pass" | null>(null);
-  const [bloom, setBloom] = useState(false);
+  const [cardColor, setCardColor] = useState("#182032");
 
   useEffect(() => {
     if (!slug) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
       ciao.current?.settle();
-      setBloom(true);
+      ciaoShadow.current?.settle();
       return;
     }
     return onIntroLift(() => {
-      ciao.current?.play(180, () => setBloom(true));
+      ciao.current?.play(180);
+      ciaoShadow.current?.play(180);
     });
   }, [slug]);
 
@@ -83,6 +85,7 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
 
     // Sincronizza in tempo reale la rifrazione e i riflessi del vetro "Ciao!" con la rotazione 3D
     ciao.current?.setTilt(a.rx, a.ry);
+    ciaoShadow.current?.setTilt(a.rx, a.ry);
   }, []);
 
   const loop = useCallback(() => {
@@ -194,44 +197,32 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
         aria-label={t.flip}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " " || e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); flip(); } }}
       >
-        <div ref={card} className={s.card}>
+        <div ref={card} className={s.card} style={slug ? ({ ["--card-bg" as string]: cardColor } as React.CSSProperties) : undefined}>
           <div className={`${s.face} ${s.front} ${slug ? s.frontCustom : ""}`}>
             {slug && (
-              <>
-                <div className={s.frontSilk} aria-hidden>
-                  <CardSilk
-                    lightMode={false}
-                    color="#0d1326"
-                    sheenColor="#25345c"
-                    colorBloom={bloom}
-                    speed={3.2}
-                    scale={1.15}
-                    depth={0.68}
-                    sheen={0.55}
-                    glow={0.32}
-                    noiseIntensity={1.0}
-                    onCanvas={(el) => { silkCanvas.current = el; }}
-                  />
-                </div>
-                <div className={s.sign}>
-                  {logo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={logo} alt={name ?? ""} draggable={false} className={s.signLogo} />
-                  ) : (
-                    <span className={s.signName}>{name}</span>
-                  )}
-                  <i>×</i>
-                  <span className={s.me}>Filippo Corsini</span>
-                </div>
-              </>
+              <div className={s.sign}>
+                {logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={logo} alt={name ?? ""} draggable={false} className={s.signLogo} />
+                ) : (
+                  <span className={s.signName}>{name}</span>
+                )}
+                <i>×</i>
+                <span className={s.me}>Filippo Corsini</span>
+              </div>
             )}
             <div className={s.sheen} />
             <div className={s.glare} />
           </div>
           {slug && (
-            <div className={s.ciao3d}>
-              <CiaoGlass ref={ciao} bgCanvasRef={silkCanvas} />
-            </div>
+            <>
+              <div className={s.ciaoShadow}>
+                <CiaoGlass ref={ciaoShadow} layer="shadow" bgColor={cardColor} />
+              </div>
+              <div className={s.ciao3d}>
+                <CiaoGlass ref={ciao} layer="glass" bgColor={cardColor} />
+              </div>
+            </>
           )}
           <div className={`${s.face} ${s.back} ${slug ? s.backCustom : ""}`}>
             <div className={s.bar} data-copy="user" style={{ top: "18.93cqw", ["--fs" as string]: "4.67cqw" }}>
@@ -254,6 +245,31 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
         </div>
         <div className={s.shadow} aria-hidden />
       </div>
+
+      {slug && (
+        <div className={s.picker}>
+          <input
+            type="color"
+            value={cardColor}
+            onChange={(e) => setCardColor(e.target.value)}
+            className={s.pickerInput}
+            aria-label="Colore card"
+          />
+          <span className={s.pickerHex}>{cardColor.toUpperCase()}</span>
+          <div className={s.pickerSwatches}>
+            {SWATCHES.map((hex) => (
+              <button
+                key={hex}
+                type="button"
+                className={`${s.swatch} ${cardColor.toLowerCase() === hex ? s.swatchActive : ""}`}
+                style={{ backgroundColor: hex }}
+                onClick={() => setCardColor(hex)}
+                aria-label={hex}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {creds ? (
         <a className={`${s.form} ${s.site}`} href={creds.url} target="_blank" rel="noopener noreferrer">
