@@ -109,11 +109,10 @@ void main() {
   vec3 L_local = normalize(Rt * L_world);
   vec3 V_local = normalize(Rt * V_world);
 
-  // 1. Ombra reale proiettata sulla card dal faretto dall'alto (5 tap morbido)
-  // In spazio UV la Y cresce verso il basso, in 3D verso l'alto:
-  vec2 shDir = vec2(-L_local.x, L_local.y) * vec2(0.011, 0.032);
+  // 1. Ombra reale morbida proiettata sulla card bianca dalla luce dall'alto (5 tap)
+  vec2 shDir = vec2(-L_local.x, L_local.y) * vec2(0.010, 0.028);
   vec2 sUv = duv - shDir;
-  vec2 sRad = TEXEL * 7.5;
+  vec2 sRad = TEXEL * 7.0;
   float sh = 0.0;
   vec4 sd0 = sampleData(sUv);
   sh += sd0.g * revealAt(sd0) * 0.32;
@@ -121,7 +120,7 @@ void main() {
   vec4 sd2 = sampleData(sUv + vec2(-sRad.x,  0.0)); sh += sd2.g * revealAt(sd2) * 0.17;
   vec4 sd3 = sampleData(sUv + vec2( 0.0,  sRad.y)); sh += sd3.g * revealAt(sd3) * 0.17;
   vec4 sd4 = sampleData(sUv + vec2( 0.0, -sRad.y)); sh += sd4.g * revealAt(sd4) * 0.17;
-  float shadowAlpha = sh * 0.62;
+  float shadowAlpha = sh * 0.30;
 
   // 2. Maschera e crescita fluida della goccia di vetro
   float rev = revealAt(dat);
@@ -131,8 +130,8 @@ void main() {
     discard;
   }
 
-  // Colore base ombra (pre-compositing)
-  vec3 outCol = vec3(0.008, 0.014, 0.028);
+  // Ombra morbida su carta bianca (tono blu-ardesia tenue, non nero)
+  vec3 outCol = vec3(0.08, 0.18, 0.30);
   float outA = shadowAlpha;
 
   if (glassAlpha >= 0.004) {
@@ -151,7 +150,7 @@ void main() {
     vec3 N_local = normalize(vec3(-(hR - hL) * slope, (hD - hU) * slope, 1.0));
     vec3 N_world = normalize(R * N_local);
 
-    // 3. Rifrazione reale (legge di Snell) dello sfondo della card con dispersione cromatica sottile
+    // 3. Rifrazione reale (legge di Snell) dello sfondo chiaro della card con dispersione cromatica sottile
     vec2 cardUv = vec2(0.1168 + duv.x * 0.771, 0.25 + duv.y * 0.416652);
     float thick = (0.018 + 0.048 * hC) * swell;
 
@@ -163,44 +162,39 @@ void main() {
     vec2 offG = vec2(tg.x, -tg.y) / max(abs(tg.z), 0.3) * thick;
     vec2 offB = vec2(tb.x, -tb.y) / max(abs(tb.z), 0.3) * thick;
 
-    // Adattamento aspetto card (856/540 = 1.585) per rifrazione isotropa
     vec2 aspectFix = vec2(1.0 / 1.585, 1.0);
     float bgR = texture2D(uBg, clamp(cardUv + offR * aspectFix, 0.002, 0.998)).r;
     float bgG = texture2D(uBg, clamp(cardUv + offG * aspectFix, 0.002, 0.998)).g;
     float bgB = texture2D(uBg, clamp(cardUv + offB * aspectFix, 0.002, 0.998)).b;
     vec3 refracted = vec3(bgR, bgG, bgB);
 
-    // Trasmissione attraverso vetro ottico trasparente (concentrazione luminosa nella lente, niente vernice opaca)
-    vec3 glassTint = mix(vec3(1.0), vec3(0.95, 0.985, 1.0), hC * 0.3);
-    vec3 transmitted = refracted * glassTint * (1.28 + 0.16 * hC);
-
-    // 4. Riflessione Fresnel reale dell'ambiente scuro con faretto centrale in alto
+    // Su sfondo bianco, il vetro ottico mostra un leggero spessore/assorbimento cristallino sui bordi curvi
     float NdotV = max(dot(N_world, V_world), 0.0);
-    float fresnel = 0.05 + 0.95 * pow(1.0 - NdotV, 3.2);
+    float edgeDark = pow(1.0 - NdotV, 1.8) * 0.34;
+    vec3 glassTint = mix(vec3(0.84, 0.91, 0.97), vec3(0.96, 0.99, 1.0), hC);
+    vec3 transmitted = refracted * glassTint * (1.0 - edgeDark);
+
+    // 4. Riflessione Fresnel reale in studio luminoso (luce morbida dall'alto)
+    float fresnel = 0.04 + 0.96 * pow(1.0 - NdotV, 3.6);
     vec3 Refl = reflect(-V_world, N_world);
+    float topLight = smoothstep(0.05, 0.82, Refl.y) * exp(-Refl.x * Refl.x * 1.2);
+    vec3 envColor = mix(vec3(0.76, 0.85, 0.93), vec3(1.0, 1.0, 1.0), topLight);
 
-    // Ambiente reale: cono del faretto in alto al centro, luce diffusa soffusa dal fascio, stanza buia altrove
-    float spotEnv = smoothstep(0.12, 0.82, Refl.y) * exp(-Refl.x * Refl.x * 1.45);
-    float ceilAmbient = smoothstep(-0.25, 0.85, Refl.y) * 0.22;
-    vec3 envColor = vec3(0.06, 0.09, 0.14) + vec3(0.97, 0.98, 1.0) * (ceilAmbient + spotEnv * 0.92);
-
-    // 5. Riflesso speculare diretto dell'unico faretto reale dall'alto
+    // 5. Riflesso speculare diretto dalla luce reale dall'alto
     vec3 H = normalize(L_world + V_world);
     float NdotH = max(dot(N_world, H), 0.0);
     float NdotL = max(dot(N_world, L_world), 0.0);
-    float specSharp = pow(NdotH, 145.0) * 1.45 * smoothstep(0.0, 0.12, NdotL);
-    float specBroad = pow(NdotH, 24.0) * 0.30 * NdotL;
-    vec3 specColor = vec3(1.0, 0.99, 0.97) * (specSharp + specBroad);
+    float specSharp = pow(NdotH, 130.0) * 1.25 * smoothstep(0.0, 0.12, NdotL);
+    float specBroad = pow(NdotH, 22.0) * 0.28 * NdotL;
+    vec3 specColor = vec3(1.0) * (specSharp + specBroad);
 
-    // 6. Riflessione interna totale sul bordo curvo + caustica inferiore dal faretto dall'alto
-    float rim = pow(1.0 - NdotV, 2.8) * (0.32 + 0.45 * smoothstep(-0.2, 0.8, N_world.y));
+    // 6. Caustica luminosa sul bordo inferiore
     float lowerCurve = clamp(-N_local.y, 0.0, 1.0);
     float edgeBand = (1.0 - hC) * smoothstep(0.03, 0.36, dC);
-    float caustic = pow(lowerCurve, 1.5) * edgeBand * max(L_local.y, 0.0) * 0.55;
-    vec3 internalLight = vec3(0.86, 0.93, 1.0) * (caustic + rim * 0.42);
+    float caustic = pow(lowerCurve, 1.5) * edgeBand * max(L_local.y, 0.0) * 0.38;
 
-    // Composizione fisica finale (Fresnel mescola trasmissione rifratta e riflesso reale)
-    vec3 glassCol = mix(transmitted + internalLight, envColor, clamp(fresnel * 0.86, 0.0, 0.92)) + specColor;
+    vec3 glassCol = mix(transmitted + vec3(caustic), envColor, clamp(fresnel * 0.72, 0.0, 0.85)) + specColor;
+    glassCol = clamp(glassCol, 0.0, 1.0);
 
     // Composizione vetro sopra l'ombra sulla card
     float invG = 1.0 - glassAlpha;
@@ -347,7 +341,7 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean }>(fu
     };
 
     const t0 = loadTex("/card/ciao-data.png", 0);
-    const t1 = loadTex("/card/back-dark.webp", 1);
+    const t1 = loadTex("/card/back.webp", 1);
 
     const ro = new ResizeObserver(() => draw());
     ro.observe(canvas);
