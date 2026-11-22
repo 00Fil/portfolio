@@ -1,27 +1,13 @@
-.stage { --cw: min(92vw, 760px); --hw: 50vw; --hh: 50vh; --rd: 700px; --dx: 0px; --dy: 0px; width: var(--cw); display: grid; gap: 28px; justify-items: center; position: relative; perspective: 1400px; perspective-origin: 50% calc(var(--cw) * .3154); }
-.stage[data-intro="pre"] .world, .stage[data-intro="pre"] .form { opacity: 0; }
+.stage { --cw: min(92vw, 760px); width: var(--cw); display: grid; gap: 28px; justify-items: center; position: relative; z-index: 6; }
+.stage[data-intro="pre"] .scene, .stage[data-intro="run"] .scene { opacity: 0; }
 .stage:not([data-intro="done"]) .form, .stage:not([data-intro="done"]) .err { opacity: 0; pointer-events: none; }
 .stage:not([data-intro="done"]) .scene { pointer-events: none; }
-.stage:not([data-intro="done"]) :is(.shadow, .sheen, .glare) { opacity: 0 !important; }
-.sheen, .glare, .shadow { transition: opacity .8s; }
-.stage[data-intro="done"] { perspective: none; }
-.stage[data-intro="done"] .room { display: none; }
-.stage[data-intro="done"] .world { transform-style: flat; }
-
-/* la stanza e' una scatola: l'apertura e' lo schermo (quarta parete), il fondo sta alla profondita' --rd; origine al centro dello schermo */
-.world { position: relative; width: 100%; transform-style: preserve-3d; }
-.room { position: absolute; left: calc(50% + var(--dx)); top: calc(50% + var(--dy)); width: 0; height: 0; transform-style: preserve-3d; pointer-events: none; }
-.room i { position: absolute; display: block; background-color: var(--bg-canvas, #f6f6f3); }
-.roomBack { width: calc(var(--hw) * 2); height: calc(var(--hh) * 2); left: calc(var(--hw) * -1); top: calc(var(--hh) * -1); transform: translateZ(calc(var(--rd) * -1));
-  background-image: radial-gradient(ellipse 75% 75% at 50% 50%, transparent 55%, rgba(10, 20, 40, .06) 100%); }
-.wallL, .wallR { width: var(--rd); height: calc(var(--hh) * 2); top: calc(var(--hh) * -1); }
-.wallL { left: calc(var(--hw) * -1); transform-origin: 0 50%; transform: rotateY(90deg); background-image: linear-gradient(90deg, rgba(10, 20, 40, .02), rgba(10, 20, 40, .075) 60%, rgba(10, 20, 40, .12)); }
-.wallR { left: calc(var(--hw) - var(--rd)); transform-origin: 100% 50%; transform: rotateY(-90deg); background-image: linear-gradient(270deg, rgba(10, 20, 40, .0), rgba(10, 20, 40, .05) 60%, rgba(10, 20, 40, .09)); }
-.floor, .ceil { width: calc(var(--hw) * 2); height: var(--rd); left: calc(var(--hw) * -1); transform-origin: 50% 0; transform: rotateX(-90deg); }
-.floor { top: var(--hh); background-image: linear-gradient(180deg, rgba(10, 20, 40, .0), rgba(10, 20, 40, .05) 55%, rgba(10, 20, 40, .11)); }
-.ceil { top: calc(var(--hh) * -1); background-image: linear-gradient(180deg, rgba(10, 20, 40, .05), rgba(10, 20, 40, .1) 55%, rgba(10, 20, 40, .16)); }
-.drop { left: 0; top: 0; width: calc(var(--cw) * .9); height: calc(var(--cw) * .55); background-color: transparent !important; background-image: radial-gradient(closest-side, rgba(10, 20, 40, .6), rgba(10, 20, 40, 0)) !important; filter: blur(5px); }
-.float { position: relative; width: 100%; }
+.stage:not([data-intro="done"]) :is(.shadow, .sheen, .glare, .sign) { opacity: 0 !important; }
+.sheen, .glare, .shadow, .sign { transition: opacity .8s; }
+/* il filmato dell'ingresso copre lo schermo: lo scalare e allineare e' compito dello script */
+.vid { position: fixed; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
+.stage[data-intro="pre"] .vid { opacity: 0; }
+.vid video { position: absolute; left: 50%; top: 50%; display: block; transform-origin: 50% 50%; background: transparent; }
 
 .scene { width: 100%; perspective: 1500px; container-type: inline-size; touch-action: pan-y; user-select: none; cursor: grab; position: relative; }
 .scene:active { cursor: grabbing; }

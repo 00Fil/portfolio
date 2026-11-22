@@ -1,0 +1,100 @@
+<!doctype html><meta charset=utf-8>
+<style>html,body{margin:0;background:#f6f6f3}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+const q = new URLSearchParams(location.search);
+const W = +q.get("w") || 1920, H = +q.get("h") || 1080;
+const A = W / H, portrait = A < 1;
+const T_END = 5.8;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf6f6f3);
+const pm = new THREE.PMREMGenerator(renderer);
+scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const FOV = 40, tanH = Math.tan((FOV / 2) * Math.PI / 180);
+const P = 1 / tanH;                   // l'apertura (z=0) coincide con i bordi dell'inquadratura
+const h0 = 2, w0 = 2 * A, D = 3.2;
+const cam = new THREE.PerspectiveCamera(FOV, A, 0.05, 60);
+const cwU = portrait ? 0.68 * w0 : 0.40 * w0, chU = cwU * 540 / 856;
+const ZC = 1.5;
+const Ffinal = portrait ? 0.78 : 0.42;
+const dF = cwU / (Ffinal * 2 * A * tanH);
+const zEnd = -ZC + dF;
+
+// pareti: materiali senza luci, col colore deciso a mano (il fondo e' esattamente il colore della pagina)
+function grad(w, h, fn) { const c = document.createElement("canvas"); c.width = w; c.height = h; const g = c.getContext("2d"); fn(g, w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
+const basic = (map) => new THREE.MeshBasicMaterial({ map, toneMapped: false });
+const plane = (w, h, mat) => new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
+const back = plane(w0, h0, basic(grad(512, 512, (g, w, h) => { const r = g.createRadialGradient(w / 2, h / 2, w * 0.2, w / 2, h / 2, w * 0.75); r.addColorStop(0, "#f6f6f3"); r.addColorStop(0.6, "#f2f2ef"); r.addColorStop(1, "#e6e6e3"); g.fillStyle = r; g.fillRect(0, 0, w, h); })));
+back.position.z = -D; scene.add(back);
+const sideTex = (a, b) => grad(512, 64, (g, w, h) => { const l = g.createLinearGradient(0, 0, w, 0); l.addColorStop(0, a); l.addColorStop(1, b); g.fillStyle = l; g.fillRect(0, 0, w, h); });
+const left = plane(D, h0, basic(sideTex("#efefec", "#dededb"))); left.rotation.y = Math.PI / 2; left.position.set(-w0 / 2, 0, -D / 2); scene.add(left);
+const right = plane(D, h0, basic(sideTex("#f1f1ee", "#e2e2df"))); right.rotation.y = -Math.PI / 2; right.position.set(w0 / 2, 0, -D / 2); scene.add(right);
+const floorT = grad(64, 512, (g, w, h) => { const l = g.createLinearGradient(0, 0, 0, h); l.addColorStop(0, "#e6e6e3"); l.addColorStop(0.5, "#ececE9"); l.addColorStop(1, "#f3f3f0"); g.fillStyle = l; g.fillRect(0, 0, w, h); });
+const floor = plane(w0, D, basic(floorT)); floor.rotation.x = -Math.PI / 2; floor.position.set(0, -1, -D / 2); scene.add(floor);
+const ceilT = grad(64, 512, (g, w, h) => { const l = g.createLinearGradient(0, 0, 0, h); l.addColorStop(0, "#d9d9d6"); l.addColorStop(1, "#e8e8e5"); g.fillStyle = l; g.fillRect(0, 0, w, h); });
+const ceil = plane(w0, D, basic(ceilT)); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, 1, -D / 2); scene.add(ceil);
+
+// ombra della card sul pavimento
+const dropT = grad(256, 256, (g, w, h) => { const r = g.createRadialGradient(w / 2, h / 2, 4, w / 2, h / 2, w / 2); r.addColorStop(0, "rgba(20,28,45,.62)"); r.addColorStop(0.55, "rgba(20,28,45,.25)"); r.addColorStop(1, "rgba(20,28,45,0)"); g.fillStyle = r; g.fillRect(0, 0, w, h); });
+const drop = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: dropT, transparent: true, depthWrite: false, toneMapped: false }));
+drop.rotation.x = -Math.PI / 2; drop.position.set(0, -1 + 0.003, -ZC); scene.add(drop);
+
+// la card
+const shape = new THREE.Shape(); const r = chU * 0.06; const x0 = -cwU / 2, y0 = -chU / 2;
+shape.moveTo(x0 + r, y0); shape.lineTo(-x0 - r, y0); shape.quadraticCurveTo(-x0, y0, -x0, y0 + r); shape.lineTo(-x0, -y0 - r); shape.quadraticCurveTo(-x0, -y0, -x0 - r, -y0); shape.lineTo(x0 + r, -y0); shape.quadraticCurveTo(x0, -y0, x0, -y0 - r); shape.lineTo(x0, y0 + r); shape.quadraticCurveTo(x0, y0, x0 + r, y0);
+const TH = 0.012;
+const geo = new THREE.ExtrudeGeometry(shape, { depth: TH, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.004, bevelSegments: 3, curveSegments: 16 });
+const pos = geo.attributes.position, uv = geo.attributes.uv;
+for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / cwU + 0.5, pos.getY(i) / chU + 0.5);
+geo.translate(0, 0, -TH / 2);
+const tex = await new THREE.TextureLoader().loadAsync("/back-dark.webp"); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+const mat = new THREE.MeshPhysicalMaterial({ map: tex, roughness: 0.55, metalness: 0.0, clearcoat: 0.3, clearcoatRoughness: 0.3, envMapIntensity: 0.3 });
+const card = new THREE.Mesh(geo, mat); scene.add(card);
+const key = new THREE.DirectionalLight(0xffffff, 0.7); key.position.set(-2, 3, 4); scene.add(key);
+scene.add(new THREE.AmbientLight(0xffffff, 0.18));
+// velo del colore della pagina, dietro la card: cancella la stanza alla fine
+const veil = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshBasicMaterial({ color: 0xf6f6f3, transparent: true, opacity: 0, toneMapped: false, depthWrite: false }));
+scene.add(veil);
+
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const outQuad = (x) => 1 - (1 - x) * (1 - x), outCubic = (x) => 1 - Math.pow(1 - x, 3), inOutCubic = (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2, inOutSine = (x) => -(Math.cos(Math.PI * x) - 1) / 2;
+const floorY = -1, yHover = 0.04;
+
+window.setT = (t) => {
+  // 1. si rialza dal pavimento ruotando sul bordo
+  const p = outCubic(seg(t, 0.45, 2.4));
+  const th = -Math.PI / 2 * (1 - p);
+  const need = floorY + (chU / 2) * Math.cos(th) + (TH / 2 + 0.004) * Math.abs(Math.sin(th)) + 0.004;
+  const lift = floorY + 0.02 + (yHover - floorY - 0.02) * p;
+  let y = Math.max(lift, need);
+  // 2. fluttua
+  const bob = Math.sin(inOutSine(seg(t, 2.2, 3.6)) * Math.PI * 2) * 0.03;
+  y += bob * seg(t, 2.2, 2.6);
+  const yaw = (1 - p) * -0.35 + Math.sin(inOutSine(seg(t, 2.2, 3.8)) * Math.PI * 2) * 0.1;
+  const roll = (1 - p) * -0.12;
+  card.position.set(0, y, -ZC);
+  card.rotation.set(th, yaw, roll, "YXZ");
+  const hgt = clamp((y - floorY - chU / 2 * Math.cos(th)) / 1.2);
+  drop.scale.set(cwU * (1.25 - 0.35 * hgt), chU * (1.45 - 0.4 * hgt), 1);
+  drop.material.opacity = (1 - 0.6 * hgt) * (1 - seg(t, 4.0, 4.7));
+  // 3. la camera avanza
+  const d = inOutCubic(seg(t, 2.7, 5.0));
+  const cz = P + (zEnd - P) * d;
+  cam.position.set(0, 0, cz); cam.lookAt(0, 0, -D);
+  // card a fine corsa dritta e centrata: lo yaw si annulla con l'arrivo
+  const arrive = seg(t, 3.6, 5.0); card.rotation.y *= (1 - arrive); card.position.y = y * (1 - arrive) + 0.0 * arrive;
+  // 4. la stanza si scioglie nel colore della pagina
+  veil.position.set(0, 0, -ZC - 0.03); veil.material.opacity = seg(t, 3.9, 4.9);
+  renderer.render(scene, cam);
+};
+window.meta = { A, P, ZC, zEnd, cwU, chU, Ffinal, T_END };
+window.ready = true;
+</script>

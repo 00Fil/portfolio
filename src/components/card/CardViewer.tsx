@@ -21,6 +21,9 @@ const PEN = [
   { d: "M1247 58 L1246 67 L1244 76 L1243 85 L1241 94 L1240 103 L1239 112 L1238 121 L1236 130 L1235 139 L1234 147 L1233 156 L1231 165 L1230 174 L1229 183 L1227 192 L1226 201 L1225 210 L1224 219 L1222 228 L1221 237 L1220 246 L1219 255", n: 199 },
 ];
 
+/** Filmato dell'ingresso (scripts/room): frazione di larghezza della card nell'ultimo fotogramma, tratto di camera, istante di passaggio alla card vera. */
+const ROOM = { lF: 0.42, pF: 0.78, dolly: [2.7, 5.0], hand: 5.2, fade: 0.55, end: 5.8 } as const;
+
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 /** Card girevole in 3D: trascina per ruotarla, riflessi che seguono il puntatore, si ferma sempre su un lato. */
@@ -34,124 +37,136 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
   const [tip, setTip] = useState<"user" | "pass" | null>(null);
 
   const stage = useRef<HTMLDivElement>(null);
-  const world = useRef<HTMLDivElement>(null);
-  const float = useRef<HTMLDivElement>(null);
-  const intro = useRef<gsap.core.Timeline | null>(null);
+  const vid = useRef<HTMLDivElement>(null);
+  const vv = useRef<HTMLVideoElement>(null);
+  const intro = useRef<{ skip: () => void } | null>(null);
 
   /**
-   * Ingresso: lo schermo e' la quarta parete di una stanza (una scatola vista da davanti: le pareti convergono
-   * verso il fondo con la prospettiva giusta). La card parte distesa sul pavimento, si alza e fluttua; poi la
-   * camera avanza fino alla card, la stanza svanisce e si torna alla vista di sempre. Il "Ciao!" si scrive per ultimo.
+   * Ingresso: un filmato (renderizzato in 3D, a 60 fotogrammi) di una stanza bianca vista dallo schermo come quarta parete:
+   * la card sul pavimento si alza, fluttua e la camera le va incontro. Verso la fine il filmato sfuma nella card vera,
+   * allineata esattamente alla sua posizione, e a quel punto il "Ciao!" si scrive a mano.
    */
   useEffect(() => {
     const st = stage.current;
-    const wd = world.current;
-    const fl = float.current;
+    const box = vid.current;
+    const v = vv.current;
     const sc = scene.current;
-    if (!st || !wd || !fl || !sc) return;
+    if (!st || !box || !v || !sc) return;
     const pens = Array.from(st.querySelectorAll<SVGPathElement>(".pen"));
     const spark = st.querySelector<SVGElement>(".spark");
     const dot = st.querySelector<SVGElement>(".dot");
-    const planes = Array.from(st.querySelectorAll<HTMLElement>("[data-plane]"));
-    const drop = st.querySelector<HTMLElement>("[data-drop]");
-    const finish = () => {
-      st.dataset.intro = "done";
-      st.style.perspective = "";
-      st.style.perspectiveOrigin = "";
-      gsap.set([wd, fl], { clearProps: "transform" });
-    };
     const settle = () => {
       pens.forEach((p) => p.setAttribute("stroke-dashoffset", "0"));
       spark?.setAttribute("transform", "");
       dot?.setAttribute("transform", "");
     };
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      settle();
-      return finish();
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || !slug) {
+      if (reduce) settle();
+      st.dataset.intro = "done";
+      return;
     }
 
-    // geometria: l'apertura della scatola coincide con lo schermo; il centro prospettico e' il centro dello schermo
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    const r = sc.getBoundingClientRect();
-    const hs = r.height;
-    const dx = vw / 2 - (r.left + r.width / 2);
-    const dy = vh / 2 - (r.top + hs / 2);
-    const P = Math.round(Math.max(vw, vh) * 1.15);
-    const RD = Math.round(P * 0.8);
-    const ZC = Math.round(RD * 0.5);
-    const hh = vh / 2;
-    st.style.perspective = `${P}px`;
-    st.style.perspectiveOrigin = `${(st.clientWidth || r.width) / 2 + dx}px ${hs / 2 + dy}px`;
-    st.style.setProperty("--hw", `${vw / 2}px`);
-    st.style.setProperty("--hh", `${hh}px`);
-    st.style.setProperty("--rd", `${RD}px`);
-    st.style.setProperty("--dx", `${dx}px`);
-    st.style.setProperty("--dy", `${dy}px`);
+    const portrait = vw / vh < 1;
+    const F = portrait ? ROOM.pF : ROOM.lF;              // larghezza della card nell'ultimo fotogramma, in frazione dell'inquadratura
+    const [Wv, Hv] = portrait ? [1080, 1920] : [1920, 1080];
+    v.src = portrait ? "/card/room-p.mp4" : "/card/room-l.mp4";
+    v.load();
 
-    // la card sta ferma sul pavimento, a meta' profondita'
-    const yFloor = hh + dy - 4;
-    gsap.set(fl, { z: -ZC, y: yFloor, rotationX: 90, rotationZ: -6, transformOrigin: "50% 50%" });
-    if (drop) gsap.set(drop, { x: -dx, y: hh - 1, z: -ZC, rotationX: -90, xPercent: -50, yPercent: -50, opacity: 0.6, scale: 1 });
-    st.dataset.intro = "run";
+    let killed = false;
+    let raf = 0;
+    let wrote: gsap.core.Timeline | null = null;
+    const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+    const seg = (t: number, a: number, b: number) => Math.min(1, Math.max(0, (t - a) / (b - a)));
 
-    const SPEED = 560;
-    const at = (i: number) => PEN[i].n / SPEED;
-    const grow = (tl: gsap.core.Timeline, el: SVGElement | null, cx: number, cy: number, t: number | string) => {
-      if (!el) return;
-      const o = { k: 0 };
-      tl.to(o, { k: 1, duration: 0.32, ease: "back.out(2)", onUpdate: () => el.setAttribute("transform", `translate(${cx} ${cy}) scale(${o.k}) translate(${-cx} ${-cy})`) }, t);
-    };
-    const build = () => {
-      const tl = gsap.timeline({ delay: 0.2 });
-      intro.current = tl;
-      // 1. si rialza dal pavimento ruotando sul suo bordo: il punto piu' basso non entra mai nel pavimento
-      const o = { p: 0 };
-      tl.to(o, {
-        p: 1,
-        duration: 1.8,
-        ease: "power2.out",
-        onUpdate: () => {
-          const a = 90 * (1 - o.p);
-          const limit = yFloor - (hs / 2) * Math.cos((a * Math.PI) / 180);
-          const lift = yFloor * (1 - o.p);
-          const y = Math.min(lift, limit);
-          gsap.set(fl, { y, rotationX: a });
-          if (drop) {
-            const h = Math.min(1, (yFloor - y) / Math.max(1, yFloor));
-            gsap.set(drop, { opacity: 0.6 - 0.32 * h, scale: 1 - 0.3 * h });
-          }
-        },
-      }, 0);
-      tl.to(fl, { rotationZ: 0, duration: 1.9, ease: "sine.out" }, 0);
-      // 2. fluttua
-      tl.to(fl, { y: -14, rotationY: 7, duration: 0.8, ease: "sine.inOut" }, 1.7);
-      tl.to(fl, { y: 0, rotationY: 0, duration: 0.7, ease: "sine.inOut" }, 2.5);
-      // 3. la camera avanza fino alla card
-      tl.to(wd, { z: ZC, duration: 1.8, ease: "power3.inOut" }, 2.0);
-      tl.to(planes, { opacity: 0, duration: 0.55, ease: "power1.in" }, 3.25);
-      if (drop) tl.to(drop, { opacity: 0, duration: 0.4 }, 3.25);
-      tl.add(finish, 3.85);
-      // 4. il Ciao! si scrive a mano (la scena e' gia' piatta: nessuna prospettiva da ricalcolare)
-      const w0 = 3.9;
-      tl.to(pens[0], { strokeDashoffset: 0, duration: at(0), ease: "sine.inOut" }, w0);
+    const write = () => {
+      const SPEED = 560;
+      const at = (i: number) => PEN[i].n / SPEED;
+      const tl = gsap.timeline({ delay: 0.15 });
+      tl.to(pens[0], { strokeDashoffset: 0, duration: at(0), ease: "sine.inOut" });
       tl.to(pens[1], { strokeDashoffset: 0, duration: at(1) * 0.9, ease: "none" }, ">-0.05");
       tl.to(pens[2], { strokeDashoffset: 0, duration: at(2), ease: "sine.inOut" }, ">-0.12");
       tl.to(pens[3], { strokeDashoffset: 0, duration: at(3), ease: "sine.inOut" }, ">-0.05");
       tl.to(pens[4], { strokeDashoffset: 0, duration: at(4), ease: "sine.inOut" }, ">+0.12");
-      grow(tl, dot, 1201, 384, ">-0.05");
-      grow(tl, spark, 432, 97, ">+0.05");
-      return tl;
+      const grow = (el: SVGElement | null, cx: number, cy: number, t: number | string) => {
+        if (!el) return;
+        const o = { k: 0 };
+        tl.to(o, { k: 1, duration: 0.32, ease: "back.out(2)", onUpdate: () => el.setAttribute("transform", `translate(${cx} ${cy}) scale(${o.k}) translate(${-cx} ${-cy})`) }, t);
+      };
+      grow(dot, 1201, 384, ">-0.05");
+      grow(spark, 432, 97, ">+0.05");
+      wrote = tl;
     };
-    // parte appena si alza il telo d'apertura del sito
-    let tl: gsap.core.Timeline | null = null;
+    const finish = (quick = false) => {
+      if (st.dataset.intro === "done") return;
+      cancelAnimationFrame(raf);
+      v.pause();
+      st.dataset.intro = "done";
+      gsap.set(sc, { clearProps: "opacity" });
+      gsap.to(box, { opacity: 0, duration: quick ? 0.25 : 0.01, onComplete: () => void (box.style.display = "none") });
+      if (quick) settle();
+      else write();
+    };
+    // dove sta la card vera: da li' si allinea l'ultimo fotogramma del filmato
+    let tx = 0, ty = 0, k = 1;
+    const place = () => {
+      const r = sc.getBoundingClientRect();
+      const cover = Math.max(window.innerWidth / Wv, window.innerHeight / Hv);
+      v.style.width = `${Wv * cover}px`;
+      v.style.height = `${Hv * cover}px`;
+      v.style.marginLeft = `${(-Wv * cover) / 2}px`;
+      v.style.marginTop = `${(-Hv * cover) / 2}px`;
+      k = r.width / (F * Wv * cover);
+      tx = r.left + r.width / 2 - window.innerWidth / 2;
+      ty = r.top + r.height / 2 - window.innerHeight / 2;
+    };
+    place();
+    let started = false;
+    let handed = false;
+    const frame = () => {
+      raf = requestAnimationFrame(frame);
+      const t = v.currentTime;
+      const d = ease(seg(t, ROOM.dolly[0], ROOM.dolly[1]));
+      v.style.transform = `translate(${tx * d}px, ${ty * d}px) scale(${Math.pow(k, d)})`;
+      if (!handed && t >= ROOM.hand) {
+        handed = true;
+        gsap.to(sc, { opacity: 1, duration: ROOM.fade, ease: "sine.inOut" });
+        gsap.to(box, { opacity: 0, duration: ROOM.fade, ease: "sine.inOut" });
+      }
+      if (v.ended || t >= ROOM.end - 0.02) finish();
+    };
+    const go = () => {
+      if (started || killed) return;
+      started = true;
+      v.play().then(
+        () => {
+          if (killed) return;
+          st.dataset.intro = "run";
+          raf = requestAnimationFrame(frame);
+        },
+        () => finish(true), // riproduzione negata (es. risparmio energetico): niente ingresso
+      );
+    };
+    v.addEventListener("error", () => finish(true), { once: true });
+    intro.current = { skip: () => finish(true) };
     const off = onIntroLift(() => {
-      tl = build();
+      if (v.readyState >= 3) go();
+      else {
+        v.addEventListener("canplaythrough", go, { once: true });
+        window.setTimeout(() => !started && finish(true), 3500);
+      }
     });
+    const onResize = () => !handed && place();
+    window.addEventListener("resize", onResize);
     return () => {
+      killed = true;
       off();
-      tl?.kill();
-      intro.current = null;
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+      wrote?.kill();
+      v.pause();
     };
   }, [slug]);
 
@@ -279,22 +294,15 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
       className={`${s.stage} ${nunito.variable}`}
       onPointerDownCapture={(e) => {
         // un tocco durante l'ingresso lo porta subito alla fine
-        if (stage.current?.dataset.intro === "run" && intro.current) {
+        if (stage.current?.dataset.intro !== "done" && intro.current) {
           e.stopPropagation();
-          intro.current.progress(1);
+          intro.current.skip();
         }
       }}
     >
-      <div ref={world} className={s.world}>
-        <div className={s.room} aria-hidden>
-          <i data-plane className={s.roomBack} />
-          <i data-plane className={s.wallL} />
-          <i data-plane className={s.wallR} />
-          <i data-plane className={s.floor} />
-          <i data-plane className={s.ceil} />
-          <i data-drop className={s.drop} />
-        </div>
-        <div ref={float} className={s.float}>
+      <div ref={vid} className={s.vid} aria-hidden>
+        <video ref={vv} muted playsInline preload="auto" disablePictureInPicture />
+      </div>
       <div
         ref={scene}
         className={s.scene}
@@ -366,8 +374,6 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
           <i className={`${s.edge} ${s.eR}`} /><i className={`${s.edge} ${s.eL}`} /><i className={`${s.edge} ${s.eT}`} /><i className={`${s.edge} ${s.eB}`} />
         </div>
         <div className={s.shadow} />
-      </div>
-        </div>
       </div>
 
       {creds ? (
