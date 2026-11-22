@@ -240,52 +240,203 @@ function measure(el: HTMLElement) {
   return { family: cs.fontFamily, ox, by, fs, text: (tn?.textContent ?? el.textContent ?? "").trim() };
 }
 
-type St = { sk: Skel; ox: number; by: number; fs: number; cv: HTMLCanvasElement; text: string; font: string; color: string; dpr: number };
+type St = {
+  sk: Skel;
+  ox: number;
+  by: number;
+  fs: number;
+  cv: HTMLCanvasElement;
+  mcv: HTMLCanvasElement;
+  mimg: ImageData;
+  inkIdx: Uint32Array;
+  inkT: Float32Array;
+  text: string;
+  font: string;
+  color: string;
+  dpr: number;
+};
 const state = new WeakMap<HTMLElement, St>();
 
 /**
+ * Costruisce una mappa pixel-esatta dei tempi di scrittura (Voronoi sulla traiettoria della penna singola):
+ * ogni pixel inchiostrato della parola riceve il tempo t del punto piu' vicino della penna (primo passaggio),
+ * garantendo zero buchi, zero angoli tagliati e zero sbavature sulle lettere vicine.
+ */
+function buildRevealMap(sk: Skel, ox: number, by: number, fs: number, w: number, h: number, font: string, text: string) {
+  const sc = Math.min(1, 640 / Math.max(1, w));
+  const mw = Math.max(2, Math.ceil(w * sc));
+  const mh = Math.max(2, Math.ceil(h * sc));
+  const mcv = document.createElement("canvas");
+  mcv.width = mw;
+  mcv.height = mh;
+  const mctx = mcv.getContext("2d", { willReadFrequently: true })!;
+  mctx.setTransform(sc, 0, 0, sc, 0, 0);
+  mctx.fillStyle = "#000";
+  mctx.font = font;
+  mctx.textBaseline = "alphabetic";
+  mctx.fillText(text, ox * fs, by * fs);
+  const src = mctx.getImageData(0, 0, mw, mh).data;
+
+  // Griglia spaziale popolata incrementalmente: se la penna ripassa vicino a un tratto gia' scritto,
+  // vince sempre il primo passaggio (zero puntini ritardati agli incroci come sulla 'o')
+  const CELL = 16;
+  const gw = Math.ceil(mw / CELL);
+  const gh = Math.ceil(mh / CELL);
+  const grid: number[][] = Array.from({ length: gw * gh }, () => []);
+  const sx: number[] = [];
+  const sy: number[] = [];
+  const st: number[] = [];
+  const dots: { x: number; y: number; r: number; t0: number; t1: number }[] = [];
+  const toX = (x: number) => (ox + x) * fs * sc;
+  const toY = (y: number) => (by + y) * fs * sc;
+  const dupR2 = Math.pow(Math.max(2, 0.035 * fs * sc), 2);
+
+  const pushSample = (x: number, y: number, t: number) => {
+    const gx0 = Math.max(0, Math.min(gw - 1, (x / CELL) | 0));
+    const gy0 = Math.max(0, Math.min(gh - 1, (y / CELL) | 0));
+    for (let gy = Math.max(0, gy0 - 1); gy <= Math.min(gh - 1, gy0 + 1); gy++) {
+      for (let gx = Math.max(0, gx0 - 1); gx <= Math.min(gw - 1, gx0 + 1); gx++) {
+        const bucket = grid[gy * gw + gx];
+        for (let b = 0; b < bucket.length; b++) {
+          const i = bucket[b];
+          if (t - st[i] > 0.18 && (x - sx[i]) * (x - sx[i]) + (y - sy[i]) * (y - sy[i]) < dupR2) return;
+        }
+      }
+    }
+    const idx = sx.length;
+    sx.push(x);
+    sy.push(y);
+    st.push(t);
+    grid[gy0 * gw + gx0].push(idx);
+  };
+
+  for (const it of sk.items) {
+    if (it.d) {
+      dots.push({ x: toX(it.d[0]), y: toY(it.d[1]), r: Math.max(3, it.d[2] * fs * sc * 1.45), t0: it.t[0], t1: it.t[1] });
+      continue;
+    }
+    const P = it.p!, tt = it.t;
+    for (let k = 0; k < P.length; k++) {
+      const x1 = toX(P[k][0]), y1 = toY(P[k][1]), t1 = tt[k];
+      if (k > 0) {
+        const x0 = toX(P[k - 1][0]), y0 = toY(P[k - 1][1]), t0 = tt[k - 1];
+        const emDist = Math.hypot(P[k][0] - P[k - 1][0], P[k][1] - P[k - 1][1]);
+        const dt = t1 - t0;
+        if (emDist > 1e-4 && dt / emDist < 0.45) continue;
+        const pxDist = Math.hypot(x1 - x0, y1 - y0);
+        const steps = Math.max(1, Math.ceil(pxDist / 2.5));
+        for (let s = 1; s <= steps; s++) {
+          const f = s / steps;
+          pushSample(x0 + (x1 - x0) * f, y0 + (y1 - y0) * f, t0 + dt * f);
+        }
+      } else {
+        pushSample(x1, y1, t1);
+      }
+    }
+  }
+
+  // Raccoglie solo i pixel inchiostrati (+ margine 1px per anti-alias pulito)
+  const idxs: number[] = [];
+  const times: number[] = [];
+  for (let y = 0; y < mh; y++) {
+    for (let x = 0; x < mw; x++) {
+      const p = y * mw + x;
+      let has = src[p * 4 + 3] > 4;
+      if (!has) {
+        if ((x > 0 && src[(p - 1) * 4 + 3] > 24) || (x + 1 < mw && src[(p + 1) * 4 + 3] > 24) || (y > 0 && src[(p - mw) * 4 + 3] > 24) || (y + 1 < mh && src[(p + mw) * 4 + 3] > 24)) {
+          has = true;
+        }
+      }
+      if (!has) continue;
+
+      // Controlla prima i puntini separati (es. puntini delle 'i')
+      let dotT = -1;
+      for (let d = 0; d < dots.length; d++) {
+        const dt = dots[d];
+        const dist = Math.hypot(x - dt.x, y - dt.y);
+        if (dist <= dt.r) {
+          dotT = dt.t0 + (dt.t1 - dt.t0) * Math.min(1, dist / dt.r);
+          break;
+        }
+      }
+      if (dotT >= 0) {
+        idxs.push(p);
+        times.push(dotT);
+        continue;
+      }
+
+      const gx0 = Math.max(0, Math.min(gw - 1, (x / CELL) | 0));
+      const gy0 = Math.max(0, Math.min(gh - 1, (y / CELL) | 0));
+      let bestD = Infinity;
+      let bestT = 0;
+      for (let rad = 1; rad <= 4 && bestD === Infinity; rad++) {
+        const yMin = Math.max(0, gy0 - rad), yMax = Math.min(gh - 1, gy0 + rad);
+        const xMin = Math.max(0, gx0 - rad), xMax = Math.min(gw - 1, gx0 + rad);
+        for (let gy = yMin; gy <= yMax; gy++) {
+          for (let gx = xMin; gx <= xMax; gx++) {
+            const bucket = grid[gy * gw + gx];
+            for (let b = 0; b < bucket.length; b++) {
+              const i = bucket[b];
+              const dx = x - sx[i], dy = y - sy[i];
+              const d2 = dx * dx + dy * dy;
+              if (d2 < bestD) { bestD = d2; bestT = st[i]; }
+            }
+          }
+        }
+      }
+      if (bestD === Infinity) {
+        for (let i = 0; i < sx.length; i++) {
+          const dx = x - sx[i], dy = y - sy[i];
+          const d2 = dx * dx + dy * dy;
+          if (d2 < bestD) { bestD = d2; bestT = st[i]; }
+        }
+      }
+      idxs.push(p);
+      times.push(bestT);
+    }
+  }
+
+  const mimg = mctx.createImageData(mw, mh);
+  return { mcv, mimg, inkIdx: Uint32Array.from(idxs), inkT: Float32Array.from(times) };
+}
+
+/**
  * Mentre scrive, la parola vera è nascosta e al suo posto c'è un canvas alla risoluzione dello schermo:
- * la stessa parola, stesso font e stessa posizione, ritagliata dal tratto della penna fino a p (0..1).
+ * la maschera Voronoi scopre ogni pixel del glifo senza alcun buco seguendo la penna singola.
  * Alla fine il canvas sparisce e torna il testo: identico, nessuno scatto.
  */
 function render(e: HTMLElement, p: number) {
   const st = state.get(e);
   if (!st) return;
-  const { sk, ox, by, fs, cv, dpr } = st;
+  const { sk, ox, by, fs, cv, mcv, mimg, inkIdx, inkT, dpr } = st;
   const ctx = cv.getContext("2d")!;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.globalCompositeOperation = "source-over";
   ctx.clearRect(0, 0, cv.width, cv.height);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.strokeStyle = ctx.fillStyle = "#000";
-  ctx.lineCap = ctx.lineJoin = "round";
-  ctx.lineWidth = sk.w * fs;
-  const T = p * sk.total;
-  const px = (x: number, y: number): [number, number] => [(ox + x) * fs, (by + y) * fs];
-  for (const it of sk.items) {
-    if (T <= it.t[0]) continue;
-    if (it.d) {
-      const f = Math.min(1, (T - it.t[0]) / Math.max(1e-4, it.t[1] - it.t[0]));
-      const [x, y] = px(it.d[0], it.d[1]);
-      ctx.beginPath();
-      ctx.arc(x, y, it.d[2] * fs * (0.35 + 0.65 * f), 0, Math.PI * 2);
-      ctx.fill();
-      continue;
-    }
-    const P = it.p!, t = it.t;
-    ctx.beginPath();
-    ctx.moveTo(...px(P[0][0], P[0][1]));
-    for (let k = 1; k < P.length; k++) {
-      if (t[k] >= T) {
-        const f = (T - t[k - 1]) / Math.max(1e-6, t[k] - t[k - 1]);
-        ctx.lineTo(...px(P[k - 1][0] + (P[k][0] - P[k - 1][0]) * f, P[k - 1][1] + (P[k][1] - P[k - 1][1]) * f));
-        break;
+  if (p <= 0) return;
+
+  if (p < 0.999) {
+    const edge = 0.055;
+    const T = p * (sk.total + edge * 1.2) - edge * 0.15;
+    const data = mimg.data;
+    for (let i = 0; i < inkIdx.length; i++) {
+      const dt = T - inkT[i];
+      let a = 0;
+      if (dt >= edge) a = 255;
+      else if (dt > -edge) {
+        const u = (dt + edge) / (2 * edge);
+        a = Math.round(u * u * (3 - 2 * u) * 255);
       }
-      ctx.lineTo(...px(P[k][0], P[k][1]));
+      data[inkIdx[i] * 4 + 3] = a;
     }
-    ctx.stroke();
+    const mctx = mcv.getContext("2d")!;
+    mctx.putImageData(mimg, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(mcv, 0, 0, cv.width, cv.height);
+    ctx.globalCompositeOperation = "source-in";
   }
-  ctx.globalCompositeOperation = "source-in";
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.fillStyle = st.color;
   ctx.font = st.font;
   ctx.textBaseline = "alphabetic";
@@ -316,6 +467,7 @@ export function prepareWrite(el: Element) {
     const dpr = Math.min(3, window.devicePixelRatio || 1);
     const cv = prev?.cv ?? document.createElement("canvas");
     const w = e.offsetWidth, h = e.offsetHeight;
+    if (!w || !h) return;
     cv.width = Math.ceil(w * dpr);
     cv.height = Math.ceil(h * dpr);
     cv.setAttribute("aria-hidden", "true");
@@ -323,7 +475,9 @@ export function prepareWrite(el: Element) {
     if (getComputedStyle(e).position === "static") e.style.position = "relative";
     if (!cv.isConnected) e.appendChild(cv);
     e.style.setProperty("-webkit-text-fill-color", "transparent");
-    state.set(e, { sk, ox: m.ox, by: m.by, fs: m.fs, cv, text: m.text, font: `${cs.fontStyle} ${cs.fontWeight} ${m.fs}px ${m.family}`, color, dpr });
+    const font = `${cs.fontStyle} ${cs.fontWeight} ${m.fs}px ${m.family}`;
+    const map = buildRevealMap(sk, m.ox, m.by, m.fs, w, h, font, m.text);
+    state.set(e, { sk, ox: m.ox, by: m.by, fs: m.fs, cv, ...map, text: m.text, font, color, dpr });
     e.dataset.wlen = String(sk.total);
     render(e, Number(e.dataset.wp ?? 0));
   };
@@ -340,21 +494,21 @@ const wipeStyle = (el: HTMLElement) => {
   el.style.maskImage = EDGE;
 };
 
-/** Quanto dura scrivere una parola: segue la lunghezza del tratto (per ora lenta). */
+/** Quanto dura scrivere una parola: proporzionale alla lunghezza del tratto, velocità lineare pulita. */
 export const writeTime = (el: Element) => {
   prepareWrite(el);
   const len = parseFloat((el as HTMLElement).dataset.wlen ?? "");
-  return len ? Math.min(3.2, Math.max(0.6, 0.35 + len / 3.2)) : Math.min(1.6, Math.max(0.5, 0.28 + (el.textContent?.length ?? 6) * 0.075));
+  return len ? Math.min(3.2, Math.max(0.6, len / 4.2)) : Math.min(1.6, Math.max(0.5, 0.28 + (el.textContent?.length ?? 6) * 0.075));
 };
 
-/** Aggiunge alla timeline la scrittura di una parola. */
+/** Aggiunge alla timeline la scrittura di una parola a velocità lineare e pulita. */
 export const writeOn = (L: gsap.core.Timeline, el: Element, at: number, dur = writeTime(el)) => {
   const e = el as HTMLElement;
   if (isScript(e)) {
     prepareWrite(e);
     e.dataset.wp = "0";
     const pr = { p: 0 };
-    L.fromTo(pr, { p: 0 }, { p: 1, duration: dur, ease: "sine.inOut", onUpdate: () => { e.dataset.wp = String(pr.p); render(e, pr.p); } }, at);
+    L.fromTo(pr, { p: 0 }, { p: 1, duration: dur, ease: "none", onUpdate: () => { e.dataset.wp = String(pr.p); render(e, pr.p); } }, at);
     L.call(() => { e.dataset.wdone = "1"; finish(e); }, undefined, at + dur + 0.02);
     return L;
   }
@@ -369,6 +523,6 @@ export const writeOnScroll = (els: Element[], delay = 0.3) => {
     prepareWrite(el);
     el.dataset.wp = "0";
     const pr = { p: 0 };
-    gsap.to(pr, { p: 1, duration: writeTime(el), ease: "sine.inOut", delay: delay + i * 0.18, onUpdate: () => { el.dataset.wp = String(pr.p); render(el, pr.p); }, onComplete: () => { el.dataset.wdone = "1"; finish(el); } });
+    gsap.to(pr, { p: 1, duration: writeTime(el), ease: "none", delay: delay + i * 0.18, onUpdate: () => { el.dataset.wp = String(pr.p); render(el, pr.p); }, onComplete: () => { el.dataset.wdone = "1"; finish(el); } });
   });
 };

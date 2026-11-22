@@ -134,45 +134,38 @@ function segLen(pts) {
   return s;
 }
 
-// Segmenti in ordine corsivo naturale con tempi strettamente proporzionali alla lunghezza reale in pixel
+// Segmenti in ordine corsivo a PENNA SINGOLA (un solo tratto attivo alla volta, velocità lineare costante)
 const sC   = P0;
 const sI   = P1.slice(0, 26);
-const sAT  = P1.slice(25, 53);
-const sAB  = P2;
-const sAS  = P1.slice(52, 69);
-const sAO  = P1.slice(68, 87);
-const sOT  = P1.slice(86, 117);
-const sOB  = [...P3].reverse();
-const sOTl = P1.slice(116);
-const sBng = P4;
+const sAT  = P1.slice(25, 53);     // a: sale a sinistra e gira sopra
+const sAS  = P1.slice(52, 69);     // a: scende sullo stelo destro
+const sAB  = [...P2].reverse();    // a: chiude il fondo da destra a sinistra in continuità
+const sAO  = P1.slice(68, 87);     // collegamento a -> o
+const sOT  = P1.slice(86, 117);    // o: sale a sinistra e gira sopra
+const sOB  = P3;                   // o: scende a destra e chiude il fondo in continuità
+const sOTl = P1.slice(116);        // o: codina di uscita
+const sBng = P4;                   // ! asta
 
-// Calcolo cumulativo lineare in pixel (a e o chiudono l'ovale in parallelo alla stessa velocità lineare)
+// Calcolo cumulativo strettamente sequenziale (una sola penna, nessun tratto in parallelo)
 const rawBody = [];
 let cur = 0;
-function pushSeg(pts, startAt = cur) {
+function pushSeg(pts, gap = 0) {
+  cur += gap;
   const len = segLen(pts);
-  rawBody.push({ pts, s0: startAt, s1: startAt + len });
-  return startAt + len;
+  rawBody.push({ pts, s0: cur, s1: cur + len });
+  cur += len;
 }
-cur = pushSeg(sC);
-cur = pushSeg(sI);
-const aStart = cur;
-const aTopEnd = pushSeg(sAT, aStart);
-// Il fondo di 'a' parte poco dopo l'ingresso e chiude insieme allo stelo destro
-const aStemEnd = pushSeg(sAS, aTopEnd);
-pushSeg(sAB, Math.max(aStart, aStemEnd - segLen(sAB)));
-cur = aStemEnd;
-cur = pushSeg(sAO);
-const oStart = cur;
-const oTopEnd = pushSeg(sOT, oStart);
-// Il fondo di 'o' corre in parallelo e si ricongiunge in alto a destra prima della coda
-const oBotLen = segLen(sOB);
-const oJoin = Math.max(oTopEnd, oStart + oBotLen);
-pushSeg(sOB, oJoin - oBotLen);
-cur = oJoin;
-cur = pushSeg(sOTl);
+pushSeg(sC);
+pushSeg(sI);
+pushSeg(sAT);
+pushSeg(sAS);
+pushSeg(sAB);
+pushSeg(sAO, 18); // breve ritorno lungo il tratto già scritto fino all'uscita di 'a'
+pushSeg(sOT);
+pushSeg(sOB);
+pushSeg(sOTl, 18); // breve ritorno fino alla codina di 'o'
 
-const bangStart = cur + 65; // breve stacco penna prima del '!'
+const bangStart = cur + 65; // stacco penna prima del '!'
 const bangEnd = bangStart + segLen(sBng);
 const dotStart = bangEnd + 45;
 const dotEnd = dotStart + 95;
@@ -184,7 +177,7 @@ const bodyStrokes = rawBody.map(st => ({ pts: st.pts, t0: st.s0 / TOTAL, t1: st.
 const bangT0 = bangStart / TOTAL, bangT1 = bangEnd / TOTAL;
 const dotT0 = dotStart / TOTAL, dotT1 = dotEnd / TOTAL;
 const sparkT0 = sparkStart / TOTAL, sparkT1 = sparkEnd / TOTAL;
-console.log("Total linear path length:", Math.round(TOTAL), "px | C ends at:", (segLen(sC) / TOTAL).toFixed(3));
+console.log("Total single-pen linear path length:", Math.round(TOTAL), "px | C ends at:", (segLen(sC) / TOTAL).toFixed(3));
 
 // Precompute cumulative arc-length times for each sample point
 function densify(strokes) {
