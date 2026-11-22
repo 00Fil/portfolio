@@ -7,6 +7,7 @@ const config: NextConfig = {
   output: "standalone",
   reactStrictMode: true,
   poweredByHeader: false,
+  experimental: { serverActions: { bodySizeLimit: "3mb" } },
 };
 
 export default withNextIntl(config);

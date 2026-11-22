@@ -38,3 +38,7 @@
 .site i { width: 36px; height: 36px; border-radius: 99px; display: grid; place-items: center; background: var(--fg, #0b0d12); color: var(--bg, #fff); }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) { .site { animation: none; } }
+
+.front.frontCustom { background-image: url(/card/back.webp); }
+.logoImg { position: absolute; left: 50%; top: 50%; width: 62%; height: 56%; transform: translate(-50%, -50%); object-fit: contain; pointer-events: none; user-select: none; filter: drop-shadow(0 1.2cqw 2cqw rgba(6, 38, 58, .28)); }
+.cname { position: absolute; inset: 0; display: grid; place-items: center; padding: 0 10%; text-align: center; font-family: var(--nunito), var(--font-geist-sans), sans-serif; font-weight: 700; font-size: 9cqw; line-height: 1; color: #06263a; pointer-events: none; text-wrap: balance; }

@@ -12,7 +12,7 @@ import { prefersReducedMotion } from "@/lib/env";
 type Txt = { status: string; title: string; lead: string; email: string; password: string; submit: string; show: string; hide: string; errors: Record<"fields" | "wrong" | "limit" | "off", string> };
 
 /** Campo di testo che si scrive a lettere: l'input vero resta (trasparente) per cursore e tastiera, sopra c'è il testo che muta. */
-function MorphField({ id, name, type = "text", masked = false, label, invalid, defaultValue, inputRef, autoComplete, end }: {
+export function MorphField({ id, name, type = "text", masked = false, label, invalid, defaultValue, inputRef, autoComplete, end }: {
   id: string;
   name: string;
   type?: string;
@@ -83,7 +83,7 @@ function MorphField({ id, name, type = "text", masked = false, label, invalid, d
 }
 
 /** Sfondo: onde nei blu del sito, nei due temi. */
-function Waves() {
+export function Waves() {
   const [c, setC] = useState<{ dark: boolean; bg: string } | null>(null);
   useEffect(() => {
     const read = () => {

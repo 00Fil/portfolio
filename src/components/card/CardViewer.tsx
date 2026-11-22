@@ -13,7 +13,7 @@ type Txt = { code: string; open: string; flip: string; site: string; copied: str
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 /** Card girevole in 3D: trascina per ruotarla, riflessi che seguono il puntatore, si ferma sempre su un lato. */
-export function CardViewer({ t }: { t: Txt }) {
+export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; logo?: string; name?: string }) {
   const scene = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
   const [creds, setCreds] = useState<{ user: string; pass: string; url: string } | null>(null);
@@ -124,7 +124,7 @@ export function CardViewer({ t }: { t: Txt }) {
     const v = String(new FormData(e.currentTarget).get("code") ?? "");
     if (!v.trim()) return;
     setPending(true); setErr("");
-    const r = await unlockCard(v);
+    const r = await unlockCard(v, slug);
     setPending(false);
     if (r.ok) {
       setCreds({ user: r.user, pass: r.pass, url: r.url });
@@ -153,7 +153,13 @@ export function CardViewer({ t }: { t: Txt }) {
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " " || e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); flip(); } }}
       >
         <div ref={card} className={s.card}>
-          <div className={`${s.face} ${s.front}`}>
+          <div className={`${s.face} ${s.front} ${slug ? s.frontCustom : ""}`}>
+            {slug && (logo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logo} alt={name ?? ""} draggable={false} className={s.logoImg} />
+            ) : (
+              <span className={s.cname}>{name}</span>
+            ))}
             <div className={s.sheen} />
             <div className={s.glare} />
           </div>
