@@ -201,14 +201,6 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
                 <div className={s.ciao}>
                   <svg viewBox="0 0 1320 450" className={s.glassEdge} aria-hidden>
                     <defs>
-                      <linearGradient id="ciao-veil" x1=".15" y1="0" x2=".85" y2="1">
-                        <stop offset="0" stopColor="#fff" stopOpacity=".92" />
-                        <stop offset=".5" stopColor="#dff1ff" stopOpacity=".5" />
-                        <stop offset="1" stopColor="#fff" stopOpacity=".72" />
-                      </linearGradient>
-                      <mask id="ciao-shape" maskUnits="userSpaceOnUse" x="0" y="0" width="1320" height="450" style={{ maskType: "alpha" }}>
-                        <image href="/card/ciao.png" width="1320" height="450" />
-                      </mask>
                       {/* la scrittura: i tratti bianchi si disegnano e scoprono il vetro sotto */}
                       <mask id="ciao-write" maskUnits="userSpaceOnUse" x="-60" y="-60" width="1440" height="570">
                         {PEN.map((t, i) => (
@@ -217,38 +209,60 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
                         <circle className="spark" cx="432" cy="97" r="80" fill="#fff" transform="translate(432 97) scale(0) translate(-432 -97)" />
                         <circle className="dot" cx="1201" cy="384" r="58" fill="#fff" transform="translate(1201 384) scale(0) translate(-1201 -384)" />
                       </mask>
-                      <filter id="ciao-glass" x="-3%" y="-8%" width="106%" height="124%" colorInterpolationFilters="sRGB">
-                        {/* ombra sotto il vetro, solo fuori dalla lettera */}
+                      {/* goccia d'acqua su un tavolo: cupola dalla mappa dell'alpha, rifrazione dello sfondo, luce che scivola, caustica in basso a destra */}
+                      <filter id="ciao-glass" x="-5%" y="-12%" width="110%" height="132%" colorInterpolationFilters="sRGB">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="h" />
+                        <feColorMatrix in="h" type="matrix" values="0 0 0 1 0  0 0 0 1 0  0 0 0 1 0  0 0 0 0 1" result="hc" />
+                        <feOffset in="hc" dx="3" result="xp" />
+                        <feOffset in="hc" dx="-3" result="xm" />
+                        <feOffset in="hc" dy="3" result="yp" />
+                        <feOffset in="hc" dy="-3" result="ym" />
+                        <feComposite in="xp" in2="xm" operator="arithmetic" k1="0" k2="2.4" k3="-2.4" k4=".5" result="gx" />
+                        <feComposite in="yp" in2="ym" operator="arithmetic" k1="0" k2="2.4" k3="-2.4" k4=".5" result="gy" />
+                        <feColorMatrix in="gx" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0 1" result="mx" />
+                        <feColorMatrix in="gy" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 0 1" result="my" />
+                        <feComposite in="mx" in2="my" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="map" />
+                        <feImage href="/card/back-dark.webp" x="-394" y="-411" width="2020" height="1274" preserveAspectRatio="none" result="bg" />
+                        <feDisplacementMap in="bg" in2="map" scale="120" xChannelSelector="R" yChannelSelector="G" result="refr" />
+                        <feDiffuseLighting in="h" surfaceScale="14" diffuseConstant="1.25" lightingColor="#ffffff" result="dif">
+                          <feDistantLight azimuth="225" elevation="50" />
+                        </feDiffuseLighting>
+                        <feBlend in="refr" in2="dif" mode="multiply" result="shaded" />
+                        <feComposite in="shaded" in2="SourceAlpha" operator="in" result="lens" />
+                        <feFlood floodColor="#cfeaff" floodOpacity=".2" />
+                        <feComposite in2="SourceAlpha" operator="in" result="veil" />
+                        {/* ombra sul tavolo, solo fuori dalla goccia */}
                         <feGaussianBlur in="SourceAlpha" stdDeviation="9" result="sb" />
-                        <feOffset in="sb" dy="14" result="so" />
-                        <feFlood floodColor="#000" floodOpacity=".55" />
+                        <feOffset in="sb" dx="8" dy="16" result="so" />
+                        <feFlood floodColor="#000" floodOpacity=".6" />
                         <feComposite in2="so" operator="in" result="sc" />
                         <feComposite in="sc" in2="SourceAlpha" operator="out" result="shadow" />
-                        {/* spessore: ombra interna in basso a destra */}
+                        {/* caustica: la luce si concentra nel bordo opposto alla sorgente */}
                         <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="ib" />
-                        <feOffset in="ib" dx="-4" dy="-9" result="io" />
+                        <feOffset in="ib" dx="-9" dy="-12" result="io" />
                         <feComposite in="SourceAlpha" in2="io" operator="out" result="band" />
-                        <feFlood floodColor="#1d6fc4" floodOpacity=".55" />
-                        <feComposite in2="band" operator="in" result="inner" />
-                        {/* luce che striscia sui bordi */}
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="h" />
-                        <feSpecularLighting in="h" surfaceScale="10" specularConstant="1.3" specularExponent="26" lightingColor="#ffffff" result="sp1">
-                          <feDistantLight azimuth="230" elevation="46" />
+                        <feFlood floodColor="#a9defe" floodOpacity=".9" />
+                        <feComposite in2="band" operator="in" result="caustic" />
+                        {/* riflessi della sorgente */}
+                        <feSpecularLighting in="h" surfaceScale="16" specularConstant="1.6" specularExponent="34" lightingColor="#ffffff" result="sp1">
+                          <feDistantLight azimuth="225" elevation="44" />
                         </feSpecularLighting>
                         <feComposite in="sp1" in2="SourceAlpha" operator="in" result="spec1" />
-                        <feSpecularLighting in="h" surfaceScale="8" specularConstant="1" specularExponent="20" lightingColor="#9fdcff" result="sp2">
-                          <feDistantLight azimuth="50" elevation="38" />
+                        <feSpecularLighting in="h" surfaceScale="10" specularConstant="1" specularExponent="18" lightingColor="#7cc8ff" result="sp2">
+                          <feDistantLight azimuth="40" elevation="36" />
                         </feSpecularLighting>
                         <feComposite in="sp2" in2="SourceAlpha" operator="in" result="spec2" />
                         {/* filo di luce sul contorno */}
-                        <feMorphology in="SourceAlpha" operator="erode" radius="2.2" result="er" />
+                        <feMorphology in="SourceAlpha" operator="erode" radius="1.8" result="er" />
                         <feComposite in="SourceAlpha" in2="er" operator="out" result="ring" />
-                        <feGaussianBlur in="ring" stdDeviation=".8" result="ringb" />
-                        <feFlood floodColor="#ffffff" floodOpacity="1" />
+                        <feGaussianBlur in="ring" stdDeviation=".7" result="ringb" />
+                        <feFlood floodColor="#ffffff" floodOpacity=".9" />
                         <feComposite in2="ringb" operator="in" result="rim" />
                         <feMerge>
                           <feMergeNode in="shadow" />
-                          <feMergeNode in="inner" />
+                          <feMergeNode in="lens" />
+                          <feMergeNode in="veil" />
+                          <feMergeNode in="caustic" />
                           <feMergeNode in="spec2" />
                           <feMergeNode in="spec1" />
                           <feMergeNode in="rim" />
@@ -256,10 +270,6 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
                       </filter>
                     </defs>
                     <g mask="url(#ciao-write)">
-                      <g mask="url(#ciao-shape)">
-                        <image href="/card/back-dark.webp" x="-394" y="-411" width="2020" height="1274" preserveAspectRatio="none" />
-                        <rect width="1320" height="450" fill="url(#ciao-veil)" />
-                      </g>
                       <image href="/card/ciao.png" width="1320" height="450" filter="url(#ciao-glass)" />
                     </g>
                   </svg>
