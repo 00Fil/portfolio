@@ -215,35 +215,25 @@ const bodyP1 = densify(pass1Segs);
 const bodyP2 = densify(pass2Segs);
 const bangSamples = densify([{ id: 99, pts: sBng, t0: bangT0, t1: bangT1 }]);
 
-// Punta a sfera per segmento: ogni pixel appartiene al segmento piu' vicino (ownerSeg) e accetta
-// solo campioni di ownerSeg o del segmento direttamente adiacente nella sequenza (|seg - ownerSeg| <= 1).
-const PEN_R = 38;
+// Punta a sfera circolare pura (nessun taglio Voronoi agli incroci!):
+// ogni pixel viene rivelato nel primo istante in cui la punta circolare (raggio 31px = raggio reale del tratto)
+// lo raggiunge lungo il percorso continuo. Cosi' ogni fine tratto e' SEMPRE un semicerchio perfetto e uniforme.
+const PEN_R = 35;
 const PEN_R2 = PEN_R * PEN_R;
-const PEN_R2_P2 = 34 * 34;
 
 function ballpointOwned(x, y, samples, fallback = true) {
-  // 1. Trova il segmento proprietario (piu' vicino alla linea centrale)
-  let bestD = Infinity, bestT = 0, ownerSeg = -1;
-  for (let i = 0; i < samples.length; i++) {
-    const dx = x - samples[i].x, dy = y - samples[i].y;
-    const d2 = dx * dx + dy * dy;
-    if (d2 < bestD) { bestD = d2; bestT = samples[i].t; ownerSeg = samples[i].seg; }
-  }
-  const r2 = fallback ? PEN_R2 : PEN_R2_P2;
-  if (!fallback && bestD > r2) return 1.0;
-
-  // 2. Calcola il primo istante della punta circolare solo sul segmento proprietario (o adiacente continuo)
   let firstT = Infinity;
+  let bestD = Infinity, bestT = 0;
   for (let i = 0; i < samples.length; i++) {
-    if (Math.abs(samples[i].seg - ownerSeg) > 1) continue;
     const dx = x - samples[i].x, dy = y - samples[i].y;
     const d2 = dx * dx + dy * dy;
-    if (d2 <= r2 && samples[i].t < firstT) {
+    if (d2 < bestD) { bestD = d2; bestT = samples[i].t; }
+    if (d2 <= PEN_R2 && samples[i].t < firstT) {
       firstT = samples[i].t;
     }
   }
-  if (firstT < Infinity) return firstT;
-  return fallback ? bestT : 1.0;
+  if (!fallback && firstT === Infinity) return 1.0;
+  return firstT < Infinity ? firstT : bestT;
 }
 
 // 5. Calcola un vero profilo a SEMISFERA (dh/du = 0 al centro del tratto, zero cresta nel mezzo)
