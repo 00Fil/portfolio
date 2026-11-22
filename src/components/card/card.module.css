@@ -40,5 +40,9 @@
 @media (prefers-reduced-motion: reduce) { .site { animation: none; } }
 
 .front.frontCustom { background-image: url(/card/back.webp); }
-.logoImg { position: absolute; left: 50%; top: 50%; width: 62%; height: 56%; transform: translate(-50%, -50%); object-fit: contain; pointer-events: none; user-select: none; filter: drop-shadow(0 1.2cqw 2cqw rgba(6, 38, 58, .28)); }
-.cname { position: absolute; inset: 0; display: grid; place-items: center; padding: 0 10%; text-align: center; font-family: var(--nunito), var(--font-geist-sans), sans-serif; font-weight: 700; font-size: 9cqw; line-height: 1; color: #06263a; pointer-events: none; text-wrap: balance; }
+.ciao { position: absolute; left: 11.68%; top: 25%; width: 77.1%; pointer-events: none; user-select: none; }
+.sign { position: absolute; left: 0; right: 0; bottom: 2.7cqw; display: flex; align-items: center; justify-content: center; gap: 1.5cqw; color: #06263a; pointer-events: none; }
+.sign i { font-style: normal; font-size: 3cqw; line-height: 1; opacity: .8; }
+.signLogo { height: 3.6cqw; max-width: 12cqw; width: auto; object-fit: contain; }
+.signName { font-family: var(--nunito), var(--font-geist-sans), sans-serif; font-weight: 700; font-size: 3.1cqw; line-height: 1; }
+.me { font-family: var(--font-logo), var(--font-geist-sans), sans-serif; font-size: 3.7cqw; line-height: 1; color: #111; }

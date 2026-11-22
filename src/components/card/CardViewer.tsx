@@ -154,12 +154,22 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
       >
         <div ref={card} className={s.card}>
           <div className={`${s.face} ${s.front} ${slug ? s.frontCustom : ""}`}>
-            {slug && (logo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logo} alt={name ?? ""} draggable={false} className={s.logoImg} />
-            ) : (
-              <span className={s.cname}>{name}</span>
-            ))}
+            {slug && (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/card/ciao.png" alt="" draggable={false} className={s.ciao} />
+                <div className={s.sign}>
+                  {logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={logo} alt={name ?? ""} draggable={false} className={s.signLogo} />
+                  ) : (
+                    <span className={s.signName}>{name}</span>
+                  )}
+                  <i>×</i>
+                  <span className={s.me}>Filippo Corsini</span>
+                </div>
+              </>
+            )}
             <div className={s.sheen} />
             <div className={s.glare} />
           </div>
