@@ -135,19 +135,21 @@ function segLen(pts) {
 }
 
 // Segmenti base del "Ciao!" (una lettera completa alla volta, zero pause morte)
-const sC     = P0;                              // 0: C -> sale fino all'apice della 'i' (413, 208)
-const sICon  = P1.slice(0, 26);                 // 1: curva bassa della 'i' e rampa fino a 'a'
-const sAT    = P1.slice(25, 53);                // 2: a sale a sinistra e gira sopra -> (720, 222)
-const sAS    = P1.slice(52, 69);                // 3: a scende sullo stelo destro -> (708, 366)
-const sABRev = [...P2].reverse();               // 4: a chiude completamente il fondo in senso orario
-const sAO    = P1.slice(68, 87);                // 5: rampa di collegamento a -> o (867, 341)
-const sOT    = P1.slice(86, 117);               // 6: o sale a sinistra e gira sopra -> (1030, 231)
-const sOB    = P3;                              // 7: o scende a destra e chiude completamente il fondo in senso orario
-const sOTl   = P1.slice(118);                   // 8: gambetto finale della 'o' (parte fuori dall'anello -> zero tagli sulla 'o')
+const iSplit = P0.findIndex(([x, y]) => x >= 391 && y <= 324);
+const sC     = P0.slice(0, iSplit + 1);         // 0: C fino alla base della 'i' (391, 323)
+const sIUp   = [...P0.slice(iSplit), [414, 198]]; // 1: stelo della 'i' esattamente dal basso fino alla punta
+const sICon  = P1.slice(0, 26);                 // 2: curva bassa della 'i' e rampa fino a 'a'
+const sAT    = P1.slice(25, 53);                // 3: a sale a sinistra e gira sopra -> (720, 222)
+const sAS    = P1.slice(52, 69);                // 4: a scende sullo stelo destro -> (708, 366)
+const sABRev = [...P2].reverse();               // 5: a chiude completamente il fondo in senso orario
+const sAO    = P1.slice(68, 87);                // 6: rampa di collegamento a -> o (867, 341)
+const sOT    = P1.slice(86, 117);               // 7: o sale a sinistra e gira sopra -> (1030, 231)
+const sOB    = P3;                              // 8: o scende a destra e chiude completamente il fondo in senso orario
+const sOTl   = P1.slice(118);                   // 9: gambetto finale della 'o'
 const sBng   = P4;                              // ! asta
 
 // Percorso continuo senza stutter ne' pause tra le lettere:
-// C + i -> stellina all'apice -> curva i -> a completa -> rampa -> o completa -> gambetto o -> ! -> punto
+// C -> stelo 'i' dal basso verso la punta -> stellina all'apice -> curva i -> a completa -> rampa -> o completa -> gambetto o -> ! -> punto
 const rawBody = [];
 let cur = 0;
 function pushSeg(pts, speedMul = 1, gap = 0) {
@@ -158,18 +160,19 @@ function pushSeg(pts, speedMul = 1, gap = 0) {
   cur += dur;
 }
 
-pushSeg(sC, 1.0);                 // 0: C -> apice 'i'
+pushSeg(sC, 1.0);                 // 0: C -> base 'i'
+pushSeg(sIUp, 0.72);              // 1: stelo 'i' sale chiaramente dal basso verso la punta
 const sparkStart = cur;           // stellina esattamente all'apice della 'i'
 const sparkEnd = sparkStart + 70;
 cur = sparkEnd;                   // zero pausa dopo la stellina
-pushSeg(sICon, 1.0);              // 1: curva bassa 'i' -> rampa 'a'
-pushSeg(sAT, 1.0);                // 2: a sale sx + arco sopra
-pushSeg(sAS, 1.0);                // 3: a scende stelo dx
-pushSeg(sABRev, 1.0);             // 4: a chiude il fondo (lettera 'a' completata!)
-pushSeg(sAO, 1.0);                // 5: rampa a -> o
-pushSeg(sOT, 1.0);                // 6: o sale sx + arco sopra
-pushSeg(sOB, 1.0);                // 7: o scende dx + chiude il fondo (lettera 'o' completata!)
-pushSeg(sOTl, 1.0);               // 8: gambetto finale della 'o'
+pushSeg(sICon, 1.0);              // 2: curva bassa 'i' -> rampa 'a'
+pushSeg(sAT, 1.0);                // 3: a sale sx + arco sopra
+pushSeg(sAS, 1.0);                // 4: a scende stelo dx
+pushSeg(sABRev, 1.0);             // 5: a chiude il fondo (lettera 'a' completata!)
+pushSeg(sAO, 1.0);                // 6: rampa a -> o
+pushSeg(sOT, 1.0);                // 7: o sale sx + arco sopra
+pushSeg(sOB, 1.0);                // 8: o scende dx + chiude il fondo (lettera 'o' completata!)
+pushSeg(sOTl, 1.0);               // 9: gambetto finale della 'o'
 
 const bangStart = cur + 18;       // stacco penna minimo prima del '!' (zero stutter)
 const bangEnd = bangStart + segLen(sBng);
@@ -184,7 +187,7 @@ const dotT0 = dotStart / TOTAL, dotT1 = dotEnd / TOTAL;
 const sparkT0 = sparkStart / TOTAL, sparkT1 = sparkEnd / TOTAL;
 console.log("Total smooth path:", Math.round(TOTAL), "px | i-apex spark:", sparkT0.toFixed(3), "..", sparkT1.toFixed(3));
 
-// Densifica i campioni ogni ~2px mantenendo l'id del segmento per evitare bleed prematuri agli incroci
+// Densifica i campioni ogni ~2px mantenendo l'id del segmento
 function densify(segs) {
   const samples = [];
   for (const st of segs) {
@@ -215,22 +218,18 @@ const bodyP1 = densify(pass1Segs);
 const bodyP2 = densify(pass2Segs);
 const bangSamples = densify([{ id: 99, pts: sBng, t0: bangT0, t1: bangT1 }]);
 
-// Punta a sfera circolare pura (nessun taglio Voronoi agli incroci!):
-// ogni pixel viene rivelato nel primo istante in cui la punta circolare (raggio 31px = raggio reale del tratto)
-// lo raggiunge lungo il percorso continuo. Cosi' ogni fine tratto e' SEMPRE un semicerchio perfetto e uniforme.
-const PEN_R = 35;
+// Punta a sfera circolare pura (raggio 34px = spessore del tratto, zero spike e zero tagli Voronoi).
+const PEN_R = 34;
 const PEN_R2 = PEN_R * PEN_R;
 
 function ballpointOwned(x, y, samples, fallback = true) {
   let firstT = Infinity;
-  let bestD = Infinity, bestT = 0;
+  let bestD2 = Infinity, bestT = 0;
   for (let i = 0; i < samples.length; i++) {
     const dx = x - samples[i].x, dy = y - samples[i].y;
     const d2 = dx * dx + dy * dy;
-    if (d2 < bestD) { bestD = d2; bestT = samples[i].t; }
-    if (d2 <= PEN_R2 && samples[i].t < firstT) {
-      firstT = samples[i].t;
-    }
+    if (d2 < bestD2) { bestD2 = d2; bestT = samples[i].t; }
+    if (d2 <= PEN_R2 && samples[i].t < firstT) firstT = samples[i].t;
   }
   if (!fallback && firstT === Infinity) return 1.0;
   return firstT < Infinity ? firstT : bestT;
