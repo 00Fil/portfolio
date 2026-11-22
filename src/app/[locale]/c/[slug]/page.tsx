@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { CardSilk } from "@/components/card/CardSilk";
 import { CardViewer } from "@/components/card/CardViewer";
 import { SiteNav } from "@/components/nav/SiteNav";
 import { cardBySlug } from "@/lib/admin-store";
@@ -23,27 +22,14 @@ export default async function CustomCard({ params }: { params: Promise<{ locale:
     <>
       <main
         id="main"
-        className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-[#f6f6f3] px-4 pb-36 pt-[calc(var(--bar-h)+24px)] text-[#121316] lg:pb-16"
+        className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-white px-4 pb-36 pt-[calc(var(--bar-h)+24px)] text-[#121316] lg:pb-16"
         style={{
           ["--card" as string]: "#ffffff",
           ["--hair" as string]: "rgba(15, 20, 30, 0.1)",
           ["--fg" as string]: "#121316",
-          ["--bg" as string]: "#f6f6f3",
+          ["--bg" as string]: "#ffffff",
         }}
       >
-        <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
-          <CardSilk
-            lightMode
-            color="#d8e7f4"
-            sheenColor="#ffffff"
-            speed={3.2}
-            scale={1.05}
-            depth={0.45}
-            sheen={0.55}
-            glow={0.25}
-            noiseIntensity={1.1}
-          />
-        </div>
         <CardViewer
           slug={c.slug}
           name={c.name}

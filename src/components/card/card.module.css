@@ -50,8 +50,9 @@
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) { .site { animation: none; } }
 
-.front.frontCustom { background-image: url(/card/back.webp); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .65); }
+.front.frontCustom { background-image: none; background-color: #eef5fc; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .65); }
 .back.backCustom { background-image: url(/card/back.webp); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .65); }
+.frontSilk { position: absolute; inset: 0; pointer-events: none; }
 .ciao { position: absolute; left: 11.68%; top: 25%; width: 77.1%; aspect-ratio: 1320 / 450; pointer-events: none; user-select: none; }
 .ciaoCanvas { position: absolute; left: -4%; top: -8%; width: 108%; height: 124%; display: block; pointer-events: none; }
 .sign { position: absolute; left: 0; right: 0; bottom: 2.7cqw; display: flex; align-items: center; justify-content: center; gap: 1.5cqw; color: #0b2638; pointer-events: none; }

@@ -5,6 +5,7 @@ import { ArrowRight, ArrowUpRight, KeyRound, User } from "lucide-react";
 import { onIntroLift } from "@/lib/intro";
 import localFont from "next/font/local";
 import { unlockCard } from "@/app/[locale]/card/actions";
+import { CardSilk } from "./CardSilk";
 import { CiaoGlass, type CiaoGlassHandle } from "./CiaoGlass";
 import s from "./card.module.css";
 
@@ -19,6 +20,7 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
   const scene = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
   const ciao = useRef<CiaoGlassHandle>(null);
+  const silkCanvas = useRef<HTMLCanvasElement | null>(null);
   const [creds, setCreds] = useState<{ user: string; pass: string; url: string } | null>(null);
   const [err, setErr] = useState("");
   const [shake, setShake] = useState(false);
@@ -194,8 +196,22 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
           <div className={`${s.face} ${s.front} ${slug ? s.frontCustom : ""}`}>
             {slug && (
               <>
+                <div className={s.frontSilk} aria-hidden>
+                  <CardSilk
+                    lightMode
+                    color="#92c5ee"
+                    sheenColor="#ffffff"
+                    speed={3.4}
+                    scale={1.15}
+                    depth={0.55}
+                    sheen={0.58}
+                    glow={0.28}
+                    noiseIntensity={1.0}
+                    onCanvas={(el) => { silkCanvas.current = el; }}
+                  />
+                </div>
                 <div className={s.ciao}>
-                  <CiaoGlass ref={ciao} />
+                  <CiaoGlass ref={ciao} bgCanvasRef={silkCanvas} />
                 </div>
                 <div className={s.sign}>
                   {logo ? (

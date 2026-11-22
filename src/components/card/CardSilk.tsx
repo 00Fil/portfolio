@@ -243,6 +243,7 @@ export type CardSilkProps = {
   dpr?: number;
   className?: string;
   style?: CSSProperties;
+  onCanvas?: (el: HTMLCanvasElement | null) => void;
 };
 
 export function CardSilk({
@@ -268,10 +269,13 @@ export function CardSilk({
   dpr,
   className = "",
   style,
+  onCanvas,
 }: CardSilkProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wakeRef = useRef<(() => void) | null>(null);
+  const onCanvasRef = useRef(onCanvas);
+  onCanvasRef.current = onCanvas;
   const settingsRef = useRef({
     speed,
     scale,
@@ -326,9 +330,11 @@ export function CardSilk({
       antialias: false,
       depth: false,
       stencil: false,
+      preserveDrawingBuffer: true,
       powerPreference: "high-performance",
     });
     if (!container || !canvas || !gl) return undefined;
+    onCanvasRef.current?.(canvas);
 
     const fieldProgram = link(gl, FIELD);
     const compositeProgram = link(gl, COMPOSITE);

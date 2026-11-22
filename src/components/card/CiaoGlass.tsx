@@ -253,8 +253,10 @@ void main() {
 }
 `;
 
-export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean }>(function CiaoGlass({ immediate = false }, ref) {
+export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean; bgCanvasRef?: React.RefObject<HTMLCanvasElement | null> }>(function CiaoGlass({ immediate = false, bgCanvasRef }, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const bgRef = useRef(bgCanvasRef);
+  bgRef.current = bgCanvasRef;
   const stateRef = useRef({
     rx: 0,
     ry: 0,
@@ -355,8 +357,25 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean }>(fu
       gl.viewport(0, 0, canvas.width, canvas.height);
     };
 
+    const t1 = gl.createTexture()!;
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, t1);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    // Inizializza con 1px bianco finche' il canvas Silk non e' pronto
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([240, 246, 252, 255]));
+
     const draw = () => {
-      if (dead || st.ready < 3) return;
+      if (dead || st.ready < 2) return;
+      const srcCv = bgRef.current?.current;
+      if (srcCv && srcCv.width > 1 && srcCv.height > 1) {
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, t1);
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 0);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, srcCv);
+      }
       resize();
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -381,21 +400,30 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean }>(fu
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
         st.ready++;
-        if (st.ready >= 3) draw();
+        if (st.ready >= 2) draw();
       };
       img.src = url;
       return tex;
     };
 
     const t0 = loadTex("/card/ciao-data.png", 0);
-    const t1 = loadTex("/card/back.webp", 1);
     const t2 = loadTex("/card/ciao-pass2.png", 2);
+
+    // Aggiorna la rifrazione dell'acqua in tempo reale mentre lo sfondo Silk scorre dietro
+    let liveRaf = 0;
+    const tick = () => {
+      if (dead) return;
+      if (!document.hidden && st.ready >= 2 && bgRef.current?.current) draw();
+      liveRaf = requestAnimationFrame(tick);
+    };
+    liveRaf = requestAnimationFrame(tick);
 
     const ro = new ResizeObserver(() => draw());
     ro.observe(canvas);
 
     return () => {
       dead = true;
+      cancelAnimationFrame(liveRaf);
       cancelAnimationFrame(st.animRaf);
       window.clearTimeout(st.delayId);
       ro.disconnect();
