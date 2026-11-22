@@ -109,12 +109,15 @@ const cSpark = compCount.find(c => c.cnt > 100 && c.cx > 350 && c.cx < 520 && c.
 const cBang = compCount.find(c => c.cnt > 100 && c.cx > 1150 && c.cy < 280).id;
 const cDot = compCount.find(c => c.cnt > 100 && c.cx > 1150 && c.cy > 320).id;
 
-// 4. Parse PEN paths from CardViewer.tsx and build natural cursive timeline
-const cardSrc = fs.readFileSync(path.join(root, "src/components/card/CardViewer.tsx"), "utf8");
-const penMatches = [...cardSrc.matchAll(/d:\s*"([^"]+)"/g)].map(m =>
-  [...m[1].matchAll(/[ML](\d+)\s+(\d+)/g)].map(p => [+p[1], +p[2]])
-);
-const [P0, P1, P2, P3, P4] = penMatches;
+// 4. Centerline PEN paths of "Ciao!" (viewBox 1320x450)
+const PEN_RAW = [
+  "M307 128 L303 120 L298 112 L294 104 L289 96 L284 89 L278 83 L271 77 L264 71 L256 67 L247 64 L239 61 L230 60 L221 58 L212 58 L203 57 L194 58 L185 59 L176 61 L167 63 L159 66 L150 69 L142 74 L135 79 L128 84 L121 90 L115 97 L109 103 L103 110 L98 118 L93 126 L89 134 L85 142 L82 150 L79 159 L76 167 L73 176 L71 185 L70 194 L68 202 L67 211 L66 220 L65 229 L65 238 L65 248 L65 257 L66 266 L67 275 L69 283 L70 292 L73 301 L76 310 L79 318 L83 326 L87 334 L92 341 L98 349 L104 355 L110 362 L117 367 L125 372 L133 377 L141 381 L149 384 L158 387 L166 390 L175 392 L184 393 L193 394 L202 395 L211 396 L220 396 L229 395 L238 394 L247 393 L256 392 L265 390 L274 388 L282 385 L291 382 L299 379 L307 375 L315 371 L323 366 L331 361 L338 356 L345 350 L353 345 L361 341 L369 338 L378 335 L385 330 L391 323 L393 314 L395 306 L397 297 L399 288 L401 279 L402 270 L404 261 L406 252 L407 244 L409 235 L411 226 L413 217 L413 208",
+  "M390 328 L395 336 L398 344 L400 353 L402 362 L405 370 L410 378 L417 384 L425 388 L434 390 L443 392 L452 392 L461 392 L470 390 L479 388 L487 385 L495 381 L503 377 L510 371 L517 366 L525 360 L532 355 L540 351 L549 348 L557 344 L562 337 L564 328 L566 319 L568 310 L569 301 L571 292 L572 283 L575 275 L578 266 L581 258 L585 250 L590 242 L596 235 L602 229 L609 223 L617 218 L625 214 L633 212 L642 210 L651 209 L660 209 L669 210 L678 211 L687 212 L696 213 L705 214 L714 216 L720 222 L719 231 L719 240 L718 249 L717 258 L717 267 L716 276 L714 285 L713 294 L712 303 L711 312 L710 321 L709 330 L709 339 L708 348 L707 357 L708 366 L713 373 L720 379 L727 385 L736 388 L744 391 L753 393 L762 393 L771 393 L780 391 L789 389 L797 386 L805 382 L813 377 L820 371 L826 365 L833 358 L840 352 L848 348 L856 344 L863 339 L867 331 L869 322 L870 313 L872 305 L873 296 L875 287 L878 278 L881 270 L884 261 L888 253 L893 246 L899 238 L905 232 L911 226 L919 220 L927 216 L935 213 L944 211 L953 210 L962 209 L971 210 L980 211 L989 213 L998 215 L1006 219 L1014 223 L1022 227 L1030 231 L1039 232 L1048 232 L1057 231 L1066 230 L1075 229 L1084 227 L1092 225 L1101 221 L1108 216 L1115 210 L1122 204",
+  "M562 343 L568 350 L573 357 L577 365 L582 373 L588 380 L595 386 L603 389 L612 392 L621 393 L630 394 L639 393 L648 392 L657 389 L665 386 L673 381 L681 377 L689 373 L697 370 L706 367",
+  "M1033 233 L1034 242 L1035 251 L1035 260 L1035 269 L1035 278 L1034 287 L1034 296 L1033 305 L1031 314 L1029 323 L1027 332 L1023 340 L1020 348 L1015 356 L1010 363 L1003 370 L997 376 L989 381 L981 385 L973 388 L964 390 L955 392 L946 392 L937 392 L928 391 L919 389 L911 386 L903 381 L895 376 L889 369 L884 362 L879 354 L873 347 L867 341",
+  "M1247 58 L1246 67 L1244 76 L1243 85 L1241 94 L1240 103 L1239 112 L1238 121 L1236 130 L1235 139 L1234 147 L1233 156 L1231 165 L1230 174 L1229 183 L1227 192 L1226 201 L1225 210 L1224 219 L1222 228 L1221 237 L1220 246 L1219 255",
+];
+const [P0, P1, P2, P3, P4] = PEN_RAW.map(d => [...d.matchAll(/[ML](\d+)\s+(\d+)/g)].map(p => [+p[1], +p[2]]));
 
 // Split P1 cleanly into natural cursive segments:
 // P1[0..25]: i downstroke + connector to a
@@ -131,31 +134,57 @@ function segLen(pts) {
   return s;
 }
 
-// Each stroke has { pts, t0, t1 } in normalized timeline [0, 1]
-// Natural left-to-right cursive flow:
-//   0.00 - 0.30 : C + i upstroke (P0)
-//   0.30 - 0.39 : i downstroke + connector to a (P1[0..25])
-//   0.39 - 0.50 : a top arch (P1[25..52])
-//   0.42 - 0.53 : a bottom loop (P2) — sweeps concurrently to meet right stem!
-//   0.50 - 0.55 : a right downstroke (P1[52..68])
-//   0.55 - 0.61 : connector a -> o (P1[68..86])
-//   0.61 - 0.72 : o top arch (P1[86..116])
-//   0.63 - 0.74 : o bottom loop (P3 reversed) — sweeps concurrently to meet top-right!
-//   0.73 - 0.78 : o exit tail (P1[116..127])
-//   0.81 - 0.90 : ! stem (P4)
-//   0.91 - 0.95 : ! dot (radial bloom from 1201, 384)
-//   0.94 - 0.99 : i spark (radial bloom from 432, 97)
-const bodyStrokes = [
-  { pts: P0, t0: 0.00, t1: 0.30 },
-  { pts: P1.slice(0, 26), t0: 0.30, t1: 0.39 },
-  { pts: P1.slice(25, 53), t0: 0.39, t1: 0.50 },
-  { pts: P2, t0: 0.42, t1: 0.53 },
-  { pts: P1.slice(52, 69), t0: 0.50, t1: 0.55 },
-  { pts: P1.slice(68, 87), t0: 0.55, t1: 0.61 },
-  { pts: P1.slice(86, 117), t0: 0.61, t1: 0.72 },
-  { pts: [...P3].reverse(), t0: 0.63, t1: 0.74 },
-  { pts: P1.slice(116), t0: 0.73, t1: 0.78 },
-];
+// Segmenti in ordine corsivo naturale con tempi strettamente proporzionali alla lunghezza reale in pixel
+const sC   = P0;
+const sI   = P1.slice(0, 26);
+const sAT  = P1.slice(25, 53);
+const sAB  = P2;
+const sAS  = P1.slice(52, 69);
+const sAO  = P1.slice(68, 87);
+const sOT  = P1.slice(86, 117);
+const sOB  = [...P3].reverse();
+const sOTl = P1.slice(116);
+const sBng = P4;
+
+// Calcolo cumulativo lineare in pixel (a e o chiudono l'ovale in parallelo alla stessa velocità lineare)
+const rawBody = [];
+let cur = 0;
+function pushSeg(pts, startAt = cur) {
+  const len = segLen(pts);
+  rawBody.push({ pts, s0: startAt, s1: startAt + len });
+  return startAt + len;
+}
+cur = pushSeg(sC);
+cur = pushSeg(sI);
+const aStart = cur;
+const aTopEnd = pushSeg(sAT, aStart);
+// Il fondo di 'a' parte poco dopo l'ingresso e chiude insieme allo stelo destro
+const aStemEnd = pushSeg(sAS, aTopEnd);
+pushSeg(sAB, Math.max(aStart, aStemEnd - segLen(sAB)));
+cur = aStemEnd;
+cur = pushSeg(sAO);
+const oStart = cur;
+const oTopEnd = pushSeg(sOT, oStart);
+// Il fondo di 'o' corre in parallelo e si ricongiunge in alto a destra prima della coda
+const oBotLen = segLen(sOB);
+const oJoin = Math.max(oTopEnd, oStart + oBotLen);
+pushSeg(sOB, oJoin - oBotLen);
+cur = oJoin;
+cur = pushSeg(sOTl);
+
+const bangStart = cur + 65; // breve stacco penna prima del '!'
+const bangEnd = bangStart + segLen(sBng);
+const dotStart = bangEnd + 45;
+const dotEnd = dotStart + 95;
+const sparkStart = dotEnd + 35;
+const sparkEnd = sparkStart + 115;
+const TOTAL = sparkEnd;
+
+const bodyStrokes = rawBody.map(st => ({ pts: st.pts, t0: st.s0 / TOTAL, t1: st.s1 / TOTAL }));
+const bangT0 = bangStart / TOTAL, bangT1 = bangEnd / TOTAL;
+const dotT0 = dotStart / TOTAL, dotT1 = dotEnd / TOTAL;
+const sparkT0 = sparkStart / TOTAL, sparkT1 = sparkEnd / TOTAL;
+console.log("Total linear path length:", Math.round(TOTAL), "px | C ends at:", (segLen(sC) / TOTAL).toFixed(3));
 
 // Precompute cumulative arc-length times for each sample point
 function densify(strokes) {
@@ -168,7 +197,6 @@ function densify(strokes) {
       if (i > 0) acc += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
       const t = st.t0 + (st.t1 - st.t0) * (acc / total);
       samples.push({ x: pts[i][0], y: pts[i][1], t });
-      // Add midpoint for smoother nearest-point mapping
       if (i < pts.length - 1) {
         const d = Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]);
         const tm = st.t0 + (st.t1 - st.t0) * ((acc + d * 0.5) / total);
@@ -180,7 +208,7 @@ function densify(strokes) {
 }
 
 const bodySamples = densify(bodyStrokes);
-const bangSamples = densify([{ pts: P4, t0: 0.81, t1: 0.90 }]);
+const bangSamples = densify([{ pts: sBng, t0: bangT0, t1: bangT1 }]);
 
 function nearestTime(x, y, samples) {
   let bestD = Infinity, bestT = 0;
@@ -208,10 +236,10 @@ for (let y = 0; y < H; y++) {
       t = nearestTime(x, y, bangSamples);
     } else if (c === cDot) {
       const dr = Math.min(1, Math.hypot(x - 1201, y - 384) / 48);
-      t = 0.91 + dr * 0.04;
+      t = dotT0 + dr * (dotT1 - dotT0);
     } else if (c === cSpark) {
       const dr = Math.min(1, Math.hypot(x - 432, y - 97) / 72);
-      t = 0.94 + dr * 0.05;
+      t = sparkT0 + dr * (sparkT1 - sparkT0);
     }
     rgb[i * 3] = rVal;
     rgb[i * 3 + 1] = a;

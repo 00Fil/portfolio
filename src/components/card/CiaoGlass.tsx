@@ -240,14 +240,12 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean }>(fu
       window.clearTimeout(st.delayId);
       st.progress = 0;
       st.draw();
-      const DURATION = 2350;
+      const DURATION = 3400;
       const start = () => {
         const t0 = performance.now();
         const step = (now: number) => {
           const u = Math.min(1, (now - t0) / DURATION);
-          // Curva fluida continua senza stacchi: lieve accelerazione all'inizio e chiusura morbida
-          const eased = u < 0.5 ? 2 * u * u * (1.25 - 0.5 * u) : 1 - Math.pow(1 - u, 2.35) * (0.65 + 0.35 * u);
-          st.progress = Math.min(1, Math.max(0, eased));
+          st.progress = u;
           st.draw();
           if (u < 1) st.animRaf = requestAnimationFrame(step);
           else {

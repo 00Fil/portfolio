@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, KeyRound, User } from "lucide-react";
-import { gsap } from "gsap";
 import { onIntroLift } from "@/lib/intro";
 import localFont from "next/font/local";
 import { unlockCard } from "@/app/[locale]/card/actions";
@@ -13,12 +12,9 @@ const nunito = localFont({ src: "../../fonts/nunito-700.woff2", variable: "--nun
 
 type Txt = { code: string; open: string; flip: string; site: string; copied: string; errors: { wrong: string; limit: string; off: string } };
 
-/** Filmato dell'ingresso (scripts/room): frazione di larghezza della card nell'ultimo fotogramma, tratto di camera, istante di passaggio alla card vera. */
-const ROOM = { lF: 0.42, pF: 0.78, dolly: [2.7, 5.0], hand: 5.2, fade: 0.55, end: 5.8 } as const;
-
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
-/** Card girevole in 3D: trascina per ruotarla, riflessi coerenti con il faretto centrale dall'alto, si ferma sempre su un lato. */
+/** Card girevole in 3D: trascina per ruotarla, riflessi coerenti con la luce dall'alto, si ferma sempre su un lato. */
 export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; logo?: string; name?: string }) {
   const scene = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
@@ -29,110 +25,16 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
   const [pending, setPending] = useState(false);
   const [tip, setTip] = useState<"user" | "pass" | null>(null);
 
-  const stage = useRef<HTMLDivElement>(null);
-  const vid = useRef<HTMLDivElement>(null);
-  const vv = useRef<HTMLVideoElement>(null);
-  const intro = useRef<{ skip: () => void } | null>(null);
-
-  /**
-   * Ingresso: un filmato (renderizzato in 3D, a 60 fotogrammi) di una stanza buia illuminata da un faretto centrale dall'alto:
-   * la card sul pavimento si alza, fluttua e la camera le va incontro. Verso la fine il filmato sfuma nella card vera,
-   * allineata esattamente alla sua posizione, e a quel punto il "Ciao!" di vetro fluido si scrive a mano.
-   */
   useEffect(() => {
-    const st = stage.current;
-    const box = vid.current;
-    const v = vv.current;
-    const sc = scene.current;
-    if (!st || !box || !v || !sc) return;
+    if (!slug) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce || !slug) {
-      if (reduce) ciao.current?.settle();
-      st.dataset.intro = "done";
+    if (reduce) {
+      ciao.current?.settle();
       return;
     }
-
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const portrait = vw / vh < 1;
-    const F = portrait ? ROOM.pF : ROOM.lF; // larghezza della card nell'ultimo fotogramma, in frazione dell'inquadratura
-    const [Wv, Hv] = portrait ? [1080, 1920] : [1920, 1080];
-    v.src = portrait ? "/card/room-p.mp4" : "/card/room-l.mp4";
-    v.load();
-
-    let killed = false;
-    let raf = 0;
-    const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
-    const seg = (t: number, a: number, b: number) => Math.min(1, Math.max(0, (t - a) / (b - a)));
-
-    const finish = (quick = false) => {
-      if (st.dataset.intro === "done") return;
-      cancelAnimationFrame(raf);
-      v.pause();
-      st.dataset.intro = "done";
-      gsap.set(sc, { clearProps: "opacity" });
-      gsap.to(box, { opacity: 0, duration: quick ? 0.25 : 0.01, onComplete: () => void (box.style.display = "none") });
-      if (quick) ciao.current?.settle();
-      else ciao.current?.play(120);
-    };
-    // dove sta la card vera: da li' si allinea l'ultimo fotogramma del filmato
-    let tx = 0, ty = 0, k = 1;
-    const place = () => {
-      const r = sc.getBoundingClientRect();
-      const cover = Math.max(window.innerWidth / Wv, window.innerHeight / Hv);
-      v.style.width = `${Wv * cover}px`;
-      v.style.height = `${Hv * cover}px`;
-      v.style.marginLeft = `${(-Wv * cover) / 2}px`;
-      v.style.marginTop = `${(-Hv * cover) / 2}px`;
-      k = r.width / (F * Wv * cover);
-      tx = r.left + r.width / 2 - window.innerWidth / 2;
-      ty = r.top + r.height / 2 - window.innerHeight / 2;
-    };
-    place();
-    let started = false;
-    let handed = false;
-    const frame = () => {
-      raf = requestAnimationFrame(frame);
-      const t = v.currentTime;
-      const d = ease(seg(t, ROOM.dolly[0], ROOM.dolly[1]));
-      v.style.transform = `translate(${tx * d}px, ${ty * d}px) scale(${Math.pow(k, d)})`;
-      if (!handed && t >= ROOM.hand) {
-        handed = true;
-        gsap.to(sc, { opacity: 1, duration: ROOM.fade, ease: "sine.inOut" });
-        gsap.to(box, { opacity: 0, duration: ROOM.fade, ease: "sine.inOut" });
-      }
-      if (v.ended || t >= ROOM.end - 0.02) finish();
-    };
-    const go = () => {
-      if (started || killed) return;
-      started = true;
-      v.play().then(
-        () => {
-          if (killed) return;
-          st.dataset.intro = "run";
-          raf = requestAnimationFrame(frame);
-        },
-        () => finish(true), // riproduzione negata (es. risparmio energetico): niente ingresso
-      );
-    };
-    v.addEventListener("error", () => finish(true), { once: true });
-    intro.current = { skip: () => finish(true) };
-    const off = onIntroLift(() => {
-      if (v.readyState >= 3) go();
-      else {
-        v.addEventListener("canplaythrough", go, { once: true });
-        window.setTimeout(() => !started && finish(true), 3500);
-      }
+    return onIntroLift(() => {
+      ciao.current?.play(180);
     });
-    const onResize = () => !handed && place();
-    window.addEventListener("resize", onResize);
-    return () => {
-      killed = true;
-      off();
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", onResize);
-      v.pause();
-    };
   }, [slug]);
 
   const st = useRef({ ry: -24, rx: 8, vy: 0, vx: 0, snap: 0, px: 0, py: 0, drag: false, moved: 0, hit: "" as "" | "user" | "pass", lastX: 0, lastY: 0, lastT: 0, raf: 0, reduce: false });
@@ -274,21 +176,7 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
   };
 
   return (
-    <div
-      ref={stage}
-      data-intro="pre"
-      className={`${s.stage} ${nunito.variable}`}
-      onPointerDownCapture={(e) => {
-        // un tocco durante l'ingresso lo porta subito alla fine
-        if (stage.current?.dataset.intro !== "done" && intro.current) {
-          e.stopPropagation();
-          intro.current.skip();
-        }
-      }}
-    >
-      <div ref={vid} className={s.vid} aria-hidden>
-        <video ref={vv} muted playsInline preload="auto" disablePictureInPicture />
-      </div>
+    <div className={`${s.stage} ${nunito.variable}`}>
       <div
         ref={scene}
         className={s.scene}
@@ -340,8 +228,7 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
           </div>
           <i className={`${s.edge} ${s.eR}`} /><i className={`${s.edge} ${s.eL}`} /><i className={`${s.edge} ${s.eT}`} /><i className={`${s.edge} ${s.eB}`} />
         </div>
-        {slug && <div className={s.floorSpot} aria-hidden />}
-        <div className={`${s.shadow} ${slug ? s.shadowCustom : ""}`} aria-hidden />
+        <div className={s.shadow} aria-hidden />
       </div>
 
       {creds ? (

@@ -1,29 +1,12 @@
 .stage { --cw: min(92vw, 760px); width: var(--cw); display: grid; gap: 28px; justify-items: center; position: relative; z-index: 6; }
-.stage[data-intro="pre"] .scene, .stage[data-intro="run"] .scene { opacity: 0; }
-.stage:not([data-intro="done"]) .form, .stage:not([data-intro="done"]) .err { opacity: 0; pointer-events: none; }
-.stage:not([data-intro="done"]) .scene { pointer-events: none; }
-.stage:not([data-intro="done"]) :is(.shadow, .floorSpot, .sheen, .glare, .sign) { opacity: 0 !important; }
-.sheen, .glare, .shadow, .floorSpot, .sign { transition: opacity .8s; }
-/* il filmato dell'ingresso copre lo schermo: lo scalare e allineare e' compito dello script */
-.vid { position: fixed; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; background: #07080a; }
-.stage[data-intro="pre"] .vid { opacity: 0; }
-.vid video { position: absolute; left: 50%; top: 50%; display: block; transform-origin: 50% 50%; background: transparent; }
 
 .scene { width: 100%; perspective: 1500px; container-type: inline-size; touch-action: pan-y; user-select: none; cursor: grab; position: relative; }
 .scene:active { cursor: grabbing; }
 .card { position: relative; width: 100%; aspect-ratio: 856 / 540; transform-style: preserve-3d; will-change: transform; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
-.floorSpot { position: absolute; left: -12%; right: -12%; bottom: -16cqw; height: 22cqw; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(ellipse 52% 48% at 50% 54%, rgba(190, 212, 245, .13), rgba(140, 170, 215, .04) 52%, transparent 78%);
-  filter: blur(12px); }
-.shadow { position: absolute; left: 3%; right: 3%; bottom: -9.5cqw; height: 5.2cqw; border-radius: 999px; pointer-events: none;
-  background:
-    radial-gradient(closest-side, var(--shadow-strong, rgba(6, 38, 58, .55)) 0%, rgba(6, 20, 36, .28) 56%, transparent 100%);
+.shadow { position: absolute; left: 4%; right: 4%; bottom: -9.5cqw; height: 5.2cqw; border-radius: 999px; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(12, 22, 38, .34) 0%, rgba(12, 22, 38, .14) 55%, transparent 100%);
   filter: blur(8px); opacity: var(--sh-o, .8);
   transform: translateY(var(--sh-y, 0)) scale(var(--sh-w, 1), var(--sh-h, .55)); transform-origin: 50% 50%; }
-.shadowCustom {
-  background:
-    radial-gradient(closest-side, rgba(0, 0, 0, .96) 0%, rgba(0, 0, 0, .72) 48%, rgba(0, 0, 0, 0) 100%);
-  filter: blur(7px); }
 .face { position: absolute; inset: 0; border-radius: 3.74cqw; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; background-size: cover; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .55); }
 .front { transform: translateZ(.46cqw); background-image: url(/card/front.webp); }
 .back { transform: rotateY(180deg) translateZ(.46cqw); background-image: url(/card/back.webp); image-rendering: auto; }
@@ -35,13 +18,11 @@
 .glare { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light; opacity: .95;
   background: radial-gradient(60% 70% at var(--gx, 50%) var(--gy, 40%), rgba(255, 255, 255, .85), rgba(255, 255, 255, 0) 62%); }
 .sheen { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: overlay;
-  background:
-    linear-gradient(105deg, rgba(255, 255, 255, 0) 48.9%, rgba(255, 255, 255, .45) 49.7%, rgba(255, 255, 255, 0) 50.5%),
-    linear-gradient(105deg, rgba(255, 255, 255, 0) 16%, rgba(255, 255, 255, .1) 32%, rgba(255, 255, 255, .42) 47%, rgba(255, 255, 255, .12) 60%, rgba(255, 255, 255, 0) 76%);
-  background-size: 260% 100%, 260% 100%; background-position: var(--sh, 50%) 0, var(--sh, 50%) 0; opacity: var(--so2, .8); }
-/* sulla card scura il riflesso segue l'unico faretto centrale dall'alto */
-.frontCustom .sheen, .backCustom .sheen { mix-blend-mode: screen; opacity: calc(var(--so2, .5) * .28); }
-.frontCustom .glare, .backCustom .glare { mix-blend-mode: screen; opacity: .55; background: radial-gradient(62% 52% at var(--gx, 50%) var(--gy, 16%), rgba(255, 252, 246, .24), rgba(255, 255, 255, 0) 68%); }
+  background: linear-gradient(105deg, rgba(255, 255, 255, 0) 14%, rgba(255, 255, 255, .08) 32%, rgba(255, 255, 255, .32) 48%, rgba(255, 255, 255, .1) 64%, rgba(255, 255, 255, 0) 80%);
+  background-size: 260% 100%; background-position: var(--sh, 50%) 0; opacity: var(--so2, .8); }
+/* sulla card scura il riflesso resta morbido e diffuso, senza tagli netti */
+.frontCustom .sheen, .backCustom .sheen { mix-blend-mode: screen; opacity: calc(var(--so2, .5) * .26); }
+.frontCustom .glare, .backCustom .glare { mix-blend-mode: screen; opacity: .5; background: radial-gradient(62% 52% at var(--gx, 50%) var(--gy, 16%), rgba(255, 252, 246, .22), rgba(255, 255, 255, 0) 68%); }
 /* bordo: luce sul taglio superiore proveniente dal faretto dall'alto */
 .face::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; mix-blend-mode: screen; opacity: var(--so, .7);
   background: linear-gradient(180deg, rgba(255, 252, 246, .34), rgba(255, 255, 255, 0) 18%, rgba(255, 255, 255, 0) 88%, rgba(255, 255, 255, .08));
