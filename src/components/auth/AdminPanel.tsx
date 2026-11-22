@@ -7,7 +7,7 @@ import { Bead } from "@/components/glass/Bead";
 import { Wordmark } from "@/components/nav/Wordmark";
 import { deleteCard, saveCard, signOut, toggleMaintenance } from "@/app/[locale]/login/actions";
 
-type CardT = { id: string; slug: string; name: string; code: string; user: string; pass: string; url: string; logo: number };
+type CardT = { id: string; slug: string; name: string; code: string; user: string; pass: string; url: string; logo: number; color?: string };
 
 const logoSrc = (c: Pick<CardT, "id" | "logo">) => (c.logo ? `/api/logo/${c.id}?v=${c.logo}` : "");
 
@@ -48,6 +48,7 @@ function CardForm({ card, onClose }: { card?: CardT; onClose: () => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState(card ? logoSrc(card) : "");
   const [drop, setDrop] = useState(false);
+  const [color, setColor] = useState(card?.color || "#3A5864");
   const [err, setErr] = useState("");
   const [busy, start] = useTransition();
   const pick = useRef<HTMLInputElement>(null);
@@ -56,6 +57,7 @@ function CardForm({ card, onClose }: { card?: CardT; onClose: () => void }) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     fd.set("id", card?.id ?? "");
+    fd.set("color", color);
     fd.delete("logo");
     if (drop) fd.set("dropLogo", "1");
     start(async () => {
@@ -116,7 +118,30 @@ function CardForm({ card, onClose }: { card?: CardT; onClose: () => void }) {
         <Field label="Utente" name="user" defaultValue={card?.user} mono />
         <Field label="Password" name="pass" defaultValue={card?.pass} mono />
       </div>
-      <Field label="Link" name="url" defaultValue={card?.url} />
+      <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
+        <Field label="Link" name="url" defaultValue={card?.url} />
+        <label className="block min-w-0">
+          <span className="block pl-2 text-[12.5px] font-medium text-ink-2">Sfondo card</span>
+          <Bead as="div" radius={20} className="mt-1.5 flex h-12 items-center gap-3 px-3">
+            <input
+              type="color"
+              value={/^#[0-9a-f]{6}$/i.test(color) ? color : "#3A5864"}
+              onChange={(e) => setColor(e.target.value.toUpperCase())}
+              aria-label="Colore sfondo card"
+              className="h-7 w-7 shrink-0 cursor-pointer rounded-full border-0 bg-transparent p-0"
+            />
+            <input
+              name="color"
+              type="text"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+              className="no-ring w-full min-w-0 bg-transparent font-mono text-[14px] text-ink outline-none"
+            />
+          </Bead>
+        </label>
+      </div>
       <div className="flex items-center gap-3">
         <Bead as="button" type="submit" tint="sky" radius={999} disabled={busy} className="no-ring flex h-12 min-w-[120px] items-center justify-center px-6 text-[15px] font-semibold text-ink disabled:opacity-60">
           {busy ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden /> : "Salva"}

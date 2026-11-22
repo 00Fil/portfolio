@@ -103,7 +103,7 @@ export function setMaintenance(on: boolean) {
 }
 
 /* ---- card ---- */
-export type Card = { id: string; slug: string; name: string; code: string; user: string; pass: string; url: string; logo: number; created: string };
+export type Card = { id: string; slug: string; name: string; code: string; user: string; pass: string; url: string; logo: number; color?: string; created: string };
 export const cards = () => read<Card[]>("cards.json", []);
 export const cardBySlug = (slug: string) => cards().find((c) => c.slug === slug);
 export const saveCards = (list: Card[]) => write("cards.json", list);

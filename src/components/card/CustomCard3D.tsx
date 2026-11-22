@@ -11,6 +11,7 @@ export type CustomCard3DHandle = {
 type Props = {
   name?: string;
   logo?: string;
+  color?: string;
   creds: { user: string; pass: string; url: string } | null;
   copiedText: string;
   tip: "user" | "pass" | null;
@@ -24,8 +25,15 @@ const CARD_H = 5.4;
 const CARD_R = 0.34;
 const CARD_T = 0.14;
 const FLOOR_Y = -3.7;
-const CARD_HEX = "#3A5864";
-const CARD_RGB: [number, number, number] = [58 / 255, 88 / 255, 100 / 255];
+const DEFAULT_HEX = "#3A5864";
+
+function parseHexRgb(hex?: string): [number, number, number] {
+  const clean = (hex || DEFAULT_HEX).replace("#", "");
+  const full = clean.length === 3 ? clean.split("").map((c) => c + c).join("") : clean;
+  const n = Number.parseInt(full, 16);
+  if (Number.isNaN(n)) return [58 / 255, 88 / 255, 100 / 255];
+  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+}
 
 const CAM_POS: [number, number, number] = [0, 1.25, 16.2];
 const CAM_TARGET: [number, number, number] = [0, -0.35, 0];
@@ -215,7 +223,7 @@ function buildCiaoMesh(cols = 280, rows = 96) {
   const x1 = x0 + 0.771 * CARD_W;
   const yTop = CARD_H * 0.5 - 0.25 * CARD_H;
   const yBot = yTop - 0.416652 * CARD_H;
-  const zBase = CARD_T * 0.5 - 0.004;
+  const zBase = CARD_T * 0.5 - 0.002;
 
   const verts = new Float32Array((cols + 1) * (rows + 1) * 5);
   let ptr = 0;
@@ -252,60 +260,90 @@ function buildCiaoMesh(cols = 280, rows = 96) {
   return { vertices: verts, indices };
 }
 
-// --- Mesh 3D per le 2 pillole credenziali sul retro (stesso rilievo liquid glass del "Ciao!", sporgenti in -Z) ---
-function buildBackPillsMesh(cols = 120, rows = 36) {
+// --- Mesh 3D CONFORME a capsula concentrica per le 2 pillole sul retro (zero spigoli/seghettature) ---
+function buildBackPillsMesh() {
   const pills = [
     { id: 0, v0: 0.30, v1: 0.478 },
     { id: 1, v0: 0.525, v1: 0.703 },
   ];
   const u0 = 0.1262;
-  const u1 = 0.1262 + 0.7477;
-  const zBase = -CARD_T * 0.5 + 0.004;
+  const pwU = 0.7477;
+  const phV = 0.178;
+  const pillW = pwU * CARD_W;
+  const pillH = phV * CARD_H;
+  const aspect = pillW / pillH;
+  const rOuter = 0.48;
+  const halfSpan = aspect * 0.5 - rOuter;
+  const zBase = -CARD_T * 0.5 + 0.002;
 
-  const vertsPerPill = (cols + 1) * (rows + 1);
-  const verts = new Float32Array(pills.length * vertsPerPill * 8);
-  const indices = new Uint32Array(pills.length * cols * rows * 6);
-  let vPtr = 0;
-  let iPtr = 0;
+  // 64 punti lisci lungo il contorno esatto della capsula (32 per semicerchio)
+  const arcSegs = 32;
+  const contour: Array<{ nx: number; ny: number; side: number }> = [];
+  for (let i = 0; i <= arcSegs; i++) {
+    const a = -Math.PI * 0.5 + (Math.PI * i) / arcSegs; // semicerchio destro
+    contour.push({ nx: Math.cos(a), ny: Math.sin(a), side: 1 });
+  }
+  for (let i = 0; i <= arcSegs; i++) {
+    const a = Math.PI * 0.5 + (Math.PI * i) / arcSegs; // semicerchio sinistro
+    contour.push({ nx: Math.cos(a), ny: Math.sin(a), side: -1 });
+  }
+  const N = contour.length;
+  const rings = 12; // 12 anelli concentrici fluidi dal bordo fino al piano superiore
 
-  for (let pIdx = 0; pIdx < pills.length; pIdx++) {
-    const p = pills[pIdx];
-    const baseVertex = pIdx * vertsPerPill;
-    for (let j = 0; j <= rows; j++) {
-      const pv = j / rows;
-      const bv = p.v0 + (p.v1 - p.v0) * pv;
-      const y = (0.5 - bv) * CARD_H;
-      for (let i = 0; i <= cols; i++) {
-        const pu = i / cols;
-        const bu = u0 + (u1 - u0) * pu;
+  const verts: number[] = [];
+  const indices: number[] = [];
+  const pushV = (x: number, y: number, z: number, pu: number, pv: number, bu: number, bv: number, id: number) => {
+    verts.push(x, y, z, pu, pv, bu, bv, id);
+    return verts.length / 8 - 1;
+  };
+
+  for (const p of pills) {
+    const ringIndices: number[][] = [];
+    for (let rIdx = 0; rIdx <= rings; rIdx++) {
+      const f = rIdx / rings; // 0 = bordo esterno saldato alla card, 1 = centro piatto
+      const inset = f * 0.25;
+      const rad = Math.max(0.001, rOuter - inset);
+      const u = Math.min(1, inset / 0.24);
+      const h = Math.sqrt(Math.max(0, 1 - (1 - u) * (1 - u)));
+      const z = zBase - h * 0.18;
+      const row: number[] = [];
+      for (let i = 0; i < N; i++) {
+        const c = contour[i];
+        const qx = c.side * halfSpan + c.nx * rad;
+        const qy = c.ny * rad;
+        const pu = qx / aspect + 0.5;
+        const pv = qy + 0.5;
+        const bu = u0 + pwU * pu;
+        const bv = p.v0 + phV * pv;
         const x = (0.5 - bu) * CARD_W;
-        verts[vPtr++] = x;
-        verts[vPtr++] = y;
-        verts[vPtr++] = zBase;
-        verts[vPtr++] = pu;
-        verts[vPtr++] = pv;
-        verts[vPtr++] = bu;
-        verts[vPtr++] = bv;
-        verts[vPtr++] = p.id;
+        const y = (0.5 - bv) * CARD_H;
+        row.push(pushV(x, y, z, pu, pv, bu, bv, p.id));
+      }
+      ringIndices.push(row);
+    }
+
+    // Quad strip tra gli anelli concentrici
+    for (let rIdx = 0; rIdx < rings; rIdx++) {
+      const a = ringIndices[rIdx];
+      const b = ringIndices[rIdx + 1];
+      for (let i = 0; i < N; i++) {
+        const j = (i + 1) % N;
+        indices.push(a[i], a[j], b[i], a[j], b[j], b[i]);
       }
     }
-    const stride = cols + 1;
-    for (let j = 0; j < rows; j++) {
-      for (let i = 0; i < cols; i++) {
-        const a = baseVertex + j * stride + i;
-        const b = a + 1;
-        const c = a + stride;
-        const d = c + 1;
-        indices[iPtr++] = a;
-        indices[iPtr++] = b;
-        indices[iPtr++] = c;
-        indices[iPtr++] = b;
-        indices[iPtr++] = d;
-        indices[iPtr++] = c;
-      }
+
+    // Chiusura del plateau centrale (ventaglio dal centro della capsula all'ultimo anello)
+    const cBu = u0 + pwU * 0.5;
+    const cBv = p.v0 + phV * 0.5;
+    const centerIdx = pushV((0.5 - cBu) * CARD_W, (0.5 - cBv) * CARD_H, zBase - 0.18, 0.5, 0.5, cBu, cBv, p.id);
+    const inner = ringIndices[rings];
+    for (let i = 0; i < N; i++) {
+      const j = (i + 1) % N;
+      indices.push(centerIdx, inner[i], inner[j]);
     }
   }
-  return { vertices: verts, indices };
+
+  return { vertices: new Float32Array(verts), indices: new Uint32Array(indices) };
 }
 
 // --- Piano studio infinito 3D ---
@@ -515,17 +553,21 @@ float capHeight(vec4 d) {
 void main() {
   vec4 dat = texture(uData, aUv);
 
-  // Media morbida su 5 campioni usando l'altezza rivelata di ogni campione + raccordo a 0 sul bordo esterno
-  vec2 o = TEXEL * 2.5;
-  float hAvg = capHeight(dat) * 0.40
-    + capHeight(texture(uData, aUv + vec2( o.x, 0.0))) * 0.15
-    + capHeight(texture(uData, aUv + vec2(-o.x, 0.0))) * 0.15
-    + capHeight(texture(uData, aUv + vec2(0.0,  o.y))) * 0.15
-    + capHeight(texture(uData, aUv + vec2(0.0, -o.y))) * 0.15;
-  float rimMask = smoothstep(0.14, 0.58, dat.g);
+  // Filtro gaussiano 9-tap ampio senza tagli netti su dat.g:
+  // elimina ogni spigolo/seghettatura lungo il perimetro attaccato alla card
+  vec2 o = TEXEL * 4.2;
+  float hSmooth = capHeight(dat) * 0.25
+    + capHeight(texture(uData, aUv + vec2( o.x,  0.0))) * 0.125
+    + capHeight(texture(uData, aUv + vec2(-o.x,  0.0))) * 0.125
+    + capHeight(texture(uData, aUv + vec2( 0.0,  o.y))) * 0.125
+    + capHeight(texture(uData, aUv + vec2( 0.0, -o.y))) * 0.125
+    + capHeight(texture(uData, aUv + vec2( o.x,  o.y))) * 0.0625
+    + capHeight(texture(uData, aUv + vec2(-o.x,  o.y))) * 0.0625
+    + capHeight(texture(uData, aUv + vec2( o.x, -o.y))) * 0.0625
+    + capHeight(texture(uData, aUv + vec2(-o.x, -o.y))) * 0.0625;
 
   vec3 pos = aPos;
-  pos.z += hAvg * rimMask * 0.24;
+  pos.z += pow(max(0.0, hSmooth), 1.35) * 0.23;
 
   vec4 wp = uModel * vec4(pos, 1.0);
   vWorldPos = wp.xyz;
@@ -708,25 +750,8 @@ out vec2 vBackUv;
 out vec3 vWorldPos;
 out float vPillId;
 
-const float PILL_ASPECT = (0.7477 * 8.56) / (0.178 * 5.4);
-
-float pillDome(vec2 uv) {
-  vec2 q = (uv - 0.5) * vec2(PILL_ASPECT, 1.0);
-  float r = 0.48;
-  float halfSpan = PILL_ASPECT * 0.5 - r;
-  float sd = length(vec2(max(abs(q.x) - halfSpan, 0.0), q.y)) - r;
-  float dist = max(0.0, -sd);
-  float u = clamp(dist / 0.24, 0.0, 1.0);
-  return sqrt(max(0.0, 1.0 - (1.0 - u) * (1.0 - u)));
-}
-
 void main() {
-  float h = pillDome(aPillUv);
-  vec3 pos = aPos;
-  // Spostamento 3D fisico verso -Z (sporge dalla faccia posteriore della card come il "Ciao!" davanti)
-  pos.z -= h * 0.19;
-
-  vec4 wp = uModel * vec4(pos, 1.0);
+  vec4 wp = uModel * vec4(aPos, 1.0);
   vWorldPos = wp.xyz;
   vPillUv = aPillUv;
   vBackUv = aBackUv;
@@ -892,12 +917,13 @@ function drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w:
 }
 
 export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function CustomCard3D(
-  { name, logo, creds, copiedText, tip, onCopy, ariaLabel },
+  { name, logo, color, creds, copiedText, tip, onCopy, ariaLabel },
   ref,
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const propsRef = useRef({ name, logo, creds, copiedText, tip, onCopy });
-  propsRef.current = { name, logo, creds, copiedText, tip, onCopy };
+  const cardHex = color && /^#[0-9a-f]{6}$/i.test(color) ? color : DEFAULT_HEX;
+  const propsRef = useRef({ name, logo, cardRgb: parseHexRgb(cardHex), creds, copiedText, tip, onCopy });
+  propsRef.current = { name, logo, cardRgb: parseHexRgb(cardHex), creds, copiedText, tip, onCopy };
 
   const stRef = useRef({
     // Stato interattivo
@@ -1014,7 +1040,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cardIbo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cardGeo.indices, gl.STATIC_DRAW);
 
-    const ciaoGeo = buildCiaoMesh(320, 110);
+    const ciaoGeo = buildCiaoMesh(400, 140);
     const ciaoVao = gl.createVertexArray()!;
     gl.bindVertexArray(ciaoVao);
     const ciaoVbo = gl.createBuffer()!;
@@ -1029,7 +1055,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ciaoIbo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, ciaoGeo.indices, gl.STATIC_DRAW);
 
-    const pillGeo = buildBackPillsMesh(120, 36);
+    const pillGeo = buildBackPillsMesh();
     const pillVao = gl.createVertexArray()!;
     gl.bindVertexArray(pillVao);
     const pillVbo = gl.createBuffer()!;
@@ -1393,6 +1419,8 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       gl.uniform3f(fLoc.uCardRot, rxRad, ryRad, rzRad);
       gl.drawElements(gl.TRIANGLES, floorGeo.indices.length, gl.UNSIGNED_SHORT, 0);
 
+      const cardRgb = propsRef.current.cardRgb;
+
       // Passo 2: Card 3D solida con bordi arrotondati 100% pieni
       gl.useProgram(cardProg);
       gl.bindVertexArray(cardVao);
@@ -1400,7 +1428,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       gl.uniformMatrix4fv(cLoc.uModel, false, model);
       gl.uniformMatrix3fv(cLoc.uRot3, false, rot3);
       gl.uniform3fv(cLoc.uCamPos, CAM_POS);
-      gl.uniform3fv(cLoc.uCardColor, CARD_RGB);
+      gl.uniform3fv(cLoc.uCardColor, cardRgb);
       gl.uniform1f(cLoc.uProgress, a.ciaoProgress);
       gl.uniform1i(cLoc.uData, 0);
       gl.uniform1i(cLoc.uPass2, 1);
@@ -1418,7 +1446,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
         gl.uniformMatrix4fv(gLoc.uModel, false, model);
         gl.uniformMatrix3fv(gLoc.uRot3, false, rot3);
         gl.uniform3fv(gLoc.uCamPos, CAM_POS);
-        gl.uniform3fv(gLoc.uCardColor, CARD_RGB);
+        gl.uniform3fv(gLoc.uCardColor, cardRgb);
         gl.uniform1f(gLoc.uProgress, a.ciaoProgress);
         gl.uniform1i(gLoc.uData, 0);
         gl.uniform1i(gLoc.uPass2, 1);
@@ -1434,7 +1462,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       gl.uniformMatrix4fv(pLoc.uModel, false, model);
       gl.uniformMatrix3fv(pLoc.uRot3, false, rot3);
       gl.uniform3fv(pLoc.uCamPos, CAM_POS);
-      gl.uniform3fv(pLoc.uCardColor, CARD_RGB);
+      gl.uniform3fv(pLoc.uCardColor, cardRgb);
       gl.uniform1i(pLoc.uBackTex, 3);
       const copiedId = propsRef.current.tip === "user" ? 0 : propsRef.current.tip === "pass" ? 1 : -1;
       gl.uniform1f(pLoc.uCopiedPill, copiedId);
@@ -1565,7 +1593,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
         zIndex: 1,
         background: "#ffffff",
       }}
-      data-card-color={CARD_HEX}
+      data-card-color={cardHex}
     />
   );
 });

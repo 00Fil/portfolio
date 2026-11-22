@@ -59,6 +59,8 @@ export async function saveCard(form: FormData): Promise<SaveResult> {
   const user = String(form.get("user") ?? "").slice(0, 200);
   const pass = String(form.get("pass") ?? "").slice(0, 200);
   let url = String(form.get("url") ?? "").trim().slice(0, 500);
+  const rawColor = String(form.get("color") ?? "").trim();
+  const color = /^#[0-9a-f]{6}$/i.test(rawColor) ? rawColor.toUpperCase() : "#3A5864";
   const dropLogo = form.get("dropLogo") === "1";
   const file = form.get("logo");
 
@@ -93,7 +95,7 @@ export async function saveCard(form: FormData): Promise<SaveResult> {
     removeLogo(cid);
     logo = 0;
   }
-  const next: Card = { id: cid, slug, name, code, user, pass, url, logo, created: prev?.created ?? new Date().toISOString() };
+  const next: Card = { id: cid, slug, name, code, user, pass, url, logo, color, created: prev?.created ?? new Date().toISOString() };
   saveCards(prev ? list.map((c) => (c.id === cid ? next : c)) : [...list, next]);
   revalidatePath("/", "layout");
   return { ok: true };

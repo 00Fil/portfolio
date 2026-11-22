@@ -14,7 +14,7 @@ type Txt = { code: string; open: string; flip: string; site: string; copied: str
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 /** Card girevole in 3D: trascina per ruotarla, riflessi coerenti con la luce dall'alto, si ferma sempre su un lato. */
-export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; logo?: string; name?: string }) {
+export function CardViewer({ t, slug, logo, name, color }: { t: Txt; slug?: string; logo?: string; name?: string; color?: string }) {
   const scene = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
   const card3d = useRef<CustomCard3DHandle>(null);
@@ -171,6 +171,7 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
           ref={card3d}
           name={name}
           logo={logo}
+          color={color}
           creds={creds}
           copiedText={t.copied}
           tip={tip}
