@@ -1,24 +1,29 @@
 <!doctype html><meta charset=utf-8>
-<style>html,body{margin:0;background:#f6f6f3}canvas{display:block}</style>
+<style>html,body{margin:0;background:#07080a}canvas{display:block}</style>
 <script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from "three";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 const q = new URLSearchParams(location.search);
 const W = +q.get("w") || 1920, H = +q.get("h") || 1080;
 const A = W / H, portrait = A < 1;
 const T_END = 5.8;
+
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-renderer.setPixelRatio(1); renderer.setSize(W, H);
+renderer.setPixelRatio(1);
+renderer.setSize(W, H);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.VSMShadowMap;
 document.body.appendChild(renderer.domElement);
+
+const BG = 0x07080a;
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xf6f6f3);
-const pm = new THREE.PMREMGenerator(renderer);
-scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.background = new THREE.Color(BG);
 
 const FOV = 40, tanH = Math.tan((FOV / 2) * Math.PI / 180);
-const P = 1 / tanH;                   // l'apertura (z=0) coincide con i bordi dell'inquadratura
+const P = 1 / tanH; // l'apertura (z=0) coincide con i bordi dell'inquadratura
 const h0 = 2, w0 = 2 * A, D = 3.2;
 const cam = new THREE.PerspectiveCamera(FOV, A, 0.05, 60);
 const cwU = portrait ? 0.68 * w0 : 0.40 * w0, chU = cwU * 540 / 856;
@@ -27,45 +32,191 @@ const Ffinal = portrait ? 0.78 : 0.42;
 const dF = cwU / (Ffinal * 2 * A * tanH);
 const zEnd = -ZC + dF;
 
-// pareti: materiali senza luci, col colore deciso a mano (il fondo e' esattamente il colore della pagina)
-function grad(w, h, fn) { const c = document.createElement("canvas"); c.width = w; c.height = h; const g = c.getContext("2d"); fn(g, w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
-const basic = (map) => new THREE.MeshBasicMaterial({ map, toneMapped: false });
+// Stanza buia con materiali fisici reali illuminati dal faretto centrale
+const wallMat = new THREE.MeshStandardMaterial({ color: 0x14161c, roughness: 0.92, metalness: 0.02 });
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x262b36, roughness: 0.85, metalness: 0.04 });
+const ceilMat = new THREE.MeshStandardMaterial({ color: 0x0c0e12, roughness: 0.95, metalness: 0.0 });
 const plane = (w, h, mat) => new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
-const back = plane(w0, h0, basic(grad(512, 512, (g, w, h) => { const r = g.createRadialGradient(w / 2, h / 2, w * 0.2, w / 2, h / 2, w * 0.75); r.addColorStop(0, "#f6f6f3"); r.addColorStop(0.6, "#f2f2ef"); r.addColorStop(1, "#e6e6e3"); g.fillStyle = r; g.fillRect(0, 0, w, h); })));
-back.position.z = -D; scene.add(back);
-const sideTex = (a, b) => grad(512, 64, (g, w, h) => { const l = g.createLinearGradient(0, 0, w, 0); l.addColorStop(0, a); l.addColorStop(1, b); g.fillStyle = l; g.fillRect(0, 0, w, h); });
-const left = plane(D, h0, basic(sideTex("#efefec", "#dededb"))); left.rotation.y = Math.PI / 2; left.position.set(-w0 / 2, 0, -D / 2); scene.add(left);
-const right = plane(D, h0, basic(sideTex("#f1f1ee", "#e2e2df"))); right.rotation.y = -Math.PI / 2; right.position.set(w0 / 2, 0, -D / 2); scene.add(right);
-const floorT = grad(64, 512, (g, w, h) => { const l = g.createLinearGradient(0, 0, 0, h); l.addColorStop(0, "#e6e6e3"); l.addColorStop(0.5, "#ececE9"); l.addColorStop(1, "#f3f3f0"); g.fillStyle = l; g.fillRect(0, 0, w, h); });
-const floor = plane(w0, D, basic(floorT)); floor.rotation.x = -Math.PI / 2; floor.position.set(0, -1, -D / 2); scene.add(floor);
-const ceilT = grad(64, 512, (g, w, h) => { const l = g.createLinearGradient(0, 0, 0, h); l.addColorStop(0, "#d9d9d6"); l.addColorStop(1, "#e8e8e5"); g.fillStyle = l; g.fillRect(0, 0, w, h); });
-const ceil = plane(w0, D, basic(ceilT)); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, 1, -D / 2); scene.add(ceil);
 
-// ombra della card sul pavimento
-const dropT = grad(256, 256, (g, w, h) => { const r = g.createRadialGradient(w / 2, h / 2, 4, w / 2, h / 2, w / 2); r.addColorStop(0, "rgba(20,28,45,.62)"); r.addColorStop(0.55, "rgba(20,28,45,.25)"); r.addColorStop(1, "rgba(20,28,45,0)"); g.fillStyle = r; g.fillRect(0, 0, w, h); });
-const drop = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: dropT, transparent: true, depthWrite: false, toneMapped: false }));
-drop.rotation.x = -Math.PI / 2; drop.position.set(0, -1 + 0.003, -ZC); scene.add(drop);
+const back = plane(w0, h0, wallMat);
+back.position.z = -D;
+back.receiveShadow = true;
+scene.add(back);
 
-// la card
-const shape = new THREE.Shape(); const r = chU * 0.06; const x0 = -cwU / 2, y0 = -chU / 2;
-shape.moveTo(x0 + r, y0); shape.lineTo(-x0 - r, y0); shape.quadraticCurveTo(-x0, y0, -x0, y0 + r); shape.lineTo(-x0, -y0 - r); shape.quadraticCurveTo(-x0, -y0, -x0 - r, -y0); shape.lineTo(x0 + r, -y0); shape.quadraticCurveTo(x0, -y0, x0, -y0 - r); shape.lineTo(x0, y0 + r); shape.quadraticCurveTo(x0, y0, x0 + r, y0);
+const left = plane(D, h0, wallMat);
+left.rotation.y = Math.PI / 2;
+left.position.set(-w0 / 2, 0, -D / 2);
+left.receiveShadow = true;
+scene.add(left);
+
+const right = plane(D, h0, wallMat);
+right.rotation.y = -Math.PI / 2;
+right.position.set(w0 / 2, 0, -D / 2);
+right.receiveShadow = true;
+scene.add(right);
+
+const floor = plane(w0, D, floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.position.set(0, -1, -D / 2);
+floor.receiveShadow = true;
+scene.add(floor);
+
+const ceil = plane(w0, D, ceilMat);
+ceil.rotation.x = Math.PI / 2;
+ceil.position.set(0, 1, -D / 2);
+scene.add(ceil);
+
+// Faretto centrale sul soffitto: ghiera scura + lente luminosa + fascio volumetrico morbido
+const spotX = 0, spotY = 0.996, spotZ = -ZC;
+
+const bezelMat = new THREE.MeshBasicMaterial({ color: 0x181b22, transparent: true, opacity: 1 });
+const bezel = new THREE.Mesh(new THREE.RingGeometry(0.055, 0.092, 48), bezelMat);
+bezel.rotation.x = Math.PI / 2;
+bezel.position.set(spotX, spotY - 0.001, spotZ);
+scene.add(bezel);
+
+function makeRadialTex(stops) {
+  const c = document.createElement("canvas");
+  c.width = 256; c.height = 256;
+  const g = c.getContext("2d");
+  const r = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+  for (const [k, col] of stops) r.addColorStop(k, col);
+  g.fillStyle = r;
+  g.fillRect(0, 0, 256, 256);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+const bulbMat = new THREE.MeshBasicMaterial({
+  map: makeRadialTex([[0, "#ffffff"], [0.55, "#fff8eb"], [0.85, "#ffdca8"], [1, "#000000"]]),
+  transparent: true,
+  opacity: 1,
+  toneMapped: false,
+});
+const bulb = new THREE.Mesh(new THREE.CircleGeometry(0.06, 48), bulbMat);
+bulb.rotation.x = Math.PI / 2;
+bulb.position.set(spotX, spotY - 0.002, spotZ);
+scene.add(bulb);
+
+const ceilGlowMat = new THREE.MeshBasicMaterial({
+  map: makeRadialTex([[0, "rgba(255,248,236,0.34)"], [0.3, "rgba(220,234,255,0.10)"], [1, "rgba(0,0,0,0)"]]),
+  transparent: true,
+  opacity: 1,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+  toneMapped: false,
+});
+const ceilGlow = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.85), ceilGlowMat);
+ceilGlow.rotation.x = Math.PI / 2;
+ceilGlow.position.set(spotX, spotY - 0.003, spotZ);
+scene.add(ceilGlow);
+
+// Fascio volumetrico morbido dal faretto al pavimento
+const beamGeo = new THREE.CylinderGeometry(0.055, 1.28, 2.02, 48, 1, true);
+const beamMat = new THREE.ShaderMaterial({
+  transparent: true,
+  depthWrite: false,
+  side: THREE.DoubleSide,
+  blending: THREE.AdditiveBlending,
+  uniforms: { uAlpha: { value: 1.0 } },
+  vertexShader: `
+    varying vec2 vUv;
+    varying vec3 vNormal;
+    varying vec3 vView;
+    void main() {
+      vUv = uv;
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      vNormal = normalize(normalMatrix * normal);
+      vView = normalize(-mv.xyz);
+      gl_Position = projectionMatrix * mv;
+    }
+  `,
+  fragmentShader: `
+    uniform float uAlpha;
+    varying vec2 vUv;
+    varying vec3 vNormal;
+    varying vec3 vView;
+    void main() {
+      float edge = pow(abs(dot(normalize(vNormal), normalize(vView))), 2.3);
+      float vertical = smoothstep(0.0, 0.25, vUv.y) * pow(vUv.y, 1.35);
+      float topFade = smoothstep(1.0, 0.92, vUv.y);
+      float a = edge * vertical * topFade * 0.10 * uAlpha;
+      gl_FragColor = vec4(vec3(0.92, 0.95, 1.0), a);
+    }
+  `,
+});
+const beam = new THREE.Mesh(beamGeo, beamMat);
+beam.position.set(spotX, 0.0, spotZ);
+scene.add(beam);
+
+// Luce principale reale: faretto centrale collimato dall'alto con penombra morbida (VSM)
+const spot = new THREE.SpotLight(0xfff9f0, 32.0, 8.5, Math.PI * 0.23, 0.72, 1.5);
+spot.position.set(0, 1.85, -ZC + 0.12);
+spot.target.position.set(0, -1.0, -ZC);
+spot.castShadow = true;
+spot.shadow.mapSize.set(1024, 1024);
+spot.shadow.camera.near = 0.6;
+spot.shadow.camera.far = 4.6;
+spot.shadow.bias = -0.0005;
+spot.shadow.radius = 6.0;
+spot.shadow.blurSamples = 18;
+scene.add(spot);
+scene.add(spot.target);
+
+scene.add(new THREE.AmbientLight(0xc8dcff, 0.03));
+
+// La card
+const shape = new THREE.Shape();
+const r = chU * 0.06;
+const x0 = -cwU / 2, y0 = -chU / 2;
+shape.moveTo(x0 + r, y0);
+shape.lineTo(-x0 - r, y0);
+shape.quadraticCurveTo(-x0, y0, -x0, y0 + r);
+shape.lineTo(-x0, -y0 - r);
+shape.quadraticCurveTo(-x0, -y0, -x0 - r, -y0);
+shape.lineTo(x0 + r, -y0);
+shape.quadraticCurveTo(x0, -y0, x0, -y0 - r);
+shape.lineTo(x0, y0 + r);
+shape.quadraticCurveTo(x0, y0, x0 + r, y0);
 const TH = 0.012;
 const geo = new THREE.ExtrudeGeometry(shape, { depth: TH, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.004, bevelSegments: 3, curveSegments: 16 });
 const pos = geo.attributes.position, uv = geo.attributes.uv;
 for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / cwU + 0.5, pos.getY(i) / chU + 0.5);
 geo.translate(0, 0, -TH / 2);
-const tex = await new THREE.TextureLoader().loadAsync("/back-dark.webp"); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
-const mat = new THREE.MeshPhysicalMaterial({ map: tex, roughness: 0.55, metalness: 0.0, clearcoat: 0.3, clearcoatRoughness: 0.3, envMapIntensity: 0.3 });
-const card = new THREE.Mesh(geo, mat); scene.add(card);
-const key = new THREE.DirectionalLight(0xffffff, 0.7); key.position.set(-2, 3, 4); scene.add(key);
-scene.add(new THREE.AmbientLight(0xffffff, 0.18));
-// velo del colore della pagina, dietro la card: cancella la stanza alla fine
-const veil = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshBasicMaterial({ color: 0xf6f6f3, transparent: true, opacity: 0, toneMapped: false, depthWrite: false }));
+
+const tex = await new THREE.TextureLoader().loadAsync("/back-dark.webp");
+tex.colorSpace = THREE.SRGBColorSpace;
+tex.anisotropy = 8;
+const mat = new THREE.MeshPhysicalMaterial({
+  map: tex,
+  roughness: 0.42,
+  metalness: 0.05,
+  clearcoat: 0.45,
+  clearcoatRoughness: 0.22,
+});
+const card = new THREE.Mesh(geo, mat);
+card.castShadow = true;
+card.receiveShadow = true;
+scene.add(card);
+
+// Luce morbida dall'alto-fronte che illumina il fronte della card (non tocca il pavimento buio)
+const cardFill = new THREE.DirectionalLight(0xf6f9ff, 0.0);
+cardFill.position.set(0, 2.2, 1.5);
+scene.add(cardFill);
+
+// Velo del colore della pagina scura, dietro la card: dissolve la stanza alla fine senza flash
+const veil = new THREE.Mesh(
+  new THREE.PlaneGeometry(60, 60),
+  new THREE.MeshBasicMaterial({ color: BG, transparent: true, opacity: 0, toneMapped: false, depthWrite: false })
+);
 scene.add(veil);
 
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const seg = (t, a, b) => clamp((t - a) / (b - a));
-const outQuad = (x) => 1 - (1 - x) * (1 - x), outCubic = (x) => 1 - Math.pow(1 - x, 3), inOutCubic = (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2, inOutSine = (x) => -(Math.cos(Math.PI * x) - 1) / 2;
+const outCubic = (x) => 1 - Math.pow(1 - x, 3);
+const inOutCubic = (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const inOutSine = (x) => -(Math.cos(Math.PI * x) - 1) / 2;
 const floorY = -1, yHover = 0.04;
 
 window.setT = (t) => {
@@ -82,17 +233,30 @@ window.setT = (t) => {
   const roll = (1 - p) * -0.12;
   card.position.set(0, y, -ZC);
   card.rotation.set(th, yaw, roll, "YXZ");
-  const hgt = clamp((y - floorY - chU / 2 * Math.cos(th)) / 1.2);
-  drop.scale.set(cwU * (1.25 - 0.35 * hgt), chU * (1.45 - 0.4 * hgt), 1);
-  drop.material.opacity = (1 - 0.6 * hgt) * (1 - seg(t, 4.0, 4.7));
+
   // 3. la camera avanza
   const d = inOutCubic(seg(t, 2.7, 5.0));
   const cz = P + (zEnd - P) * d;
-  cam.position.set(0, 0, cz); cam.lookAt(0, 0, -D);
+  cam.position.set(0, 0, cz);
+  cam.lookAt(0, 0, -D);
+
   // card a fine corsa dritta e centrata: lo yaw si annulla con l'arrivo
-  const arrive = seg(t, 3.6, 5.0); card.rotation.y *= (1 - arrive); card.position.y = y * (1 - arrive) + 0.0 * arrive;
-  // 4. la stanza si scioglie nel colore della pagina
-  veil.position.set(0, 0, -ZC - 0.03); veil.material.opacity = seg(t, 3.9, 4.9);
+  const arrive = seg(t, 3.6, 5.0);
+  card.rotation.y *= (1 - arrive);
+  card.position.y = y * (1 - arrive) + 0.0 * arrive;
+
+  // Quando la card si raddrizza e la camera arriva, il fronte riceve una luce morbida dall'alto coerente con la card DOM
+  cardFill.intensity = 0.25 + 1.15 * inOutSine(seg(t, 2.4, 4.9));
+
+  // 4. la stanza si scioglie nello sfondo scuro della pagina
+  const dissolve = seg(t, 3.9, 4.9);
+  veil.position.set(0, 0, -ZC - 0.03);
+  veil.material.opacity = dissolve;
+  beamMat.uniforms.uAlpha.value = 1.0 - dissolve;
+  ceilGlowMat.opacity = 1.0 - dissolve;
+  bulbMat.opacity = 1.0 - dissolve;
+  bezelMat.opacity = 1.0 - dissolve;
+
   renderer.render(scene, cam);
 };
 window.meta = { A, P, ZC, zEnd, cwU, chU, Ffinal, T_END };

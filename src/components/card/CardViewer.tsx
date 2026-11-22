@@ -6,30 +6,23 @@ import { gsap } from "gsap";
 import { onIntroLift } from "@/lib/intro";
 import localFont from "next/font/local";
 import { unlockCard } from "@/app/[locale]/card/actions";
+import { CiaoGlass, type CiaoGlassHandle } from "./CiaoGlass";
 import s from "./card.module.css";
 
 const nunito = localFont({ src: "../../fonts/nunito-700.woff2", variable: "--nunito", display: "swap", weight: "700" });
 
 type Txt = { code: string; open: string; flip: string; site: string; copied: string; errors: { wrong: string; limit: string; off: string } };
 
-/** Tratti del "Ciao!" nell'ordine in cui si scrive a mano: il cursore segue la linea centrale delle lettere (viewBox 1320x450). */
-const PEN = [
-  { d: "M307 128 L303 120 L298 112 L294 104 L289 96 L284 89 L278 83 L271 77 L264 71 L256 67 L247 64 L239 61 L230 60 L221 58 L212 58 L203 57 L194 58 L185 59 L176 61 L167 63 L159 66 L150 69 L142 74 L135 79 L128 84 L121 90 L115 97 L109 103 L103 110 L98 118 L93 126 L89 134 L85 142 L82 150 L79 159 L76 167 L73 176 L71 185 L70 194 L68 202 L67 211 L66 220 L65 229 L65 238 L65 248 L65 257 L66 266 L67 275 L69 283 L70 292 L73 301 L76 310 L79 318 L83 326 L87 334 L92 341 L98 349 L104 355 L110 362 L117 367 L125 372 L133 377 L141 381 L149 384 L158 387 L166 390 L175 392 L184 393 L193 394 L202 395 L211 396 L220 396 L229 395 L238 394 L247 393 L256 392 L265 390 L274 388 L282 385 L291 382 L299 379 L307 375 L315 371 L323 366 L331 361 L338 356 L345 350 L353 345 L361 341 L369 338 L378 335 L385 330 L391 323 L393 314 L395 306 L397 297 L399 288 L401 279 L402 270 L404 261 L406 252 L407 244 L409 235 L411 226 L413 217 L413 208", n: 949 },
-  { d: "M390 328 L395 336 L398 344 L400 353 L402 362 L405 370 L410 378 L417 384 L425 388 L434 390 L443 392 L452 392 L461 392 L470 390 L479 388 L487 385 L495 381 L503 377 L510 371 L517 366 L525 360 L532 355 L540 351 L549 348 L557 344 L562 337 L564 328 L566 319 L568 310 L569 301 L571 292 L572 283 L575 275 L578 266 L581 258 L585 250 L590 242 L596 235 L602 229 L609 223 L617 218 L625 214 L633 212 L642 210 L651 209 L660 209 L669 210 L678 211 L687 212 L696 213 L705 214 L714 216 L720 222 L719 231 L719 240 L718 249 L717 258 L717 267 L716 276 L714 285 L713 294 L712 303 L711 312 L710 321 L709 330 L709 339 L708 348 L707 357 L708 366 L713 373 L720 379 L727 385 L736 388 L744 391 L753 393 L762 393 L771 393 L780 391 L789 389 L797 386 L805 382 L813 377 L820 371 L826 365 L833 358 L840 352 L848 348 L856 344 L863 339 L867 331 L869 322 L870 313 L872 305 L873 296 L875 287 L878 278 L881 270 L884 261 L888 253 L893 246 L899 238 L905 232 L911 226 L919 220 L927 216 L935 213 L944 211 L953 210 L962 209 L971 210 L980 211 L989 213 L998 215 L1006 219 L1014 223 L1022 227 L1030 231 L1039 232 L1048 232 L1057 231 L1066 230 L1075 229 L1084 227 L1092 225 L1101 221 L1108 216 L1115 210 L1122 204", n: 1148 },
-  { d: "M562 343 L568 350 L573 357 L577 365 L582 373 L588 380 L595 386 L603 389 L612 392 L621 393 L630 394 L639 393 L648 392 L657 389 L665 386 L673 381 L681 377 L689 373 L697 370 L706 367", n: 172 },
-  { d: "M1033 233 L1034 242 L1035 251 L1035 260 L1035 269 L1035 278 L1034 287 L1034 296 L1033 305 L1031 314 L1029 323 L1027 332 L1023 340 L1020 348 L1015 356 L1010 363 L1003 370 L997 376 L989 381 L981 385 L973 388 L964 390 L955 392 L946 392 L937 392 L928 391 L919 389 L911 386 L903 381 L895 376 L889 369 L884 362 L879 354 L873 347 L867 341", n: 307 },
-  { d: "M1247 58 L1246 67 L1244 76 L1243 85 L1241 94 L1240 103 L1239 112 L1238 121 L1236 130 L1235 139 L1234 147 L1233 156 L1231 165 L1230 174 L1229 183 L1227 192 L1226 201 L1225 210 L1224 219 L1222 228 L1221 237 L1220 246 L1219 255", n: 199 },
-];
-
 /** Filmato dell'ingresso (scripts/room): frazione di larghezza della card nell'ultimo fotogramma, tratto di camera, istante di passaggio alla card vera. */
 const ROOM = { lF: 0.42, pF: 0.78, dolly: [2.7, 5.0], hand: 5.2, fade: 0.55, end: 5.8 } as const;
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
-/** Card girevole in 3D: trascina per ruotarla, riflessi che seguono il puntatore, si ferma sempre su un lato. */
+/** Card girevole in 3D: trascina per ruotarla, riflessi coerenti con il faretto centrale dall'alto, si ferma sempre su un lato. */
 export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; logo?: string; name?: string }) {
   const scene = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
+  const ciao = useRef<CiaoGlassHandle>(null);
   const [creds, setCreds] = useState<{ user: string; pass: string; url: string } | null>(null);
   const [err, setErr] = useState("");
   const [shake, setShake] = useState(false);
@@ -42,9 +35,9 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
   const intro = useRef<{ skip: () => void } | null>(null);
 
   /**
-   * Ingresso: un filmato (renderizzato in 3D, a 60 fotogrammi) di una stanza bianca vista dallo schermo come quarta parete:
+   * Ingresso: un filmato (renderizzato in 3D, a 60 fotogrammi) di una stanza buia illuminata da un faretto centrale dall'alto:
    * la card sul pavimento si alza, fluttua e la camera le va incontro. Verso la fine il filmato sfuma nella card vera,
-   * allineata esattamente alla sua posizione, e a quel punto il "Ciao!" si scrive a mano.
+   * allineata esattamente alla sua posizione, e a quel punto il "Ciao!" di vetro fluido si scrive a mano.
    */
   useEffect(() => {
     const st = stage.current;
@@ -52,17 +45,9 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
     const v = vv.current;
     const sc = scene.current;
     if (!st || !box || !v || !sc) return;
-    const pens = Array.from(st.querySelectorAll<SVGPathElement>(".pen"));
-    const spark = st.querySelector<SVGElement>(".spark");
-    const dot = st.querySelector<SVGElement>(".dot");
-    const settle = () => {
-      pens.forEach((p) => p.setAttribute("stroke-dashoffset", "0"));
-      spark?.setAttribute("transform", "");
-      dot?.setAttribute("transform", "");
-    };
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce || !slug) {
-      if (reduce) settle();
+      if (reduce) ciao.current?.settle();
       st.dataset.intro = "done";
       return;
     }
@@ -70,35 +55,16 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const portrait = vw / vh < 1;
-    const F = portrait ? ROOM.pF : ROOM.lF;              // larghezza della card nell'ultimo fotogramma, in frazione dell'inquadratura
+    const F = portrait ? ROOM.pF : ROOM.lF; // larghezza della card nell'ultimo fotogramma, in frazione dell'inquadratura
     const [Wv, Hv] = portrait ? [1080, 1920] : [1920, 1080];
     v.src = portrait ? "/card/room-p.mp4" : "/card/room-l.mp4";
     v.load();
 
     let killed = false;
     let raf = 0;
-    let wrote: gsap.core.Timeline | null = null;
     const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
     const seg = (t: number, a: number, b: number) => Math.min(1, Math.max(0, (t - a) / (b - a)));
 
-    const write = () => {
-      const SPEED = 560;
-      const at = (i: number) => PEN[i].n / SPEED;
-      const tl = gsap.timeline({ delay: 0.15 });
-      tl.to(pens[0], { strokeDashoffset: 0, duration: at(0), ease: "sine.inOut" });
-      tl.to(pens[1], { strokeDashoffset: 0, duration: at(1) * 0.9, ease: "none" }, ">-0.05");
-      tl.to(pens[2], { strokeDashoffset: 0, duration: at(2), ease: "sine.inOut" }, ">-0.12");
-      tl.to(pens[3], { strokeDashoffset: 0, duration: at(3), ease: "sine.inOut" }, ">-0.05");
-      tl.to(pens[4], { strokeDashoffset: 0, duration: at(4), ease: "sine.inOut" }, ">+0.12");
-      const grow = (el: SVGElement | null, cx: number, cy: number, t: number | string) => {
-        if (!el) return;
-        const o = { k: 0 };
-        tl.to(o, { k: 1, duration: 0.32, ease: "back.out(2)", onUpdate: () => el.setAttribute("transform", `translate(${cx} ${cy}) scale(${o.k}) translate(${-cx} ${-cy})`) }, t);
-      };
-      grow(dot, 1201, 384, ">-0.05");
-      grow(spark, 432, 97, ">+0.05");
-      wrote = tl;
-    };
     const finish = (quick = false) => {
       if (st.dataset.intro === "done") return;
       cancelAnimationFrame(raf);
@@ -106,8 +72,8 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
       st.dataset.intro = "done";
       gsap.set(sc, { clearProps: "opacity" });
       gsap.to(box, { opacity: 0, duration: quick ? 0.25 : 0.01, onComplete: () => void (box.style.display = "none") });
-      if (quick) settle();
-      else write();
+      if (quick) ciao.current?.settle();
+      else ciao.current?.play(120);
     };
     // dove sta la card vera: da li' si allinea l'ultimo fotogramma del filmato
     let tx = 0, ty = 0, k = 1;
@@ -165,7 +131,6 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
       off();
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
-      wrote?.kill();
       v.pause();
     };
   }, [slug]);
@@ -174,23 +139,44 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
 
   const paint = useCallback(() => {
     const el = card.current;
-    if (!el) return;
+    const sc = scene.current;
+    if (!el || !sc) return;
     const a = st.current;
     el.style.setProperty("--rx", `${a.rx.toFixed(2)}deg`);
     el.style.setProperty("--ry", `${a.ry.toFixed(2)}deg`);
     const ang = ((a.ry % 360) + 360) % 360;
     const front = ang < 90 || ang > 270;
     const rel = front ? (ang > 270 ? ang - 360 : ang) : ang - 180; // -90..90 per faccia
-    const gx = 50 + (front ? 1 : -1) * a.px * 38 - rel * 0.25;
-    const gy = 42 + a.py * 34 + a.rx * 0.6;
+    const ryRad = (a.ry * Math.PI) / 180;
+    const rxRad = (a.rx * Math.PI) / 180;
+    const cosY = Math.abs(Math.cos(ryRad));
+    const sinX = Math.abs(Math.sin(rxRad));
+
+    // Luce coerente con il faretto centrale in alto: il riflesso scorre sull'asse verticale e segue l'inclinazione reale
+    const gx = 50 - rel * 0.55;
+    const gy = 16 + a.rx * 1.15;
     el.style.setProperty("--gx", `${gx.toFixed(1)}%`);
     el.style.setProperty("--gy", `${gy.toFixed(1)}%`);
-    el.style.setProperty("--sh", `${(50 - (rel + a.px * 14) * 2.6).toFixed(1)}%`);
-    el.style.setProperty("--so2", `${(0.35 + 0.65 * Math.abs(Math.sin(((rel + a.px * 14 + 20) * Math.PI) / 90))).toFixed(2)}`);
-    el.style.setProperty("--ss", `${(1 - Math.min(0.45, Math.abs(Math.sin((a.ry * Math.PI) / 180)) * 0.45)).toFixed(2)}`);
-    el.style.setProperty("--lx", `${(((50 - gx) / 50) * 1.5).toFixed(2)}`);
-    el.style.setProperty("--ly", `${(((42 - gy) / 42) * 0.9).toFixed(2)}`);
-    el.style.setProperty("--so", `${(0.75 - Math.abs(Math.sin((a.ry * Math.PI) / 180)) * 0.3).toFixed(2)}`);
+    el.style.setProperty("--sh", `${(50 - rel * 2.2).toFixed(1)}%`);
+    el.style.setProperty("--so2", `${(0.28 + 0.55 * Math.abs(Math.sin(((rel + 18) * Math.PI) / 90))).toFixed(2)}`);
+    el.style.setProperty("--lx", `${(((50 - gx) / 50) * 1.2).toFixed(2)}`);
+    el.style.setProperty("--ly", `${(((42 - gy) / 42) * 0.85).toFixed(2)}`);
+    el.style.setProperty("--so", `${(0.35 + 0.55 * cosY).toFixed(2)}`);
+
+    // Ombra sul pavimento coerente col faretto centrale dall'alto:
+    // - larga come la proiezione orizzontale della card (si assottiglia quando vista di taglio a 90deg)
+    // - profonda quando la card e' inclinata avanti/indietro (rx), sottile quando e' verticale
+    const shW = 0.09 + 0.91 * cosY;
+    const shH = 0.55 + 1.35 * sinX;
+    const shY = Math.sin(rxRad) * 1.4;
+    const shOp = (0.34 + 0.56 * cosY) * (0.85 + 0.15 * sinX);
+    sc.style.setProperty("--sh-w", shW.toFixed(3));
+    sc.style.setProperty("--sh-h", shH.toFixed(3));
+    sc.style.setProperty("--sh-y", `${shY.toFixed(2)}cqw`);
+    sc.style.setProperty("--sh-o", shOp.toFixed(2));
+
+    // Sincronizza in tempo reale la rifrazione e i riflessi del vetro "Ciao!" con la rotazione 3D
+    ciao.current?.setTilt(a.rx, a.ry);
   }, []);
 
   const loop = useCallback(() => {
@@ -321,26 +307,7 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
             {slug && (
               <>
                 <div className={s.ciao}>
-                  <svg viewBox="0 0 1320 450" className={s.ciaoShadow} aria-hidden>
-                    <g mask="url(#ciao-write)">
-                      <image href="/card/ciao-shadow.webp" x="-40" y="-40" width="1400" height="530" />
-                    </g>
-                  </svg>
-                  <svg viewBox="0 0 1320 450" className={s.glassEdge} aria-hidden>
-                    <defs>
-                      {/* la scrittura: i tratti bianchi si disegnano e scoprono il vetro (gia' cotto in immagine) */}
-                      <mask id="ciao-write" maskUnits="userSpaceOnUse" x="-60" y="-60" width="1440" height="570">
-                        {PEN.map((t, i) => (
-                          <path key={i} className="pen" d={t.d} pathLength={1} fill="none" stroke="#fff" strokeWidth="100" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="1 1" strokeDashoffset="1" />
-                        ))}
-                        <circle className="spark" cx="432" cy="97" r="80" fill="#fff" transform="translate(432 97) scale(0) translate(-432 -97)" />
-                        <circle className="dot" cx="1201" cy="384" r="58" fill="#fff" transform="translate(1201 384) scale(0) translate(-1201 -384)" />
-                      </mask>
-                    </defs>
-                    <g mask="url(#ciao-write)">
-                      <image href="/card/ciao-glass.webp" x="-40" y="-40" width="1400" height="530" />
-                    </g>
-                  </svg>
+                  <CiaoGlass ref={ciao} />
                 </div>
                 <div className={s.sign}>
                   {logo ? (
@@ -373,7 +340,8 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
           </div>
           <i className={`${s.edge} ${s.eR}`} /><i className={`${s.edge} ${s.eL}`} /><i className={`${s.edge} ${s.eT}`} /><i className={`${s.edge} ${s.eB}`} />
         </div>
-        <div className={s.shadow} />
+        {slug && <div className={s.floorSpot} aria-hidden />}
+        <div className={`${s.shadow} ${slug ? s.shadowCustom : ""}`} aria-hidden />
       </div>
 
       {creds ? (
