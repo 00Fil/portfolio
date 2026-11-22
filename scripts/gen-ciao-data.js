@@ -256,18 +256,19 @@ function ballpointOwned(x, y, samples, fallback = true) {
 }
 
 // 5. Pack buffers:
-//    ciao-data.png  (RGB): R = sdf, G = alpha, B = t1 (primo passaggio)
+//    ciao-data.png  (RGB): R = sdf, G = alpha, B = t1 (primo passaggio; esterno = 255 + dilatazione bordo 3px)
 //    ciao-pass2.png (L):   t2 (secondo passaggio / profondita', 255 = nessun ripasso)
 const NORM_R = 44.0;
 const rgb = Buffer.alloc(W * H * 3);
 const p2buf = Buffer.alloc(W * H, 255);
+const t1Grid = new Uint8Array(W * H).fill(255);
 
 for (let y = 0; y < H; y++) {
   for (let x = 0; x < W; x++) {
     const i = y * W + x;
     const a = alpha[i];
     const rVal = Math.min(255, Math.round((dist[i] / NORM_R) * 255));
-    let t1 = 0;
+    let t1 = 1.0;
     let t2 = 1.0;
     const c = comp[i];
     if (c === cBody) {
@@ -284,9 +285,35 @@ for (let y = 0; y < H; y++) {
     }
     rgb[i * 3] = rVal;
     rgb[i * 3 + 1] = a;
-    rgb[i * 3 + 2] = Math.min(255, Math.max(0, Math.round(t1 * 255)));
-    p2buf[i] = t2 < 0.995 ? Math.min(254, Math.max(0, Math.round(t2 * 255))) : 255;
+    if (c !== -1) {
+      t1Grid[i] = Math.min(254, Math.max(0, Math.round(t1 * 254)));
+    }
+    p2buf[i] = t2 < 0.995 ? Math.min(254, Math.max(0, Math.round(t2 * 254))) : 255;
   }
+}
+
+// Dilata t1 di 3px verso l'esterno trasparente cosi' il filtro bilineare WebGL non sfuma mai verso 0 sui bordi
+let curT1 = t1Grid;
+for (let pass = 0; pass < 3; pass++) {
+  const nextT1 = new Uint8Array(curT1);
+  for (let y = 1; y < H - 1; y++) {
+    const row = y * W;
+    for (let x = 1; x < W - 1; x++) {
+      const i = row + x;
+      if (curT1[i] !== 255) continue;
+      let m = 255;
+      const n1 = curT1[i - 1], n2 = curT1[i + 1], n3 = curT1[i - W], n4 = curT1[i + W];
+      if (n1 < m) m = n1;
+      if (n2 < m) m = n2;
+      if (n3 < m) m = n3;
+      if (n4 < m) m = n4;
+      if (m < 255) nextT1[i] = m;
+    }
+  }
+  curT1 = nextT1;
+}
+for (let i = 0; i < W * H; i++) {
+  rgb[i * 3 + 2] = curT1[i];
 }
 
 // 6. Save PNGs via Python PIL

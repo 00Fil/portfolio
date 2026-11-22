@@ -43,7 +43,7 @@ vec2 toDataUv(vec2 uv) {
 
 vec4 sampleData(vec2 duv) {
   if (duv.x < 0.0 || duv.x > 1.0 || duv.y < 0.0 || duv.y > 1.0) {
-    return vec4(0.0);
+    return vec4(0.0, 0.0, 1.0, 0.0);
   }
   return texture2D(uData, duv);
 }
@@ -77,9 +77,10 @@ float domeHeight(float d) {
 }
 
 float revealTime(float tVal) {
-  float edge = 0.012;
-  float p = uProgress * (1.0 + edge * 1.4) - edge * 0.2;
-  return smoothstep(tVal - edge, tVal + edge * 0.35, p);
+  if (tVal > 0.994 && uProgress < 0.995) return 0.0;
+  float edge = 0.008;
+  float p = uProgress * (1.0 + edge * 1.3) - edge * 0.15;
+  return smoothstep(tVal - edge, tVal + edge * 0.3, p);
 }
 
 float revealAt(vec4 dat) {
