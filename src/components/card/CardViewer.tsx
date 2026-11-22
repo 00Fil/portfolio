@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, KeyRound, User } from "lucide-react";
 import { gsap } from "gsap";
+import { onIntroLift } from "@/lib/intro";
 import localFont from "next/font/local";
 import { unlockCard } from "@/app/[locale]/card/actions";
 import s from "./card.module.css";
@@ -46,7 +47,17 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
       return;
     }
     // velocita' costante della penna: la durata di ogni tratto segue la sua lunghezza
-    const tl = gsap.timeline({ delay: 0.55 });
+    let tl: gsap.core.Timeline | null = null;
+    // parte appena si alza il telo d'apertura: chi entra vede la mano scrivere, non il testo gia' fatto
+    const off = onIntroLift(() => {
+      tl = build();
+    });
+    return () => {
+      off();
+      tl?.kill();
+    };
+    function build() {
+    const tl = gsap.timeline({ delay: 0.15 });
     const SPEED = 560;
     const at = (i: number) => PEN[i].n / SPEED;
     tl.to(pens[0], { strokeDashoffset: 0, duration: at(0), ease: "sine.inOut" });
@@ -61,7 +72,8 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
     };
     grow(dot, 1201, 384, ">-0.05");
     grow(spark, 432, 97, ">+0.05");
-    return () => void tl.kill();
+    return tl;
+    }
   }, [slug]);
 
   const st = useRef({ ry: -24, rx: 8, vy: 0, vx: 0, snap: 0, px: 0, py: 0, drag: false, moved: 0, hit: "" as "" | "user" | "pass", lastX: 0, lastY: 0, lastT: 0, raf: 0, reduce: false });
