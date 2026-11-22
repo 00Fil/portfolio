@@ -40,7 +40,12 @@
 @media (prefers-reduced-motion: reduce) { .site { animation: none; } }
 
 .front.frontCustom { background-image: url(/card/back.webp); }
-.ciao { position: absolute; left: 11.68%; top: 25%; width: 77.1%; pointer-events: none; user-select: none; }
+.ciao { position: absolute; left: 11.68%; top: 25%; width: 77.1%; aspect-ratio: 1320 / 450; pointer-events: none; user-select: none; }
+.glassFill, .glassEdge { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
+/* il vetro: la lettera e' una lente che ingrandisce lo sfondo della card, con un velo chiaro che scende in diagonale */
+.glassFill { -webkit-mask: url(/card/ciao.png) center / 100% 100% no-repeat; mask: url(/card/ciao.png) center / 100% 100% no-repeat;
+  background-image: linear-gradient(158deg, rgba(255, 255, 255, .62), rgba(255, 255, 255, .14) 52%, rgba(255, 255, 255, .34)), url(/card/back.webp);
+  background-size: 100% 100%, 118cqw auto; background-position: 0 0, -23cqw -24cqw; background-repeat: no-repeat; filter: saturate(1.35) brightness(1.04); }
 .sign { position: absolute; left: 0; right: 0; bottom: 2.7cqw; display: flex; align-items: center; justify-content: center; gap: 1.5cqw; color: #06263a; pointer-events: none; }
 .sign i { font-style: normal; font-size: 3cqw; line-height: 1; opacity: .8; }
 .signLogo { height: 3.6cqw; max-width: 12cqw; width: auto; object-fit: contain; }

@@ -156,8 +156,51 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
           <div className={`${s.face} ${s.front} ${slug ? s.frontCustom : ""}`}>
             {slug && (
               <>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/card/ciao.png" alt="" draggable={false} className={s.ciao} />
+                <div className={s.ciao}>
+                  <i className={s.glassFill} />
+                  <svg viewBox="0 0 1320 450" className={s.glassEdge} aria-hidden>
+                    <defs>
+                      <filter id="ciao-glass" x="-3%" y="-8%" width="106%" height="124%" colorInterpolationFilters="sRGB">
+                        {/* ombra sotto il vetro, solo fuori dalla lettera */}
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="9" result="sb" />
+                        <feOffset in="sb" dy="14" result="so" />
+                        <feFlood floodColor="#06263a" floodOpacity=".4" />
+                        <feComposite in2="so" operator="in" result="sc" />
+                        <feComposite in="sc" in2="SourceAlpha" operator="out" result="shadow" />
+                        {/* spessore: ombra interna in basso a destra */}
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="ib" />
+                        <feOffset in="ib" dx="-4" dy="-9" result="io" />
+                        <feComposite in="SourceAlpha" in2="io" operator="out" result="band" />
+                        <feFlood floodColor="#0b5a9e" floodOpacity=".75" />
+                        <feComposite in2="band" operator="in" result="inner" />
+                        {/* luce che striscia sui bordi */}
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="h" />
+                        <feSpecularLighting in="h" surfaceScale="10" specularConstant="1.2" specularExponent="26" lightingColor="#ffffff" result="sp1">
+                          <feDistantLight azimuth="230" elevation="46" />
+                        </feSpecularLighting>
+                        <feComposite in="sp1" in2="SourceAlpha" operator="in" result="spec1" />
+                        <feSpecularLighting in="h" surfaceScale="8" specularConstant=".9" specularExponent="20" lightingColor="#9fdcff" result="sp2">
+                          <feDistantLight azimuth="50" elevation="38" />
+                        </feSpecularLighting>
+                        <feComposite in="sp2" in2="SourceAlpha" operator="in" result="spec2" />
+                        {/* filo di luce sul contorno */}
+                        <feMorphology in="SourceAlpha" operator="erode" radius="2.2" result="er" />
+                        <feComposite in="SourceAlpha" in2="er" operator="out" result="ring" />
+                        <feGaussianBlur in="ring" stdDeviation=".8" result="ringb" />
+                        <feFlood floodColor="#ffffff" floodOpacity="1" />
+                        <feComposite in2="ringb" operator="in" result="rim" />
+                        <feMerge>
+                          <feMergeNode in="shadow" />
+                          <feMergeNode in="inner" />
+                          <feMergeNode in="spec2" />
+                          <feMergeNode in="spec1" />
+                          <feMergeNode in="rim" />
+                        </feMerge>
+                      </filter>
+                    </defs>
+                    <image href="/card/ciao.png" width="1320" height="450" filter="url(#ciao-glass)" />
+                  </svg>
+                </div>
                 <div className={s.sign}>
                   {logo ? (
                     // eslint-disable-next-line @next/next/no-img-element
