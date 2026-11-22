@@ -354,9 +354,10 @@ vec4 sampleData(vec2 duv) {
 
 float revealTime(float tVal) {
   if (tVal > 0.994 && uProgress < 0.995) return 0.0;
-  float edge = 0.008;
-  float p = uProgress * (1.0 + edge * 1.3) - edge * 0.15;
-  return smoothstep(tVal - edge, tVal + edge * 0.3, p);
+  float edge = 0.022;
+  float p = uProgress * (1.0 + edge * 1.4) - edge * 0.2;
+  float t = clamp((p - (tVal - edge)) / (edge * 1.4), 0.0, 1.0);
+  return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
 void main() {
@@ -401,9 +402,9 @@ void main() {
 
       float core = smoothstep(0.32, 0.90, s0.r) * r0;
       float shAlpha = clamp(sh * 0.58 * (1.0 - 0.36 * core), 0.0, 0.62);
-      float caustic = core * 0.16 * max(L_local.y, 0.0);
+      float caustic = core * 0.18 * max(L_local.y, 0.0);
       col = mix(col, col * 0.22, shAlpha);
-      col += vec3(0.55, 0.72, 0.80) * caustic;
+      col += vec3(0.58, 0.76, 0.85) * caustic;
     }
 
     // Firma in basso (logo/nome x Filippo Corsini)
@@ -425,30 +426,36 @@ in vec2 aUv;
 uniform mat4 uVP;
 uniform mat4 uModel;
 uniform sampler2D uData;
-uniform sampler2D uPass2;
 uniform float uProgress;
 
 out vec2 vDuv;
 out vec3 vWorldPos;
 
+const vec2 TEXEL = vec2(1.0 / 1320.0, 1.0 / 450.0);
+
 float revealTime(float tVal) {
   if (tVal > 0.994 && uProgress < 0.995) return 0.0;
-  float edge = 0.008;
-  float p = uProgress * (1.0 + edge * 1.3) - edge * 0.15;
-  return smoothstep(tVal - edge, tVal + edge * 0.3, p);
+  float edge = 0.022;
+  float p = uProgress * (1.0 + edge * 1.4) - edge * 0.2;
+  float t = clamp((p - (tVal - edge)) / (edge * 1.4), 0.0, 1.0);
+  return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
 void main() {
   vec4 dat = texture(uData, aUv);
   float rev = revealTime(dat.b);
   float swell = smoothstep(0.0, 1.0, rev);
-  float t2 = texture(uPass2, aUv).r;
-  float p2 = smoothstep(0.995, 0.96, t2) * revealTime(t2);
 
-  // Vero spostamento 3D fisico lungo +Z: la goccia sporge realmente dalla superficie della card
-  float h = dat.r * swell * (1.0 + 0.18 * p2);
+  // Media morbida su 5 campioni per una silhouette 3D perfettamente liscia e uniforme (zero mucchietti)
+  vec2 o = TEXEL * 2.5;
+  float hAvg = dat.r * 0.40
+    + texture(uData, aUv + vec2( o.x, 0.0)).r * 0.15
+    + texture(uData, aUv + vec2(-o.x, 0.0)).r * 0.15
+    + texture(uData, aUv + vec2(0.0,  o.y)).r * 0.15
+    + texture(uData, aUv + vec2(0.0, -o.y)).r * 0.15;
+
   vec3 pos = aPos;
-  pos.z += h * 0.24;
+  pos.z += hAvg * swell * 0.23;
 
   vec4 wp = uModel * vec4(pos, 1.0);
   vWorldPos = wp.xyz;
@@ -462,7 +469,6 @@ in vec2 vDuv;
 in vec3 vWorldPos;
 
 uniform sampler2D uData;
-uniform sampler2D uPass2;
 uniform mat3 uRot3;
 uniform vec3 uCamPos;
 uniform vec3 uCardColor;
@@ -477,90 +483,84 @@ vec4 sampleData(vec2 duv) {
   return texture(uData, duv);
 }
 
-float samplePass2(vec2 duv) {
-  if (duv.x < 0.0 || duv.x > 1.0 || duv.y < 0.0 || duv.y > 1.0) return 1.0;
-  return texture(uPass2, duv).r;
-}
-
 float revealTime(float tVal) {
   if (tVal > 0.994 && uProgress < 0.995) return 0.0;
-  float edge = 0.008;
-  float p = uProgress * (1.0 + edge * 1.3) - edge * 0.15;
-  return smoothstep(tVal - edge, tVal + edge * 0.3, p);
+  float edge = 0.022;
+  float p = uProgress * (1.0 + edge * 1.4) - edge * 0.2;
+  float t = clamp((p - (tVal - edge)) / (edge * 1.4), 0.0, 1.0);
+  return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
-float overlapRaw(vec2 duv) {
-  float t2 = samplePass2(duv);
-  return smoothstep(0.995, 0.96, t2) * revealTime(t2);
-}
-
-float overlapAt(vec2 duv) {
-  vec2 o = TEXEL * 4.5;
-  float s = overlapRaw(duv) * 0.36;
-  s += overlapRaw(duv + vec2( o.x,  0.0)) * 0.16;
-  s += overlapRaw(duv + vec2(-o.x,  0.0)) * 0.16;
-  s += overlapRaw(duv + vec2( 0.0,  o.y)) * 0.16;
-  s += overlapRaw(duv + vec2( 0.0, -o.y)) * 0.16;
-  return s;
-}
-
-float combinedHeight(vec2 duv, float swell) {
-  return sampleData(duv).r * swell * (1.0 + 0.18 * overlapAt(duv));
+// Filtro gaussiano 9-tap sull'altezza: superficie 3D a specchio perfettamente liscia e uniforme
+float smoothHeight(vec2 duv, float swell) {
+  vec2 o = TEXEL * 2.8;
+  float s = sampleData(duv).r * 0.25;
+  s += sampleData(duv + vec2( o.x,  0.0)).r * 0.125;
+  s += sampleData(duv + vec2(-o.x,  0.0)).r * 0.125;
+  s += sampleData(duv + vec2( 0.0,  o.y)).r * 0.125;
+  s += sampleData(duv + vec2( 0.0, -o.y)).r * 0.125;
+  s += sampleData(duv + vec2( o.x,  o.y)).r * 0.0625;
+  s += sampleData(duv + vec2(-o.x,  o.y)).r * 0.0625;
+  s += sampleData(duv + vec2( o.x, -o.y)).r * 0.0625;
+  s += sampleData(duv + vec2(-o.x, -o.y)).r * 0.0625;
+  return s * swell;
 }
 
 void main() {
   vec4 dat = sampleData(vDuv);
   float rev = revealTime(dat.b);
-  float alpha = smoothstep(0.16, 0.56, dat.g) * rev;
+  float alpha = smoothstep(0.14, 0.54, dat.g) * rev;
   if (alpha < 0.02) discard;
 
   float swell = smoothstep(0.0, 1.0, rev);
-  float p2 = overlapAt(vDuv);
-  float hC = combinedHeight(vDuv, swell);
+  float hC = smoothHeight(vDuv, swell);
 
-  vec2 gStep = TEXEL * 3.0;
-  float hR = combinedHeight(vDuv + vec2(gStep.x, 0.0), swell);
-  float hL = combinedHeight(vDuv - vec2(gStep.x, 0.0), swell);
-  float hD = combinedHeight(vDuv + vec2(0.0, gStep.y), swell);
-  float hU = combinedHeight(vDuv - vec2(0.0, gStep.y), swell);
+  vec2 gStep = TEXEL * 3.5;
+  float hR = smoothHeight(vDuv + vec2(gStep.x, 0.0), swell);
+  float hL = smoothHeight(vDuv - vec2(gStep.x, 0.0), swell);
+  float hD = smoothHeight(vDuv + vec2(0.0, gStep.y), swell);
+  float hU = smoothHeight(vDuv - vec2(0.0, gStep.y), swell);
 
-  float slope = 5.4;
+  float slope = 4.9;
   vec3 N_local = normalize(vec3(-(hR - hL) * slope, (hD - hU) * slope, 1.0));
   vec3 N_world = normalize(uRot3 * N_local);
 
   vec3 V_world = normalize(uCamPos - vWorldPos);
-  vec3 L_world = normalize(vec3(-0.22, 0.82, 0.53));
-  vec3 L_local = normalize(transpose(uRot3) * L_world);
+  vec3 L1 = normalize(vec3(-0.22, 0.82, 0.53));
+  vec3 L2 = normalize(vec3(0.55, 0.42, 0.72));
+  vec3 L1_local = normalize(transpose(uRot3) * L1);
 
-  // Acqua cristallina 3D che rifrange il #3A5864 e riflette lo studio bianco
   float NdotV = max(dot(N_world, V_world), 0.0);
-  float NdotL = max(dot(N_world, L_world), 0.0);
+  float NdotL1 = max(dot(N_world, L1), 0.0);
+  float NdotL2 = max(dot(N_world, L2), 0.0);
 
-  // Trasmissione luminosa attraverso la cupola emisferica
-  vec3 transmitted = uCardColor * (1.16 + 0.34 * hC + 0.12 * p2);
-  // Lieve variazione di profondita' rifratta lungo la curva della goccia
-  transmitted *= 0.88 + 0.24 * clamp(N_local.y * 0.5 + 0.5, 0.0, 1.0);
+  // Corpo cristallino uniforme che rifrange il #3A5864 con luce morbida
+  vec3 transmitted = uCardColor * (1.14 + 0.36 * hC);
+  transmitted *= 0.90 + 0.22 * clamp(N_local.y * 0.5 + 0.5, 0.0, 1.0);
 
-  // Riflessione Fresnel brillante dello studio bianco (splendida vista di profilo!)
-  float fresnel = 0.06 + 0.94 * pow(1.0 - NdotV, 2.7);
+  // Riflessione Fresnel ultra-lucida dello studio bianco (doppia softbox nitida sulla curva)
+  float fresnel = 0.08 + 0.92 * pow(1.0 - NdotV, 2.5);
   vec3 Refl = reflect(-V_world, N_world);
-  float skyBand = smoothstep(-0.30, 0.82, Refl.y);
-  float softbox = smoothstep(0.08, 0.85, Refl.y) * exp(-pow(Refl.x + 0.14, 2.0) * 1.4);
-  vec3 envCol = mix(uCardColor * 0.85 + vec3(0.18), vec3(1.0), clamp(skyBand * 0.62 + softbox * 0.68, 0.0, 1.0));
+  float skyBand = smoothstep(-0.25, 0.78, Refl.y);
+  float softbox1 = smoothstep(0.18, 0.82, Refl.y) * exp(-pow(Refl.x + 0.16, 2.0) * 2.2);
+  float softbox2 = smoothstep(-0.05, 0.65, Refl.y) * exp(-pow(Refl.x - 0.52, 2.0) * 3.0) * 0.65;
+  vec3 envCol = mix(uCardColor * 0.78 + vec3(0.22), vec3(1.0), clamp(skyBand * 0.58 + softbox1 * 0.85 + softbox2, 0.0, 1.0));
 
-  // Riflessi speculari bagnati nitidi
-  vec3 H = normalize(L_world + V_world);
-  float NdotH = max(dot(N_world, H), 0.0);
-  float specPin = pow(NdotH, 180.0) * (1.95 + 0.25 * p2) * smoothstep(0.0, 0.1, NdotL);
-  float specWet = pow(NdotH, 26.0) * 0.34 * NdotL;
-  vec3 specCol = vec3(1.0) * (specPin + specWet);
+  // Riflessi speculari bagnati a specchio (doppia luce studio)
+  vec3 H1 = normalize(L1 + V_world);
+  vec3 H2 = normalize(L2 + V_world);
+  float NdotH1 = max(dot(N_world, H1), 0.0);
+  float NdotH2 = max(dot(N_world, H2), 0.0);
+  float specMirror = pow(NdotH1, 260.0) * 2.4 * smoothstep(0.0, 0.08, NdotL1);
+  float specGloss = pow(NdotH1, 44.0) * 0.42 * NdotL1 + pow(NdotH2, 90.0) * 0.55 * NdotL2;
+  vec3 specCol = vec3(1.0) * (specMirror + specGloss);
 
-  // Caustica interna sul bordo inferiore della semisfera
+  // Caustica interna luminosa sul bordo inferiore della semisfera
   float lowerCurve = clamp(-N_local.y, 0.0, 1.0);
   float edgeBand = (1.0 - clamp(hC, 0.0, 1.0)) * smoothstep(0.05, 0.55, dat.r);
-  float innerCaustic = pow(lowerCurve, 1.35) * edgeBand * max(L_local.y, 0.0) * 0.52;
+  float innerCaustic = pow(lowerCurve, 1.3) * edgeBand * max(L1_local.y, 0.0) * 0.56;
 
-  vec3 water = mix(transmitted + vec3(innerCaustic * 0.9, innerCaustic * 0.97, innerCaustic), envCol, clamp(fresnel * 0.86, 0.0, 0.94)) + specCol;
+  vec3 water = mix(transmitted + vec3(innerCaustic * 0.92, innerCaustic * 0.98, innerCaustic), envCol, clamp(fresnel * 0.88, 0.0, 0.95)) + specCol;
   outColor = vec4(clamp(water, 0.0, 1.0), alpha);
 }`;
 
@@ -715,7 +715,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cardIbo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cardGeo.indices, gl.STATIC_DRAW);
 
-    const ciaoGeo = buildCiaoMesh(280, 96);
+    const ciaoGeo = buildCiaoMesh(320, 110);
     const ciaoVao = gl.createVertexArray()!;
     gl.bindVertexArray(ciaoVao);
     const ciaoVbo = gl.createBuffer()!;
