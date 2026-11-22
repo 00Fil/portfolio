@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, KeyRound, User } from "lucide-react";
+import { gsap } from "gsap";
 import localFont from "next/font/local";
 import { unlockCard } from "@/app/[locale]/card/actions";
 import s from "./card.module.css";
@@ -9,6 +10,15 @@ import s from "./card.module.css";
 const nunito = localFont({ src: "../../fonts/nunito-700.woff2", variable: "--nunito", display: "swap", weight: "700" });
 
 type Txt = { code: string; open: string; flip: string; site: string; copied: string; errors: { wrong: string; limit: string; off: string } };
+
+/** Tratti del "Ciao!" nell'ordine in cui si scrive a mano: il cursore segue la linea centrale delle lettere (viewBox 1320x450). */
+const PEN = [
+  { d: "M307 128 L303 120 L298 112 L294 104 L289 96 L284 89 L278 83 L271 77 L264 71 L256 67 L247 64 L239 61 L230 60 L221 58 L212 58 L203 57 L194 58 L185 59 L176 61 L167 63 L159 66 L150 69 L142 74 L135 79 L128 84 L121 90 L115 97 L109 103 L103 110 L98 118 L93 126 L89 134 L85 142 L82 150 L79 159 L76 167 L73 176 L71 185 L70 194 L68 202 L67 211 L66 220 L65 229 L65 238 L65 248 L65 257 L66 266 L67 275 L69 283 L70 292 L73 301 L76 310 L79 318 L83 326 L87 334 L92 341 L98 349 L104 355 L110 362 L117 367 L125 372 L133 377 L141 381 L149 384 L158 387 L166 390 L175 392 L184 393 L193 394 L202 395 L211 396 L220 396 L229 395 L238 394 L247 393 L256 392 L265 390 L274 388 L282 385 L291 382 L299 379 L307 375 L315 371 L323 366 L331 361 L338 356 L345 350 L353 345 L361 341 L369 338 L378 335 L385 330 L391 323 L393 314 L395 306 L397 297 L399 288 L401 279 L402 270 L404 261 L406 252 L407 244 L409 235 L411 226 L413 217 L413 208", n: 949 },
+  { d: "M390 328 L395 336 L398 344 L400 353 L402 362 L405 370 L410 378 L417 384 L425 388 L434 390 L443 392 L452 392 L461 392 L470 390 L479 388 L487 385 L495 381 L503 377 L510 371 L517 366 L525 360 L532 355 L540 351 L549 348 L557 344 L562 337 L564 328 L566 319 L568 310 L569 301 L571 292 L572 283 L575 275 L578 266 L581 258 L585 250 L590 242 L596 235 L602 229 L609 223 L617 218 L625 214 L633 212 L642 210 L651 209 L660 209 L669 210 L678 211 L687 212 L696 213 L705 214 L714 216 L720 222 L719 231 L719 240 L718 249 L717 258 L717 267 L716 276 L714 285 L713 294 L712 303 L711 312 L710 321 L709 330 L709 339 L708 348 L707 357 L708 366 L713 373 L720 379 L727 385 L736 388 L744 391 L753 393 L762 393 L771 393 L780 391 L789 389 L797 386 L805 382 L813 377 L820 371 L826 365 L833 358 L840 352 L848 348 L856 344 L863 339 L867 331 L869 322 L870 313 L872 305 L873 296 L875 287 L878 278 L881 270 L884 261 L888 253 L893 246 L899 238 L905 232 L911 226 L919 220 L927 216 L935 213 L944 211 L953 210 L962 209 L971 210 L980 211 L989 213 L998 215 L1006 219 L1014 223 L1022 227 L1030 231 L1039 232 L1048 232 L1057 231 L1066 230 L1075 229 L1084 227 L1092 225 L1101 221 L1108 216 L1115 210 L1122 204", n: 1148 },
+  { d: "M562 343 L568 350 L573 357 L577 365 L582 373 L588 380 L595 386 L603 389 L612 392 L621 393 L630 394 L639 393 L648 392 L657 389 L665 386 L673 381 L681 377 L689 373 L697 370 L706 367", n: 172 },
+  { d: "M1033 233 L1034 242 L1035 251 L1035 260 L1035 269 L1035 278 L1034 287 L1034 296 L1033 305 L1031 314 L1029 323 L1027 332 L1023 340 L1020 348 L1015 356 L1010 363 L1003 370 L997 376 L989 381 L981 385 L973 388 L964 390 L955 392 L946 392 L937 392 L928 391 L919 389 L911 386 L903 381 L895 376 L889 369 L884 362 L879 354 L873 347 L867 341", n: 307 },
+  { d: "M1247 58 L1246 67 L1244 76 L1243 85 L1241 94 L1240 103 L1239 112 L1238 121 L1236 130 L1235 139 L1234 147 L1233 156 L1231 165 L1230 174 L1229 183 L1227 192 L1226 201 L1225 210 L1224 219 L1222 228 L1221 237 L1220 246 L1219 255", n: 199 },
+];
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
@@ -21,6 +31,38 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
   const [shake, setShake] = useState(false);
   const [pending, setPending] = useState(false);
   const [tip, setTip] = useState<"user" | "pass" | null>(null);
+
+  useEffect(() => {
+    if (!slug) return;
+    const root = scene.current;
+    if (!root) return;
+    const pens = Array.from(root.querySelectorAll<SVGPathElement>(".pen"));
+    const spark = root.querySelector<SVGElement>(".spark");
+    const dot = root.querySelector<SVGElement>(".dot");
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      pens.forEach((p) => p.setAttribute("stroke-dashoffset", "0"));
+      spark?.setAttribute("transform", "");
+      dot?.setAttribute("transform", "");
+      return;
+    }
+    // velocita' costante della penna: la durata di ogni tratto segue la sua lunghezza
+    const tl = gsap.timeline({ delay: 0.55 });
+    const SPEED = 560;
+    const at = (i: number) => PEN[i].n / SPEED;
+    tl.to(pens[0], { strokeDashoffset: 0, duration: at(0), ease: "sine.inOut" });
+    tl.to(pens[1], { strokeDashoffset: 0, duration: at(1) * 0.9, ease: "none" }, ">-0.05");
+    tl.to(pens[2], { strokeDashoffset: 0, duration: at(2), ease: "sine.inOut" }, ">-0.12");
+    tl.to(pens[3], { strokeDashoffset: 0, duration: at(3), ease: "sine.inOut" }, ">-0.05");
+    tl.to(pens[4], { strokeDashoffset: 0, duration: at(4), ease: "sine.inOut" }, ">+0.12");
+    const grow = (el: SVGElement | null, cx: number, cy: number, t: number | string) => {
+      if (!el) return;
+      const o = { k: 0 };
+      tl.to(o, { k: 1, duration: 0.32, ease: "back.out(2)", onUpdate: () => el.setAttribute("transform", `translate(${cx} ${cy}) scale(${o.k}) translate(${-cx} ${-cy})`) }, t);
+    };
+    grow(dot, 1201, 384, ">-0.05");
+    grow(spark, 432, 97, ">+0.05");
+    return () => void tl.kill();
+  }, [slug]);
 
   const st = useRef({ ry: -24, rx: 8, vy: 0, vx: 0, snap: 0, px: 0, py: 0, drag: false, moved: 0, hit: "" as "" | "user" | "pass", lastX: 0, lastY: 0, lastT: 0, raf: 0, reduce: false });
 
@@ -157,29 +199,44 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
             {slug && (
               <>
                 <div className={s.ciao}>
-                  <i className={s.glassFill} />
                   <svg viewBox="0 0 1320 450" className={s.glassEdge} aria-hidden>
                     <defs>
+                      <linearGradient id="ciao-veil" x1=".15" y1="0" x2=".85" y2="1">
+                        <stop offset="0" stopColor="#fff" stopOpacity=".92" />
+                        <stop offset=".5" stopColor="#dff1ff" stopOpacity=".5" />
+                        <stop offset="1" stopColor="#fff" stopOpacity=".72" />
+                      </linearGradient>
+                      <mask id="ciao-shape" maskUnits="userSpaceOnUse" x="0" y="0" width="1320" height="450" style={{ maskType: "alpha" }}>
+                        <image href="/card/ciao.png" width="1320" height="450" />
+                      </mask>
+                      {/* la scrittura: i tratti bianchi si disegnano e scoprono il vetro sotto */}
+                      <mask id="ciao-write" maskUnits="userSpaceOnUse" x="-60" y="-60" width="1440" height="570">
+                        {PEN.map((t, i) => (
+                          <path key={i} className="pen" d={t.d} pathLength={1} fill="none" stroke="#fff" strokeWidth="100" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="1 1" strokeDashoffset="1" />
+                        ))}
+                        <circle className="spark" cx="432" cy="97" r="80" fill="#fff" transform="translate(432 97) scale(0) translate(-432 -97)" />
+                        <circle className="dot" cx="1201" cy="384" r="58" fill="#fff" transform="translate(1201 384) scale(0) translate(-1201 -384)" />
+                      </mask>
                       <filter id="ciao-glass" x="-3%" y="-8%" width="106%" height="124%" colorInterpolationFilters="sRGB">
                         {/* ombra sotto il vetro, solo fuori dalla lettera */}
                         <feGaussianBlur in="SourceAlpha" stdDeviation="9" result="sb" />
                         <feOffset in="sb" dy="14" result="so" />
-                        <feFlood floodColor="#06263a" floodOpacity=".4" />
+                        <feFlood floodColor="#000" floodOpacity=".55" />
                         <feComposite in2="so" operator="in" result="sc" />
                         <feComposite in="sc" in2="SourceAlpha" operator="out" result="shadow" />
                         {/* spessore: ombra interna in basso a destra */}
                         <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="ib" />
                         <feOffset in="ib" dx="-4" dy="-9" result="io" />
                         <feComposite in="SourceAlpha" in2="io" operator="out" result="band" />
-                        <feFlood floodColor="#0b5a9e" floodOpacity=".75" />
+                        <feFlood floodColor="#1d6fc4" floodOpacity=".55" />
                         <feComposite in2="band" operator="in" result="inner" />
                         {/* luce che striscia sui bordi */}
                         <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="h" />
-                        <feSpecularLighting in="h" surfaceScale="10" specularConstant="1.2" specularExponent="26" lightingColor="#ffffff" result="sp1">
+                        <feSpecularLighting in="h" surfaceScale="10" specularConstant="1.3" specularExponent="26" lightingColor="#ffffff" result="sp1">
                           <feDistantLight azimuth="230" elevation="46" />
                         </feSpecularLighting>
                         <feComposite in="sp1" in2="SourceAlpha" operator="in" result="spec1" />
-                        <feSpecularLighting in="h" surfaceScale="8" specularConstant=".9" specularExponent="20" lightingColor="#9fdcff" result="sp2">
+                        <feSpecularLighting in="h" surfaceScale="8" specularConstant="1" specularExponent="20" lightingColor="#9fdcff" result="sp2">
                           <feDistantLight azimuth="50" elevation="38" />
                         </feSpecularLighting>
                         <feComposite in="sp2" in2="SourceAlpha" operator="in" result="spec2" />
@@ -198,7 +255,13 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
                         </feMerge>
                       </filter>
                     </defs>
-                    <image href="/card/ciao.png" width="1320" height="450" filter="url(#ciao-glass)" />
+                    <g mask="url(#ciao-write)">
+                      <g mask="url(#ciao-shape)">
+                        <image href="/card/back-dark.webp" x="-394" y="-411" width="2020" height="1274" preserveAspectRatio="none" />
+                        <rect width="1320" height="450" fill="url(#ciao-veil)" />
+                      </g>
+                      <image href="/card/ciao.png" width="1320" height="450" filter="url(#ciao-glass)" />
+                    </g>
                   </svg>
                 </div>
                 <div className={s.sign}>
@@ -216,7 +279,7 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
             <div className={s.sheen} />
             <div className={s.glare} />
           </div>
-          <div className={`${s.face} ${s.back}`}>
+          <div className={`${s.face} ${s.back} ${slug ? s.backCustom : ""}`}>
             <div className={s.bar} data-copy="user" style={{ top: "18.93cqw", ["--fs" as string]: "4.67cqw" }}>
               <User aria-hidden strokeWidth={2} />
               <span className={creds ? "" : s.dots}>{creds ? creds.user : "••••••••"}</span>
