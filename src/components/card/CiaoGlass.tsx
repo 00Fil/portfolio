@@ -27,10 +27,11 @@ void main() {
 const FRAG = `
 precision highp float;
 
-uniform sampler2D uData; // R = sdf (0..1), G = alpha, B = reveal time (0..1)
-uniform sampler2D uBg;   // back-dark.webp
-uniform vec2 uRot;       // (rxRad, ryRad)
-uniform float uProgress; // 0..1
+uniform sampler2D uData;  // R = sdf (0..1), G = alpha, B = t1 primo passaggio
+uniform sampler2D uBg;    // back.webp
+uniform sampler2D uPass2; // R = t2 secondo passaggio (1.0 = nessun ripasso)
+uniform vec2 uRot;        // (rxRad, ryRad)
+uniform float uProgress;  // 0..1
 
 varying vec2 vUv;
 
@@ -45,6 +46,13 @@ vec4 sampleData(vec2 duv) {
     return vec4(0.0);
   }
   return texture2D(uData, duv);
+}
+
+float samplePass2(vec2 duv) {
+  if (duv.x < 0.0 || duv.x > 1.0 || duv.y < 0.0 || duv.y > 1.0) {
+    return 1.0;
+  }
+  return texture2D(uPass2, duv).r;
 }
 
 // Campiona la distanza SDF lisciata per evitare creste sull'asse mediano
@@ -68,10 +76,28 @@ float domeHeight(float d) {
   return pow(max(0.0, 1.0 - (1.0 - u) * (1.0 - u)), 0.52);
 }
 
-float revealAt(vec4 dat) {
+float revealTime(float tVal) {
   float edge = 0.012;
   float p = uProgress * (1.0 + edge * 1.4) - edge * 0.2;
-  return smoothstep(dat.b - edge, dat.b + edge * 0.35, p);
+  return smoothstep(tVal - edge, tVal + edge * 0.35, p);
+}
+
+float revealAt(vec4 dat) {
+  return revealTime(dat.b);
+}
+
+float overlapAt(vec2 duv) {
+  float t2 = samplePass2(duv);
+  if (t2 > 0.99) return 0.0;
+  return revealTime(t2);
+}
+
+// Altezza combinata: cupola base + rilievo del secondo passaggio sui tratti sovrapposti
+float combinedHeight(vec2 duv, float swell) {
+  float h = domeHeight(smoothSdf(duv)) * swell;
+  float p2 = overlapAt(duv);
+  // Il secondo strato aggiunge spessore convesso morbido al centro del tratto sovrapposto
+  return h * (1.0 + 0.34 * p2);
 }
 
 // Matrice di rotazione CSS: rotateX(rx) * rotateY(ry)
@@ -96,11 +122,10 @@ void main() {
   vec4 dat = sampleData(duv);
 
   mat3 R = cardRot(uRot);
-  // Luce reale: unico faretto centrale dall'alto, leggermente frontale
+  // Luce reale: unica sorgente centrale dall'alto, leggermente frontale
   vec3 L_world = normalize(vec3(0.0, 0.86, 0.51));
   vec3 V_world = vec3(0.0, 0.0, 1.0);
 
-  // Trasformazione nello spazio locale della card (R e' ortogonale: R^-1 = R^T)
   mat3 Rt = mat3(
     R[0][0], R[1][0], R[2][0],
     R[0][1], R[1][1], R[2][1],
@@ -115,12 +140,12 @@ void main() {
   vec2 sRad = TEXEL * 7.0;
   float sh = 0.0;
   vec4 sd0 = sampleData(sUv);
-  sh += sd0.g * revealAt(sd0) * 0.32;
+  sh += sd0.g * revealAt(sd0) * (1.0 + 0.28 * overlapAt(sUv)) * 0.32;
   vec4 sd1 = sampleData(sUv + vec2( sRad.x,  0.0)); sh += sd1.g * revealAt(sd1) * 0.17;
   vec4 sd2 = sampleData(sUv + vec2(-sRad.x,  0.0)); sh += sd2.g * revealAt(sd2) * 0.17;
   vec4 sd3 = sampleData(sUv + vec2( 0.0,  sRad.y)); sh += sd3.g * revealAt(sd3) * 0.17;
   vec4 sd4 = sampleData(sUv + vec2( 0.0, -sRad.y)); sh += sd4.g * revealAt(sd4) * 0.17;
-  float shadowAlpha = sh * 0.30;
+  float shadowAlpha = min(0.45, sh * 0.30);
 
   // 2. Maschera e crescita fluida della goccia di vetro
   float rev = revealAt(dat);
@@ -130,27 +155,28 @@ void main() {
     discard;
   }
 
-  // Ombra morbida su carta bianca (tono blu-ardesia tenue, non nero)
+  // Ombra morbida su carta bianca (tono blu-ardesia tenue)
   vec3 outCol = vec3(0.08, 0.18, 0.30);
   float outA = shadowAlpha;
 
   if (glassAlpha >= 0.004) {
     float swell = smoothstep(0.0, 1.0, rev);
     float dC = smoothSdf(duv);
-    float hC = domeHeight(dC) * swell;
+    float p2 = overlapAt(duv);
+    float hC = combinedHeight(duv, swell);
 
-    // Gradiente della cupola in spazio texel -> normale 3D locale
+    // Gradiente della cupola combinata (base + rilievo del secondo passaggio) -> normale 3D locale
     vec2 gStep = TEXEL * 2.5;
-    float hR = domeHeight(smoothSdf(duv + vec2(gStep.x, 0.0))) * swell;
-    float hL = domeHeight(smoothSdf(duv - vec2(gStep.x, 0.0))) * swell;
-    float hD = domeHeight(smoothSdf(duv + vec2(0.0, gStep.y))) * swell;
-    float hU = domeHeight(smoothSdf(duv - vec2(0.0, gStep.y))) * swell;
+    float hR = combinedHeight(duv + vec2(gStep.x, 0.0), swell);
+    float hL = combinedHeight(duv - vec2(gStep.x, 0.0), swell);
+    float hD = combinedHeight(duv + vec2(0.0, gStep.y), swell);
+    float hU = combinedHeight(duv - vec2(0.0, gStep.y), swell);
 
     float slope = 3.2;
     vec3 N_local = normalize(vec3(-(hR - hL) * slope, (hD - hU) * slope, 1.0));
     vec3 N_world = normalize(R * N_local);
 
-    // 3. Rifrazione reale (legge di Snell) dello sfondo chiaro della card con dispersione cromatica sottile
+    // 3. Rifrazione reale (legge di Snell) dello sfondo chiaro della card (piu' profonda sui tratti ripassati)
     vec2 cardUv = vec2(0.1168 + duv.x * 0.771, 0.25 + duv.y * 0.416652);
     float thick = (0.018 + 0.048 * hC) * swell;
 
@@ -168,10 +194,11 @@ void main() {
     float bgB = texture2D(uBg, clamp(cardUv + offB * aspectFix, 0.002, 0.998)).b;
     vec3 refracted = vec3(bgR, bgG, bgB);
 
-    // Su sfondo bianco, il vetro ottico mostra un leggero spessore/assorbimento cristallino sui bordi curvi
+    // Spessore ottico: i tratti ripassati (p2 > 0) hanno un lieve assorbimento cristallino piu' profondo
     float NdotV = max(dot(N_world, V_world), 0.0);
-    float edgeDark = pow(1.0 - NdotV, 1.8) * 0.34;
-    vec3 glassTint = mix(vec3(0.84, 0.91, 0.97), vec3(0.96, 0.99, 1.0), hC);
+    float edgeDark = pow(1.0 - NdotV, 1.8) * (0.34 + 0.14 * p2);
+    vec3 glassTint = mix(vec3(0.84, 0.91, 0.97), vec3(0.96, 0.99, 1.0), clamp(hC * 0.85, 0.0, 1.0));
+    glassTint *= mix(vec3(1.0), vec3(0.92, 0.96, 1.0), p2);
     vec3 transmitted = refracted * glassTint * (1.0 - edgeDark);
 
     // 4. Riflessione Fresnel reale in studio luminoso (luce morbida dall'alto)
@@ -180,17 +207,17 @@ void main() {
     float topLight = smoothstep(0.05, 0.82, Refl.y) * exp(-Refl.x * Refl.x * 1.2);
     vec3 envColor = mix(vec3(0.76, 0.85, 0.93), vec3(1.0, 1.0, 1.0), topLight);
 
-    // 5. Riflesso speculare diretto dalla luce reale dall'alto
+    // 5. Riflesso speculare diretto dalla luce reale dall'alto (leggermente piu' vivo sul rilievo p2)
     vec3 H = normalize(L_world + V_world);
     float NdotH = max(dot(N_world, H), 0.0);
     float NdotL = max(dot(N_world, L_world), 0.0);
-    float specSharp = pow(NdotH, 130.0) * 1.25 * smoothstep(0.0, 0.12, NdotL);
+    float specSharp = pow(NdotH, 130.0) * (1.25 + 0.25 * p2) * smoothstep(0.0, 0.12, NdotL);
     float specBroad = pow(NdotH, 22.0) * 0.28 * NdotL;
     vec3 specColor = vec3(1.0) * (specSharp + specBroad);
 
     // 6. Caustica luminosa sul bordo inferiore
     float lowerCurve = clamp(-N_local.y, 0.0, 1.0);
-    float edgeBand = (1.0 - hC) * smoothstep(0.03, 0.36, dC);
+    float edgeBand = (1.0 - clamp(hC, 0.0, 1.0)) * smoothstep(0.03, 0.36, dC);
     float caustic = pow(lowerCurve, 1.5) * edgeBand * max(L_local.y, 0.0) * 0.38;
 
     vec3 glassCol = mix(transmitted + vec3(caustic), envColor, clamp(fresnel * 0.72, 0.0, 0.85)) + specColor;
@@ -234,7 +261,7 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean }>(fu
       window.clearTimeout(st.delayId);
       st.progress = 0;
       st.draw();
-      const DURATION = 3400;
+      const DURATION = 4000;
       const start = () => {
         const t0 = performance.now();
         const step = (now: number) => {
@@ -289,11 +316,13 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean }>(fu
 
     const uData = gl.getUniformLocation(prog, "uData");
     const uBg = gl.getUniformLocation(prog, "uBg");
+    const uPass2 = gl.getUniformLocation(prog, "uPass2");
     const uRot = gl.getUniformLocation(prog, "uRot");
     const uProgress = gl.getUniformLocation(prog, "uProgress");
 
     gl.uniform1i(uData, 0);
     gl.uniform1i(uBg, 1);
+    gl.uniform1i(uPass2, 2);
 
     const st = stateRef.current;
     const resize = () => {
@@ -309,7 +338,7 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean }>(fu
     };
 
     const draw = () => {
-      if (dead || st.ready < 2) return;
+      if (dead || st.ready < 3) return;
       resize();
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -334,7 +363,7 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean }>(fu
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
         st.ready++;
-        if (st.ready >= 2) draw();
+        if (st.ready >= 3) draw();
       };
       img.src = url;
       return tex;
@@ -342,6 +371,7 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean }>(fu
 
     const t0 = loadTex("/card/ciao-data.png", 0);
     const t1 = loadTex("/card/back.webp", 1);
+    const t2 = loadTex("/card/ciao-pass2.png", 2);
 
     const ro = new ResizeObserver(() => draw());
     ro.observe(canvas);
@@ -353,6 +383,7 @@ export const CiaoGlass = forwardRef<CiaoGlassHandle, { immediate?: boolean }>(fu
       ro.disconnect();
       gl.deleteTexture(t0);
       gl.deleteTexture(t1);
+      gl.deleteTexture(t2);
       gl.deleteBuffer(buf);
       gl.deleteProgram(prog);
     };

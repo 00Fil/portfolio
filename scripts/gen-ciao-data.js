@@ -134,52 +134,63 @@ function segLen(pts) {
   return s;
 }
 
-// Segmenti in ordine corsivo a PENNA SINGOLA (un solo tratto attivo alla volta, velocità lineare costante)
-const sC   = P0;
-const sI   = P1.slice(0, 26);
-const sAT  = P1.slice(25, 53);     // a: sale a sinistra e gira sopra
-const sAS  = P1.slice(52, 69);     // a: scende sullo stelo destro
-const sAB  = [...P2].reverse();    // a: chiude il fondo da destra a sinistra in continuità
-const sAO  = P1.slice(68, 87);     // collegamento a -> o
-const sOT  = P1.slice(86, 117);    // o: sale a sinistra e gira sopra
-const sOB  = P3;                   // o: scende a destra e chiude il fondo in continuità
-const sOTl = P1.slice(116);        // o: codina di uscita
-const sBng = P4;                   // ! asta
+// Segmenti base del "Ciao!"
+const iUpStartIdx = P0.findIndex(([x, y]) => x >= 388 && y <= 332); // punto in cui la C entra nello stelo della 'i'
+const sC    = P0;                              // C -> sale fino all'apice della 'i' (413, 208)
+const sIDn  = P0.slice(iUpStartIdx).reverse(); // ritorno completo dall'apice della 'i' fino in basso (390, 328)
+const sICon = P1.slice(0, 26);                 // curva bassa della 'i' e collegamento fino a 'a'
+const sAT   = P1.slice(25, 53);                // a: sale a sinistra e gira sopra -> (720, 222)
+const sATBk = [...sAT].reverse();              // a: ritorno sopra in senso antiorario -> (562, 337)
+const sAB   = P2;                              // a: gira sotto da sinistra a destra -> (706, 367)
+const sASUp = P1.slice(52, 69).reverse();      // a: risale lo stelo destro -> (720, 222)
+const sASDn = P1.slice(52, 69);                // a: riscende lo stelo destro -> (708, 366)
+const sAO   = P1.slice(68, 87);                // collegamento a -> o (867, 341)
+const sOT   = P1.slice(86, 117);               // o: sale a sinistra e gira sopra -> (1030, 231)
+const sOB   = P3;                              // o: scende a destra e gira sotto -> (867, 341)
+const sOT2  = P1.slice(86, 117);               // o: risale a sinistra e ripassa sopra -> (1030, 231) per uscire nella codina
+const sOTl  = P1.slice(116);                   // o: codina di uscita -> (1122, 204)
+const sBng  = P4;                              // ! asta
 
-// Calcolo cumulativo strettamente sequenziale (una sola penna, velocità lineare costante)
-// La stellina sopra la 'i' compare esattamente quando la penna arriva all'apice della 'i'
+// Percorso umano completo a penna singola (velocita' lineare costante):
+// pass = 1 (primo passaggio che scopre il vetro), pass = 2 (ripasso che da' profondita'/spessore)
 const rawBody = [];
 let cur = 0;
-function pushSeg(pts, gap = 0) {
+function pushSeg(pts, pass = 1, gap = 0) {
   cur += gap;
   const len = segLen(pts);
-  rawBody.push({ pts, s0: cur, s1: cur + len });
+  rawBody.push({ pts, pass, s0: cur, s1: cur + len });
   cur += len;
 }
-pushSeg(sC);                    // C -> sale fino all'apice della 'i'
+
+pushSeg(sC, 1);                 // C -> sale fino all'apice della 'i'
 const sparkStart = cur;         // stellina messa esattamente all'apice della 'i'
 const sparkEnd = sparkStart + 115;
 cur = sparkEnd + 25;
-pushSeg(sI);                    // scende dalla 'i' e collega alla 'a'
-pushSeg(sAT);                   // a: sale a sinistra e gira sopra
-pushSeg(sAS);                   // a: scende sullo stelo destro
-pushSeg(sAB);                   // a: chiude il fondo in continuità
-pushSeg(sAO, 18);               // collegamento a -> o
-pushSeg(sOT);                   // o: sale a sinistra e gira sopra
-pushSeg(sOB);                   // o: scende a destra e chiude il fondo in continuità
-pushSeg(sOTl, 18);              // o: codina di uscita
+pushSeg(sIDn, 2);               // scende lungo tutta l'asta della 'i' (ripasso con profondita')
+pushSeg(sICon, 1);              // curva bassa della 'i' fino a 'a'
+pushSeg(sAT, 1);                // a: sale a sinistra e gira sopra
+pushSeg(sATBk, 2);              // a: torna indietro antiorario sopra l'arco (ripasso con profondita')
+pushSeg(sAB, 1);                // a: chiude il fondo da sinistra a destra
+pushSeg(sASUp, 1);              // a: risale lo stelo destro
+pushSeg(sASDn, 2);              // a: riscende lo stelo destro (ripasso con profondita')
+pushSeg(sAO, 1);                // collegamento a -> o
+pushSeg(sOT, 1);                // o: sale a sinistra e gira sopra
+pushSeg(sOB, 1);                // o: scende a destra e chiude il fondo
+pushSeg(sOT2, 2);               // o: ripassa sull'arco superiore per uscire (effetto profondita' sulla O)
+pushSeg(sOTl, 1);               // o: codina di uscita
 
-const bangStart = cur + 65;     // stacco penna prima del '!'
+const bangStart = cur + 75;     // stacco penna prima del '!'
 const bangEnd = bangStart + segLen(sBng);
 const dotStart = bangEnd + 45;
 const dotEnd = dotStart + 95;
 const TOTAL = dotEnd;
 
-const bodyStrokes = rawBody.map(st => ({ pts: st.pts, t0: st.s0 / TOTAL, t1: st.s1 / TOTAL }));
+const pass1Strokes = rawBody.filter(s => s.pass === 1).map(st => ({ pts: st.pts, t0: st.s0 / TOTAL, t1: st.s1 / TOTAL }));
+const pass2Strokes = rawBody.filter(s => s.pass === 2).map(st => ({ pts: st.pts, t0: st.s0 / TOTAL, t1: st.s1 / TOTAL }));
 const bangT0 = bangStart / TOTAL, bangT1 = bangEnd / TOTAL;
 const dotT0 = dotStart / TOTAL, dotT1 = dotEnd / TOTAL;
 const sparkT0 = sparkStart / TOTAL, sparkT1 = sparkEnd / TOTAL;
-console.log("Total ballpoint path length:", Math.round(TOTAL), "px | i-apex spark:", sparkT0.toFixed(3), "..", sparkT1.toFixed(3));
+console.log("Total human cursive path:", Math.round(TOTAL), "px | i-apex spark:", sparkT0.toFixed(3), "..", sparkT1.toFixed(3));
 
 // Densifica i campioni ogni ~2px lungo il percorso per un inviluppo circolare perfetto
 function densify(strokes) {
@@ -208,59 +219,77 @@ function densify(strokes) {
   return samples;
 }
 
-const bodySamples = densify(bodyStrokes);
+const bodyP1 = densify(pass1Strokes);
+const bodyP2 = densify(pass2Strokes);
 const bangSamples = densify([{ pts: sBng, t0: bangT0, t1: bangT1 }]);
 
 // Punta a sfera esatta: il primo istante t in cui un cerchio di raggio PEN_R lungo il tratto tocca (x, y).
-// Se il pixel e' leggermente oltre PEN_R (es. angolo esterno), ripiega sul punto piu' vicino cosi' non ci sono mai buchi.
 const PEN_R = 40;
 const PEN_R2 = PEN_R * PEN_R;
-function ballpointTime(x, y, samples) {
+const PEN_R2_P2 = 34 * 34; // leggermente piu' stretto sul ripasso per un rilievo centrale elegante
+
+function ballpointTime(x, y, samples, fallback = true) {
   let firstT = Infinity;
   let bestD = Infinity, bestT = 0;
+  const r2 = fallback ? PEN_R2 : PEN_R2_P2;
   for (let i = 0; i < samples.length; i++) {
     const dx = x - samples[i].x, dy = y - samples[i].y;
     const d2 = dx * dx + dy * dy;
-    if (d2 <= PEN_R2 && samples[i].t < firstT) {
+    if (d2 <= r2 && samples[i].t < firstT) {
       firstT = samples[i].t;
     }
-    if (d2 < bestD) { bestD = d2; bestT = samples[i].t; }
+    if (fallback && d2 < bestD) { bestD = d2; bestT = samples[i].t; }
   }
-  return firstT < Infinity ? firstT : bestT;
+  if (firstT < Infinity) return firstT;
+  return fallback ? bestT : 1.0;
 }
 
-// 5. Pack RGB buffer: R = normalized interior distance, G = alpha, B = reveal time
-const NORM_R = 44.0; // max half-width ~42px
+// 5. Pack buffers:
+//    ciao-data.png  (RGB): R = sdf, G = alpha, B = t1 (primo passaggio)
+//    ciao-pass2.png (L):   t2 (secondo passaggio / profondita', 255 = nessun ripasso)
+const NORM_R = 44.0;
 const rgb = Buffer.alloc(W * H * 3);
+const p2buf = Buffer.alloc(W * H, 255);
+
 for (let y = 0; y < H; y++) {
   for (let x = 0; x < W; x++) {
     const i = y * W + x;
     const a = alpha[i];
     const rVal = Math.min(255, Math.round((dist[i] / NORM_R) * 255));
-    let t = 0;
+    let t1 = 0;
+    let t2 = 1.0;
     const c = comp[i];
     if (c === cBody) {
-      t = ballpointTime(x, y, bodySamples);
+      t1 = ballpointTime(x, y, bodyP1, true);
+      t2 = ballpointTime(x, y, bodyP2, false);
     } else if (c === cBang) {
-      t = ballpointTime(x, y, bangSamples);
+      t1 = ballpointTime(x, y, bangSamples, true);
     } else if (c === cDot) {
       const dr = Math.min(1, Math.hypot(x - 1201, y - 384) / 48);
-      t = dotT0 + dr * (dotT1 - dotT0);
+      t1 = dotT0 + dr * (dotT1 - dotT0);
     } else if (c === cSpark) {
       const dr = Math.min(1, Math.hypot(x - 432, y - 97) / 72);
-      t = sparkT0 + dr * (sparkT1 - sparkT0);
+      t1 = sparkT0 + dr * (sparkT1 - sparkT0);
     }
     rgb[i * 3] = rVal;
     rgb[i * 3 + 1] = a;
-    rgb[i * 3 + 2] = Math.min(255, Math.max(0, Math.round(t * 255)));
+    rgb[i * 3 + 2] = Math.min(255, Math.max(0, Math.round(t1 * 255)));
+    p2buf[i] = t2 < 0.995 ? Math.min(254, Math.max(0, Math.round(t2 * 255))) : 255;
   }
 }
 
-// 6. Save RGB buffer as PNG via Python PIL
+// 6. Save PNGs via Python PIL
 const outPath = path.join(root, "public/card/ciao-data.png");
 execFileSync("python3", [
   "-c",
   `import sys; from PIL import Image; Image.frombytes('RGB', (${W}, ${H}), sys.stdin.buffer.read()).save('${outPath}', optimize=True)`,
 ], { input: rgb });
 
+const outP2 = path.join(root, "public/card/ciao-pass2.png");
+execFileSync("python3", [
+  "-c",
+  `import sys; from PIL import Image; Image.frombytes('L', (${W}, ${H}), sys.stdin.buffer.read()).save('${outP2}', optimize=True)`,
+], { input: p2buf });
+
 console.log("Saved", outPath, fs.statSync(outPath).size, "bytes");
+console.log("Saved", outP2, fs.statSync(outP2).size, "bytes");
