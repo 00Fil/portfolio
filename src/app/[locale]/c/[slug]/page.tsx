@@ -34,7 +34,7 @@ export default async function CustomCard({ params }: { params: Promise<{ locale:
           slug={c.slug}
           name={c.name}
           logo={c.logo ? `/api/logo/${c.id}?v=${c.logo}` : undefined}
-          color={c.color}
+          colors={c.colors?.length ? c.colors : c.color ? [c.color] : undefined}
           t={{ code: t("code"), open: t("open"), flip: t("flip"), site: t("site"), copied: t("copied"), errors: { wrong: t("wrong"), limit: t("limit"), off: t("off") } }}
         />
       </main>

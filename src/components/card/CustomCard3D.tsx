@@ -12,7 +12,7 @@ export type CustomCard3DHandle = {
 type Props = {
   name?: string;
   logo?: string;
-  color?: string;
+  colors?: string[];
   creds: { user: string; pass: string; url: string } | null;
   copiedText: string;
   tip: "user" | "pass" | null;
@@ -38,6 +38,19 @@ function parseHexRgb(hex?: string): [number, number, number] {
   const n = Number.parseInt(full, 16);
   if (Number.isNaN(n)) return [58 / 255, 88 / 255, 100 / 255];
   return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+}
+
+function packPalette(colors?: string[]): { data: Float32Array; count: number; primary: string } {
+  const valid = (colors ?? []).filter((c) => /^#[0-9a-f]{6}$/i.test(c)).slice(0, 4);
+  const list = valid.length ? valid : [DEFAULT_HEX];
+  const data = new Float32Array(12);
+  for (let i = 0; i < 4; i++) {
+    const [r, g, b] = parseHexRgb(list[Math.min(i, list.length - 1)]);
+    data[i * 3] = r;
+    data[i * 3 + 1] = g;
+    data[i * 3 + 2] = b;
+  }
+  return { data, count: list.length, primary: list[0] };
 }
 
 const CAM_POS: [number, number, number] = [0, 1.25, 16.2];
@@ -516,7 +529,8 @@ in vec2 vUv;
 in float vMat;
 
 uniform vec3 uCamPos;
-uniform vec3 uCardColor;
+uniform vec3 uCardColors[4];
+uniform float uColorCount;
 uniform mat3 uRot3;
 uniform float uProgress;
 uniform float uDark;
@@ -528,6 +542,15 @@ uniform sampler2D uPass2;
 out vec4 outColor;
 
 const vec2 DATA_TEXEL = vec2(1.0 / 1320.0, 1.0 / 450.0);
+
+vec3 sampleCardBg(vec2 uv) {
+  if (uColorCount <= 1.5) return uCardColors[0];
+  float t = clamp(uv.x * 0.72 + uv.y * 0.48 - 0.10, 0.0, 1.0);
+  float s = t * (uColorCount - 1.0);
+  if (s < 1.0) return mix(uCardColors[0], uCardColors[1], s);
+  if (s < 2.0) return mix(uCardColors[1], uCardColors[2], s - 1.0);
+  return mix(uCardColors[2], uCardColors[3], clamp(s - 2.0, 0.0, 1.0));
+}
 
 vec4 sampleData(vec2 duv) {
   if (duv.x < 0.0 || duv.x > 1.0 || duv.y < 0.0 || duv.y > 1.0) return vec4(0.0, 0.0, 1.0, 0.0);
@@ -556,7 +579,7 @@ void main() {
   float spec2 = pow(max(dot(N, H2), 0.0), 20.0) * 0.08;
   float fresnel = pow(1.0 - max(dot(N, V), 0.0), 3.6);
 
-  vec3 base = uCardColor;
+  vec3 base = sampleCardBg(vUv);
   if (vMat > 1.5) {
     // Bordo 3D solido arrotondato: leggermente piu' profondo con riflesso satinato netto
     base *= 0.89;
@@ -677,7 +700,8 @@ uniform sampler2D uData;
 uniform sampler2D uPass2;
 uniform mat3 uRot3;
 uniform vec3 uCamPos;
-uniform vec3 uCardColor;
+uniform vec3 uCardColors[4];
+uniform float uColorCount;
 uniform float uProgress;
 uniform float uDark;
 
@@ -687,6 +711,15 @@ const vec2 TEXEL = vec2(1.0 / 1320.0, 1.0 / 450.0);
 const float U_IOR = 1.50;
 const float U_DISPERSION = 0.26;
 const float U_REFLECTION = 1.04;
+
+vec3 sampleCardBg(vec2 uv) {
+  if (uColorCount <= 1.5) return uCardColors[0];
+  float t = clamp(uv.x * 0.72 + uv.y * 0.48 - 0.10, 0.0, 1.0);
+  float s = t * (uColorCount - 1.0);
+  if (s < 1.0) return mix(uCardColors[0], uCardColors[1], s);
+  if (s < 2.0) return mix(uCardColors[1], uCardColors[2], s - 1.0);
+  return mix(uCardColors[2], uCardColors[3], clamp(s - 2.0, 0.0, 1.0));
+}
 
 vec4 sampleData(vec2 duv) {
   if (duv.x < 0.0 || duv.x > 1.0 || duv.y < 0.0 || duv.y > 1.0) return vec4(0.0, 0.0, 1.0, 0.0);
@@ -739,8 +772,10 @@ vec4 fgLight(vec3 d, float weight) {
   return vec4(min(c, vec3(a)), a);
 }
 
-// Superficie pulita della card #3A5864 + caustica interna vista attraverso il vetro
+// Superficie della card (mono o gradiente) + caustica interna vista attraverso il vetro
 vec3 cardSurfaceAt(vec2 duv, vec3 cardN, vec3 V, vec3 L1_local) {
+  vec2 cardUv = vec2(0.1168 + duv.x * 0.771, 0.25 + duv.y * 0.416652);
+  vec3 cardCol = sampleCardBg(cardUv);
   vec3 L1 = normalize(vec3(-0.22, 0.82, 0.53));
   vec3 L2 = normalize(vec3(0.55, 0.35, 0.75));
   float diff1 = max(dot(cardN, L1), 0.0);
@@ -748,7 +783,7 @@ vec3 cardSurfaceAt(vec2 duv, vec3 cardN, vec3 V, vec3 L1_local) {
   vec3 H1 = normalize(L1 + V);
   float spec = pow(max(dot(cardN, H1), 0.0), 46.0) * 0.22;
   float grad = 0.94 + 0.14 * clamp(1.0 - duv.y, 0.0, 1.0);
-  vec3 col = uCardColor * grad * (0.68 + 0.36 * diff1 + 0.15 * diff2) + vec3(0.88, 0.94, 0.97) * spec;
+  vec3 col = cardCol * grad * (0.68 + 0.36 * diff1 + 0.15 * diff2) + vec3(0.88, 0.94, 0.97) * spec;
 
   vec4 sd = sampleData(duv);
   float sRev = revealTime(sd.b);
@@ -863,7 +898,8 @@ in float vPillId;
 
 uniform mat3 uRot3;
 uniform vec3 uCamPos;
-uniform vec3 uCardColor;
+uniform vec3 uCardColors[4];
+uniform float uColorCount;
 uniform sampler2D uBackTex;
 uniform float uCopiedPill; // -1.0 = nessuna, 0.0 = user, 1.0 = pass
 uniform float uDark;
@@ -874,6 +910,15 @@ const float PILL_ASPECT = (0.7477 * 8.56) / (0.178 * 5.4);
 const float U_IOR = 1.50;
 const float U_DISPERSION = 0.24;
 const float U_REFLECTION = 1.04;
+
+vec3 sampleCardBg(vec2 uv) {
+  if (uColorCount <= 1.5) return uCardColors[0];
+  float t = clamp(uv.x * 0.72 + uv.y * 0.48 - 0.10, 0.0, 1.0);
+  float s = t * (uColorCount - 1.0);
+  if (s < 1.0) return mix(uCardColors[0], uCardColors[1], s);
+  if (s < 2.0) return mix(uCardColors[1], uCardColors[2], s - 1.0);
+  return mix(uCardColors[2], uCardColors[3], clamp(s - 2.0, 0.0, 1.0));
+}
 
 float pillSdf(vec2 uv) {
   vec2 q = (uv - 0.5) * vec2(PILL_ASPECT, 1.0);
@@ -904,13 +949,14 @@ vec4 fgLight(vec3 d, float weight) {
 }
 
 vec3 backSurfaceAt(vec2 buv, vec3 backN, vec3 V) {
+  vec3 cardCol = sampleCardBg(buv);
   vec3 L1 = normalize(vec3(-0.22, 0.82, 0.53));
   vec3 L2 = normalize(vec3(0.55, 0.35, 0.75));
   float diff1 = max(dot(backN, L1), 0.0);
   float diff2 = max(dot(backN, L2), 0.0);
   vec3 H1 = normalize(L1 + V);
   float spec = pow(max(dot(backN, H1), 0.0), 46.0) * 0.20;
-  vec3 col = uCardColor * (0.72 + 0.34 * diff1 + 0.14 * diff2) + vec3(0.88, 0.94, 0.97) * spec;
+  vec3 col = cardCol * (0.72 + 0.34 * diff1 + 0.14 * diff2) + vec3(0.88, 0.94, 0.97) * spec;
 
   vec4 txt = texture(uBackTex, clamp(buv, 0.002, 0.998));
   col = mix(col, txt.rgb, txt.a);
@@ -1014,13 +1060,13 @@ function drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w:
 }
 
 export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function CustomCard3D(
-  { name, logo, color, creds, copiedText, tip, onCopy, ariaLabel },
+  { name, logo, colors, creds, copiedText, tip, onCopy, ariaLabel },
   ref,
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const cardHex = color && /^#[0-9a-f]{6}$/i.test(color) ? color : DEFAULT_HEX;
-  const propsRef = useRef({ name, logo, cardRgb: parseHexRgb(cardHex), creds, copiedText, tip, onCopy });
-  propsRef.current = { name, logo, cardRgb: parseHexRgb(cardHex), creds, copiedText, tip, onCopy };
+  const pal = packPalette(colors);
+  const propsRef = useRef({ name, logo, palette: pal, creds, copiedText, tip, onCopy });
+  propsRef.current = { name, logo, palette: pal, creds, copiedText, tip, onCopy };
 
   const stRef = useRef({
     // Stato interattivo
@@ -1382,7 +1428,8 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       uModel: gl.getUniformLocation(cardProg, "uModel"),
       uRot3: gl.getUniformLocation(cardProg, "uRot3"),
       uCamPos: gl.getUniformLocation(cardProg, "uCamPos"),
-      uCardColor: gl.getUniformLocation(cardProg, "uCardColor"),
+      uCardColors: gl.getUniformLocation(cardProg, "uCardColors"),
+      uColorCount: gl.getUniformLocation(cardProg, "uColorCount"),
       uProgress: gl.getUniformLocation(cardProg, "uProgress"),
       uDark: gl.getUniformLocation(cardProg, "uDark"),
       uFrontTex: gl.getUniformLocation(cardProg, "uFrontTex"),
@@ -1395,7 +1442,8 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       uModel: gl.getUniformLocation(ciaoProg, "uModel"),
       uRot3: gl.getUniformLocation(ciaoProg, "uRot3"),
       uCamPos: gl.getUniformLocation(ciaoProg, "uCamPos"),
-      uCardColor: gl.getUniformLocation(ciaoProg, "uCardColor"),
+      uCardColors: gl.getUniformLocation(ciaoProg, "uCardColors"),
+      uColorCount: gl.getUniformLocation(ciaoProg, "uColorCount"),
       uProgress: gl.getUniformLocation(ciaoProg, "uProgress"),
       uDark: gl.getUniformLocation(ciaoProg, "uDark"),
       uData: gl.getUniformLocation(ciaoProg, "uData"),
@@ -1406,7 +1454,8 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       uModel: gl.getUniformLocation(pillProg, "uModel"),
       uRot3: gl.getUniformLocation(pillProg, "uRot3"),
       uCamPos: gl.getUniformLocation(pillProg, "uCamPos"),
-      uCardColor: gl.getUniformLocation(pillProg, "uCardColor"),
+      uCardColors: gl.getUniformLocation(pillProg, "uCardColors"),
+      uColorCount: gl.getUniformLocation(pillProg, "uColorCount"),
       uBackTex: gl.getUniformLocation(pillProg, "uBackTex"),
       uCopiedPill: gl.getUniformLocation(pillProg, "uCopiedPill"),
       uDark: gl.getUniformLocation(pillProg, "uDark"),
@@ -1534,7 +1583,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       gl.uniform1f(fLoc.uDark, darkVal);
       gl.drawElements(gl.TRIANGLES, floorGeo.indices.length, gl.UNSIGNED_SHORT, 0);
 
-      const cardRgb = propsRef.current.cardRgb;
+      const palCur = propsRef.current.palette;
 
       // Passo 2: Card 3D solida con bordi arrotondati 100% pieni
       gl.useProgram(cardProg);
@@ -1543,7 +1592,8 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       gl.uniformMatrix4fv(cLoc.uModel, false, model);
       gl.uniformMatrix3fv(cLoc.uRot3, false, rot3);
       gl.uniform3fv(cLoc.uCamPos, CAM_POS);
-      gl.uniform3fv(cLoc.uCardColor, cardRgb);
+      gl.uniform3fv(cLoc.uCardColors, palCur.data);
+      gl.uniform1f(cLoc.uColorCount, palCur.count);
       gl.uniform1f(cLoc.uProgress, a.ciaoProgress);
       gl.uniform1f(cLoc.uDark, darkVal);
       gl.uniform1i(cLoc.uData, 0);
@@ -1562,7 +1612,8 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
         gl.uniformMatrix4fv(gLoc.uModel, false, model);
         gl.uniformMatrix3fv(gLoc.uRot3, false, rot3);
         gl.uniform3fv(gLoc.uCamPos, CAM_POS);
-        gl.uniform3fv(gLoc.uCardColor, cardRgb);
+        gl.uniform3fv(gLoc.uCardColors, palCur.data);
+        gl.uniform1f(gLoc.uColorCount, palCur.count);
         gl.uniform1f(gLoc.uProgress, a.ciaoProgress);
         gl.uniform1f(gLoc.uDark, darkVal);
         gl.uniform1i(gLoc.uData, 0);
@@ -1579,7 +1630,8 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       gl.uniformMatrix4fv(pLoc.uModel, false, model);
       gl.uniformMatrix3fv(pLoc.uRot3, false, rot3);
       gl.uniform3fv(pLoc.uCamPos, CAM_POS);
-      gl.uniform3fv(pLoc.uCardColor, cardRgb);
+      gl.uniform3fv(pLoc.uCardColors, palCur.data);
+      gl.uniform1f(pLoc.uColorCount, palCur.count);
       gl.uniform1i(pLoc.uBackTex, 3);
       const copiedId = propsRef.current.tip === "user" ? 0 : propsRef.current.tip === "pass" ? 1 : -1;
       gl.uniform1f(pLoc.uCopiedPill, copiedId);
@@ -1712,7 +1764,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
         zIndex: 1,
         background: "var(--bg-canvas)",
       }}
-      data-card-color={cardHex}
+      data-card-color={pal.primary}
     />
   );
 });
