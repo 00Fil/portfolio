@@ -146,7 +146,8 @@ const sOB  = P3;                   // o: scende a destra e chiude il fondo in co
 const sOTl = P1.slice(116);        // o: codina di uscita
 const sBng = P4;                   // ! asta
 
-// Calcolo cumulativo strettamente sequenziale (una sola penna, nessun tratto in parallelo)
+// Calcolo cumulativo strettamente sequenziale (una sola penna, velocità lineare costante)
+// La stellina sopra la 'i' compare esattamente quando la penna arriva all'apice della 'i'
 const rawBody = [];
 let cur = 0;
 function pushSeg(pts, gap = 0) {
@@ -155,31 +156,32 @@ function pushSeg(pts, gap = 0) {
   rawBody.push({ pts, s0: cur, s1: cur + len });
   cur += len;
 }
-pushSeg(sC);
-pushSeg(sI);
-pushSeg(sAT);
-pushSeg(sAS);
-pushSeg(sAB);
-pushSeg(sAO, 18); // breve ritorno lungo il tratto già scritto fino all'uscita di 'a'
-pushSeg(sOT);
-pushSeg(sOB);
-pushSeg(sOTl, 18); // breve ritorno fino alla codina di 'o'
+pushSeg(sC);                    // C -> sale fino all'apice della 'i'
+const sparkStart = cur;         // stellina messa esattamente all'apice della 'i'
+const sparkEnd = sparkStart + 115;
+cur = sparkEnd + 25;
+pushSeg(sI);                    // scende dalla 'i' e collega alla 'a'
+pushSeg(sAT);                   // a: sale a sinistra e gira sopra
+pushSeg(sAS);                   // a: scende sullo stelo destro
+pushSeg(sAB);                   // a: chiude il fondo in continuità
+pushSeg(sAO, 18);               // collegamento a -> o
+pushSeg(sOT);                   // o: sale a sinistra e gira sopra
+pushSeg(sOB);                   // o: scende a destra e chiude il fondo in continuità
+pushSeg(sOTl, 18);              // o: codina di uscita
 
-const bangStart = cur + 65; // stacco penna prima del '!'
+const bangStart = cur + 65;     // stacco penna prima del '!'
 const bangEnd = bangStart + segLen(sBng);
 const dotStart = bangEnd + 45;
 const dotEnd = dotStart + 95;
-const sparkStart = dotEnd + 35;
-const sparkEnd = sparkStart + 115;
-const TOTAL = sparkEnd;
+const TOTAL = dotEnd;
 
 const bodyStrokes = rawBody.map(st => ({ pts: st.pts, t0: st.s0 / TOTAL, t1: st.s1 / TOTAL }));
 const bangT0 = bangStart / TOTAL, bangT1 = bangEnd / TOTAL;
 const dotT0 = dotStart / TOTAL, dotT1 = dotEnd / TOTAL;
 const sparkT0 = sparkStart / TOTAL, sparkT1 = sparkEnd / TOTAL;
-console.log("Total single-pen linear path length:", Math.round(TOTAL), "px | C ends at:", (segLen(sC) / TOTAL).toFixed(3));
+console.log("Total ballpoint path length:", Math.round(TOTAL), "px | i-apex spark:", sparkT0.toFixed(3), "..", sparkT1.toFixed(3));
 
-// Precompute cumulative arc-length times for each sample point
+// Densifica i campioni ogni ~2px lungo il percorso per un inviluppo circolare perfetto
 function densify(strokes) {
   const samples = [];
   for (const st of strokes) {
@@ -187,13 +189,19 @@ function densify(strokes) {
     const total = segLen(pts) || 1;
     let acc = 0;
     for (let i = 0; i < pts.length; i++) {
-      if (i > 0) acc += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
-      const t = st.t0 + (st.t1 - st.t0) * (acc / total);
-      samples.push({ x: pts[i][0], y: pts[i][1], t });
-      if (i < pts.length - 1) {
-        const d = Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]);
-        const tm = st.t0 + (st.t1 - st.t0) * ((acc + d * 0.5) / total);
-        samples.push({ x: (pts[i][0] + pts[i + 1][0]) * 0.5, y: (pts[i][1] + pts[i + 1][1]) * 0.5, t: tm });
+      if (i > 0) {
+        const x0 = pts[i - 1][0], y0 = pts[i - 1][1];
+        const x1 = pts[i][0], y1 = pts[i][1];
+        const d = Math.hypot(x1 - x0, y1 - y0);
+        const steps = Math.max(1, Math.ceil(d / 2.0));
+        for (let k = 1; k <= steps; k++) {
+          const f = k / steps;
+          const t = st.t0 + (st.t1 - st.t0) * ((acc + d * f) / total);
+          samples.push({ x: x0 + (x1 - x0) * f, y: y0 + (y1 - y0) * f, t });
+        }
+        acc += d;
+      } else {
+        samples.push({ x: pts[0][0], y: pts[0][1], t: st.t0 });
       }
     }
   }
@@ -203,14 +211,22 @@ function densify(strokes) {
 const bodySamples = densify(bodyStrokes);
 const bangSamples = densify([{ pts: sBng, t0: bangT0, t1: bangT1 }]);
 
-function nearestTime(x, y, samples) {
+// Punta a sfera esatta: il primo istante t in cui un cerchio di raggio PEN_R lungo il tratto tocca (x, y).
+// Se il pixel e' leggermente oltre PEN_R (es. angolo esterno), ripiega sul punto piu' vicino cosi' non ci sono mai buchi.
+const PEN_R = 40;
+const PEN_R2 = PEN_R * PEN_R;
+function ballpointTime(x, y, samples) {
+  let firstT = Infinity;
   let bestD = Infinity, bestT = 0;
   for (let i = 0; i < samples.length; i++) {
     const dx = x - samples[i].x, dy = y - samples[i].y;
     const d2 = dx * dx + dy * dy;
+    if (d2 <= PEN_R2 && samples[i].t < firstT) {
+      firstT = samples[i].t;
+    }
     if (d2 < bestD) { bestD = d2; bestT = samples[i].t; }
   }
-  return bestT;
+  return firstT < Infinity ? firstT : bestT;
 }
 
 // 5. Pack RGB buffer: R = normalized interior distance, G = alpha, B = reveal time
@@ -224,9 +240,9 @@ for (let y = 0; y < H; y++) {
     let t = 0;
     const c = comp[i];
     if (c === cBody) {
-      t = nearestTime(x, y, bodySamples);
+      t = ballpointTime(x, y, bodySamples);
     } else if (c === cBang) {
-      t = nearestTime(x, y, bangSamples);
+      t = ballpointTime(x, y, bangSamples);
     } else if (c === cDot) {
       const dr = Math.min(1, Math.hypot(x - 1201, y - 384) / 48);
       t = dotT0 + dr * (dotT1 - dotT0);

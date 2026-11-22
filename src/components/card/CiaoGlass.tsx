@@ -69,8 +69,8 @@ float domeHeight(float d) {
 }
 
 float revealAt(vec4 dat) {
-  float edge = 0.034;
-  float p = uProgress * (1.0 + edge * 1.35) - edge * 0.2;
+  float edge = 0.012;
+  float p = uProgress * (1.0 + edge * 1.4) - edge * 0.2;
   return smoothstep(dat.b - edge, dat.b + edge * 0.35, p);
 }
 

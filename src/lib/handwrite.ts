@@ -278,7 +278,7 @@ function buildRevealMap(sk: Skel, ox: number, by: number, fs: number, w: number,
   const src = mctx.getImageData(0, 0, mw, mh).data;
 
   // Griglia spaziale popolata incrementalmente: se la penna ripassa vicino a un tratto gia' scritto,
-  // vince sempre il primo passaggio (zero puntini ritardati agli incroci come sulla 'o')
+  // vince sempre il primo passaggio (zero puntini ritardati agli incroci)
   const CELL = 16;
   const gw = Math.ceil(mw / CELL);
   const gh = Math.ceil(mh / CELL);
@@ -290,6 +290,8 @@ function buildRevealMap(sk: Skel, ox: number, by: number, fs: number, w: number,
   const toX = (x: number) => (ox + x) * fs * sc;
   const toY = (y: number) => (by + y) * fs * sc;
   const dupR2 = Math.pow(Math.max(2, 0.035 * fs * sc), 2);
+  const penR = Math.max(4, sk.w * 0.54 * fs * sc);
+  const penR2 = penR * penR;
 
   const pushSample = (x: number, y: number, t: number) => {
     const gx0 = Math.max(0, Math.min(gw - 1, (x / CELL) | 0));
@@ -312,7 +314,19 @@ function buildRevealMap(sk: Skel, ox: number, by: number, fs: number, w: number,
 
   for (const it of sk.items) {
     if (it.d) {
-      dots.push({ x: toX(it.d[0]), y: toY(it.d[1]), r: Math.max(3, it.d[2] * fs * sc * 1.45), t0: it.t[0], t1: it.t[1] });
+      const dx = toX(it.d[0]), dy = toY(it.d[1]);
+      // Posiziona il puntino esattamente quando la penna raggiunge l'apice della 'i' sottostante
+      let apexY = Infinity;
+      let apexT = it.t[0];
+      const maxDx = 0.14 * fs * sc;
+      for (let i = 0; i < sx.length; i++) {
+        if (Math.abs(sx[i] - dx) < maxDx && sy[i] > dy && sy[i] < apexY) {
+          apexY = sy[i];
+          apexT = st[i];
+        }
+      }
+      const dur = Math.max(0.04, it.t[1] - it.t[0]);
+      dots.push({ x: dx, y: dy, r: Math.max(3, it.d[2] * fs * sc * 1.45), t0: apexT, t1: apexT + dur });
       continue;
     }
     const P = it.p!, tt = it.t;
@@ -324,7 +338,7 @@ function buildRevealMap(sk: Skel, ox: number, by: number, fs: number, w: number,
         const dt = t1 - t0;
         if (emDist > 1e-4 && dt / emDist < 0.45) continue;
         const pxDist = Math.hypot(x1 - x0, y1 - y0);
-        const steps = Math.max(1, Math.ceil(pxDist / 2.5));
+        const steps = Math.max(1, Math.ceil(pxDist / 2.0));
         for (let s = 1; s <= steps; s++) {
           const f = s / steps;
           pushSample(x0 + (x1 - x0) * f, y0 + (y1 - y0) * f, t0 + dt * f);
@@ -336,6 +350,7 @@ function buildRevealMap(sk: Skel, ox: number, by: number, fs: number, w: number,
   }
 
   // Raccoglie solo i pixel inchiostrati (+ margine 1px per anti-alias pulito)
+  const searchCells = Math.max(2, Math.ceil(penR / CELL) + 1);
   const idxs: number[] = [];
   const times: number[] = [];
   for (let y = 0; y < mh; y++) {
@@ -349,7 +364,6 @@ function buildRevealMap(sk: Skel, ox: number, by: number, fs: number, w: number,
       }
       if (!has) continue;
 
-      // Controlla prima i puntini separati (es. puntini delle 'i')
       let dotT = -1;
       for (let d = 0; d < dots.length; d++) {
         const dt = dots[d];
@@ -365,26 +379,27 @@ function buildRevealMap(sk: Skel, ox: number, by: number, fs: number, w: number,
         continue;
       }
 
+      // Punta a sfera esatta: primo istante t in cui il cerchio di raggio penR tocca (x, y)
       const gx0 = Math.max(0, Math.min(gw - 1, (x / CELL) | 0));
       const gy0 = Math.max(0, Math.min(gh - 1, (y / CELL) | 0));
+      let firstT = Infinity;
       let bestD = Infinity;
       let bestT = 0;
-      for (let rad = 1; rad <= 4 && bestD === Infinity; rad++) {
-        const yMin = Math.max(0, gy0 - rad), yMax = Math.min(gh - 1, gy0 + rad);
-        const xMin = Math.max(0, gx0 - rad), xMax = Math.min(gw - 1, gx0 + rad);
-        for (let gy = yMin; gy <= yMax; gy++) {
-          for (let gx = xMin; gx <= xMax; gx++) {
-            const bucket = grid[gy * gw + gx];
-            for (let b = 0; b < bucket.length; b++) {
-              const i = bucket[b];
-              const dx = x - sx[i], dy = y - sy[i];
-              const d2 = dx * dx + dy * dy;
-              if (d2 < bestD) { bestD = d2; bestT = st[i]; }
-            }
+      const yMin = Math.max(0, gy0 - searchCells), yMax = Math.min(gh - 1, gy0 + searchCells);
+      const xMin = Math.max(0, gx0 - searchCells), xMax = Math.min(gw - 1, gx0 + searchCells);
+      for (let gy = yMin; gy <= yMax; gy++) {
+        for (let gx = xMin; gx <= xMax; gx++) {
+          const bucket = grid[gy * gw + gx];
+          for (let b = 0; b < bucket.length; b++) {
+            const i = bucket[b];
+            const dx = x - sx[i], dy = y - sy[i];
+            const d2 = dx * dx + dy * dy;
+            if (d2 <= penR2 && st[i] < firstT) firstT = st[i];
+            if (d2 < bestD) { bestD = d2; bestT = st[i]; }
           }
         }
       }
-      if (bestD === Infinity) {
+      if (firstT === Infinity && bestD === Infinity) {
         for (let i = 0; i < sx.length; i++) {
           const dx = x - sx[i], dy = y - sy[i];
           const d2 = dx * dx + dy * dy;
@@ -392,7 +407,7 @@ function buildRevealMap(sk: Skel, ox: number, by: number, fs: number, w: number,
         }
       }
       idxs.push(p);
-      times.push(bestT);
+      times.push(firstT < Infinity ? firstT : bestT);
     }
   }
 
@@ -402,7 +417,7 @@ function buildRevealMap(sk: Skel, ox: number, by: number, fs: number, w: number,
 
 /**
  * Mentre scrive, la parola vera è nascosta e al suo posto c'è un canvas alla risoluzione dello schermo:
- * la maschera Voronoi scopre ogni pixel del glifo senza alcun buco seguendo la penna singola.
+ * la maschera a punta sferica scopre ogni pixel del glifo senza alcun buco seguendo la penna singola.
  * Alla fine il canvas sparisce e torna il testo: identico, nessuno scatto.
  */
 function render(e: HTMLElement, p: number) {
@@ -416,8 +431,8 @@ function render(e: HTMLElement, p: number) {
   if (p <= 0) return;
 
   if (p < 0.999) {
-    const edge = 0.055;
-    const T = p * (sk.total + edge * 1.2) - edge * 0.15;
+    const edge = 0.025;
+    const T = p * (sk.total + edge * 1.4) - edge * 0.2;
     const data = mimg.data;
     for (let i = 0; i < inkIdx.length; i++) {
       const dt = T - inkT[i];
