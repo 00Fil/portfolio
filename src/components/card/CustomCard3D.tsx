@@ -435,29 +435,33 @@ const vec2 TEXEL = vec2(1.0 / 1320.0, 1.0 / 450.0);
 
 float revealTime(float tVal) {
   if (tVal > 0.994 && uProgress < 0.995) return 0.0;
-  float edge = 0.022;
+  float edge = 0.016;
   float p = uProgress * (1.0 + edge * 1.4) - edge * 0.2;
   float t = clamp((p - (tVal - edge)) / (edge * 1.4), 0.0, 1.0);
   return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
+float capHeight(vec4 d) {
+  float rev = revealTime(d.b);
+  // Profilo semisferico vero anche sulla punta mobile: ogni estremo aperto e' tondo come una goccia
+  float tipDome = sqrt(max(0.0, 1.0 - (1.0 - rev) * (1.0 - rev)));
+  return d.r * tipDome;
+}
+
 void main() {
   vec4 dat = texture(uData, aUv);
-  float rev = revealTime(dat.b);
-  float swell = smoothstep(0.0, 1.0, rev);
 
-  // Media morbida su 5 campioni + raccordo a 0 sul bordo esterno (rimMask):
-  // il perimetro della lettera resta saldato alla faccia della card senza nessuno stacco
+  // Media morbida su 5 campioni usando l'altezza rivelata di ogni campione + raccordo a 0 sul bordo esterno
   vec2 o = TEXEL * 2.5;
-  float hAvg = dat.r * 0.40
-    + texture(uData, aUv + vec2( o.x, 0.0)).r * 0.15
-    + texture(uData, aUv + vec2(-o.x, 0.0)).r * 0.15
-    + texture(uData, aUv + vec2(0.0,  o.y)).r * 0.15
-    + texture(uData, aUv + vec2(0.0, -o.y)).r * 0.15;
+  float hAvg = capHeight(dat) * 0.40
+    + capHeight(texture(uData, aUv + vec2( o.x, 0.0))) * 0.15
+    + capHeight(texture(uData, aUv + vec2(-o.x, 0.0))) * 0.15
+    + capHeight(texture(uData, aUv + vec2(0.0,  o.y))) * 0.15
+    + capHeight(texture(uData, aUv + vec2(0.0, -o.y))) * 0.15;
   float rimMask = smoothstep(0.14, 0.58, dat.g);
 
   vec3 pos = aPos;
-  pos.z += hAvg * rimMask * swell * 0.24;
+  pos.z += hAvg * rimMask * 0.24;
 
   vec4 wp = uModel * vec4(pos, 1.0);
   vWorldPos = wp.xyz;
@@ -490,25 +494,32 @@ vec4 sampleData(vec2 duv) {
 
 float revealTime(float tVal) {
   if (tVal > 0.994 && uProgress < 0.995) return 0.0;
-  float edge = 0.022;
+  float edge = 0.016;
   float p = uProgress * (1.0 + edge * 1.4) - edge * 0.2;
   float t = clamp((p - (tVal - edge)) / (edge * 1.4), 0.0, 1.0);
   return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
-// Filtro gaussiano 9-tap sull'altezza: superficie 3D a specchio perfettamente liscia e uniforme
-float smoothHeight(vec2 duv, float swell) {
+float capHeightAt(vec2 duv) {
+  vec4 d = sampleData(duv);
+  float rev = revealTime(d.b);
+  float tipDome = sqrt(max(0.0, 1.0 - (1.0 - rev) * (1.0 - rev)));
+  return d.r * tipDome;
+}
+
+// Filtro gaussiano 9-tap sull'altezza rivelata: calcola la vera curvatura 3D tonda anche sulle estremita' aperte
+float smoothHeight(vec2 duv) {
   vec2 o = TEXEL * 2.8;
-  float s = sampleData(duv).r * 0.25;
-  s += sampleData(duv + vec2( o.x,  0.0)).r * 0.125;
-  s += sampleData(duv + vec2(-o.x,  0.0)).r * 0.125;
-  s += sampleData(duv + vec2( 0.0,  o.y)).r * 0.125;
-  s += sampleData(duv + vec2( 0.0, -o.y)).r * 0.125;
-  s += sampleData(duv + vec2( o.x,  o.y)).r * 0.0625;
-  s += sampleData(duv + vec2(-o.x,  o.y)).r * 0.0625;
-  s += sampleData(duv + vec2( o.x, -o.y)).r * 0.0625;
-  s += sampleData(duv + vec2(-o.x, -o.y)).r * 0.0625;
-  return s * swell;
+  float s = capHeightAt(duv) * 0.25;
+  s += capHeightAt(duv + vec2( o.x,  0.0)) * 0.125;
+  s += capHeightAt(duv + vec2(-o.x,  0.0)) * 0.125;
+  s += capHeightAt(duv + vec2( 0.0,  o.y)) * 0.125;
+  s += capHeightAt(duv + vec2( 0.0, -o.y)) * 0.125;
+  s += capHeightAt(duv + vec2( o.x,  o.y)) * 0.0625;
+  s += capHeightAt(duv + vec2(-o.x,  o.y)) * 0.0625;
+  s += capHeightAt(duv + vec2( o.x, -o.y)) * 0.0625;
+  s += capHeightAt(duv + vec2(-o.x, -o.y)) * 0.0625;
+  return s;
 }
 
 // Motore FluidGlass: studio HDR softbox (key + strip + dome)
@@ -550,17 +561,16 @@ vec3 cardSurfaceAt(vec2 duv, vec3 cardN, vec3 V, vec3 L1_local) {
 void main() {
   vec4 dat = sampleData(vDuv);
   float rev = revealTime(dat.b);
-  float alpha = smoothstep(0.14, 0.54, dat.g) * rev;
+  float alpha = smoothstep(0.14, 0.54, dat.g) * smoothstep(0.02, 0.35, rev);
   if (alpha < 0.02) discard;
 
-  float swell = smoothstep(0.0, 1.0, rev);
-  float hC = smoothHeight(vDuv, swell);
+  float hC = smoothHeight(vDuv);
 
   vec2 gStep = TEXEL * 3.5;
-  float hR = smoothHeight(vDuv + vec2(gStep.x, 0.0), swell);
-  float hL = smoothHeight(vDuv - vec2(gStep.x, 0.0), swell);
-  float hD = smoothHeight(vDuv + vec2(0.0, gStep.y), swell);
-  float hU = smoothHeight(vDuv - vec2(0.0, gStep.y), swell);
+  float hR = smoothHeight(vDuv + vec2(gStep.x, 0.0));
+  float hL = smoothHeight(vDuv - vec2(gStep.x, 0.0));
+  float hD = smoothHeight(vDuv + vec2(0.0, gStep.y));
+  float hU = smoothHeight(vDuv - vec2(0.0, gStep.y));
 
   float slope = 5.0;
   vec3 N_local = normalize(vec3(-(hR - hL) * slope, (hD - hU) * slope, 1.0));
@@ -583,7 +593,7 @@ void main() {
   vec3 insideR = refract(rdLocal, N_local, 1.0 / (U_IOR + spread.x));
   vec3 insideB = refract(rdLocal, N_local, 1.0 / (U_IOR + spread.z));
 
-  float thick = (0.018 + 0.072 * hC) * swell;
+  float thick = 0.014 + 0.076 * hC;
   vec2 hitR = vDuv + vec2(insideR.x, -insideR.y) / max(abs(insideR.z), 0.25) * thick;
   vec2 hitG = vDuv + vec2(insideG.x, -insideG.y) / max(abs(insideG.z), 0.25) * thick;
   vec2 hitB = vDuv + vec2(insideB.x, -insideB.y) / max(abs(insideB.z), 0.25) * thick;
