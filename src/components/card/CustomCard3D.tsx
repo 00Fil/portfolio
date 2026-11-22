@@ -299,10 +299,10 @@ void main() {
   float sh = exp(-d2 * 1.95) * 0.22 * heightFade * (0.55 + 0.45 * cosY);
   float core = exp(-d2 * 5.2) * 0.11 * heightFade * (0.45 + 0.55 * cosY);
 
-  // Sfumatura sottilissima al centro del piatto studio che si dissolve nel bianco puro #ffffff
-  float floorGrad = exp(-dot(vWorld.xz, vWorld.xz) * 0.0028) * 0.016;
-  vec3 tint = vec3(0.14, 0.22, 0.26);
-  vec3 col = mix(vec3(1.0), tint, clamp(sh + core, 0.0, 0.36)) - vec3(floorGrad);
+  // Sfumatura impercettibile al centro del piatto studio che si dissolve nel bianco puro #ffffff
+  float floorGrad = exp(-dot(vWorld.xz, vWorld.xz) * 0.0024) * 0.010;
+  vec3 tint = vec3(0.16, 0.24, 0.28);
+  vec3 col = mix(vec3(1.0), tint, clamp(sh + core, 0.0, 0.30)) - vec3(floorGrad);
   outColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }`;
 
@@ -354,7 +354,7 @@ vec4 sampleData(vec2 duv) {
 
 float revealTime(float tVal) {
   if (tVal > 0.994 && uProgress < 0.995) return 0.0;
-  float edge = 0.022;
+  float edge = 0.018;
   float p = uProgress * (1.0 + edge * 1.4) - edge * 0.2;
   float t = clamp((p - (tVal - edge)) / (edge * 1.4), 0.0, 1.0);
   return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
@@ -370,27 +370,27 @@ void main() {
   float diff2 = max(dot(N, L2), 0.0);
   vec3 H1 = normalize(L1 + V);
   vec3 H2 = normalize(L2 + V);
-  float spec1 = pow(max(dot(N, H1), 0.0), 42.0) * 0.24;
-  float spec2 = pow(max(dot(N, H2), 0.0), 18.0) * 0.09;
-  float fresnel = pow(1.0 - max(dot(N, V), 0.0), 3.4);
+  float spec1 = pow(max(dot(N, H1), 0.0), 46.0) * 0.22;
+  float spec2 = pow(max(dot(N, H2), 0.0), 20.0) * 0.08;
+  float fresnel = pow(1.0 - max(dot(N, V), 0.0), 3.6);
 
   vec3 base = uCardColor;
   if (vMat > 1.5) {
     // Bordo 3D solido arrotondato: leggermente piu' profondo con riflesso satinato netto
-    base *= 0.88;
-    spec1 *= 1.85;
+    base *= 0.89;
+    spec1 *= 1.75;
   }
 
-  vec3 col = base * (0.64 + 0.38 * diff1 + 0.16 * diff2) + vec3(0.86, 0.93, 0.96) * (spec1 + spec2 + fresnel * 0.16);
+  vec3 col = base * (0.66 + 0.36 * diff1 + 0.15 * diff2) + vec3(0.88, 0.94, 0.97) * (spec1 + spec2 + fresnel * 0.15);
 
   if (vMat < 0.5) {
-    // Ombra morbida della goccia 3D "Ciao!" direttamente sulla faccia frontale della card
+    // Ombra morbida e vellutata della goccia 3D "Ciao!" sulla faccia frontale della card
     vec2 duv = vec2((vUv.x - 0.1168) / 0.771, (vUv.y - 0.25) / 0.416652);
     if (duv.x > -0.05 && duv.x < 1.05 && duv.y > -0.08 && duv.y < 1.12) {
       vec3 L_local = normalize(transpose(uRot3) * L1);
-      vec2 shDir = vec2(-L_local.x, L_local.y) * vec2(0.011, 0.028);
+      vec2 shDir = vec2(-L_local.x, L_local.y) * vec2(0.010, 0.025);
       vec2 sUv = duv - shDir;
-      vec2 rad = DATA_TEXEL * 9.0;
+      vec2 rad = DATA_TEXEL * 11.0;
       float sh = 0.0;
       vec4 s0 = sampleData(sUv);
       float r0 = revealTime(s0.b);
@@ -401,10 +401,10 @@ void main() {
       vec4 s4 = sampleData(sUv + vec2(0.0, -rad.y)); sh += s4.g * revealTime(s4.b) * 0.17;
 
       float core = smoothstep(0.32, 0.90, s0.r) * r0;
-      float shAlpha = clamp(sh * 0.58 * (1.0 - 0.36 * core), 0.0, 0.62);
-      float caustic = core * 0.18 * max(L_local.y, 0.0);
-      col = mix(col, col * 0.22, shAlpha);
-      col += vec3(0.58, 0.76, 0.85) * caustic;
+      float shAlpha = clamp(sh * 0.48 * (1.0 - 0.38 * core), 0.0, 0.50);
+      float caustic = core * 0.16 * max(L_local.y, 0.0);
+      col = mix(col, col * 0.28, shAlpha);
+      col += vec3(0.60, 0.78, 0.86) * caustic;
     }
 
     // Firma in basso (logo/nome x Filippo Corsini)
@@ -435,7 +435,7 @@ const vec2 TEXEL = vec2(1.0 / 1320.0, 1.0 / 450.0);
 
 float revealTime(float tVal) {
   if (tVal > 0.994 && uProgress < 0.995) return 0.0;
-  float edge = 0.016;
+  float edge = 0.018;
   float p = uProgress * (1.0 + edge * 1.4) - edge * 0.2;
   float t = clamp((p - (tVal - edge)) / (edge * 1.4), 0.0, 1.0);
   return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
@@ -485,8 +485,8 @@ out vec4 outColor;
 
 const vec2 TEXEL = vec2(1.0 / 1320.0, 1.0 / 450.0);
 const float U_IOR = 1.50;
-const float U_DISPERSION = 0.38;
-const float U_REFLECTION = 1.08;
+const float U_DISPERSION = 0.26;
+const float U_REFLECTION = 1.04;
 
 vec4 sampleData(vec2 duv) {
   if (duv.x < 0.0 || duv.x > 1.0 || duv.y < 0.0 || duv.y > 1.0) return vec4(0.0, 0.0, 1.0, 0.0);
@@ -495,7 +495,7 @@ vec4 sampleData(vec2 duv) {
 
 float revealTime(float tVal) {
   if (tVal > 0.994 && uProgress < 0.995) return 0.0;
-  float edge = 0.016;
+  float edge = 0.018;
   float p = uProgress * (1.0 + edge * 1.4) - edge * 0.2;
   float t = clamp((p - (tVal - edge)) / (edge * 1.4), 0.0, 1.0);
   return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
@@ -508,9 +508,9 @@ float capHeightAt(vec2 duv) {
   return d.r * tipDome;
 }
 
-// Filtro gaussiano 9-tap sull'altezza rivelata: calcola la vera curvatura 3D tonda anche sulle estremita' aperte
+// Filtro gaussiano 9-tap sull'altezza rivelata: superficie a specchio con estremita' perfettamente tonde
 float smoothHeight(vec2 duv) {
-  vec2 o = TEXEL * 2.8;
+  vec2 o = TEXEL * 3.0;
   float s = capHeightAt(duv) * 0.25;
   s += capHeightAt(duv + vec2( o.x,  0.0)) * 0.125;
   s += capHeightAt(duv + vec2(-o.x,  0.0)) * 0.125;
@@ -523,13 +523,13 @@ float smoothHeight(vec2 duv) {
   return s;
 }
 
-// Motore FluidGlass: studio HDR softbox (key + strip + dome)
+// Motore FluidGlass: studio HDR softbox pulito (key + strip + dome)
 vec3 studio(vec3 d) {
   vec2 a = vec2(atan(d.x, d.z), d.y);
-  float key = smoothstep(0.42, 0.22, abs(a.x + 0.62)) * smoothstep(0.30, 0.12, abs(a.y - 0.50));
-  float strip = smoothstep(0.12, 0.05, abs(a.x - 0.95)) * smoothstep(0.80, 0.35, abs(a.y - 0.05));
-  float dome = smoothstep(0.0, 1.0, d.z) * 0.04;
-  return vec3(18.0) * key + vec3(8.0) * strip + vec3(dome);
+  float key = smoothstep(0.46, 0.22, abs(a.x + 0.60)) * smoothstep(0.32, 0.12, abs(a.y - 0.50));
+  float strip = smoothstep(0.14, 0.05, abs(a.x - 0.94)) * smoothstep(0.82, 0.34, abs(a.y - 0.06));
+  float dome = smoothstep(0.0, 1.0, d.z) * 0.045;
+  return vec3(16.0) * key + vec3(7.5) * strip + vec3(dome);
 }
 
 vec4 fgLight(vec3 d, float weight) {
@@ -538,42 +538,43 @@ vec4 fgLight(vec3 d, float weight) {
   return vec4(min(c, vec3(a)), a);
 }
 
-// Campiona la superficie illuminata della card #3A5864 + caustica/ombra interna vista attraverso il vetro
+// Superficie pulita della card #3A5864 + caustica interna vista attraverso il vetro
 vec3 cardSurfaceAt(vec2 duv, vec3 cardN, vec3 V, vec3 L1_local) {
   vec3 L1 = normalize(vec3(-0.22, 0.82, 0.53));
   vec3 L2 = normalize(vec3(0.55, 0.35, 0.75));
   float diff1 = max(dot(cardN, L1), 0.0);
   float diff2 = max(dot(cardN, L2), 0.0);
   vec3 H1 = normalize(L1 + V);
-  float spec = pow(max(dot(cardN, H1), 0.0), 42.0) * 0.24;
-  // Lieve variazione spaziale sulla card cosi' la rifrazione e la dispersione RGB sono nitidamente leggibili
-  float grad = 0.90 + 0.20 * clamp(1.0 - duv.y, 0.0, 1.0) + 0.08 * sin(duv.x * 5.0 - duv.y * 3.0);
-  vec3 col = uCardColor * grad * (0.66 + 0.38 * diff1 + 0.16 * diff2) + vec3(0.86, 0.93, 0.96) * spec;
+  float spec = pow(max(dot(cardN, H1), 0.0), 46.0) * 0.22;
+  float grad = 0.94 + 0.14 * clamp(1.0 - duv.y, 0.0, 1.0);
+  vec3 col = uCardColor * grad * (0.68 + 0.36 * diff1 + 0.15 * diff2) + vec3(0.88, 0.94, 0.97) * spec;
 
   vec4 sd = sampleData(duv);
   float sRev = revealTime(sd.b);
   float depth = sd.r * sRev;
-  float caustic = smoothstep(0.14, 0.62, depth) * (U_IOR - 1.0) * 0.55 * max(L1_local.y, 0.2);
-  float darkRim = exp(-depth * 7.5) * 0.28 * sRev;
-  col = col * (1.0 - darkRim) + vec3(0.75, 0.88, 0.94) * caustic;
+  float caustic = smoothstep(0.16, 0.64, depth) * (U_IOR - 1.0) * 0.52 * max(L1_local.y, 0.2);
+  float darkRim = exp(-depth * 7.8) * 0.22 * sRev;
+  col = col * (1.0 - darkRim) + vec3(0.78, 0.90, 0.96) * caustic;
   return clamp(col, 0.0, 1.0);
 }
 
 void main() {
   vec4 dat = sampleData(vDuv);
   float rev = revealTime(dat.b);
-  float alpha = smoothstep(0.14, 0.54, dat.g) * smoothstep(0.02, 0.35, rev);
-  if (alpha < 0.02) discard;
+  float aa = max(fwidth(dat.g) * 1.15, 0.055);
+  float edgeA = smoothstep(0.30 - aa, 0.30 + aa, dat.g);
+  float alpha = edgeA * smoothstep(0.0, 0.42, rev);
+  if (alpha < 0.01) discard;
 
   float hC = smoothHeight(vDuv);
 
-  vec2 gStep = TEXEL * 3.5;
+  vec2 gStep = TEXEL * 3.6;
   float hR = smoothHeight(vDuv + vec2(gStep.x, 0.0));
   float hL = smoothHeight(vDuv - vec2(gStep.x, 0.0));
   float hD = smoothHeight(vDuv + vec2(0.0, gStep.y));
   float hU = smoothHeight(vDuv - vec2(0.0, gStep.y));
 
-  float slope = 5.0;
+  float slope = 4.6;
   vec3 N_local = normalize(vec3(-(hR - hL) * slope, (hD - hU) * slope, 1.0));
   vec3 N_world = normalize(uRot3 * N_local);
   vec3 cardN = normalize(uRot3 * vec3(0.0, 0.0, 1.0));
@@ -587,14 +588,14 @@ void main() {
   float f0 = pow((U_IOR - 1.0) / (U_IOR + 1.0), 2.0);
   float fresnel = f0 + (1.0 - f0) * pow(1.0 - cosi, 5.0);
 
-  // Rifrazione + dispersione cromatica RGB attraverso lo spessore reale della goccia 3D
+  // Rifrazione + dispersione cromatica RGB pulita attraverso la goccia 3D
   vec3 rdLocal = normalize(transpose(uRot3) * rd);
   vec3 insideG = refract(rdLocal, N_local, 1.0 / U_IOR);
   vec3 spread = vec3(-1.0, 0.0, 1.0) * U_DISPERSION * 0.06;
   vec3 insideR = refract(rdLocal, N_local, 1.0 / (U_IOR + spread.x));
   vec3 insideB = refract(rdLocal, N_local, 1.0 / (U_IOR + spread.z));
 
-  float thick = 0.014 + 0.076 * hC;
+  float thick = 0.012 + 0.070 * hC;
   vec2 hitR = vDuv + vec2(insideR.x, -insideR.y) / max(abs(insideR.z), 0.25) * thick;
   vec2 hitG = vDuv + vec2(insideG.x, -insideG.y) / max(abs(insideG.z), 0.25) * thick;
   vec2 hitB = vDuv + vec2(insideB.x, -insideB.y) / max(abs(insideB.z), 0.25) * thick;
@@ -611,19 +612,19 @@ void main() {
 
   // Composizione ottica FluidGlass: reflected + transmitted * (1 - reflected.a) + edge + rimLight
   vec4 glass = reflected + transmitted * (1.0 - reflected.a);
-  float edge = 1.0 - smoothstep(0.04, 0.30, cosi);
-  glass = mix(glass, mirror + transmitted * (1.0 - mirror.a), edge * 0.78);
+  float edge = 1.0 - smoothstep(0.05, 0.32, cosi);
+  glass = mix(glass, mirror + transmitted * (1.0 - mirror.a), edge * 0.72);
 
   vec2 facing = normalize(vec2(-0.42, 0.55));
-  float rimLight = pow(1.0 - cosi, 3.0) * (0.25 + 0.75 * abs(dot(normalize(N_local.xy + 1e-5), facing))) * 0.58 * U_REFLECTION;
+  float rimLight = pow(1.0 - cosi, 3.0) * (0.25 + 0.75 * abs(dot(normalize(N_local.xy + 1e-5), facing))) * 0.46 * U_REFLECTION;
   rimLight *= smoothstep(0.0, 0.08, cosi);
   glass.rgb = vec3(rimLight) + glass.rgb * (1.0 - rimLight);
 
-  // Scia luminosa liquida visibile mentre la penna ridiscende lo stelo della 'i' (senza alterare lo spessore)
+  // Scia luminosa liquida delicata mentre la penna ridiscende lo stelo della 'i'
   float t2 = texture(uPass2, vDuv).r;
   if (t2 < 0.99) {
-    float wave = exp(-pow((uProgress - t2) / 0.016, 2.0));
-    glass.rgb += vec3(0.45, 0.55, 0.62) * wave * (0.35 + 0.65 * hC);
+    float wave = exp(-pow((uProgress - t2) / 0.018, 2.0));
+    glass.rgb += vec3(0.28, 0.36, 0.42) * wave * (0.35 + 0.65 * hC);
   }
 
   outColor = vec4(clamp(glass.rgb, 0.0, 1.0), alpha);
@@ -1031,6 +1032,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
 
     let raf = 0;
     let lastNow = performance.now();
+    let hoverStartMs = lastNow;
 
     const frame = (now: number) => {
       if (dead) return;
@@ -1047,16 +1049,16 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
           a.rx = -32;
           a.rz = 16;
         } else {
-          const t = Math.min(1, (now - a.introStartMs) / 1550);
-          const easeOut = 1 - Math.pow(1 - t, 4);
+          const t = Math.min(1, (now - a.introStartMs) / 1680);
+          const easeOut = 1 - Math.pow(1 - t, 4.2);
           // Caduta con morbido affondo verso il pavimento e risalita in lievitazione
-          const dip = Math.sin(t * Math.PI) * Math.pow(1 - t, 1.35) * -1.45;
-          a.cardY = 9.2 * Math.pow(1 - t, 3.2) + dip;
+          const dip = Math.sin(t * Math.PI) * Math.pow(1 - t, 1.45) * -1.35;
+          a.cardY = 9.2 * Math.pow(1 - t, 3.4) + dip;
           a.cardZ = -3.2 * (1 - easeOut);
           // Giravolta fluida di 360+ gradi che rallenta morbidamente in posizione frontale
-          a.ry = -390 * Math.pow(1 - t, 3.4);
-          a.rx = -30 * Math.pow(1 - t, 2.8) + Math.sin(t * Math.PI * 2) * (1 - t) * 10;
-          a.rz = 16 * Math.pow(1 - t, 3.0) - Math.sin(t * Math.PI * 1.5) * (1 - t) * 7;
+          a.ry = -390 * Math.pow(1 - t, 3.6);
+          a.rx = -28 * Math.pow(1 - t, 3.0) + Math.sin(t * Math.PI * 2) * (1 - t) * 8;
+          a.rz = 14 * Math.pow(1 - t, 3.2) - Math.sin(t * Math.PI * 1.5) * (1 - t) * 6;
 
           // Avvia la scrittura veloce del "Ciao!" leggermente prima che la card si fermi
           if (!a.ciaoStarted && t >= 0.48) {
@@ -1065,6 +1067,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
           }
           if (t >= 1) {
             a.introActive = false;
+            hoverStartMs = now;
             a.cardY = 0;
             a.cardZ = 0;
             a.ry = 0;
@@ -1073,16 +1076,16 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
           }
         }
       } else {
-        // Lievitazione morbida continua nello spazio 3D
-        const hover = a.reduce ? 0 : Math.sin(now * 0.00145) * 0.085;
-        a.cardY += (hover - a.cardY) * (1 - Math.exp(-dt * 6));
-        a.cardZ += (0 - a.cardZ) * (1 - Math.exp(-dt * 6));
-        a.rz += (0 - a.rz) * (1 - Math.exp(-dt * 8));
+        // Lievitazione morbida continua nello spazio 3D (fase continua da 0 senza salti)
+        const hover = a.reduce ? 0 : Math.sin((now - hoverStartMs) * 0.0013) * 0.075;
+        a.cardY += (hover - a.cardY) * (1 - Math.exp(-dt * 5.5));
+        a.cardZ += (0 - a.cardZ) * (1 - Math.exp(-dt * 5.5));
+        a.rz += (0 - a.rz) * (1 - Math.exp(-dt * 7));
 
         if (!a.drag) {
-          const ty = a.snap + (a.reduce ? 0 : a.px * 10);
-          const tx = a.reduce ? 0 : -a.py * 8;
-          const k = 26, c = 9.5;
+          const ty = a.snap + (a.reduce ? 0 : a.px * 7.5);
+          const tx = a.reduce ? 0 : -a.py * 6.5;
+          const k = 20, c = 9.0;
           a.vy += ((ty - a.ry) * k - a.vy * c) * dt;
           a.vx += ((tx - a.rx) * k - a.vx * c) * dt;
           a.ry += a.vy * dt;
@@ -1180,6 +1183,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
     a.lastX = e.clientX;
     a.lastY = e.clientY;
     a.lastT = performance.now();
+    canvasRef.current!.style.cursor = "grabbing";
     canvasRef.current!.setPointerCapture(e.pointerId);
     updatePointer(e);
   };
@@ -1207,6 +1211,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
     const a = stRef.current;
     if (!a.drag) return;
     a.drag = false;
+    if (canvasRef.current) canvasRef.current.style.cursor = "grab";
     canvasRef.current?.releasePointerCapture(e.pointerId);
     if (a.moved < 6) {
       const ang = ((a.ry % 360) + 360) % 360;
