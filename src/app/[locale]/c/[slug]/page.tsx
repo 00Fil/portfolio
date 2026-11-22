@@ -22,12 +22,12 @@ export default async function CustomCard({ params }: { params: Promise<{ locale:
     <>
       <main
         id="main"
-        className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-white px-4 pb-36 pt-[calc(var(--bar-h)+24px)] text-[#121316] lg:pb-16"
+        className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-[var(--bg-canvas)] px-4 pb-36 pt-[calc(var(--bar-h)+24px)] text-[var(--label-primary)] lg:pb-16"
         style={{
-          ["--card" as string]: "#ffffff",
-          ["--hair" as string]: "rgba(15, 20, 30, 0.1)",
-          ["--fg" as string]: "#121316",
-          ["--bg" as string]: "#ffffff",
+          ["--card" as string]: "var(--bg-surface)",
+          ["--hair" as string]: "var(--line-separator)",
+          ["--fg" as string]: "var(--label-primary)",
+          ["--bg" as string]: "var(--bg-canvas)",
         }}
       >
         <CardViewer

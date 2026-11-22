@@ -2,6 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { onIntroLift } from "@/lib/intro";
+import { getTheme } from "@/lib/theme";
 
 export type CustomCard3DHandle = {
   flip: () => void;
@@ -25,6 +26,10 @@ const CARD_H = 5.4;
 const CARD_R = 0.34;
 const CARD_T = 0.14;
 const FLOOR_Y = -3.7;
+const ROOM_X = 10.8;
+const ROOM_Y_TOP = 5.4;
+const ROOM_Z_BACK = -8.5;
+const ROOM_Z_FRONT = 22.0;
 const DEFAULT_HEX = "#3A5864";
 
 function parseHexRgb(hex?: string): [number, number, number] {
@@ -346,57 +351,139 @@ function buildBackPillsMesh() {
   return { vertices: new Float32Array(verts), indices: new Uint32Array(indices) };
 }
 
-// --- Piano studio infinito 3D ---
+// --- Ambiente 3D architettonico (pavimento, soffitto, parete fondo, pareti laterali) con LED caldi sugli spigoli superiori ---
 function buildFloorGeometry() {
-  const s = 60;
-  const vertices = new Float32Array([
-    -s, FLOOR_Y, -s,
-     s, FLOOR_Y, -s,
-    -s, FLOOR_Y,  s,
-     s, FLOOR_Y,  s,
-  ]);
-  const indices = new Uint16Array([0, 2, 1, 1, 2, 3]);
-  return { vertices, indices };
+  const x = ROOM_X;
+  const yb = FLOOR_Y;
+  const yt = ROOM_Y_TOP;
+  const zb = ROOM_Z_BACK;
+  const zf = ROOM_Z_FRONT;
+
+  const verts: number[] = [];
+  const indices: number[] = [];
+  const quad = (
+    a: [number, number, number],
+    b: [number, number, number],
+    c: [number, number, number],
+    d: [number, number, number],
+    n: [number, number, number],
+  ) => {
+    const base = verts.length / 6;
+    for (const p of [a, b, c, d]) verts.push(p[0], p[1], p[2], n[0], n[1], n[2]);
+    indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
+  };
+
+  // Pavimento (normal +Y)
+  quad([-x, yb, zb], [-x, yb, zf], [x, yb, zf], [x, yb, zb], [0, 1, 0]);
+  // Soffitto (normal -Y)
+  quad([-x, yt, zf], [-x, yt, zb], [x, yt, zb], [x, yt, zf], [0, -1, 0]);
+  // Parete di fondo (normal +Z)
+  quad([-x, yb, zb], [x, yb, zb], [x, yt, zb], [-x, yt, zb], [0, 0, 1]);
+  // Parete sinistra (normal +X)
+  quad([-x, yb, zf], [-x, yb, zb], [-x, yt, zb], [-x, yt, zf], [1, 0, 0]);
+  // Parete destra (normal -X)
+  quad([x, yb, zb], [x, yb, zf], [x, yt, zf], [x, yt, zb], [-1, 0, 0]);
+
+  return { vertices: new Float32Array(verts), indices: new Uint16Array(indices) };
 }
 
 // --- Shaders WebGL2 ---
 const FLOOR_VERT = `#version 300 es
 in vec3 aPos;
+in vec3 aNorm;
 uniform mat4 uVP;
 out vec3 vWorld;
+out vec3 vNorm;
 void main() {
   vWorld = aPos;
+  vNorm = aNorm;
   gl_Position = uVP * vec4(aPos, 1.0);
 }`;
 
 const FLOOR_FRAG = `#version 300 es
 precision highp float;
 in vec3 vWorld;
+in vec3 vNorm;
 uniform vec3 uCardPos;
 uniform vec3 uCardRot; // rx, ry, rz
+uniform float uDark;   // 0.0 = light, 1.0 = dark
 out vec4 outColor;
 
 void main() {
-  // Mondo bianco infinito senza confini + ombra 3D dinamica della card proiettata sul piano
-  float h = max(0.35, uCardPos.y - ${FLOOR_Y.toFixed(2)});
-  float cosY = abs(cos(uCardRot.y));
-  float sinX = abs(sin(uCardRot.x));
-  float spread = 0.85 + h * 0.24;
+  const float RX = ${ROOM_X.toFixed(2)};
+  const float YB = ${FLOOR_Y.toFixed(2)};
+  const float YT = ${ROOM_Y_TOP.toFixed(2)};
+  const float ZB = ${ROOM_Z_BACK.toFixed(2)};
 
-  vec2 p = vWorld.xz - vec2(uCardPos.x, uCardPos.z);
-  float rx = max(0.55, 4.15 * cosY + 0.45) * spread;
-  float rz = max(0.75, 1.15 + 2.4 * sinX) * spread;
+  // Colori architettonici base per stanza chiara e scura
+  vec3 lightWall = vec3(0.955, 0.953, 0.945);
+  vec3 lightFloor = vec3(0.985, 0.984, 0.978);
+  vec3 lightCeil = vec3(0.945, 0.942, 0.935);
 
-  vec2 q = p / vec2(rx, rz);
-  float d2 = dot(q, q);
-  float heightFade = clamp(1.0 / (1.0 + h * 0.16), 0.14, 1.0);
-  float sh = exp(-d2 * 1.95) * 0.22 * heightFade * (0.55 + 0.45 * cosY);
-  float core = exp(-d2 * 5.2) * 0.11 * heightFade * (0.45 + 0.55 * cosY);
+  vec3 darkWall = vec3(0.055, 0.064, 0.082);
+  vec3 darkFloor = vec3(0.036, 0.042, 0.055);
+  vec3 darkCeil = vec3(0.045, 0.052, 0.068);
 
-  // Sfumatura impercettibile al centro del piatto studio che si dissolve nel bianco puro #ffffff
-  float floorGrad = exp(-dot(vWorld.xz, vWorld.xz) * 0.0024) * 0.010;
-  vec3 tint = vec3(0.16, 0.24, 0.28);
-  vec3 col = mix(vec3(1.0), tint, clamp(sh + core, 0.0, 0.30)) - vec3(floorGrad);
+  vec3 wallCol = mix(lightWall, darkWall, uDark);
+  vec3 floorCol = mix(lightFloor, darkFloor, uDark);
+  vec3 ceilCol = mix(lightCeil, darkCeil, uDark);
+
+  vec3 base = vNorm.y > 0.5 ? floorCol : (vNorm.y < -0.5 ? ceilCol : wallCol);
+
+  // Occlusione morbida sugli spigoli verticali e alla base delle pareti
+  float dLeftWall = max(0.0, vWorld.x + RX);
+  float dRightWall = max(0.0, RX - vWorld.x);
+  float dBackWall = max(0.0, vWorld.z - ZB);
+  float dFloor = max(0.0, vWorld.y - YB);
+  float dCeil = max(0.0, YT - vWorld.y);
+
+  float cornerAO = 1.0
+    - exp(-(dLeftWall + dBackWall) * 0.55) * 0.14
+    - exp(-(dRightWall + dBackWall) * 0.55) * 0.14
+    - exp(-(dFloor + dBackWall) * 0.65) * 0.12
+    - exp(-(dFloor + min(dLeftWall, dRightWall)) * 0.65) * 0.10;
+  base *= mix(1.0, cornerAO, mix(0.45, 0.85, uDark));
+
+  // Luce a LED calda (~2850K) lungo tutti gli spigoli superiori (soffitto <-> pareti fondo, sx, dx)
+  float dEdgeBack = length(vec2(dCeil, dBackWall));
+  float dEdgeLeft = length(vec2(dCeil, dLeftWall));
+  float dEdgeRight = length(vec2(dCeil, dRightWall));
+  float dLed = min(dEdgeBack, min(dEdgeLeft, dEdgeRight));
+
+  // Filamento LED caldo nitido nello spigolo + alone morbido che lava pareti e soffitto
+  float ledCore = exp(-dLed * 8.5);
+  float ledGlow = exp(-dLed * 1.15) * 0.55 + exp(-dLed * 0.34) * 0.24;
+  // Sul pavimento un riflesso caldo molto tenue dall'alto
+  float floorWarmth = vNorm.y > 0.5 ? exp(-dot(vWorld.xz * vec2(0.08, 0.09), vWorld.xz * vec2(0.08, 0.09))) * 0.12 : 0.0;
+
+  vec3 ledCoreCol = vec3(1.0, 0.91, 0.74);
+  vec3 ledWashCol = vec3(1.0, 0.75, 0.44);
+  float glowStrength = mix(0.28, 0.95, uDark);
+  float coreStrength = mix(0.55, 1.35, uDark);
+
+  vec3 col = base
+    + ledWashCol * (ledGlow * glowStrength + floorWarmth * mix(0.18, 0.55, uDark))
+    + ledCoreCol * (ledCore * coreStrength);
+
+  // Ombra 3D dinamica della card sul pavimento
+  if (vNorm.y > 0.5) {
+    float h = max(0.35, uCardPos.y - YB);
+    float cosY = abs(cos(uCardRot.y));
+    float sinX = abs(sin(uCardRot.x));
+    float spread = 0.85 + h * 0.24;
+
+    vec2 p = vWorld.xz - vec2(uCardPos.x, uCardPos.z);
+    float rx = max(0.55, 4.15 * cosY + 0.45) * spread;
+    float rz = max(0.75, 1.15 + 2.4 * sinX) * spread;
+
+    vec2 q = p / vec2(rx, rz);
+    float d2 = dot(q, q);
+    float heightFade = clamp(1.0 / (1.0 + h * 0.16), 0.14, 1.0);
+    float sh = exp(-d2 * 1.95) * mix(0.24, 0.58, uDark) * heightFade * (0.55 + 0.45 * cosY);
+    float core = exp(-d2 * 5.2) * mix(0.12, 0.32, uDark) * heightFade * (0.45 + 0.55 * cosY);
+    col *= (1.0 - clamp(sh + core, 0.0, mix(0.34, 0.72, uDark)));
+  }
+
   outColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }`;
 
@@ -432,6 +519,7 @@ uniform vec3 uCamPos;
 uniform vec3 uCardColor;
 uniform mat3 uRot3;
 uniform float uProgress;
+uniform float uDark;
 uniform sampler2D uFrontTex;
 uniform sampler2D uBackTex;
 uniform sampler2D uData;
@@ -475,7 +563,12 @@ void main() {
     spec1 *= 1.75;
   }
 
-  vec3 col = base * (0.66 + 0.36 * diff1 + 0.15 * diff2) + vec3(0.88, 0.94, 0.97) * (spec1 + spec2 + fresnel * 0.15);
+  vec3 specTint = mix(vec3(0.92, 0.95, 0.97), vec3(1.0, 0.86, 0.66), uDark * 0.72);
+  float amb = mix(0.66, 0.50, uDark);
+  vec3 col = base * (amb + 0.38 * diff1 + 0.16 * diff2) + specTint * (spec1 + spec2 + fresnel * mix(0.15, 0.22, uDark));
+  // Riflesso caldo dei LED superiori sul bordo superiore della card
+  float topLed = max(N.y, 0.0) * mix(0.10, 0.32, uDark);
+  col += vec3(1.0, 0.78, 0.48) * topLed;
 
   if (vMat < 0.5) {
     // Ombra morbida e vellutata della goccia 3D "Ciao!" sulla faccia frontale della card
@@ -586,6 +679,7 @@ uniform mat3 uRot3;
 uniform vec3 uCamPos;
 uniform vec3 uCardColor;
 uniform float uProgress;
+uniform float uDark;
 
 out vec4 outColor;
 
@@ -629,13 +723,14 @@ float smoothHeight(vec2 duv) {
   return s;
 }
 
-// Motore FluidGlass: studio HDR softbox pulito (key + strip + dome)
+// Motore FluidGlass: studio HDR softbox pulito + riflesso LED caldo in dark mode
 vec3 studio(vec3 d) {
   vec2 a = vec2(atan(d.x, d.z), d.y);
   float key = smoothstep(0.46, 0.22, abs(a.x + 0.60)) * smoothstep(0.32, 0.12, abs(a.y - 0.50));
   float strip = smoothstep(0.14, 0.05, abs(a.x - 0.94)) * smoothstep(0.82, 0.34, abs(a.y - 0.06));
   float dome = smoothstep(0.0, 1.0, d.z) * 0.045;
-  return vec3(16.0) * key + vec3(7.5) * strip + vec3(dome);
+  vec3 warmTint = mix(vec3(1.0), vec3(1.0, 0.85, 0.62), uDark * 0.82);
+  return warmTint * (vec3(16.0) * key + vec3(7.5) * strip) + vec3(dome);
 }
 
 vec4 fgLight(vec3 d, float weight) {
@@ -771,6 +866,7 @@ uniform vec3 uCamPos;
 uniform vec3 uCardColor;
 uniform sampler2D uBackTex;
 uniform float uCopiedPill; // -1.0 = nessuna, 0.0 = user, 1.0 = pass
+uniform float uDark;
 
 out vec4 outColor;
 
@@ -797,7 +893,8 @@ vec3 studio(vec3 d) {
   float key = smoothstep(0.46, 0.22, abs(a.x + 0.60)) * smoothstep(0.32, 0.12, abs(a.y - 0.50));
   float strip = smoothstep(0.14, 0.05, abs(a.x - 0.94)) * smoothstep(0.82, 0.34, abs(a.y - 0.06));
   float dome = smoothstep(0.0, 1.0, d.z) * 0.045;
-  return vec3(16.0) * key + vec3(7.5) * strip + vec3(dome);
+  vec3 warmTint = mix(vec3(1.0), vec3(1.0, 0.85, 0.62), uDark * 0.82);
+  return warmTint * (vec3(16.0) * key + vec3(7.5) * strip) + vec3(dome);
 }
 
 vec4 fgLight(vec3 d, float weight) {
@@ -1014,9 +1111,13 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
     const floorVbo = gl.createBuffer()!;
     gl.bindBuffer(gl.ARRAY_BUFFER, floorVbo);
     gl.bufferData(gl.ARRAY_BUFFER, floorGeo.vertices, gl.STATIC_DRAW);
+    const fStride = 6 * 4;
     const fPosLoc = gl.getAttribLocation(floorProg, "aPos");
+    const fNormLoc = gl.getAttribLocation(floorProg, "aNorm");
     gl.enableVertexAttribArray(fPosLoc);
-    gl.vertexAttribPointer(fPosLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(fPosLoc, 3, gl.FLOAT, false, fStride, 0);
+    gl.enableVertexAttribArray(fNormLoc);
+    gl.vertexAttribPointer(fNormLoc, 3, gl.FLOAT, false, fStride, 12);
     const floorIbo = gl.createBuffer()!;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, floorIbo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, floorGeo.indices, gl.STATIC_DRAW);
@@ -1274,6 +1375,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       uVP: gl.getUniformLocation(floorProg, "uVP"),
       uCardPos: gl.getUniformLocation(floorProg, "uCardPos"),
       uCardRot: gl.getUniformLocation(floorProg, "uCardRot"),
+      uDark: gl.getUniformLocation(floorProg, "uDark"),
     };
     const cLoc = {
       uVP: gl.getUniformLocation(cardProg, "uVP"),
@@ -1282,6 +1384,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       uCamPos: gl.getUniformLocation(cardProg, "uCamPos"),
       uCardColor: gl.getUniformLocation(cardProg, "uCardColor"),
       uProgress: gl.getUniformLocation(cardProg, "uProgress"),
+      uDark: gl.getUniformLocation(cardProg, "uDark"),
       uFrontTex: gl.getUniformLocation(cardProg, "uFrontTex"),
       uBackTex: gl.getUniformLocation(cardProg, "uBackTex"),
       uData: gl.getUniformLocation(cardProg, "uData"),
@@ -1294,6 +1397,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       uCamPos: gl.getUniformLocation(ciaoProg, "uCamPos"),
       uCardColor: gl.getUniformLocation(ciaoProg, "uCardColor"),
       uProgress: gl.getUniformLocation(ciaoProg, "uProgress"),
+      uDark: gl.getUniformLocation(ciaoProg, "uDark"),
       uData: gl.getUniformLocation(ciaoProg, "uData"),
       uPass2: gl.getUniformLocation(ciaoProg, "uPass2"),
     };
@@ -1305,7 +1409,15 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       uCardColor: gl.getUniformLocation(pillProg, "uCardColor"),
       uBackTex: gl.getUniformLocation(pillProg, "uBackTex"),
       uCopiedPill: gl.getUniformLocation(pillProg, "uCopiedPill"),
+      uDark: gl.getUniformLocation(pillProg, "uDark"),
     };
+
+    let darkTarget = getTheme() === "dark" ? 1 : 0;
+    let darkVal = darkTarget;
+    const themeMo = new MutationObserver(() => {
+      darkTarget = getTheme() === "dark" ? 1 : 0;
+    });
+    themeMo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
     const viewMat = mat4LookAt(CAM_POS, CAM_TARGET);
     let projMat = mat4Perspective((34 * Math.PI) / 180, 1, 0.5, 100);
@@ -1406,10 +1518,12 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       const rzRad = (a.rz * Math.PI) / 180;
       const { model, rot3 } = buildModelMatrix(0, a.cardY, a.cardZ, rxRad, ryRad, rzRad);
 
-      gl.clearColor(1, 1, 1, 1);
+      darkVal += (darkTarget - darkVal) * (1 - Math.exp(-dt * 7));
+      const bgClear = 1 - darkVal * 0.96;
+      gl.clearColor(bgClear, bgClear, bgClear + darkVal * 0.015, 1);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-      // Passo 1: Piatto studio 3D infinito con ombra dinamica
+      // Passo 1: Ambiente 3D architettonico con LED caldi sugli spigoli superiori + ombra dinamica
       gl.disable(gl.BLEND);
       gl.depthMask(true);
       gl.useProgram(floorProg);
@@ -1417,6 +1531,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       gl.uniformMatrix4fv(fLoc.uVP, false, vpMat);
       gl.uniform3f(fLoc.uCardPos, 0, a.cardY, a.cardZ);
       gl.uniform3f(fLoc.uCardRot, rxRad, ryRad, rzRad);
+      gl.uniform1f(fLoc.uDark, darkVal);
       gl.drawElements(gl.TRIANGLES, floorGeo.indices.length, gl.UNSIGNED_SHORT, 0);
 
       const cardRgb = propsRef.current.cardRgb;
@@ -1430,6 +1545,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       gl.uniform3fv(cLoc.uCamPos, CAM_POS);
       gl.uniform3fv(cLoc.uCardColor, cardRgb);
       gl.uniform1f(cLoc.uProgress, a.ciaoProgress);
+      gl.uniform1f(cLoc.uDark, darkVal);
       gl.uniform1i(cLoc.uData, 0);
       gl.uniform1i(cLoc.uPass2, 1);
       gl.uniform1i(cLoc.uFrontTex, 2);
@@ -1448,6 +1564,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
         gl.uniform3fv(gLoc.uCamPos, CAM_POS);
         gl.uniform3fv(gLoc.uCardColor, cardRgb);
         gl.uniform1f(gLoc.uProgress, a.ciaoProgress);
+        gl.uniform1f(gLoc.uDark, darkVal);
         gl.uniform1i(gLoc.uData, 0);
         gl.uniform1i(gLoc.uPass2, 1);
         gl.drawElements(gl.TRIANGLES, ciaoGeo.indices.length, gl.UNSIGNED_INT, 0);
@@ -1466,6 +1583,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       gl.uniform1i(pLoc.uBackTex, 3);
       const copiedId = propsRef.current.tip === "user" ? 0 : propsRef.current.tip === "pass" ? 1 : -1;
       gl.uniform1f(pLoc.uCopiedPill, copiedId);
+      gl.uniform1f(pLoc.uDark, darkVal);
       gl.drawElements(gl.TRIANGLES, pillGeo.indices.length, gl.UNSIGNED_INT, 0);
 
       raf = requestAnimationFrame(frame);
@@ -1476,6 +1594,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
       dead = true;
       cancelAnimationFrame(raf);
       ro.disconnect();
+      themeMo.disconnect();
       gl.deleteTexture(dataTex);
       gl.deleteTexture(pass2Tex);
       gl.deleteTexture(frontTex);
@@ -1591,7 +1710,7 @@ export const CustomCard3D = forwardRef<CustomCard3DHandle, Props>(function Custo
         touchAction: "none",
         cursor: "grab",
         zIndex: 1,
-        background: "#ffffff",
+        background: "var(--bg-canvas)",
       }}
       data-card-color={cardHex}
     />
