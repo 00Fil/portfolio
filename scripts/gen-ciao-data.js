@@ -134,59 +134,51 @@ function segLen(pts) {
   return s;
 }
 
-// Segmenti base del "Ciao!"
-const iUpStartIdx = P0.findIndex(([x, y]) => x >= 388 && y <= 332); // punto in cui la C entra nello stelo della 'i'
-const sC     = P0;                              // C -> sale fino all'apice della 'i' (413, 208)
-const sIDn   = P0.slice(iUpStartIdx).reverse(); // ritorno completo dall'apice della 'i' fino in basso (390, 328)
-const sICon  = P1.slice(2, 26);                 // curva bassa della 'i' e rampa fino a 'a' (parte dopo il bivio)
-const sAT    = P1.slice(25, 53);                // a: sale a sinistra e gira sopra -> (720, 222)
-const sAS    = P1.slice(52, 69);                // a: scende sullo stelo destro -> (708, 366)
-const sABRev = [...P2].reverse();               // a: chiude il fondo in senso orario -> (562, 343)
-const sAO    = P1.slice(68, 87);                // rampa di collegamento a -> o (867, 341)
-const sOT    = P1.slice(86, 117);               // o: sale a sinistra e gira sopra -> (1030, 231)
-const sOB    = P3;                              // o: scende a destra e chiude il fondo in senso orario -> (867, 341)
-const sOTl   = P1.slice(116);                   // o: gambetto finale nello stesso verso -> (1122, 204)
+// Segmenti base del "Ciao!" (una lettera completa alla volta, zero pause morte)
+const sC     = P0;                              // 0: C -> sale fino all'apice della 'i' (413, 208)
+const sICon  = P1.slice(0, 26);                 // 1: curva bassa della 'i' e rampa fino a 'a'
+const sAT    = P1.slice(25, 53);                // 2: a sale a sinistra e gira sopra -> (720, 222)
+const sAS    = P1.slice(52, 69);                // 3: a scende sullo stelo destro -> (708, 366)
+const sABRev = [...P2].reverse();               // 4: a chiude completamente il fondo in senso orario
+const sAO    = P1.slice(68, 87);                // 5: rampa di collegamento a -> o (867, 341)
+const sOT    = P1.slice(86, 117);               // 6: o sale a sinistra e gira sopra -> (1030, 231)
+const sOB    = P3;                              // 7: o scende a destra e chiude completamente il fondo in senso orario
+const sOTl   = P1.slice(118);                   // 8: gambetto finale della 'o' (parte fuori dall'anello -> zero tagli sulla 'o')
 const sBng   = P4;                              // ! asta
 
-// Percorso fluido senza cambi di direzione repentini:
-// - C -> sale fino all'apice della 'i' -> stellina -> scende tutta la 'i' -> rampa verso 'a'
-// - 'a': un solo giro continuo in senso orario (sale sx -> sopra -> scende dx -> fondo -> ripasso leggero sopra/dx -> esce)
-// - 'o': dalla rampa della 'a', giro continuo in senso orario (sale sx -> sopra -> scende dx -> fondo -> ripasso sopra -> esce nel gambetto)
+// Percorso continuo senza stutter ne' pause tra le lettere:
+// C + i -> stellina all'apice -> curva i -> a completa -> rampa -> o completa -> gambetto o -> ! -> punto
 const rawBody = [];
 let cur = 0;
-function pushSeg(pts, pass = 1, speedMul = 1, gap = 0) {
+function pushSeg(pts, speedMul = 1, gap = 0) {
   cur += gap;
   const len = segLen(pts);
   const dur = len / speedMul;
-  rawBody.push({ id: rawBody.length, pts, pass, s0: cur, s1: cur + dur });
+  rawBody.push({ id: rawBody.length, pts, s0: cur, s1: cur + dur });
   cur += dur;
 }
 
-pushSeg(sC, 1, 1.0);              // 0: C -> apice 'i'
+pushSeg(sC, 1.0);                 // 0: C -> apice 'i'
 const sparkStart = cur;           // stellina esattamente all'apice della 'i'
-const sparkEnd = sparkStart + 105;
-cur = sparkEnd + 18;
-pushSeg(sIDn, 2, 1.15);           // 1: discesa completa della 'i' (ripasso con profondita')
-pushSeg(sICon, 1, 1.0);           // 2: curva bassa 'i' -> rampa 'a'
-pushSeg(sAT, 1, 1.0);             // 3: a sale sx + arco sopra (orario)
-pushSeg(sAS, 1, 1.0);             // 4: a scende stelo dx (orario)
-pushSeg(sABRev, 1, 1.0);          // 5: a chiude il fondo (orario)
-pushSeg(sAT, 2, 1.45);            // 6: a continua orario sopra (ripasso fluido con profondita')
-pushSeg(sAS, 2, 1.45);            // 7: a riscende stelo dx per uscire fluido (ripasso con profondita')
-pushSeg(sAO, 1, 1.0);             // 8: rampa a -> o
-pushSeg(sOT, 1, 1.0);             // 9: o sale sx + arco sopra (orario)
-pushSeg(sOB, 1, 1.0);             // 10: o scende dx + fondo (orario)
-pushSeg(sOT, 2, 1.35);            // 11: o continua orario sopra (ripasso con profondita')
-pushSeg(sOTl, 1, 1.0);            // 12: o conclude nello stesso verso il gambetto finale
+const sparkEnd = sparkStart + 70;
+cur = sparkEnd;                   // zero pausa dopo la stellina
+pushSeg(sICon, 1.0);              // 1: curva bassa 'i' -> rampa 'a'
+pushSeg(sAT, 1.0);                // 2: a sale sx + arco sopra
+pushSeg(sAS, 1.0);                // 3: a scende stelo dx
+pushSeg(sABRev, 1.0);             // 4: a chiude il fondo (lettera 'a' completata!)
+pushSeg(sAO, 1.0);                // 5: rampa a -> o
+pushSeg(sOT, 1.0);                // 6: o sale sx + arco sopra
+pushSeg(sOB, 1.0);                // 7: o scende dx + chiude il fondo (lettera 'o' completata!)
+pushSeg(sOTl, 1.0);               // 8: gambetto finale della 'o'
 
-const bangStart = cur + 70;       // stacco penna prima del '!'
+const bangStart = cur + 18;       // stacco penna minimo prima del '!' (zero stutter)
 const bangEnd = bangStart + segLen(sBng);
-const dotStart = bangEnd + 40;
-const dotEnd = dotStart + 90;
+const dotStart = bangEnd + 14;
+const dotEnd = dotStart + 55;
 const TOTAL = dotEnd;
 
-const pass1Segs = rawBody.filter(s => s.pass === 1).map(st => ({ id: st.id, pts: st.pts, t0: st.s0 / TOTAL, t1: st.s1 / TOTAL }));
-const pass2Segs = rawBody.filter(s => s.pass === 2).map(st => ({ id: st.id, pts: st.pts, t0: st.s0 / TOTAL, t1: st.s1 / TOTAL }));
+const pass1Segs = rawBody.map(st => ({ id: st.id, pts: st.pts, t0: st.s0 / TOTAL, t1: st.s1 / TOTAL }));
+const pass2Segs = [];
 const bangT0 = bangStart / TOTAL, bangT1 = bangEnd / TOTAL;
 const dotT0 = dotStart / TOTAL, dotT1 = dotEnd / TOTAL;
 const sparkT0 = sparkStart / TOTAL, sparkT1 = sparkEnd / TOTAL;
@@ -225,7 +217,6 @@ const bangSamples = densify([{ id: 99, pts: sBng, t0: bangT0, t1: bangT1 }]);
 
 // Punta a sfera per segmento: ogni pixel appartiene al segmento piu' vicino (ownerSeg) e accetta
 // solo campioni di ownerSeg o del segmento direttamente adiacente nella sequenza (|seg - ownerSeg| <= 1).
-// Cosi' la C che sale sulla 'i' NON accende prima il tratto d'uscita della 'i', e la 'o' NON accende prima il gambetto finale!
 const PEN_R = 38;
 const PEN_R2 = PEN_R * PEN_R;
 const PEN_R2_P2 = 34 * 34;
