@@ -255,10 +255,54 @@ function ballpointOwned(x, y, samples, fallback = true) {
   return fallback ? bestT : 1.0;
 }
 
-// 5. Pack buffers:
-//    ciao-data.png  (RGB): R = sdf, G = alpha, B = t1 (primo passaggio; esterno = 255 + dilatazione bordo 3px)
-//    ciao-pass2.png (L):   t2 (secondo passaggio / profondita', 255 = nessun ripasso)
-const NORM_R = 44.0;
+// 5. Calcola un vero profilo a SEMISFERA (dh/du = 0 al centro del tratto, zero cresta nel mezzo)
+//    normalizzato sulla semilarghezza reale del tratto (~32px) e lisciato con filtro gaussiano separabile.
+const STROKE_R = 32.0;
+const hRaw = new Float32Array(W * H);
+for (let i = 0; i < W * H; i++) {
+  if (dist[i] <= 0) continue;
+  const u = Math.min(1.0, dist[i] / STROKE_R);
+  hRaw[i] = Math.sqrt(Math.max(0.0, 1.0 - (1.0 - u) * (1.0 - u)));
+}
+
+// Blur gaussiano separabile (raggio 6px) solo sull'altezza per una semisfera perfettamente tonda senza creste
+const G_RAD = 6;
+const gKern = new Float32Array(G_RAD * 2 + 1);
+let gSum = 0;
+for (let k = -G_RAD; k <= G_RAD; k++) {
+  const v = Math.exp(-(k * k) / (2 * 2.8 * 2.8));
+  gKern[k + G_RAD] = v;
+  gSum += v;
+}
+for (let k = 0; k < gKern.length; k++) gKern[k] /= gSum;
+
+const hTmp = new Float32Array(W * H);
+for (let y = 0; y < H; y++) {
+  const row = y * W;
+  for (let x = 0; x < W; x++) {
+    let acc = 0;
+    for (let k = -G_RAD; k <= G_RAD; k++) {
+      const xx = Math.max(0, Math.min(W - 1, x + k));
+      acc += hRaw[row + xx] * gKern[k + G_RAD];
+    }
+    hTmp[row + x] = acc;
+  }
+}
+const hSmooth = new Float32Array(W * H);
+for (let y = 0; y < H; y++) {
+  for (let x = 0; x < W; x++) {
+    let acc = 0;
+    for (let k = -G_RAD; k <= G_RAD; k++) {
+      const yy = Math.max(0, Math.min(H - 1, y + k));
+      acc += hTmp[yy * W + x] * gKern[k + G_RAD];
+    }
+    hSmooth[y * W + x] = acc;
+  }
+}
+
+// Pack buffers:
+//   ciao-data.png  (RGB): R = altezza semisfera liscia (0..255), G = alpha, B = t1 (esterno = 255 + dilatazione 3px)
+//   ciao-pass2.png (L):   t2 (secondo passaggio / profondita', 255 = nessun ripasso)
 const rgb = Buffer.alloc(W * H * 3);
 const p2buf = Buffer.alloc(W * H, 255);
 const t1Grid = new Uint8Array(W * H).fill(255);
@@ -267,7 +311,7 @@ for (let y = 0; y < H; y++) {
   for (let x = 0; x < W; x++) {
     const i = y * W + x;
     const a = alpha[i];
-    const rVal = Math.min(255, Math.round((dist[i] / NORM_R) * 255));
+    const rVal = Math.min(255, Math.round(hSmooth[i] * 255));
     let t1 = 1.0;
     let t2 = 1.0;
     const c = comp[i];

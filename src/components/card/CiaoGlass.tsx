@@ -103,12 +103,11 @@ float overlapAt(vec2 duv) {
   return s;
 }
 
-// Altezza 3D combinata: goccia base + rigonfiamento organico d'acqua sul secondo passaggio
+// Altezza 3D a vera semisfera (gia' calcolata e lisciata senza creste in uData.r) + lieve rigonfiamento sul ripasso
 float combinedHeight(vec2 duv, float swell) {
-  float d = smoothSdf(duv);
-  float h = domeHeight(d) * swell;
-  float p2 = overlapAt(duv) * smoothstep(0.15, 0.80, d);
-  return h * (1.0 + 0.32 * p2);
+  float h = sampleData(duv).r * swell;
+  float p2 = overlapAt(duv);
+  return h * (1.0 + 0.18 * p2);
 }
 
 // Matrice di rotazione CSS: rotateX(rx) * rotateY(ry)
@@ -133,7 +132,7 @@ void main() {
   vec4 dat = sampleData(duv);
 
   mat3 R = cardRot(uRot);
-  // Luce reale dall'alto (studio luminoso con sfondo Silk)
+  // Luce reale dall'alto (stanza bianca luminosa)
   vec3 L_world = normalize(vec3(-0.18, 0.84, 0.51));
   vec3 V_world = vec3(0.0, 0.0, 1.0);
 
@@ -145,23 +144,22 @@ void main() {
   vec3 L_local = normalize(Rt * L_world);
   vec3 V_local = normalize(Rt * V_world);
 
-  // 1. Ombra 3D della goccia in rilievo con CAUSTICA LUMINOSA focalizzata al centro dell'ombra
-  vec2 shDir = vec2(-L_local.x, L_local.y) * vec2(0.015, 0.042);
+  // 1. Ombra 3D della goccia emisferica con caustica luminosa
+  vec2 shDir = vec2(-L_local.x, L_local.y) * vec2(0.014, 0.038);
   vec2 sUv = duv - shDir;
   vec2 sRad = TEXEL * 8.5;
   float sh = 0.0;
   vec4 sd0 = sampleData(sUv);
   float sRev0 = revealAt(sd0);
-  sh += sd0.g * sRev0 * (1.0 + 0.30 * overlapAt(sUv)) * 0.32;
+  sh += sd0.g * sRev0 * (1.0 + 0.24 * overlapAt(sUv)) * 0.32;
   vec4 sd1 = sampleData(sUv + vec2( sRad.x,  0.0)); sh += sd1.g * revealAt(sd1) * 0.17;
   vec4 sd2 = sampleData(sUv + vec2(-sRad.x,  0.0)); sh += sd2.g * revealAt(sd2) * 0.17;
   vec4 sd3 = sampleData(sUv + vec2( 0.0,  sRad.y)); sh += sd3.g * revealAt(sd3) * 0.17;
   vec4 sd4 = sampleData(sUv + vec2( 0.0, -sRad.y)); sh += sd4.g * revealAt(sd4) * 0.17;
 
-  // La goccia d'acqua convessa concentra la luce al centro dell'ombra (caustica sulla card scura)
-  float shadowCore = smoothstep(0.28, 0.82, sd0.r) * sRev0;
-  float shadowAlpha = clamp(sh * 0.68 * (1.0 - 0.45 * shadowCore), 0.0, 0.72);
-  float castCaustic = shadowCore * 0.16 * max(L_local.y, 0.0);
+  float shadowCore = smoothstep(0.35, 0.90, sd0.r) * sRev0;
+  float shadowAlpha = clamp(sh * 0.65 * (1.0 - 0.40 * shadowCore), 0.0, 0.70);
+  float castCaustic = shadowCore * 0.12 * max(L_local.y, 0.0);
 
   // 2. Maschera e rigonfiamento fluido della goccia d'acqua
   float rev = revealAt(dat);
@@ -171,34 +169,32 @@ void main() {
     discard;
   }
 
-  // Ombra profonda sulla card scura
-  vec3 outCol = mix(vec3(0.005, 0.015, 0.03), vec3(0.55, 0.82, 1.0), clamp(castCaustic * 2.0, 0.0, 1.0));
-  float outA = max(shadowAlpha, castCaustic * 0.35);
+  vec3 outCol = mix(vec3(0.01, 0.01, 0.015), vec3(0.85, 0.88, 0.92), clamp(castCaustic * 2.0, 0.0, 1.0));
+  float outA = max(shadowAlpha, castCaustic * 0.30);
 
   if (glassAlpha >= 0.004) {
     float swell = smoothstep(0.0, 1.0, rev);
-    float dC = smoothSdf(duv);
     float p2 = overlapAt(duv);
     float hC = combinedHeight(duv, swell);
 
-    // Gradiente della goccia 3D in forte rilievo -> normale 3D locale ripida sul menisco
-    vec2 gStep = TEXEL * 2.4;
+    // Gradiente della semisfera liscia -> normale 3D continua (zero cresta centrale)
+    vec2 gStep = TEXEL * 3.0;
     float hR = combinedHeight(duv + vec2(gStep.x, 0.0), swell);
     float hL = combinedHeight(duv - vec2(gStep.x, 0.0), swell);
     float hD = combinedHeight(duv + vec2(0.0, gStep.y), swell);
     float hU = combinedHeight(duv - vec2(0.0, gStep.y), swell);
 
-    float slope = 5.4;
+    float slope = 5.2;
     vec3 N_local = normalize(vec3(-(hR - hL) * slope, (hD - hU) * slope, 1.0));
     vec3 N_world = normalize(R * N_local);
 
-    // 3. FORTE RIFRAZIONE D'ACQUA (legge di Snell IOR ~1.333 + forte spessore ottico 3D + parallasse live su Silk)
+    // 3. Forte rifrazione d'acqua live sullo sfondo Silk
     vec2 cardUv = vec2(0.1168 + duv.x * 0.771, 0.25 + duv.y * 0.416652);
     float thick = (0.045 + 0.135 * hC) * swell;
 
-    vec3 tr = refract(-V_local, N_local, 1.0 / 1.315);
+    vec3 tr = refract(-V_local, N_local, 1.0 / 1.318);
     vec3 tg = refract(-V_local, N_local, 1.0 / 1.333);
-    vec3 tb = refract(-V_local, N_local, 1.0 / 1.355);
+    vec3 tb = refract(-V_local, N_local, 1.0 / 1.350);
 
     vec2 offR = vec2(tr.x, -tr.y) / max(abs(tr.z), 0.24) * thick;
     vec2 offG = vec2(tg.x, -tg.y) / max(abs(tg.z), 0.24) * thick;
@@ -210,35 +206,33 @@ void main() {
     float bgB = texture2D(uBg, clamp(cardUv + offB * aspectFix, 0.002, 0.998)).b;
     vec3 refracted = vec3(bgR, bgG, bgB);
 
-    // Acqua pura cristallina su card scura: amplifica leggermente la luminosita' delle pieghe rifratte
+    // Acqua cristallina neutra (stesso colore puro dello sfondo senza tinte artificiali)
     float NdotV = max(dot(N_world, V_world), 0.0);
     float NdotL = max(dot(N_world, L_world), 0.0);
-    vec3 waterTint = mix(vec3(0.92, 0.97, 1.0), vec3(1.0), clamp(hC * 0.85, 0.0, 1.0));
-    vec3 transmitted = refracted * waterTint * (1.28 + 0.22 * hC + 0.14 * p2);
+    vec3 transmitted = refracted * (1.24 + 0.18 * hC + 0.10 * p2);
 
-    // 4. Riflessione Fresnel reale della stanza bianca luminosa sui bordi curvi della goccia 3D
-    float fresnel = 0.04 + 0.96 * pow(1.0 - NdotV, 3.2);
+    // 4. Riflessione Fresnel reale della stanza bianca sulla semisfera d'acqua
+    float fresnel = 0.035 + 0.965 * pow(1.0 - NdotV, 3.2);
     vec3 Refl = reflect(-V_world, N_world);
     float skyBand = smoothstep(-0.25, 0.85, Refl.y);
     float spotCone = smoothstep(0.10, 0.85, Refl.y) * exp(-pow(Refl.x + 0.12, 2.0) * 1.5);
-    vec3 envColor = mix(vec3(0.24, 0.40, 0.56), vec3(1.0, 1.0, 1.0), clamp(skyBand * 0.55 + spotCone * 0.65, 0.0, 1.0));
+    vec3 envColor = mix(vec3(0.22, 0.24, 0.28), vec3(1.0, 1.0, 1.0), clamp(skyBand * 0.55 + spotCone * 0.65, 0.0, 1.0));
 
-    // 5. Riflessi speculari bagnati molto nitidi (luce reale dall'alto)
+    // 5. Riflessi speculari bagnati nitidi sulla curva emisferica
     vec3 H = normalize(L_world + V_world);
     float NdotH = max(dot(N_world, H), 0.0);
-    float specPinpoint = pow(NdotH, 220.0) * (1.85 + 0.35 * p2) * smoothstep(0.0, 0.1, NdotL);
-    float specWet = pow(NdotH, 32.0) * 0.32 * NdotL;
+    float specPinpoint = pow(NdotH, 200.0) * (1.8 + 0.25 * p2) * smoothstep(0.0, 0.1, NdotL);
+    float specWet = pow(NdotH, 28.0) * 0.30 * NdotL;
     vec3 specColor = vec3(1.0) * (specPinpoint + specWet);
 
-    // 6. Rifrazione interna luminosa sul bordo inferiore della goccia (luce concentrata dal menisco)
+    // 6. Caustica interna sul bordo inferiore della semisfera
     float lowerCurve = clamp(-N_local.y, 0.0, 1.0);
-    float edgeBand = (1.0 - clamp(hC * 0.85, 0.0, 1.0)) * smoothstep(0.02, 0.32, dC);
-    float innerCaustic = pow(lowerCurve, 1.4) * edgeBand * max(L_local.y, 0.0) * 0.52;
+    float edgeBand = (1.0 - clamp(hC, 0.0, 1.0)) * smoothstep(0.05, 0.55, dat.r);
+    float innerCaustic = pow(lowerCurve, 1.4) * edgeBand * max(L_local.y, 0.0) * 0.45;
 
-    vec3 waterCol = mix(transmitted + vec3(0.80, 0.94, 1.0) * innerCaustic, envColor, clamp(fresnel * 0.82, 0.0, 0.92)) + specColor;
+    vec3 waterCol = mix(transmitted + vec3(innerCaustic), envColor, clamp(fresnel * 0.80, 0.0, 0.90)) + specColor;
     waterCol = clamp(waterCol, 0.0, 1.0);
 
-    // Composizione goccia d'acqua 3D sopra l'ombra sulla card scura
     float invG = 1.0 - glassAlpha;
     float finalA = glassAlpha + outA * invG;
     vec3 finalCol = (waterCol * glassAlpha + outCol * outA * invG) / max(finalA, 0.0001);

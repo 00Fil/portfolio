@@ -199,14 +199,14 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
                 <div className={s.frontSilk} aria-hidden>
                   <CardSilk
                     lightMode={false}
-                    color="#1d5685"
-                    sheenColor="#9edcff"
+                    color="#1a1e26"
+                    sheenColor="#2e3542"
                     speed={3.4}
                     scale={1.15}
-                    depth={0.72}
-                    sheen={0.55}
-                    glow={0.32}
-                    noiseIntensity={1.15}
+                    depth={0.75}
+                    sheen={0.48}
+                    glow={0.22}
+                    noiseIntensity={1.1}
                     onCanvas={(el) => { silkCanvas.current = el; }}
                   />
                 </div>
