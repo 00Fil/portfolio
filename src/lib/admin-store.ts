@@ -7,7 +7,7 @@ import { jwtVerify, SignJWT } from "jose";
  * Dati del pannello: un file JSON per cosa, in DATA_DIR (di default .data nella cartella del progetto).
  * Su Dokploy la cartella va montata su un volume, altrimenti si perde a ogni deploy.
  */
-export const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), ".data");
+export const DATA_DIR = process.env.DATA_DIR || (fs.existsSync("/app/data") ? "/app/data" : path.join(process.cwd(), ".data"));
 const f = (n: string) => path.join(DATA_DIR, n);
 
 function read<T>(name: string, fallback: T): T {
