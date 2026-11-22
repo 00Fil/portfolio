@@ -475,6 +475,7 @@ in vec2 vDuv;
 in vec3 vWorldPos;
 
 uniform sampler2D uData;
+uniform sampler2D uPass2;
 uniform mat3 uRot3;
 uniform vec3 uCamPos;
 uniform vec3 uCardColor;
@@ -617,6 +618,13 @@ void main() {
   float rimLight = pow(1.0 - cosi, 3.0) * (0.25 + 0.75 * abs(dot(normalize(N_local.xy + 1e-5), facing))) * 0.58 * U_REFLECTION;
   rimLight *= smoothstep(0.0, 0.08, cosi);
   glass.rgb = vec3(rimLight) + glass.rgb * (1.0 - rimLight);
+
+  // Scia luminosa liquida visibile mentre la penna ridiscende lo stelo della 'i' (senza alterare lo spessore)
+  float t2 = texture(uPass2, vDuv).r;
+  if (t2 < 0.99) {
+    float wave = exp(-pow((uProgress - t2) / 0.016, 2.0));
+    glass.rgb += vec3(0.45, 0.55, 0.62) * wave * (0.35 + 0.65 * hC);
+  }
 
   outColor = vec4(clamp(glass.rgb, 0.0, 1.0), alpha);
 }`;
