@@ -116,3 +116,25 @@ export function writeLogo(id: string, buf: Buffer) {
 }
 export const readLogo = (id: string) => (/^[a-f0-9]{16}$/.test(id) && fs.existsSync(logoFile(id)) ? fs.readFileSync(logoFile(id)) : null);
 export const removeLogo = (id: string) => fs.rmSync(logoFile(id), { force: true });
+
+/**
+ * La cartella dei dati sta su un volume? Si legge la tabella dei mount di Linux: conta un mount (non overlay/tmpfs)
+ * esattamente su DATA_DIR o su una sua cartella madre diversa da "/". null se non si puo' sapere.
+ */
+export function dataPersistent(): boolean | null {
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    const dir = fs.realpathSync(DATA_DIR);
+    const lines = fs.readFileSync("/proc/self/mountinfo", "utf8").split("\n");
+    for (const l of lines) {
+      const [pre, post] = l.split(" - ");
+      if (!post) continue;
+      const mp = pre.split(" ")[4];
+      const fstype = post.split(" ")[0];
+      if (mp && mp !== "/" && (dir === mp || dir.startsWith(mp + "/")) && fstype !== "overlay" && fstype !== "tmpfs" && fstype !== "proc" && fstype !== "sysfs") return true;
+    }
+    return false;
+  } catch {
+    return null;
+  }
+}

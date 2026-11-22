@@ -193,7 +193,7 @@ function Row({ c, editing, onEdit, onClose }: { c: CardT; editing: boolean; onEd
   );
 }
 
-export function AdminPanel({ cards, maintenance }: { cards: CardT[]; maintenance: boolean }) {
+export function AdminPanel({ cards, maintenance, persist }: { cards: CardT[]; maintenance: boolean; persist: boolean | null }) {
   const router = useRouter();
   const [edit, setEdit] = useState<string | null>(null);
   const [on, setOn] = useState(maintenance);
@@ -229,6 +229,13 @@ export function AdminPanel({ cards, maintenance }: { cards: CardT[]; maintenance
             <span className="absolute top-1 h-6 w-6 rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,.25)] transition-[left] duration-300 ease-[cubic-bezier(.16,1,.3,1)]" style={{ left: on ? 26 : 4 }} />
           </button>
         </Bead>
+
+        {persist !== null && (
+          <p className="mt-4 flex items-center gap-2.5 pl-3 text-[13.5px] text-ink-2">
+            <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: persist ? "#30d158" : "#e5484d" }} />
+            {persist ? "Dati su volume" : "Dati non persistenti"}
+          </p>
+        )}
 
         <div className="mt-10 flex items-center justify-between">
           <h2 className="text-[22px] font-semibold tracking-[-0.03em] text-ink">Card</h2>
