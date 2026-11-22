@@ -136,66 +136,66 @@ function segLen(pts) {
 
 // Segmenti base del "Ciao!"
 const iUpStartIdx = P0.findIndex(([x, y]) => x >= 388 && y <= 332); // punto in cui la C entra nello stelo della 'i'
-const sC    = P0;                              // C -> sale fino all'apice della 'i' (413, 208)
-const sIDn  = P0.slice(iUpStartIdx).reverse(); // ritorno completo dall'apice della 'i' fino in basso (390, 328)
-const sICon = P1.slice(0, 26);                 // curva bassa della 'i' e collegamento fino a 'a'
-const sAT   = P1.slice(25, 53);                // a: sale a sinistra e gira sopra -> (720, 222)
-const sATBk = [...sAT].reverse();              // a: ritorno sopra in senso antiorario -> (562, 337)
-const sAB   = P2;                              // a: gira sotto da sinistra a destra -> (706, 367)
-const sASUp = P1.slice(52, 69).reverse();      // a: risale lo stelo destro -> (720, 222)
-const sASDn = P1.slice(52, 69);                // a: riscende lo stelo destro -> (708, 366)
-const sAO   = P1.slice(68, 87);                // collegamento a -> o (867, 341)
-const sOT   = P1.slice(86, 117);               // o: sale a sinistra e gira sopra -> (1030, 231)
-const sOB   = P3;                              // o: scende a destra e gira sotto -> (867, 341)
-const sOT2  = P1.slice(86, 117);               // o: risale a sinistra e ripassa sopra -> (1030, 231) per uscire nella codina
-const sOTl  = P1.slice(116);                   // o: codina di uscita -> (1122, 204)
-const sBng  = P4;                              // ! asta
+const sC     = P0;                              // C -> sale fino all'apice della 'i' (413, 208)
+const sIDn   = P0.slice(iUpStartIdx).reverse(); // ritorno completo dall'apice della 'i' fino in basso (390, 328)
+const sICon  = P1.slice(2, 26);                 // curva bassa della 'i' e rampa fino a 'a' (parte dopo il bivio)
+const sAT    = P1.slice(25, 53);                // a: sale a sinistra e gira sopra -> (720, 222)
+const sAS    = P1.slice(52, 69);                // a: scende sullo stelo destro -> (708, 366)
+const sABRev = [...P2].reverse();               // a: chiude il fondo in senso orario -> (562, 343)
+const sAO    = P1.slice(68, 87);                // rampa di collegamento a -> o (867, 341)
+const sOT    = P1.slice(86, 117);               // o: sale a sinistra e gira sopra -> (1030, 231)
+const sOB    = P3;                              // o: scende a destra e chiude il fondo in senso orario -> (867, 341)
+const sOTl   = P1.slice(116);                   // o: gambetto finale nello stesso verso -> (1122, 204)
+const sBng   = P4;                              // ! asta
 
-// Percorso umano completo a penna singola (velocita' lineare costante):
-// pass = 1 (primo passaggio che scopre il vetro), pass = 2 (ripasso che da' profondita'/spessore)
+// Percorso fluido senza cambi di direzione repentini:
+// - C -> sale fino all'apice della 'i' -> stellina -> scende tutta la 'i' -> rampa verso 'a'
+// - 'a': un solo giro continuo in senso orario (sale sx -> sopra -> scende dx -> fondo -> ripasso leggero sopra/dx -> esce)
+// - 'o': dalla rampa della 'a', giro continuo in senso orario (sale sx -> sopra -> scende dx -> fondo -> ripasso sopra -> esce nel gambetto)
 const rawBody = [];
 let cur = 0;
-function pushSeg(pts, pass = 1, gap = 0) {
+function pushSeg(pts, pass = 1, speedMul = 1, gap = 0) {
   cur += gap;
   const len = segLen(pts);
-  rawBody.push({ pts, pass, s0: cur, s1: cur + len });
-  cur += len;
+  const dur = len / speedMul;
+  rawBody.push({ id: rawBody.length, pts, pass, s0: cur, s1: cur + dur });
+  cur += dur;
 }
 
-pushSeg(sC, 1);                 // C -> sale fino all'apice della 'i'
-const sparkStart = cur;         // stellina messa esattamente all'apice della 'i'
-const sparkEnd = sparkStart + 115;
-cur = sparkEnd + 25;
-pushSeg(sIDn, 2);               // scende lungo tutta l'asta della 'i' (ripasso con profondita')
-pushSeg(sICon, 1);              // curva bassa della 'i' fino a 'a'
-pushSeg(sAT, 1);                // a: sale a sinistra e gira sopra
-pushSeg(sATBk, 2);              // a: torna indietro antiorario sopra l'arco (ripasso con profondita')
-pushSeg(sAB, 1);                // a: chiude il fondo da sinistra a destra
-pushSeg(sASUp, 1);              // a: risale lo stelo destro
-pushSeg(sASDn, 2);              // a: riscende lo stelo destro (ripasso con profondita')
-pushSeg(sAO, 1);                // collegamento a -> o
-pushSeg(sOT, 1);                // o: sale a sinistra e gira sopra
-pushSeg(sOB, 1);                // o: scende a destra e chiude il fondo
-pushSeg(sOT2, 2);               // o: ripassa sull'arco superiore per uscire (effetto profondita' sulla O)
-pushSeg(sOTl, 1);               // o: codina di uscita
+pushSeg(sC, 1, 1.0);              // 0: C -> apice 'i'
+const sparkStart = cur;           // stellina esattamente all'apice della 'i'
+const sparkEnd = sparkStart + 105;
+cur = sparkEnd + 18;
+pushSeg(sIDn, 2, 1.15);           // 1: discesa completa della 'i' (ripasso con profondita')
+pushSeg(sICon, 1, 1.0);           // 2: curva bassa 'i' -> rampa 'a'
+pushSeg(sAT, 1, 1.0);             // 3: a sale sx + arco sopra (orario)
+pushSeg(sAS, 1, 1.0);             // 4: a scende stelo dx (orario)
+pushSeg(sABRev, 1, 1.0);          // 5: a chiude il fondo (orario)
+pushSeg(sAT, 2, 1.45);            // 6: a continua orario sopra (ripasso fluido con profondita')
+pushSeg(sAS, 2, 1.45);            // 7: a riscende stelo dx per uscire fluido (ripasso con profondita')
+pushSeg(sAO, 1, 1.0);             // 8: rampa a -> o
+pushSeg(sOT, 1, 1.0);             // 9: o sale sx + arco sopra (orario)
+pushSeg(sOB, 1, 1.0);             // 10: o scende dx + fondo (orario)
+pushSeg(sOT, 2, 1.35);            // 11: o continua orario sopra (ripasso con profondita')
+pushSeg(sOTl, 1, 1.0);            // 12: o conclude nello stesso verso il gambetto finale
 
-const bangStart = cur + 75;     // stacco penna prima del '!'
+const bangStart = cur + 70;       // stacco penna prima del '!'
 const bangEnd = bangStart + segLen(sBng);
-const dotStart = bangEnd + 45;
-const dotEnd = dotStart + 95;
+const dotStart = bangEnd + 40;
+const dotEnd = dotStart + 90;
 const TOTAL = dotEnd;
 
-const pass1Strokes = rawBody.filter(s => s.pass === 1).map(st => ({ pts: st.pts, t0: st.s0 / TOTAL, t1: st.s1 / TOTAL }));
-const pass2Strokes = rawBody.filter(s => s.pass === 2).map(st => ({ pts: st.pts, t0: st.s0 / TOTAL, t1: st.s1 / TOTAL }));
+const pass1Segs = rawBody.filter(s => s.pass === 1).map(st => ({ id: st.id, pts: st.pts, t0: st.s0 / TOTAL, t1: st.s1 / TOTAL }));
+const pass2Segs = rawBody.filter(s => s.pass === 2).map(st => ({ id: st.id, pts: st.pts, t0: st.s0 / TOTAL, t1: st.s1 / TOTAL }));
 const bangT0 = bangStart / TOTAL, bangT1 = bangEnd / TOTAL;
 const dotT0 = dotStart / TOTAL, dotT1 = dotEnd / TOTAL;
 const sparkT0 = sparkStart / TOTAL, sparkT1 = sparkEnd / TOTAL;
-console.log("Total human cursive path:", Math.round(TOTAL), "px | i-apex spark:", sparkT0.toFixed(3), "..", sparkT1.toFixed(3));
+console.log("Total smooth path:", Math.round(TOTAL), "px | i-apex spark:", sparkT0.toFixed(3), "..", sparkT1.toFixed(3));
 
-// Densifica i campioni ogni ~2px lungo il percorso per un inviluppo circolare perfetto
-function densify(strokes) {
+// Densifica i campioni ogni ~2px mantenendo l'id del segmento per evitare bleed prematuri agli incroci
+function densify(segs) {
   const samples = [];
-  for (const st of strokes) {
+  for (const st of segs) {
     const pts = st.pts;
     const total = segLen(pts) || 1;
     let acc = 0;
@@ -208,37 +208,48 @@ function densify(strokes) {
         for (let k = 1; k <= steps; k++) {
           const f = k / steps;
           const t = st.t0 + (st.t1 - st.t0) * ((acc + d * f) / total);
-          samples.push({ x: x0 + (x1 - x0) * f, y: y0 + (y1 - y0) * f, t });
+          samples.push({ x: x0 + (x1 - x0) * f, y: y0 + (y1 - y0) * f, t, seg: st.id });
         }
         acc += d;
       } else {
-        samples.push({ x: pts[0][0], y: pts[0][1], t: st.t0 });
+        samples.push({ x: pts[0][0], y: pts[0][1], t: st.t0, seg: st.id });
       }
     }
   }
   return samples;
 }
 
-const bodyP1 = densify(pass1Strokes);
-const bodyP2 = densify(pass2Strokes);
-const bangSamples = densify([{ pts: sBng, t0: bangT0, t1: bangT1 }]);
+const bodyP1 = densify(pass1Segs);
+const bodyP2 = densify(pass2Segs);
+const bangSamples = densify([{ id: 99, pts: sBng, t0: bangT0, t1: bangT1 }]);
 
-// Punta a sfera esatta: il primo istante t in cui un cerchio di raggio PEN_R lungo il tratto tocca (x, y).
-const PEN_R = 40;
+// Punta a sfera per segmento: ogni pixel appartiene al segmento piu' vicino (ownerSeg) e accetta
+// solo campioni di ownerSeg o del segmento direttamente adiacente nella sequenza (|seg - ownerSeg| <= 1).
+// Cosi' la C che sale sulla 'i' NON accende prima il tratto d'uscita della 'i', e la 'o' NON accende prima il gambetto finale!
+const PEN_R = 38;
 const PEN_R2 = PEN_R * PEN_R;
-const PEN_R2_P2 = 34 * 34; // leggermente piu' stretto sul ripasso per un rilievo centrale elegante
+const PEN_R2_P2 = 34 * 34;
 
-function ballpointTime(x, y, samples, fallback = true) {
-  let firstT = Infinity;
-  let bestD = Infinity, bestT = 0;
-  const r2 = fallback ? PEN_R2 : PEN_R2_P2;
+function ballpointOwned(x, y, samples, fallback = true) {
+  // 1. Trova il segmento proprietario (piu' vicino alla linea centrale)
+  let bestD = Infinity, bestT = 0, ownerSeg = -1;
   for (let i = 0; i < samples.length; i++) {
+    const dx = x - samples[i].x, dy = y - samples[i].y;
+    const d2 = dx * dx + dy * dy;
+    if (d2 < bestD) { bestD = d2; bestT = samples[i].t; ownerSeg = samples[i].seg; }
+  }
+  const r2 = fallback ? PEN_R2 : PEN_R2_P2;
+  if (!fallback && bestD > r2) return 1.0;
+
+  // 2. Calcola il primo istante della punta circolare solo sul segmento proprietario (o adiacente continuo)
+  let firstT = Infinity;
+  for (let i = 0; i < samples.length; i++) {
+    if (Math.abs(samples[i].seg - ownerSeg) > 1) continue;
     const dx = x - samples[i].x, dy = y - samples[i].y;
     const d2 = dx * dx + dy * dy;
     if (d2 <= r2 && samples[i].t < firstT) {
       firstT = samples[i].t;
     }
-    if (fallback && d2 < bestD) { bestD = d2; bestT = samples[i].t; }
   }
   if (firstT < Infinity) return firstT;
   return fallback ? bestT : 1.0;
@@ -260,10 +271,10 @@ for (let y = 0; y < H; y++) {
     let t2 = 1.0;
     const c = comp[i];
     if (c === cBody) {
-      t1 = ballpointTime(x, y, bodyP1, true);
-      t2 = ballpointTime(x, y, bodyP2, false);
+      t1 = ballpointOwned(x, y, bodyP1, true);
+      t2 = ballpointOwned(x, y, bodyP2, false);
     } else if (c === cBang) {
-      t1 = ballpointTime(x, y, bangSamples, true);
+      t1 = ballpointOwned(x, y, bangSamples, true);
     } else if (c === cDot) {
       const dr = Math.min(1, Math.hypot(x - 1201, y - 384) / 48);
       t1 = dotT0 + dr * (dotT1 - dotT0);
