@@ -220,16 +220,24 @@ const bodyP2 = densify(pass2Segs);
 const bangSamples = densify([{ id: 99, pts: sBng, t0: bangT0, t1: bangT1 }]);
 
 // Punta a sfera circolare pura (raggio 34px = spessore del tratto, zero spike e zero tagli Voronoi).
+// Unica eccezione: durante la salita della 'i' (seg <= 1) non si accende in anticipo la curva d'uscita
+// inferiore della 'i' (seg === 3, sotto la piega della C), che aspetta la discesa completa della penna.
 const PEN_R = 34;
 const PEN_R2 = PEN_R * PEN_R;
 
 function ballpointOwned(x, y, samples, fallback = true) {
-  let firstT = Infinity;
-  let bestD2 = Infinity, bestT = 0;
+  let bestD2 = Infinity, bestT = 0, bestSeg = -1;
   for (let i = 0; i < samples.length; i++) {
     const dx = x - samples[i].x, dy = y - samples[i].y;
     const d2 = dx * dx + dy * dy;
-    if (d2 < bestD2) { bestD2 = d2; bestT = samples[i].t; }
+    if (d2 < bestD2) { bestD2 = d2; bestT = samples[i].t; bestSeg = samples[i].seg; }
+  }
+  const blockEarlyIExit = fallback && bestSeg === 3 && Math.hypot(x - 387, y - 323) > 32;
+  let firstT = Infinity;
+  for (let i = 0; i < samples.length; i++) {
+    if (blockEarlyIExit && samples[i].seg <= 1) continue;
+    const dx = x - samples[i].x, dy = y - samples[i].y;
+    const d2 = dx * dx + dy * dy;
     if (d2 <= PEN_R2 && samples[i].t < firstT) firstT = samples[i].t;
   }
   if (!fallback && firstT === Infinity) return 1.0;
