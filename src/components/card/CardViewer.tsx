@@ -33,47 +33,90 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
   const [pending, setPending] = useState(false);
   const [tip, setTip] = useState<"user" | "pass" | null>(null);
 
+  const stage = useRef<HTMLDivElement>(null);
+  const world = useRef<HTMLDivElement>(null);
+  const float = useRef<HTMLDivElement>(null);
+  const intro = useRef<gsap.core.Timeline | null>(null);
+
+  /**
+   * Ingresso: una stanza bianca (lo schermo e' la parete di fondo, poi due pareti, pavimento e soffitto).
+   * La card parte distesa sul pavimento, si alza e fluttua, poi la camera avanza fino alla situazione di sempre;
+   * a quel punto il "Ciao!" si scrive a mano e compare il campo del codice.
+   */
   useEffect(() => {
-    if (!slug) return;
-    const root = scene.current;
-    if (!root) return;
-    const pens = Array.from(root.querySelectorAll<SVGPathElement>(".pen"));
-    const spark = root.querySelector<SVGElement>(".spark");
-    const dot = root.querySelector<SVGElement>(".dot");
+    const st = stage.current;
+    const wd = world.current;
+    const fl = float.current;
+    if (!st || !wd || !fl) return;
+    const pens = Array.from(st.querySelectorAll<SVGPathElement>(".pen"));
+    const spark = st.querySelector<SVGElement>(".spark");
+    const dot = st.querySelector<SVGElement>(".dot");
+    const planes = Array.from(st.querySelectorAll<HTMLElement>("[data-plane]"));
+    const drop = st.querySelector<HTMLElement>("[data-drop]");
+    const done = () => {
+      st.dataset.intro = "done";
+    };
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       pens.forEach((p) => p.setAttribute("stroke-dashoffset", "0"));
       spark?.setAttribute("transform", "");
       dot?.setAttribute("transform", "");
-      return;
+      return done();
     }
-    // velocita' costante della penna: la durata di ogni tratto segue la sua lunghezza
+    // misure della stanza sul vero schermo, prima che appaia qualcosa
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const rh = Math.round(vh * 0.55);
+    st.style.setProperty("--rw", `${Math.round(vw * 1.4)}px`);
+    st.style.setProperty("--rh", `${rh}px`);
+    const portrait = vw < vh;
+    gsap.set(fl, { y: rh - 3, rotationX: 90, rotationZ: -7, transformOrigin: "50% 50%" });
+    gsap.set(wd, { z: portrait ? -1500 : -1100, y: -vh * 0.06, rotationX: portrait ? -24 : -20, transformOrigin: "50% 50%" });
+    if (drop) gsap.set(drop, { opacity: 0.85, scale: 1 });
+    st.dataset.intro = "run";
+
+    const SPEED = 560;
+    const at = (i: number) => PEN[i].n / SPEED;
+    const grow = (tl: gsap.core.Timeline, el: SVGElement | null, cx: number, cy: number, t: number | string) => {
+      if (!el) return;
+      const o = { k: 0 };
+      tl.to(o, { k: 1, duration: 0.32, ease: "back.out(2)", onUpdate: () => el.setAttribute("transform", `translate(${cx} ${cy}) scale(${o.k}) translate(${-cx} ${-cy})`) }, t);
+    };
+    const build = () => {
+      const tl = gsap.timeline({ delay: 0.2, onComplete: done });
+      intro.current = tl;
+      // 1. la card si stacca dal pavimento e sale
+      tl.to(fl, { y: 0, rotationX: 0, duration: 1.7, ease: "power3.out" }, 0);
+      tl.to(fl, { rotationZ: 0, duration: 1.9, ease: "sine.out" }, 0);
+      if (drop) tl.to(drop, { opacity: 0.32, scale: 0.72, duration: 1.7, ease: "power3.out" }, 0);
+      // 2. fluttua
+      tl.to(fl, { y: -16, rotationY: 7, duration: 0.8, ease: "sine.inOut" }, 1.55);
+      tl.to(fl, { y: 0, rotationY: 0, duration: 0.7, ease: "sine.inOut" }, 2.35);
+      // 3. la camera avanza fino alla vista di sempre
+      tl.to(wd, { z: 0, y: 0, rotationX: 0, duration: 1.9, ease: "power3.inOut" }, 1.9);
+      tl.to(planes, { opacity: 0, duration: 0.6, ease: "power1.in" }, 3.2);
+      if (drop) tl.to(drop, { opacity: 0, duration: 0.5 }, 3.2);
+      tl.add(() => done(), 3.8);
+      // 4. il Ciao! si scrive a mano
+      const w0 = 3.55;
+      tl.to(pens[0], { strokeDashoffset: 0, duration: at(0), ease: "sine.inOut" }, w0);
+      tl.to(pens[1], { strokeDashoffset: 0, duration: at(1) * 0.9, ease: "none" }, ">-0.05");
+      tl.to(pens[2], { strokeDashoffset: 0, duration: at(2), ease: "sine.inOut" }, ">-0.12");
+      tl.to(pens[3], { strokeDashoffset: 0, duration: at(3), ease: "sine.inOut" }, ">-0.05");
+      tl.to(pens[4], { strokeDashoffset: 0, duration: at(4), ease: "sine.inOut" }, ">+0.12");
+      grow(tl, dot, 1201, 384, ">-0.05");
+      grow(tl, spark, 432, 97, ">+0.05");
+      return tl;
+    };
+    // parte appena si alza il telo d'apertura del sito
     let tl: gsap.core.Timeline | null = null;
-    // parte appena si alza il telo d'apertura: chi entra vede la mano scrivere, non il testo gia' fatto
     const off = onIntroLift(() => {
       tl = build();
     });
     return () => {
       off();
       tl?.kill();
+      intro.current = null;
     };
-    function build() {
-    const tl = gsap.timeline({ delay: 0.15 });
-    const SPEED = 560;
-    const at = (i: number) => PEN[i].n / SPEED;
-    tl.to(pens[0], { strokeDashoffset: 0, duration: at(0), ease: "sine.inOut" });
-    tl.to(pens[1], { strokeDashoffset: 0, duration: at(1) * 0.9, ease: "none" }, ">-0.05");
-    tl.to(pens[2], { strokeDashoffset: 0, duration: at(2), ease: "sine.inOut" }, ">-0.12");
-    tl.to(pens[3], { strokeDashoffset: 0, duration: at(3), ease: "sine.inOut" }, ">-0.05");
-    tl.to(pens[4], { strokeDashoffset: 0, duration: at(4), ease: "sine.inOut" }, ">+0.12");
-    const grow = (el: SVGElement | null, cx: number, cy: number, t: number | string) => {
-      if (!el) return;
-      const o = { k: 0 };
-      tl.to(o, { k: 1, duration: 0.32, ease: "back.out(2)", onUpdate: () => el.setAttribute("transform", `translate(${cx} ${cy}) scale(${o.k}) translate(${-cx} ${-cy})`) }, t);
-    };
-    grow(dot, 1201, 384, ">-0.05");
-    grow(spark, 432, 97, ">+0.05");
-    return tl;
-    }
   }, [slug]);
 
   const st = useRef({ ry: -24, rx: 8, vy: 0, vx: 0, snap: 0, px: 0, py: 0, drag: false, moved: 0, hit: "" as "" | "user" | "pass", lastX: 0, lastY: 0, lastT: 0, raf: 0, reduce: false });
@@ -94,6 +137,8 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
     el.style.setProperty("--sh", `${(50 - (rel + a.px * 14) * 2.6).toFixed(1)}%`);
     el.style.setProperty("--so2", `${(0.35 + 0.65 * Math.abs(Math.sin(((rel + a.px * 14 + 20) * Math.PI) / 90))).toFixed(2)}`);
     el.style.setProperty("--ss", `${(1 - Math.min(0.45, Math.abs(Math.sin((a.ry * Math.PI) / 180)) * 0.45)).toFixed(2)}`);
+    el.style.setProperty("--lx", `${(((50 - gx) / 50) * 1.5).toFixed(2)}`);
+    el.style.setProperty("--ly", `${(((42 - gy) / 42) * 0.9).toFixed(2)}`);
     el.style.setProperty("--so", `${(0.75 - Math.abs(Math.sin((a.ry * Math.PI) / 180)) * 0.3).toFixed(2)}`);
   }, []);
 
@@ -192,7 +237,28 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
   };
 
   return (
-    <div className={`${s.stage} ${nunito.variable}`}>
+    <div
+      ref={stage}
+      data-intro="pre"
+      className={`${s.stage} ${nunito.variable}`}
+      onPointerDownCapture={(e) => {
+        // un tocco durante l'ingresso lo porta subito alla fine
+        if (stage.current?.dataset.intro === "run" && intro.current) {
+          e.stopPropagation();
+          intro.current.progress(1);
+        }
+      }}
+    >
+      <div ref={world} className={s.world}>
+        <div className={s.room} aria-hidden>
+          <i data-plane className={s.roomBack} />
+          <i data-plane className={s.wallL} />
+          <i data-plane className={s.wallR} />
+          <i data-plane className={s.floor} />
+          <i data-plane className={s.ceil} />
+          <i data-drop className={s.drop} />
+        </div>
+        <div ref={float} className={s.float}>
       <div
         ref={scene}
         className={s.scene}
@@ -211,6 +277,18 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
             {slug && (
               <>
                 <div className={s.ciao}>
+                  <svg viewBox="0 0 1320 450" className={s.ciaoShadow} aria-hidden>
+                    <defs>
+                      <filter id="ciao-shadow" x="-6%" y="-14%" width="112%" height="140%" colorInterpolationFilters="sRGB">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="9" result="sb" />
+                        <feFlood floodColor="#000" floodOpacity=".62" />
+                        <feComposite in2="sb" operator="in" />
+                      </filter>
+                    </defs>
+                    <g mask="url(#ciao-write)">
+                      <image href="/card/ciao.png" width="1320" height="450" filter="url(#ciao-shadow)" />
+                    </g>
+                  </svg>
                   <svg viewBox="0 0 1320 450" className={s.glassEdge} aria-hidden>
                     <defs>
                       {/* la scrittura: i tratti bianchi si disegnano e scoprono il vetro sotto */}
@@ -243,12 +321,6 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
                         <feComposite in="shaded" in2="SourceAlpha" operator="in" result="lens" />
                         <feFlood floodColor="#cfeaff" floodOpacity=".2" />
                         <feComposite in2="SourceAlpha" operator="in" result="veil" />
-                        {/* ombra sul tavolo, solo fuori dalla goccia */}
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="9" result="sb" />
-                        <feOffset in="sb" dx="8" dy="16" result="so" />
-                        <feFlood floodColor="#000" floodOpacity=".6" />
-                        <feComposite in2="so" operator="in" result="sc" />
-                        <feComposite in="sc" in2="SourceAlpha" operator="out" result="shadow" />
                         {/* caustica: la luce si concentra nel bordo opposto alla sorgente */}
                         <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="ib" />
                         <feOffset in="ib" dx="-9" dy="-12" result="io" />
@@ -271,7 +343,6 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
                         <feFlood floodColor="#ffffff" floodOpacity=".9" />
                         <feComposite in2="ringb" operator="in" result="rim" />
                         <feMerge>
-                          <feMergeNode in="shadow" />
                           <feMergeNode in="lens" />
                           <feMergeNode in="veil" />
                           <feMergeNode in="caustic" />
@@ -318,6 +389,8 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
           <i className={`${s.edge} ${s.eR}`} /><i className={`${s.edge} ${s.eL}`} /><i className={`${s.edge} ${s.eT}`} /><i className={`${s.edge} ${s.eB}`} />
         </div>
         <div className={s.shadow} />
+      </div>
+        </div>
       </div>
 
       {creds ? (

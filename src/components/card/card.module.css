@@ -1,4 +1,24 @@
-.stage { width: min(92vw, 760px); display: grid; gap: 28px; justify-items: center; }
+.stage { --cw: min(92vw, 760px); --rw: 140vw; --rh: 55vh; --rb: 900px; --rf: 700px; --rd: calc(var(--rb) + var(--rf)); width: var(--cw); display: grid; gap: 28px; justify-items: center; position: relative; perspective: 1600px; perspective-origin: 50% calc(var(--cw) * .3154); }
+.stage[data-intro="pre"] .world, .stage[data-intro="pre"] .form { opacity: 0; }
+.stage:not([data-intro="done"]) .form, .stage:not([data-intro="done"]) .err { opacity: 0; pointer-events: none; }
+.stage:not([data-intro="done"]) .scene { pointer-events: none; }
+.stage[data-intro="done"] .room { display: none; }
+
+/* la stanza: lo schermo e' la parete di fondo; tutto bianco, dello stesso colore della pagina, con ombre di spigolo */
+.world { position: relative; width: 100%; transform-style: preserve-3d; }
+.room { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; pointer-events: none; }
+.room i { position: absolute; display: block; background-color: var(--bg-canvas, #f6f6f3); }
+.roomBack { width: calc(var(--rw) * 2); height: calc(var(--rh) * 3.2); left: calc(var(--rw) * -1); top: calc(var(--rh) * -1.6); transform: translateZ(calc(var(--rb) * -1));
+  background-image: radial-gradient(ellipse 52% 50% at 50% 50%, transparent 62%, rgba(10, 20, 40, .07) 100%); }
+.wallL, .wallR { width: var(--rd); height: calc(var(--rh) * 3.2); top: calc(var(--rh) * -1.6); }
+.wallL { left: calc(var(--rw) * -1); transform-origin: 0 50%; transform: translateZ(calc(var(--rb) * -1)) rotateY(-90deg); background-image: linear-gradient(90deg, rgba(10, 20, 40, .14), rgba(10, 20, 40, .035) 65%, rgba(10, 20, 40, .06)); }
+.wallR { left: calc(var(--rw) - var(--rd)); transform-origin: 100% 50%; transform: translateZ(calc(var(--rb) * -1)) rotateY(90deg); background-image: linear-gradient(270deg, rgba(10, 20, 40, .09), rgba(10, 20, 40, .02) 65%, rgba(10, 20, 40, .045)); }
+.floor, .ceil { width: calc(var(--rw) * 2); height: var(--rd); left: calc(var(--rw) * -1); transform-origin: 50% 0; transform: translateZ(calc(var(--rb) * -1)) rotateX(90deg); }
+.floor { top: var(--rh); background-image: linear-gradient(180deg, rgba(10, 20, 40, .10), rgba(10, 20, 40, .02) 70%, rgba(255, 255, 255, .0)); }
+.ceil { top: calc(var(--rh) * -1); background-image: linear-gradient(180deg, rgba(10, 20, 40, .16), rgba(10, 20, 40, .05) 70%, rgba(10, 20, 40, .08)); }
+.drop { width: calc(var(--cw) * .92); height: calc(var(--cw) * .5); left: calc(var(--cw) * -.46); top: var(--rh); background: radial-gradient(closest-side, rgba(10, 20, 40, .55), rgba(10, 20, 40, 0)) !important; background-color: transparent !important; transform-origin: 50% 0; transform: rotateX(90deg) translateY(-50%) translateZ(1px); filter: blur(6px); }
+.float { position: relative; width: 100%; }
+
 .scene { width: 100%; perspective: 1500px; container-type: inline-size; touch-action: pan-y; user-select: none; cursor: grab; position: relative; }
 .scene:active { cursor: grabbing; }
 .card { position: relative; width: 100%; aspect-ratio: 856 / 540; transform-style: preserve-3d; will-change: transform; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
@@ -14,11 +34,20 @@
 .glare { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light; opacity: .95;
   background: radial-gradient(60% 70% at var(--gx, 50%) var(--gy, 40%), rgba(255, 255, 255, .85), rgba(255, 255, 255, 0) 62%); }
 .sheen { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: overlay;
-  background: linear-gradient(105deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .75) 46%, rgba(255, 255, 255, .15) 52%, rgba(255, 255, 255, 0) 64%);
-  background-size: 260% 100%; background-position: var(--sh, 50%) 0; opacity: var(--so2, .8); }
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0) 48.9%, rgba(255, 255, 255, .8) 49.7%, rgba(255, 255, 255, 0) 50.5%),
+    linear-gradient(105deg, rgba(255, 255, 255, 0) 16%, rgba(255, 255, 255, .1) 32%, rgba(255, 255, 255, .42) 47%, rgba(255, 255, 255, .12) 60%, rgba(255, 255, 255, 0) 76%);
+  background-size: 260% 100%, 260% 100%; background-position: var(--sh, 50%) 0, var(--sh, 50%) 0; opacity: var(--so2, .8); }
+/* sulla card scura il riflesso e' luce che si somma, come la stanza bianca specchiata nel vetro */
+.frontCustom .sheen, .backCustom .sheen { mix-blend-mode: screen; opacity: calc(var(--so2, .8) * .5); }
+.frontCustom .glare, .backCustom .glare { mix-blend-mode: screen; opacity: .45; background: radial-gradient(50% 60% at var(--gx, 50%) var(--gy, 40%), rgba(255, 255, 255, .34), rgba(255, 255, 255, 0) 66%); }
+/* bordo: piu' luce dove la card guarda la stanza di taglio */
+.face::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; mix-blend-mode: screen; opacity: var(--so, .7);
+  background: linear-gradient(135deg, rgba(255, 255, 255, .42), rgba(255, 255, 255, 0) 24%, rgba(255, 255, 255, 0) 76%, rgba(255, 255, 255, .22));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .3), inset 0 0 3.2cqw rgba(255, 255, 255, .18); }
 .bar { position: absolute; left: 12.62cqw; width: 74.77cqw; height: 11.22cqw; border-radius: 99px; display: grid; place-items: center; color: #06263a; font-family: var(--nunito), var(--font-geist-sans), sans-serif; font-weight: 700; cursor: copy;
   background: linear-gradient(180deg, rgba(255, 255, 255, .78), rgba(236, 247, 255, .5));
-  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .85), inset 0 -1.6cqw 2.4cqw -1.4cqw rgba(94, 196, 255, .55), 0 1.6cqw 2.6cqw -1.6cqw rgba(6, 38, 58, .55); }
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .85), inset 0 -1.6cqw 2.4cqw -1.4cqw rgba(94, 196, 255, .55), inset 0 .5cqw .9cqw rgba(255, 255, 255, .95), calc(var(--lx, 0) * 1cqw) calc((1.3 + var(--ly, 0)) * 1cqw) 2.2cqw -.5cqw rgba(2, 12, 30, .55); }
 .bar span { font-size: var(--fs); letter-spacing: .01em; white-space: nowrap; }
 .bar svg { position: absolute; left: 3.5cqw; width: 4.67cqw; height: 4.67cqw; }
 .dots { letter-spacing: .35em !important; opacity: .55; }
@@ -42,6 +71,7 @@
 .front.frontCustom { background-image: url(/card/back-dark.webp); }
 .back.backCustom { background-image: url(/card/back-dark.webp); }
 .ciao { position: absolute; left: 11.68%; top: 25%; width: 77.1%; aspect-ratio: 1320 / 450; pointer-events: none; user-select: none; }
+.ciaoShadow { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; transform: translate(calc(var(--lx, 0) * 1cqw), calc((1.3 + var(--ly, 0)) * 1cqw)); }
 .glassEdge { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
 .sign { position: absolute; left: 0; right: 0; bottom: 2.7cqw; display: flex; align-items: center; justify-content: center; gap: 1.5cqw; color: #fff; pointer-events: none; }
 .sign i { font-style: normal; font-size: 3cqw; line-height: 1; opacity: .8; }
