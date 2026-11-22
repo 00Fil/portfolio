@@ -63,12 +63,5 @@
 .signName { font-family: var(--nunito), var(--font-geist-sans), sans-serif; font-weight: 700; font-size: 3.1cqw; line-height: 1; }
 .me { font-family: var(--font-logo), var(--font-geist-sans), sans-serif; font-size: 3.7cqw; line-height: 1; color: #fff; }
 
-.picker { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 999px; background: #f5f6f8; border: 1px solid rgba(11, 13, 18, .1); }
-.pickerInput { width: 28px; height: 28px; padding: 0; border: 0; border-radius: 999px; background: transparent; cursor: pointer; }
-.pickerInput::-webkit-color-swatch-wrapper { padding: 0; }
-.pickerInput::-webkit-color-swatch { border: 1px solid rgba(0, 0, 0, .18); border-radius: 999px; }
-.pickerHex { font-family: var(--font-geist-mono, monospace); font-size: 13px; color: #111; user-select: all; min-width: 64px; }
-.pickerSwatches { display: flex; align-items: center; gap: 6px; padding-left: 6px; border-left: 1px solid rgba(11, 13, 18, .12); }
-.swatch { width: 20px; height: 20px; border-radius: 999px; border: 1.5px solid rgba(0, 0, 0, .15); cursor: pointer; transition: transform .15s; }
-.swatch:hover { transform: scale(1.15); }
-.swatchActive { outline: 2px solid #111; outline-offset: 2px; }
+.dock3d { position: fixed; left: 50%; bottom: max(112px, calc(env(safe-area-inset-bottom) + 96px)); transform: translateX(-50%); z-index: 10; display: grid; gap: 8px; justify-items: center; pointer-events: auto; }
+@media (min-width: 1024px) { .dock3d { bottom: 44px; } }

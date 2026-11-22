@@ -2,15 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, KeyRound, User } from "lucide-react";
-import { onIntroLift } from "@/lib/intro";
 import localFont from "next/font/local";
 import { unlockCard } from "@/app/[locale]/card/actions";
-import { CiaoGlass, type CiaoGlassHandle } from "./CiaoGlass";
+import { CustomCard3D, type CustomCard3DHandle } from "./CustomCard3D";
 import s from "./card.module.css";
 
 const nunito = localFont({ src: "../../fonts/nunito-700.woff2", variable: "--nunito", display: "swap", weight: "700" });
-
-const SWATCHES = ["#182032", "#132a5e", "#1d4ed8", "#0d3b32", "#4a1525", "#232126"];
 
 type Txt = { code: string; open: string; flip: string; site: string; copied: string; errors: { wrong: string; limit: string; off: string } };
 
@@ -20,28 +17,12 @@ const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; logo?: string; name?: string }) {
   const scene = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
-  const ciao = useRef<CiaoGlassHandle>(null);
-  const ciaoShadow = useRef<CiaoGlassHandle>(null);
+  const card3d = useRef<CustomCard3DHandle>(null);
   const [creds, setCreds] = useState<{ user: string; pass: string; url: string } | null>(null);
   const [err, setErr] = useState("");
   const [shake, setShake] = useState(false);
   const [pending, setPending] = useState(false);
   const [tip, setTip] = useState<"user" | "pass" | null>(null);
-  const [cardColor, setCardColor] = useState("#182032");
-
-  useEffect(() => {
-    if (!slug) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      ciao.current?.settle();
-      ciaoShadow.current?.settle();
-      return;
-    }
-    return onIntroLift(() => {
-      ciao.current?.play(180);
-      ciaoShadow.current?.play(180);
-    });
-  }, [slug]);
 
   const st = useRef({ ry: -24, rx: 8, vy: 0, vx: 0, snap: 0, px: 0, py: 0, drag: false, moved: 0, hit: "" as "" | "user" | "pass", lastX: 0, lastY: 0, lastT: 0, raf: 0, reduce: false });
 
@@ -82,10 +63,6 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
     sc.style.setProperty("--sh-h", shH.toFixed(3));
     sc.style.setProperty("--sh-y", `${shY.toFixed(2)}cqw`);
     sc.style.setProperty("--sh-o", shOp.toFixed(2));
-
-    // Sincronizza in tempo reale la rifrazione e i riflessi del vetro "Ciao!" con la rotazione 3D
-    ciao.current?.setTilt(a.rx, a.ry);
-    ciaoShadow.current?.setTilt(a.rx, a.ry);
   }, []);
 
   const loop = useCallback(() => {
@@ -110,10 +87,11 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
   }, [loop]);
 
   useEffect(() => {
+    if (slug) return;
     st.current.reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     kick();
     return () => { cancelAnimationFrame(st.current.raf); st.current.raf = 0; };
-  }, [kick]);
+  }, [kick, slug]);
 
   const rel = (e: React.PointerEvent) => {
     const r = scene.current!.getBoundingClientRect();
@@ -173,14 +151,49 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
     setPending(false);
     if (r.ok) {
       setCreds({ user: r.user, pass: r.pass, url: r.url });
-      const a = st.current;
-      a.snap = Math.round(a.ry / 180) * 180 + (((Math.round(a.ry / 180) % 2) + 2) % 2 === 0 ? 180 : 0); // mostra il retro
-      kick();
+      if (slug) {
+        card3d.current?.showBack();
+      } else {
+        const a = st.current;
+        a.snap = Math.round(a.ry / 180) * 180 + (((Math.round(a.ry / 180) % 2) + 2) % 2 === 0 ? 180 : 0); // mostra il retro
+        kick();
+      }
     } else {
       setErr(t.errors[r.error]);
       setShake(true); setTimeout(() => setShake(false), 450);
     }
   };
+
+  if (slug) {
+    return (
+      <>
+        <CustomCard3D
+          ref={card3d}
+          name={name}
+          logo={logo}
+          creds={creds}
+          copiedText={t.copied}
+          tip={tip}
+          onCopy={copy}
+          ariaLabel={t.flip}
+        />
+        <div className={`${s.dock3d} ${nunito.variable}`}>
+          {creds ? (
+            <a className={`${s.form} ${s.site}`} href={creds.url} target="_blank" rel="noopener noreferrer">
+              <span>{t.site}</span>
+              <i><ArrowUpRight size={18} /></i>
+            </a>
+          ) : (
+            <form onSubmit={submit} className={`${s.form} ${shake ? s.shake : ""}`} autoComplete="off">
+              <input name="code" type="password" placeholder={t.code} aria-label={t.code} autoComplete="off" spellCheck={false} />
+              <button type="submit" disabled={pending} aria-label={t.open}><ArrowRight size={18} /></button>
+            </form>
+          )}
+          <p className={s.err} role="status">{err}</p>
+        </div>
+      </>
+    );
+  }
 
   return (
     <div className={`${s.stage} ${nunito.variable}`}>
@@ -197,34 +210,12 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
         aria-label={t.flip}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " " || e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); flip(); } }}
       >
-        <div ref={card} className={s.card} style={slug ? ({ ["--card-bg" as string]: cardColor } as React.CSSProperties) : undefined}>
-          <div className={`${s.face} ${s.front} ${slug ? s.frontCustom : ""}`}>
-            {slug && (
-              <div className={s.sign}>
-                {logo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={logo} alt={name ?? ""} draggable={false} className={s.signLogo} />
-                ) : (
-                  <span className={s.signName}>{name}</span>
-                )}
-                <i>×</i>
-                <span className={s.me}>Filippo Corsini</span>
-              </div>
-            )}
+        <div ref={card} className={s.card}>
+          <div className={`${s.face} ${s.front}`}>
             <div className={s.sheen} />
             <div className={s.glare} />
           </div>
-          {slug && (
-            <>
-              <div className={s.ciaoShadow}>
-                <CiaoGlass ref={ciaoShadow} layer="shadow" bgColor={cardColor} />
-              </div>
-              <div className={s.ciao3d}>
-                <CiaoGlass ref={ciao} layer="glass" bgColor={cardColor} />
-              </div>
-            </>
-          )}
-          <div className={`${s.face} ${s.back} ${slug ? s.backCustom : ""}`}>
+          <div className={`${s.face} ${s.back}`}>
             <div className={s.bar} data-copy="user" style={{ top: "18.93cqw", ["--fs" as string]: "4.67cqw" }}>
               <User aria-hidden strokeWidth={2} />
               <span className={creds ? "" : s.dots}>{creds ? creds.user : "••••••••"}</span>
@@ -238,38 +229,13 @@ export function CardViewer({ t, slug, logo, name }: { t: Txt; slug?: string; log
             <div className={s.sheen} />
             <div className={s.glare} />
           </div>
-          <i className={`${s.edge} ${s.eR} ${slug ? s.edgeCustom : ""}`} />
-          <i className={`${s.edge} ${s.eL} ${slug ? s.edgeCustom : ""}`} />
-          <i className={`${s.edge} ${s.eT} ${slug ? s.edgeCustom : ""}`} />
-          <i className={`${s.edge} ${s.eB} ${slug ? s.edgeCustom : ""}`} />
+          <i className={`${s.edge} ${s.eR}`} />
+          <i className={`${s.edge} ${s.eL}`} />
+          <i className={`${s.edge} ${s.eT}`} />
+          <i className={`${s.edge} ${s.eB}`} />
         </div>
         <div className={s.shadow} aria-hidden />
       </div>
-
-      {slug && (
-        <div className={s.picker}>
-          <input
-            type="color"
-            value={cardColor}
-            onChange={(e) => setCardColor(e.target.value)}
-            className={s.pickerInput}
-            aria-label="Colore card"
-          />
-          <span className={s.pickerHex}>{cardColor.toUpperCase()}</span>
-          <div className={s.pickerSwatches}>
-            {SWATCHES.map((hex) => (
-              <button
-                key={hex}
-                type="button"
-                className={`${s.swatch} ${cardColor.toLowerCase() === hex ? s.swatchActive : ""}`}
-                style={{ backgroundColor: hex }}
-                onClick={() => setCardColor(hex)}
-                aria-label={hex}
-              />
-            ))}
-          </div>
-        </div>
-      )}
 
       {creds ? (
         <a className={`${s.form} ${s.site}`} href={creds.url} target="_blank" rel="noopener noreferrer">
