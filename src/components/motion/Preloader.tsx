@@ -3,12 +3,9 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { settled } from "@/lib/intro";
-import { prepareWrite, writeOn, writeTime } from "@/lib/handwrite";
 
 /** Attesa massima per ciò che serve alla prima schermata, oltre l'ingresso del nome. */
 const MAX_WAIT_MS = 1000;
-/** Ritardo tra una lettera e la successiva, in secondi (lo stesso del CSS). */
-const STAGGER = 0.045;
 
 const wait = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
 const loaded = () => new Promise<void>((r) => (document.readyState === "complete" ? r() : window.addEventListener("load", () => r(), { once: true })));
@@ -50,17 +47,18 @@ export function Preloader({ label }: { label: string }) {
     }
     if (html.dataset.intro !== "run") return;
 
-    // il nome si scrive a mano, una parola dopo l'altra; poi si aspetta che la pagina sia pronta
+    // il nome entra in due tempi, nome e poi cognome: una tendina morbida da sinistra con un lieve scivolamento, veloce
     const spans = Array.from(el.querySelectorAll<HTMLElement>(".pre-ch"));
-    const tl = gsap.timeline();
-    let at = 0.1;
-    spans.forEach((sp) => {
-      prepareWrite(sp);
-      const d = writeTime(sp);
-      writeOn(tl, sp, at, d);
-      at += d + 0.04;
+    const tl = gsap.timeline({ delay: 0.1 });
+    spans.forEach((sp, i) => {
+      tl.fromTo(
+        sp,
+        { opacity: 1, clipPath: "inset(-30% 100% -50% -12%)", xPercent: -7, scale: 1.04 },
+        { clipPath: "inset(-30% -12% -50% -12%)", xPercent: 0, scale: 1, duration: 0.95, ease: "expo.out" },
+        i * 0.2,
+      );
     });
-    const entered = new Promise<void>((r) => tl.call(r, undefined, at + 0.3));
+    const entered = new Promise<void>((r) => tl.call(r, undefined, 1.0));
     const ready = entered.then(() => Promise.race([Promise.all([document.fonts?.ready, loaded()]).then(settled), wait(MAX_WAIT_MS)]));
     ready.then(() => {
       if (!alive) return;

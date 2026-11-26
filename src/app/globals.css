@@ -515,7 +515,7 @@ html[data-theme="light"][data-intro="run"] .preloader, html[data-theme="light"] 
   will-change: transform;
 }
 .pre-ch { padding: 0.3em 0.12em 0.5em; margin: -0.3em -0.12em -0.5em; }
-html[data-intro="run"] .pre-ch:not([data-wlen]) { opacity: 0; }
+html[data-intro="run"] .pre-ch { opacity: 0; will-change: clip-path, transform; }
 @keyframes preCh { from { transform: translateY(12%); opacity: 0; } 60% { opacity: 1; } to { transform: none; opacity: 1; } }
 html[data-intro] .preloader.pre-out .pre-ch { animation: preChOut .6s cubic-bezier(.55,0,.8,.2) both; animation-delay: calc(var(--i) * .02s); }
 @keyframes preChOut { from { transform: none; opacity: 1; } to { transform: translateY(8%); opacity: 0; } }
