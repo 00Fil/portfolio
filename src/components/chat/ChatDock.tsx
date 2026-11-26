@@ -56,7 +56,7 @@ export function AppIcon({ size = 38, listening = false }: { size?: number; liste
  * in alto al centro come su iOS), si apre in una finestra di vetro acrilico e, quando serve, passa la
  * conversazione a Filippo. Si apre anche dal menu dei contatti (evento `chat:open`).
  */
-export function ChatDock() {
+function ChatDockInner() {
   const t = (useMessages() as unknown as { chat: ChatText }).chat;
   const locale = useLocale() as Locale;
   const pathname = usePathname();
@@ -418,4 +418,11 @@ export function ChatDock() {
       )}
     </>
   );
+}
+
+/** Nelle pagine delle card (/c/...) la chat e la sua notifica non ci sono. */
+export function ChatDock() {
+  const pathname = usePathname();
+  if (pathname.startsWith("/c/")) return null;
+  return <ChatDockInner />;
 }
