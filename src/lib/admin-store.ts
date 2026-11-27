@@ -109,6 +109,13 @@ export const cardBySlug = (slug: string) => cards().find((c) => c.slug === slug)
 export const saveCards = (list: Card[]) => write("cards.json", list);
 export const newId = () => randomBytes(8).toString("hex");
 
+/* ---- documenti tecnici (change log, collaudi, audit) ---- */
+import type { Report } from "./report-shared";
+export * from "./report-shared";
+export const reports = () => read<Report[]>("reports.json", []);
+export const reportBySlug = (slug: string) => reports().find((r) => r.slug === slug);
+export const saveReports = (list: Report[]) => write("reports.json", list);
+
 const logoFile = (id: string) => path.join(DATA_DIR, "logos", `${id}.png`);
 export function writeLogo(id: string, buf: Buffer) {
   fs.mkdirSync(path.dirname(logoFile(id)), { recursive: true });

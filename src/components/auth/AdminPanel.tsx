@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { ArrowUpRight, Check, Copy, ImagePlus, LogOut, Pencil, Plus, Sparkles, Trash2, X } from "lucide-react";
 import { Bead } from "@/components/glass/Bead";
 import { Wordmark } from "@/components/nav/Wordmark";
+import { ReportsAdmin } from "./ReportsAdmin";
+import type { Report } from "@/lib/report-shared";
 import { deleteCard, saveCard, signOut, toggleMaintenance } from "@/app/[locale]/login/actions";
 
 type CardT = { id: string; slug: string; name: string; code: string; user: string; pass: string; url: string; logo: number; color?: string; colors?: string[] };
@@ -399,7 +401,7 @@ function Row({ c, editing, onEdit, onClose }: { c: CardT; editing: boolean; onEd
   );
 }
 
-export function AdminPanel({ cards, maintenance, persist }: { cards: CardT[]; maintenance: boolean; persist: { ok: boolean; dir: string; fs: string } | null }) {
+export function AdminPanel({ cards, reports, maintenance, persist }: { cards: CardT[]; reports: Report[]; maintenance: boolean; persist: { ok: boolean; dir: string; fs: string } | null }) {
   const router = useRouter();
   const [edit, setEdit] = useState<string | null>(null);
   const [on, setOn] = useState(maintenance);
@@ -456,6 +458,8 @@ export function AdminPanel({ cards, maintenance, persist }: { cards: CardT[]; ma
             <Row key={c.id + c.logo} c={c} editing={edit === c.id} onEdit={() => setEdit(c.id)} onClose={() => setEdit(null)} />
           ))}
         </ul>
+
+        <ReportsAdmin reports={reports} />
       </div>
     </main>
   );

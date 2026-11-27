@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { rateLimited } from "@/lib/session";
 import { closeAdminSession, openAdminSession, requireAdmin } from "@/lib/admin";
-import { adminExists, cards, createAdmin, newId, removeLogo, saveCards, setMaintenance, verifyAdmin, writeLogo, type Card } from "@/lib/admin-store";
+import { adminExists, cards, createAdmin, KINDS, newId, removeLogo, reports, saveCards, saveReports, SEVERITIES, setMaintenance, STATES, TESTS, verifyAdmin, writeLogo, type Card, type Entry, type Report } from "@/lib/admin-store";
 
 export type AuthState = { error?: string; user?: string; ok?: boolean } | undefined;
 
@@ -123,5 +123,65 @@ export async function deleteCard(id: string) {
   await requireAdmin();
   removeLogo(id);
   saveCards(cards().filter((c) => c.id !== id));
+  revalidatePath("/", "layout");
+}
+
+
+const pick = <T extends string>(v: unknown, list: readonly T[], fb: T): T => (list.includes(v as T) ? (v as T) : fb);
+const txt = (v: unknown, n: number) => String(v ?? "").trim().slice(0, n);
+
+/** Crea o aggiorna un documento tecnico. Sempre disponibile: il link e' /r/<url>. */
+export async function saveReport(raw: string): Promise<SaveResult & { slug?: string }> {
+  await requireAdmin();
+  let d: Record<string, unknown>;
+  try {
+    d = JSON.parse(raw);
+  } catch {
+    return { ok: false, error: "Dati non validi" };
+  }
+  const id = txt(d.id, 32);
+  const list = reports();
+  const prev = list.find((r) => r.id === id);
+  let slug = txt(d.slug, 40).toLowerCase();
+  if (!slug) slug = prev?.slug ?? newId().slice(0, 10);
+  if (!SLUG.test(slug)) return { ok: false, error: "URL: lettere minuscole, numeri e trattini" };
+  if (list.some((r) => r.slug === slug && r.id !== id)) return { ok: false, error: "URL gia' usato" };
+  const title = txt(d.title, 120);
+  if (!title) return { ok: false, error: "Titolo mancante" };
+  const entries: Entry[] = (Array.isArray(d.entries) ? d.entries : []).slice(0, 300).map((e: Record<string, unknown>) => ({
+    id: txt(e.id, 32) || newId().slice(0, 8),
+    kind: pick(e.kind, KINDS, "change"),
+    title: txt(e.title, 200),
+    detail: txt(e.detail, 2000),
+    area: txt(e.area, 80),
+    commit: txt(e.commit, 40),
+    severity: pick(e.severity, SEVERITIES, ""),
+    state: pick(e.state, STATES, ""),
+    test: pick(e.test, TESTS, "da collaudare"),
+    evidence: txt(e.evidence, 600),
+  })).filter((e) => e.title);
+  const now = new Date().toISOString();
+  const next: Report = {
+    id: prev?.id ?? newId(),
+    slug,
+    title,
+    project: txt(d.project, 80),
+    version: txt(d.version, 40),
+    status: d.status === "rilasciato" ? "rilasciato" : "bozza",
+    date: /^\d{4}-\d{2}-\d{2}$/.test(String(d.date)) ? String(d.date) : now.slice(0, 10),
+    env: txt(d.env, 300),
+    summary: txt(d.summary, 2000),
+    entries,
+    created: prev?.created ?? now,
+    updated: now,
+  };
+  saveReports(prev ? list.map((r) => (r.id === next.id ? next : r)) : [...list, next]);
+  revalidatePath("/", "layout");
+  return { ok: true, slug };
+}
+
+export async function deleteReport(id: string) {
+  await requireAdmin();
+  saveReports(reports().filter((r) => r.id !== id));
   revalidatePath("/", "layout");
 }

@@ -420,9 +420,9 @@ function ChatDockInner() {
   );
 }
 
-/** Nelle pagine delle card (/c/...) la chat e la sua notifica non ci sono. */
+/** Nelle pagine delle card e dei documenti (/c/, /r/) la chat e la sua notifica non ci sono. */
 export function ChatDock() {
   const pathname = usePathname();
-  if (pathname.startsWith("/c/")) return null;
+  if (pathname.startsWith("/c/") || pathname.startsWith("/r/")) return null;
   return <ChatDockInner />;
 }
