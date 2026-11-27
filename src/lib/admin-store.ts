@@ -109,6 +109,17 @@ export const cardBySlug = (slug: string) => cards().find((c) => c.slug === slug)
 export const saveCards = (list: Card[]) => write("cards.json", list);
 export const newId = () => randomBytes(8).toString("hex");
 
+/* ---- GitHub: token in un file a parte (0600), mai restituito al browser; in alternativa GITHUB_TOKEN nell'ambiente ---- */
+type Gh = { token: string; login: string; repo: string };
+const gh = () => read<Gh | null>("github.json", null);
+export const githubToken = () => gh()?.token || process.env.GITHUB_TOKEN || "";
+export const githubInfo = () => {
+  const g = gh();
+  return { connected: !!(g?.token || process.env.GITHUB_TOKEN), login: g?.login ?? "", repo: g?.repo ?? process.env.GITHUB_REPO ?? "" };
+};
+export const saveGithub = (v: Gh) => write("github.json", v);
+export const clearGithub = () => fs.rmSync(f("github.json"), { force: true });
+
 /* ---- documenti tecnici (change log, collaudi, audit) ---- */
 import type { Report } from "./report-shared";
 export * from "./report-shared";

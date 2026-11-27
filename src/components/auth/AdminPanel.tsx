@@ -401,7 +401,7 @@ function Row({ c, editing, onEdit, onClose }: { c: CardT; editing: boolean; onEd
   );
 }
 
-export function AdminPanel({ cards, reports, maintenance, persist }: { cards: CardT[]; reports: Report[]; maintenance: boolean; persist: { ok: boolean; dir: string; fs: string } | null }) {
+export function AdminPanel({ cards, reports, github, maintenance, persist }: { cards: CardT[]; reports: Report[]; github: { connected: boolean; login: string; repo: string }; maintenance: boolean; persist: { ok: boolean; dir: string; fs: string } | null }) {
   const router = useRouter();
   const [edit, setEdit] = useState<string | null>(null);
   const [on, setOn] = useState(maintenance);
@@ -459,7 +459,7 @@ export function AdminPanel({ cards, reports, maintenance, persist }: { cards: Ca
           ))}
         </ul>
 
-        <ReportsAdmin reports={reports} />
+        <ReportsAdmin reports={reports} github={github} />
       </div>
     </main>
   );

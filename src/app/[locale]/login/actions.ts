@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { rateLimited } from "@/lib/session";
 import { closeAdminSession, openAdminSession, requireAdmin } from "@/lib/admin";
-import { adminExists, cards, createAdmin, KINDS, newId, removeLogo, reports, saveCards, saveReports, SEVERITIES, setMaintenance, STATES, TESTS, verifyAdmin, writeLogo, type Card, type Entry, type Report } from "@/lib/admin-store";
+import { clearGithub, githubInfo, githubToken, saveGithub, adminExists, cards, createAdmin, KINDS, newId, removeLogo, reports, saveCards, saveReports, SEVERITIES, setMaintenance, STATES, TESTS, verifyAdmin, writeLogo, type Card, type Entry, type Report } from "@/lib/admin-store";
 
 export type AuthState = { error?: string; user?: string; ok?: boolean } | undefined;
 
@@ -184,4 +184,81 @@ export async function deleteReport(id: string) {
   await requireAdmin();
   saveReports(reports().filter((r) => r.id !== id));
   revalidatePath("/", "layout");
+}
+
+
+/* ---- GitHub ---- */
+const REPO = /^[A-Za-z0-9_.-]{1,100}\/[A-Za-z0-9_.-]{1,100}$/;
+const gj = async (path: string, token: string) => {
+  const r = await fetch(`https://api.github.com${path}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "portfolio-admin" }, cache: "no-store" });
+  if (!r.ok) throw new Error(String(r.status));
+  return r.json();
+};
+
+/** Collega l'account: il token viene verificato e salvato solo sul server. */
+export async function connectGithub(token: string, repo: string): Promise<SaveResult> {
+  await requireAdmin();
+  token = token.trim();
+  repo = repo.trim();
+  if (repo && !REPO.test(repo)) return { ok: false, error: "Repository: proprietario/nome" };
+  try {
+    if (!token) token = githubToken();
+    if (!token) return { ok: false, error: "Token mancante" };
+    const u = await gj("/user", token);
+    if (repo) await gj(`/repos/${repo}`, token);
+    saveGithub({ token, login: String(u.login ?? ""), repo });
+    revalidatePath("/", "layout");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message === "401" ? "Token non valido" : (e as Error).message === "404" ? "Repository non trovato per questo token" : "GitHub non raggiungibile" };
+  }
+}
+
+export async function disconnectGithub() {
+  await requireAdmin();
+  clearGithub();
+  revalidatePath("/", "layout");
+}
+
+const kindOf = (m: string): Entry["kind"] => {
+  if (/^(security|sec|sicurezza)\b|vulnerab|\bcve\b/i.test(m)) return "security";
+  if (/^perf\b|prestazion|ottimizz/i.test(m)) return "perf";
+  if (/^(bug)\b/i.test(m)) return "bug";
+  if (/^(fix|bugfix|hotfix)\b|^(corregg|sistem|risolv)/i.test(m)) return "fix";
+  if (/^(feat|feature)\b|^(aggiung|nuov)/i.test(m)) return "feature";
+  return "change";
+};
+
+export type ImportOut = { ok: true; entries: Entry[]; repo: string } | { ok: false; error: string };
+
+/** Legge i commit del repository e li trasforma in voci del documento (tipo dedotto dal messaggio). */
+export async function importCommits(repo: string, since: string, limit: number, branch: string): Promise<ImportOut> {
+  await requireAdmin();
+  const token = githubToken();
+  if (!token) return { ok: false, error: "Account GitHub non collegato" };
+  repo = repo.trim() || githubInfo().repo;
+  if (!REPO.test(repo)) return { ok: false, error: "Repository: proprietario/nome" };
+  const q = new URLSearchParams({ per_page: String(Math.min(100, Math.max(1, Math.floor(limit) || 30))) });
+  if (/^\d{4}-\d{2}-\d{2}$/.test(since)) q.set("since", `${since}T00:00:00Z`);
+  if (/^[\w./-]{1,100}$/.test(branch)) q.set("sha", branch);
+  try {
+    const list = (await gj(`/repos/${repo}/commits?${q}`, token)) as { sha: string; commit: { message: string }; parents?: unknown[] }[];
+    const entries: Entry[] = list
+      .filter((c) => (c.parents?.length ?? 1) < 2)
+      .map((c) => {
+        const lines = c.commit.message.split("\n");
+        let head = lines[0].trim();
+        const body = lines.slice(1).filter((l) => !/^(co-authored-by|claude-session|signed-off-by):/i.test(l.trim())).join("\n").trim();
+        const m = /^(\w+)(?:\(([^)]+)\))?!?:\s*(.+)$/.exec(head);
+        let area = "";
+        if (m) {
+          area = m[2] ?? "";
+          head = m[3];
+        }
+        return { id: newId().slice(0, 8), kind: kindOf(lines[0]), title: head.slice(0, 200), detail: body.slice(0, 2000), area: area.slice(0, 80), commit: c.sha.slice(0, 7), severity: "", state: "", test: "da collaudare", evidence: "" } satisfies Entry;
+      });
+    return { ok: true, entries, repo };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message === "404" ? "Repository o ramo non trovato" : (e as Error).message === "401" ? "Token non valido" : "GitHub non raggiungibile" };
+  }
 }

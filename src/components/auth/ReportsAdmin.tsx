@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowUpRight, Check, Copy, Pencil, Plus, Trash2, X } from "lucide-react";
 import { Bead } from "@/components/glass/Bead";
-import { deleteReport, saveReport } from "@/app/[locale]/login/actions";
+import { connectGithub, deleteReport, disconnectGithub, importCommits, saveReport } from "@/app/[locale]/login/actions";
 import { KINDS, KIND_LABEL, SEVERITIES, STATES, TESTS, type Entry, type Report } from "@/lib/report-shared";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -51,7 +51,9 @@ function Pick<T extends string>({ label, value, list, onChange, show }: { label:
   );
 }
 
-function ReportForm({ report, onClose }: { report?: Report; onClose: () => void }) {
+type Gh = { connected: boolean; login: string; repo: string };
+
+function ReportForm({ report, onClose, gh }: { report?: Report; onClose: () => void; gh: Gh }) {
   const router = useRouter();
   const [d, setD] = useState<Report>(
     report ?? { id: "", slug: "", title: "", project: "portfolio", version: "", status: "bozza", date: today(), env: "", summary: "", entries: [blank()], created: "", updated: "" },
@@ -60,6 +62,25 @@ function ReportForm({ report, onClose }: { report?: Report; onClose: () => void 
   const [busy, start] = useTransition();
   const set = <K extends keyof Report>(k: K, v: Report[K]) => setD((x) => ({ ...x, [k]: v }));
   const upd = (id: string, patch: Partial<Entry>) => setD((x) => ({ ...x, entries: x.entries.map((e) => (e.id === id ? { ...e, ...patch } : e)) }));
+
+  const [repo, setRepo] = useState(gh.repo);
+  const [since, setSince] = useState("");
+  const [branch, setBranch] = useState("");
+  const [limit, setLimit] = useState("30");
+  const [imp, setImp] = useState("");
+  const [loading, load] = useTransition();
+  const pull = () =>
+    load(async () => {
+      setImp("");
+      const r = await importCommits(repo, since, Number(limit), branch);
+      if (!r.ok) return setImp(r.error);
+      setD((x) => {
+        const have = new Set(x.entries.map((e) => e.commit).filter(Boolean));
+        const fresh = r.entries.filter((e) => !have.has(e.commit));
+        return { ...x, project: x.project || r.repo.split("/")[1], entries: [...x.entries.filter((e) => e.title || e.commit), ...fresh] };
+      });
+      setImp(`${r.entries.length} commit letti`);
+    });
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +105,24 @@ function ReportForm({ report, onClose }: { report?: Report; onClose: () => void 
       </div>
       <Inp label="Ambiente di collaudo" value={d.env} onChange={(v) => set("env", v)} />
       <Area label="Sintesi" value={d.summary} onChange={(v) => set("summary", v)} />
+
+      {gh.connected && (
+        <Bead as="div" radius={24} className="grid gap-3 p-3.5">
+          <span className="pl-1 text-[12.5px] font-medium text-ink-2">Importa da GitHub</span>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Inp label="Repository" value={repo} onChange={setRepo} mono />
+            <Inp label="Ramo (vuoto = principale)" value={branch} onChange={setBranch} mono />
+            <Inp label="Dal giorno" value={since} onChange={setSince} type="date" mono />
+            <Inp label="Numero massimo" value={limit} onChange={setLimit} type="number" mono />
+          </div>
+          <div className="flex items-center gap-3">
+            <Bead as="button" type="button" tint="sky" radius={999} onClick={pull} disabled={loading} className="no-ring flex h-11 min-w-[150px] items-center justify-center px-5 text-[14.5px] font-semibold text-ink disabled:opacity-60">
+              {loading ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden /> : "Importa commit"}
+            </Bead>
+            <span className="text-[13.5px] text-ink-2">{imp}</span>
+          </div>
+        </Bead>
+      )}
 
       <div className="flex items-center justify-between px-2">
         <span className="text-[12.5px] font-medium text-ink-2">Voci · {d.entries.length}</span>
@@ -135,7 +174,7 @@ function ReportForm({ report, onClose }: { report?: Report; onClose: () => void 
   );
 }
 
-function Row({ r, editing, onEdit, onClose }: { r: Report; editing: boolean; onEdit: () => void; onClose: () => void }) {
+function Row({ r, editing, onEdit, onClose, gh }: { r: Report; editing: boolean; onEdit: () => void; onClose: () => void; gh: Gh }) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [ask, setAsk] = useState(false);
@@ -190,12 +229,73 @@ function Row({ r, editing, onEdit, onClose }: { r: Report; editing: boolean; onE
           <Trash2 size={16} strokeWidth={1.7} />
         </button>
       </Bead>
-      {editing && <ReportForm report={r} onClose={onClose} />}
+      {editing && <ReportForm report={r} onClose={onClose} gh={gh} />}
     </li>
   );
 }
 
-export function ReportsAdmin({ reports }: { reports: Report[] }) {
+function GithubLink({ gh }: { gh: Gh }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [token, setToken] = useState("");
+  const [repo, setRepo] = useState(gh.repo);
+  const [err, setErr] = useState("");
+  const [busy, start] = useTransition();
+  return (
+    <div className="mt-4">
+      <Bead as="div" radius={26} className="flex items-center gap-3 p-3 pr-2">
+        <span aria-hidden className="ml-1 h-2 w-2 shrink-0 rounded-full" style={{ background: gh.connected ? "#30d158" : "color-mix(in srgb, var(--fg, #000) 30%, transparent)" }} />
+        <p className="min-w-0 flex-1 truncate text-[15px] text-ink">{gh.connected ? `GitHub · ${gh.login || "collegato"}${gh.repo ? ` · ${gh.repo}` : ""}` : "GitHub · non collegato"}</p>
+        {gh.connected && (
+          <button
+            type="button"
+            className="no-ring h-10 rounded-full px-3 text-[13.5px] text-ink-2 transition-colors hover:text-ink"
+            onClick={() =>
+              start(async () => {
+                await disconnectGithub();
+                router.refresh();
+              })
+            }
+          >
+            Scollega
+          </button>
+        )}
+        <button type="button" className="no-ring h-10 rounded-full px-3 text-[13.5px] font-medium text-ink" onClick={() => setOpen(!open)}>
+          {gh.connected ? "Modifica" : "Collega"}
+        </button>
+      </Bead>
+      {open && (
+        <form
+          className="mt-3 grid gap-4 rounded-[28px] p-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            start(async () => {
+              setErr("");
+              const r = await connectGithub(token, repo);
+              if (!r.ok) return setErr(r.error);
+              setToken("");
+              setOpen(false);
+              router.refresh();
+            });
+          }}
+        >
+          <Inp label="Token (sola lettura dei contenuti)" value={token} onChange={setToken} type="password" mono />
+          <Inp label="Repository predefinito" value={repo} onChange={setRepo} mono />
+          <div className="flex items-center gap-3">
+            <Bead as="button" type="submit" tint="sky" radius={999} disabled={busy} className="no-ring flex h-11 min-w-[120px] items-center justify-center px-5 text-[14.5px] font-semibold text-ink disabled:opacity-60">
+              {busy ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden /> : "Collega"}
+            </Bead>
+            <p role="alert" className="text-[13.5px] text-[#e5484d]">
+              {err}
+            </p>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
+
+export function ReportsAdmin({ reports, github }: { reports: Report[]; github: Gh }) {
   const [edit, setEdit] = useState<string | null>(null);
   return (
     <>
@@ -205,10 +305,11 @@ export function ReportsAdmin({ reports }: { reports: Report[] }) {
           <Plus size={20} strokeWidth={1.9} className={`transition-transform duration-300 ${edit === "new" ? "rotate-45" : ""}`} />
         </Bead>
       </div>
-      {edit === "new" && <ReportForm onClose={() => setEdit(null)} />}
+      <GithubLink gh={github} />
+      {edit === "new" && <ReportForm onClose={() => setEdit(null)} gh={github} />}
       <ul className="mt-4 grid gap-3">
         {reports.map((r) => (
-          <Row key={r.id + r.updated} r={r} editing={edit === r.id} onEdit={() => setEdit(r.id)} onClose={() => setEdit(null)} />
+          <Row key={r.id + r.updated} r={r} editing={edit === r.id} onEdit={() => setEdit(r.id)} onClose={() => setEdit(null)} gh={github} />
         ))}
       </ul>
     </>
