@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: r?.title ?? "Documento", robots: { index: false, follow: false } };
 }
 
-const TEST_COLOR: Record<Entry["test"], string> = { collaudato: "#30d158", parziale: "#f5a524", "da collaudare": "#e5484d", "n/a": "rgba(255,255,255,.35)" };
+const TEST_COLOR: Record<Entry["test"], string> = { collaudato: "#30d158", parziale: "#f5a524", "da collaudare": "#e5484d", "n/a": "#8a9aa5" };
 const STATE_COLOR: Record<string, string> = { aperto: "#e5484d", risolto: "#30d158", rinviato: "#f5a524" };
 const SEV_COLOR: Record<string, string> = { critica: "#e5484d", alta: "#ff8a3d", media: "#f5a524", bassa: "#5ec4ff" };
 
@@ -42,6 +42,7 @@ export default async function ReportPage({ params }: { params: Promise<{ locale:
     <>
       <main id="main" className={s.page}>
         <div className={s.wrap}>
+          <header className={s.hero}>
           <p className={s.eyebrow}>Documento tecnico{r.project ? ` · ${r.project}` : ""}</p>
           <h1 className={s.title}>{r.title}</h1>
           <div className={s.meta}>
@@ -52,6 +53,7 @@ export default async function ReportPage({ params }: { params: Promise<{ locale:
             <span>{fmt(r.date)}</span>
             {r.env && <span>{r.env}</span>}
           </div>
+          </header>
 
           <div className={s.tiles}>
             <div className={`${s.glass} ${s.tile}`}>
@@ -100,7 +102,7 @@ export default async function ReportPage({ params }: { params: Promise<{ locale:
                 </div>
                 <ul className={s.list}>
                   {list.map((e) => (
-                    <li key={e.id} className={`${s.glass} ${s.row}`}>
+                    <li key={e.id} className={`${s.glass} ${s.row}`} style={{ ["--rail" as string]: TEST_COLOR[e.test] }}>
                       <div>
                         <h3>{e.title}</h3>
                         {e.detail && <p>{e.detail}</p>}
